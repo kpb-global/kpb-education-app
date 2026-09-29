@@ -323,7 +323,11 @@ déploiement est couplé** : voir la file `/verification` ci-dessous.
   publication/*`, `admin` et `super_admin` seulement) : publier ou retirer un
   établissement et ses formations, simulation par défaut, relecteur = la session.
   Aucun client de l'app ne les appelle ; aucune ligne n'est publiée tant que
-  personne ne s'en sert. Détail : `docs/api-contracts.md`.
+  personne ne s'en sert. Détail : `docs/api-contracts.md`. **Couplage admin :** le
+  nouvel écran « Publication EEF » de l'admin appelle ces routes, donc le backend
+  part AVANT l'admin (un admin plus ancien n'a simplement pas l'écran). L'écran a
+  été exercé dans un navigateur contre un faux serveur qui réutilise le vrai plan
+  du backend (parcours complet, refus, retrait), pas contre une base de production.
 - **Logos des établissements : 320 px → 330 px.** Wikimedia refuse les largeurs
   hors liste standard (HTTP 400) : les 26 logos SVG de l'import ne s'affichaient
   pas. Le serveur sert désormais 330 px, y compris pour une ligne importée avec

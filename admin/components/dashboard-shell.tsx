@@ -98,6 +98,15 @@ const NAV_LINKS: readonly NavLinkDefinition[] = [
     visibleForRole: (role) =>
       hasAdminCapability(role, AdminCapability.ViewInterestList),
   },
+  {
+    href: '/etudes-en-france/publication',
+    labelKey: 'nav.eefPublication',
+    icon: 'eef',
+    // `EefPublicationController` n'accepte qu'Admin et SuperAdmin (pas
+    // ContentManager : il édite le catalogue mais ne signe pas sa publication).
+    visibleForRole: (role) =>
+      hasAdminCapability(role, AdminCapability.PublishEefCatalog),
+  },
   { href: '/service-sales', labelKey: 'nav.serviceSales', icon: 'serviceSales' },
   { href: '/community', labelKey: 'nav.community', icon: 'community' },
   {

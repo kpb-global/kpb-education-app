@@ -523,9 +523,11 @@ des lignes de cache de 24 heures. **Après la première publication, ne pas
 l'utiliser** : ce qui est publié n'est jamais candidat, et le réalignement des
 lignes publiées demande `eef:reconcile`.
 
-**Publier** (API admin, `docs/api-contracts.md` § « Admin — publication de
-l'import »). Il n'y a pas de commande en ligne : le relecteur inscrit est
-l'administrateur connecté, ce qu'un script ne peut pas être. Par établissement :
+**Publier** — écran **Admin → « Publication EEF »** (`/etudes-en-france/publication`,
+réservé à `admin` et `super_admin`), qui appelle l'API décrite dans
+`docs/api-contracts.md` § « Admin — publication de l'import ». Il n'y a pas de
+commande en ligne : le relecteur inscrit est l'administrateur connecté, ce qu'un
+script ne peut pas être. Par établissement :
 simulation (`apply` absent), lecture du plan — formations refusées et pourquoi —,
 puis écriture avec `expectedPrograms` égal au nombre annoncé. Le retrait est
 l'inverse exact et annonce combien d'étudiants perdent la formation de leur liste.
