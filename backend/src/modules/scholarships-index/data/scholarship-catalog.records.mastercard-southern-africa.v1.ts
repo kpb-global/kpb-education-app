@@ -165,8 +165,8 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     fundingLabel: ['Financement complet avec accompagnement global', 'Comprehensive funding with wraparound support'],
     fundingType: 'fully_funded',
     deadlineLabel: [
-      'Échéances officielles publiées pour la rentrée de janvier 2027 : 31 août 2026 en Licence et 30 septembre 2026 en postgrade ; la date d’ouverture n’est pas publiée et reste projetée',
-      'Published official deadlines for the January 2027 intake: 31 August 2026 for undergraduate and 30 September 2026 for postgraduate; the opening date is not published and remains projected',
+      'Clôturé — les candidatures pour la rentrée de janvier 2027 ont fermé (31 août 2026 en Licence, 30 septembre 2026 en postgrade) ; prochain cycle non publié',
+      'Closed — applications for the January 2027 intake closed (31 August 2026 for undergraduate, 30 September 2026 for postgraduate); next cycle not published',
     ],
     description: [
       'Déclinaison concrète et actionnable du Mastercard Foundation Scholars Program, à UP depuis janvier 2014 et en phase 2 depuis décembre 2023. Le calendrier est sud-africain : la rentrée a lieu en janvier, donc les échéances tombent au milieu de l’année civile précédente, pas en septembre. L’ordre est imposé : il faut d’abord être admis à un diplôme UP — la page officielle indique une candidature jusqu’au 30 juin 2026 — puis envoyer le formulaire MCFSP 2027 à mcfsp@up.ac.za avant le 31 août 2026 en Licence ou le 30 septembre 2026 en postgrade. Un entretien précède toute admission au programme.',
@@ -218,7 +218,11 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
       // `closesAt` porte le 30 septembre (postgrade), échéance la plus tardive
       // des deux, pour ne pas retirer la bourse des listes des candidats en
       // postgrade dès le 31 août. Les deux dates sont dans le deadlineLabel.
-      status: 'open',
+      //
+      // Passé `closed` le 30/09/2026 après 21:59 UTC, heure de la clôture
+      // postgrade. Aucune source relue pour ce geste : c'est la date publiée
+      // qui est échue, `checkedAt` ne bouge donc pas.
+      status: 'closed',
       dateConfidence: 'confirmed',
       closesAt: '2026-09-30T21:59:00.000Z',
       sourceUrl: 'https://www.up.ac.za/mastercard-foundation-scholars-program/how-apply',
