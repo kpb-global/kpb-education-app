@@ -23,10 +23,14 @@ import { Injectable } from '@nestjs/common';
 import type { PrismaClient } from '@prisma/client';
 
 import { catalogUnavailable } from '../../catalog/catalog-degraded-mode';
-import { mapProgram } from '../../catalog/catalog.mapper';
 import { PrismaService } from '../../prisma/prisma.service';
 import { resolveFranceCountryId } from '../catalog/eef-country';
-import { loadPublishedInstitutionIds } from '../catalog/eef-published-institutions';
+import {
+  loadPublishedInstitutions,
+  publishedInstitutionIds,
+  type PublishedInstitution,
+} from '../catalog/eef-published-institutions';
+import { mapEefProgram } from '../catalog/eef-program-view';
 import { resolveEefPath, type EefDeclaration } from './eef-shortlist.path';
 import {
   EEF_CANDIDATE_STRATA,
@@ -137,8 +141,12 @@ export class EefShortlistService {
     // Lus UNE fois puis passés à chaque requête d'étage et de total : ils
     // décrivent ainsi tous le même ensemble d'établissements. Une formation dont
     // l'établissement n'a jamais été relu ne se recommande pas.
-    const publishedInstitutionIds = await this.run((prisma) =>
-      loadPublishedInstitutionIds(prisma, countryId),
+    const institutions = await this.run((prisma) =>
+      loadPublishedInstitutions(prisma, countryId),
+    );
+    const publishedIds = publishedInstitutionIds(institutions);
+    const institutionsById = new Map<string, PublishedInstitution>(
+      institutions.map((institution) => [institution.id, institution]),
     );
 
     // Une seule transaction pour les étages ET leurs totaux : servis
@@ -159,9 +167,9 @@ export class EefShortlistService {
                 declaredFieldIds,
                 tier,
                 stratum,
-                publishedInstitutionIds,
+                publishedInstitutionIds: publishedIds,
               }),
-              // La ligne ENTIÈRE : `mapProgram` sert le même objet que la
+              // La ligne ENTIÈRE : `mapEefProgram` sert le même objet que la
               // recherche, et servir une fiche amputée obligerait le client à
               // deux lectures différentes de la même formation.
               orderBy: EEF_SHORTLIST_ORDER_BY,
@@ -181,7 +189,7 @@ export class EefShortlistService {
                 // `linked` seule aurait pu annoncer un total inférieur au
                 // nombre servi.
                 stratum: 'any',
-                publishedInstitutionIds,
+                publishedInstitutionIds: publishedIds,
               }),
             }),
           ),
@@ -218,7 +226,7 @@ export class EefShortlistService {
           tier,
           total: Number(totals[tierIndex] ?? 0),
           items: rows.map((row) => ({
-            program: mapProgram(row as never),
+            program: mapEefProgram(row as never, institutionsById),
             reasons: reasonsFor(
               row as unknown as EefCandidateRow,
               declaredFieldIds,

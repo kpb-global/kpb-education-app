@@ -99,7 +99,11 @@ void main() {
     // impossible à éteindre sans redéploiement du fichier compose, alors que
     // tout l'intérêt de cette architecture est l'inverse.
     final compose = File('docker-compose.yml').readAsStringSync();
-    for (final flag in ['KPB_EEF_TEASER_ENABLED', 'KPB_EEF_ENABLED']) {
+    for (final flag in [
+      'KPB_EEF_TEASER_ENABLED',
+      'KPB_EEF_SPACE_ENABLED',
+      'KPB_EEF_ENABLED',
+    ]) {
       expect(
         compose,
         contains('- $flag=\${$flag:-false}'),

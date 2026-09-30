@@ -114,6 +114,45 @@ describe('planEefImport', () => {
     expect(master.cycle).toBe('master');
   });
 
+  it('écrit le texte cherchable normalisé : intitulé ET ville, sans accents', () => {
+    const plan = planEefImport(
+      {
+        ...CATALOG,
+        universities: [
+          {
+            institution: INSTITUTION,
+            programs: [
+              { ...LICENCE, nameFr: 'Génie civil', campusCity: 'Besançon' },
+              MASTER,
+            ],
+          },
+        ],
+      },
+      'france',
+    );
+    const [licence, master] = plan.programs;
+    expect(licence.searchText).toBe('genie civil besancon');
+    // Le préfixe « Master — » de l'intitulé servi fait partie du texte cherchable.
+    expect(master.searchText).toBe('master science politique rennes');
+  });
+
+  it('écrit le sigle de l’établissement, nul quand le ministère n’en publie pas', () => {
+    const withAcronym = planEefImport(
+      {
+        ...CATALOG,
+        universities: [
+          {
+            institution: { ...INSTITUTION, acronym: 'UR' },
+            programs: [LICENCE],
+          },
+        ],
+      },
+      'france',
+    );
+    expect(withAcronym.institutions[0].acronym).toBe('UR');
+    expect(planEefImport(CATALOG, 'france').institutions[0].acronym).toBeNull();
+  });
+
   it('préfixe une mention de master, laisse la filière Parcoursup telle quelle', () => {
     const [licence, master] = plan.programs;
     expect(licence.nameFr).toBe('L1 - Droit');

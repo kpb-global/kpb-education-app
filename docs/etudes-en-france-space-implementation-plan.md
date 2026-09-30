@@ -145,6 +145,11 @@ variables d'environnement, avec kill switch et pourcentage de déploiement
   l'espace, éteinte** (écrans, routes, décodeurs, entrées de navigation).
 - Le jour J : `KPB_EEF_ENABLED=true` côté serveur. L'espace apparaît. Aucun
   store, aucun délai, retour arrière en une variable.
+  > **Remplacé le 30/09/2026.** Ce commutateur ouvrirait l'espace à TOUTES les
+  > builds, dont les 49 à 53 qui n'ont qu'une coquille vide. L'espace réel de la
+  > build 54 s'ouvre par `KPB_EEF_SPACE_ENABLED=true` (`features.eefSpace`,
+  > action vps-ops `eef-space-on`), qui n'ôte pas leur vitrine aux anciennes
+  > builds. `KPB_EEF_ENABLED` ne se pose plus.
 - Le contenu (catalogue, formations, dates) arrive par `/catalog/*` et
   `/etudes-en-france/*`, donc **sans binaire neuf** — c'est exactement ce que
   `catalog_remote_sync.dart` fait déjà pour le catalogue existant.
@@ -579,7 +584,7 @@ que `IntakeCalendar` porte en commentaire.
 | après déploiement | `prisma migrate deploy`, puis les 3 variables `KPB_EEF_*` (voir `docs/release-ledger.md`) | Non |
 | 21/08 → **23/09** | **Phase 1 : le catalogue dense** (collecte, vérification, import) | Non |
 | en parallèle | Rédaction du contenu : projet d'études, lettres par procédure, questions d'entretien | Non |
-| **01/10/2026** | Ouverture de la campagne → `KPB_EEF_ENABLED=true` | Non |
+| **01/10/2026** | Ouverture de la campagne : vitrine + notification. L'espace réel s'ouvre plus tard, par `eef-space-on` (`KPB_EEF_SPACE_ENABLED`), jamais par `KPB_EEF_ENABLED` | Non |
 | 01/10 → mi-oct | Phase 2 : matching et shortlist | Non si la coquille l'a prévu |
 | après cutover 49 | Phase 3 : bascule `aiToolsEnabled` + contenu spécifique | Non |
 | mi-oct → fin oct | Phase 4 : `Entitlement` + pack Premium | Non (pack = prestation) |
@@ -593,7 +598,8 @@ bascule de drapeau, et il vaut mieux l'écrire ici que de le découvrir ce jour-
   éteinte ; une variable suffit. Rien n'oblige à attendre le 23/09 pour
   commencer à collecter les intérêts — au contraire, chaque jour d'avance est un
   jour de liste.
-- **L'espace réel est une coquille vide.** `KPB_EEF_ENABLED=true` le 23/09
+- **L'espace réel est une coquille vide.** (Le commutateur s'appelle désormais
+  `KPB_EEF_SPACE_ENABLED` : `KPB_EEF_ENABLED` ne se pose plus.) `KPB_EEF_ENABLED=true` le 23/09
   afficherait un espace sans catalogue, sans matching et sans contenu. Le
   drapeau existe, la matière non.
 - Donc **le 23/09 est une date de livraison de la Phase 1**, pas une bascule.

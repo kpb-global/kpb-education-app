@@ -316,14 +316,14 @@ const DOORS: Readonly<Record<string, Door>> = {
     reason:
       'La recherche de l’espace EEF : elle sert les lignes de l’import, à '
       + 'condition que leur établissement soit publié.',
-    scoped: { search: ['loadPublishedInstitutionIds'] },
-    accesses: 3,
+    scoped: { search: ['loadPublishedInstitutions'] },
+    accesses: 4,
   },
   'modules/etudes-en-france/shortlist/eef-shortlist.service.ts': {
     reason:
       'La shortlist de l’espace EEF : une recommandation nominative n’a pas le '
       + 'droit de s’appuyer sur un établissement que personne n’a relu.',
-    scoped: { getShortlist: ['loadPublishedInstitutionIds'] },
+    scoped: { getShortlist: ['loadPublishedInstitutions'] },
     accesses: 2,
   },
   'modules/etudes-en-france/catalog/eef-published-institutions.ts': {
@@ -331,7 +331,7 @@ const DOORS: Readonly<Record<string, Door>> = {
       'C’est LUI qui définit la portée de l’espace EEF : la liste des '
       + 'établissements publiés. Il lit `Institution` pour la construire.',
     scoped: {},
-    unscoped: ['loadPublishedInstitutionIds'],
+    unscoped: ['loadPublishedInstitutions'],
     accesses: 1,
   },
   'modules/reports/reports.service.ts': {
@@ -460,7 +460,7 @@ describe('provenance — aucune porte sans garde', () => {
           ? 'ok'
           : 'Un fichier qui lit Program ou Institution doit figurer dans DOORS avec '
             + 'la méthode qui lit et la fonction de portée qu’elle appelle '
-            + '(notEefProgram, notEefInstitution, loadPublishedInstitutionIds…). '
+            + '(notEefProgram, notEefInstitution, loadPublishedInstitutions…). '
             + 'Une entrée sans lecteur est un droit d’accès oublié : retire-la.',
     }).toEqual({ undeclared: [], dead: [], howTo: 'ok' });
   });

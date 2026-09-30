@@ -17,9 +17,14 @@ cd "$VPS_PATH"
 # C'est exactement le défaut mesuré en août (LIV-T15) : les variables posées
 # dans .env, absentes du bloc `environment:`, et un opérateur envoyé chercher
 # une faute de frappe dans un fichier qui n'en avait pas.
+#
+# Sans argument : les trois clés de la vitrine. Avec des arguments : ces clés-là
+# (l'espace réel n'a besoin que de la sienne).
 require_relay() {
   local missing=0
-  for key in KPB_EEF_TEASER_ENABLED KPB_EEF_CAMPAIGN_OPENS_AT KPB_EEF_SUSPENDED_COUNTRIES; do
+  local keys=("$@")
+  [ "${#keys[@]}" -gt 0 ] || keys=(KPB_EEF_TEASER_ENABLED KPB_EEF_CAMPAIGN_OPENS_AT KPB_EEF_SUSPENDED_COUNTRIES)
+  for key in "${keys[@]}"; do
     grep -q -- "- ${key}=\${${key}" docker-compose.yml || { echo "::error::${key} n'est pas relayée dans docker-compose.yml — poser le .env n'aurait aucun effet. Le VPS tourne un checkout antérieur au correctif du relais."; missing=1; }
   done
   [ "$missing" -eq 0 ] || exit 1
@@ -448,6 +453,33 @@ recreate_clamav() {
   return 1
 }
 
+# ── Fenêtre de campagne « Études en France » ───────────────────────────────
+#
+# Les valeurs sont ÉCRITES ICI, en clair, et non saisies au déclenchement : le
+# workflow n'accepte aucune valeur libre (un secret de déploiement ne devient
+# pas un shell distant). Les changer passe donc par une PR, relue — c'est voulu
+# pour ce qui s'affiche à des étudiants comme une date ou un pays « suspendu ».
+#
+#   • OPENS_AT  : le jour d'ouverture de la campagne, `AAAA-MM-JJ` (jour nu).
+#   • CLOSES_AT : VIDE tant qu'aucune clôture GLOBALE n'est annoncée. Elle varie
+#                 par pays (Maroc, Sénégal…) et un jour unique serait faux pour
+#                 la plupart des étudiants. À renseigner par PR, pas avant.
+#   • SUSPENDED : les pays où le service ne traite pas les dossiers — à
+#                 revérifier sur les sources officielles avant chaque usage.
+EEF_CAMPAIGN_OPENS_AT="2026-10-01"
+EEF_CAMPAIGN_CLOSES_AT=""
+EEF_CAMPAIGN_SUSPENDED="Niger,NE"
+
+# Nombre de formations de l'import que la recherche SERVIRAIT : active, sous un
+# établissement actif, du périmètre de l'import (même définition que
+# `eefProgramWhere` côté serveur). Zéro = un espace qui s'ouvrirait VIDE.
+eef_visible_programs() {
+  docker compose exec -T db psql -v ON_ERROR_STOP=1 -tA \
+    -U "$(grep -E '^POSTGRES_USER=' .env | cut -d= -f2-)" \
+    -d "$(grep -E '^POSTGRES_DB=' .env | cut -d= -f2-)" \
+    -c "SELECT count(*) FROM \"Program\" p JOIN \"Institution\" i ON i.id = p.\"institutionId\" WHERE p.\"isActive\" AND i.\"isActive\" AND (p.id LIKE 'eef-prog-%' OR i.id LIKE 'eef-univ-%');"
+}
+
 show_state() {
   echo "── Drapeaux EEF dans le .env ──"
   grep -E '^KPB_EEF' .env || echo "(aucune variable KPB_EEF posée)"
@@ -478,14 +510,75 @@ case "$ACTION" in
     require_relay
     cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
     set_env_key KPB_EEF_TEASER_ENABLED true
-    set_env_key KPB_EEF_CAMPAIGN_OPENS_AT 2026-10-01
-    set_env_key KPB_EEF_SUSPENDED_COUNTRIES Niger,NE
+    set_env_key KPB_EEF_CAMPAIGN_OPENS_AT "$EEF_CAMPAIGN_OPENS_AT"
+    set_env_key KPB_EEF_SUSPENDED_COUNTRIES "$EEF_CAMPAIGN_SUSPENDED"
     # KPB_EEF_ENABLED reste ABSENT à dessein : il retire la vitrine de lui-même
-    # et afficherait l'espace réel, qui est une coquille vide en Phase 0.
+    # et afficherait l'espace réel aux builds 49 à 53, qui n'ont qu'une coquille
+    # vide. L'espace de la build 54 s'ouvre par `eef-space-on`, pas par là.
     if grep -qE '^KPB_EEF_ENABLED=true' .env; then
       echo "::error::KPB_EEF_ENABLED=true est posé : il désactive la vitrine et afficherait un espace VIDE. Le retirer avant de continuer."
       exit 1
     fi
+    echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
+    recreate_api_same_image
+    ;;
+
+  eef-space-on)
+    # Ouvre l'espace RÉEL pour la seule build 54 (`features.eefSpace`). N'écrit
+    # QUE `KPB_EEF_SPACE_ENABLED` : la vitrine des builds 49 à 53 n'est pas
+    # touchée, et c'est tout l'intérêt de cette clé.
+    #
+    # Par défaut, SIMULATION : les contrôles sont faits, rien n'est écrit.
+    require_relay KPB_EEF_SPACE_ENABLED
+    if grep -qE '^KPB_EEF_ENABLED=true' .env; then
+      echo "::error::KPB_EEF_ENABLED=true est posé : c'est l'ANCIEN commutateur, que lisent aussi les builds 49 à 53 — il retire leur vitrine et leur montre un espace vide. Le retirer, puis utiliser cette action."
+      exit 1
+    fi
+    visible="$(eef_visible_programs | tr -d '[:space:]')"
+    case "$visible" in
+      ''|*[!0-9]*) echo "::error::décompte des formations publiées illisible (« ${visible:-<vide>} ») — ne pas ouvrir à l'aveugle"; exit 1 ;;
+    esac
+    echo "formations de l'import que la recherche servirait : ${visible}"
+    if [ "$visible" -eq 0 ]; then
+      echo "::error::aucune formation de l'import n'est publiée : l'espace s'ouvrirait VIDE. Publier d'abord un établissement relu (admin → « Publication EEF »)."
+      exit 1
+    fi
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION : les contrôles passent, rien n'est écrit. Décocher « dry_run » pour ouvrir l'espace. ──"
+      exit 0
+    fi
+    cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+    set_env_key KPB_EEF_SPACE_ENABLED true
+    echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
+    recreate_api_same_image
+    ;;
+
+  eef-space-off)
+    # Le retour arrière : pas de simulation, il doit agir tout de suite.
+    require_relay KPB_EEF_SPACE_ENABLED
+    cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+    set_env_key KPB_EEF_SPACE_ENABLED false
+    echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
+    recreate_api_same_image
+    ;;
+
+  eef-campaign-set)
+    # Pose la fenêtre de campagne ci-dessus (ouverture, clôture, pays suspendus)
+    # SANS toucher à la vitrine ni à l'espace : changer une date ou lever la
+    # suspension d'un pays ne doit pas dépendre d'un autre interrupteur.
+    require_relay KPB_EEF_CAMPAIGN_OPENS_AT KPB_EEF_CAMPAIGN_CLOSES_AT KPB_EEF_SUSPENDED_COUNTRIES
+    echo "── Fenêtre à poser (relue en PR) ──"
+    echo "KPB_EEF_CAMPAIGN_OPENS_AT=${EEF_CAMPAIGN_OPENS_AT}"
+    echo "KPB_EEF_CAMPAIGN_CLOSES_AT=${EEF_CAMPAIGN_CLOSES_AT}"
+    echo "KPB_EEF_SUSPENDED_COUNTRIES=${EEF_CAMPAIGN_SUSPENDED}"
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION : rien n'est écrit. Décocher « dry_run » pour appliquer. ──"
+      exit 0
+    fi
+    cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+    set_env_key KPB_EEF_CAMPAIGN_OPENS_AT "$EEF_CAMPAIGN_OPENS_AT"
+    set_env_key KPB_EEF_CAMPAIGN_CLOSES_AT "$EEF_CAMPAIGN_CLOSES_AT"
+    set_env_key KPB_EEF_SUSPENDED_COUNTRIES "$EEF_CAMPAIGN_SUSPENDED"
     echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
     recreate_api_same_image
     ;;
@@ -680,6 +773,7 @@ case "$ACTION" in
       docker compose exec -T api npm run eef:import:dry-run
       docker compose exec -T api npm run eef:backfill:cycle:dry-run
       docker compose exec -T api npm run eef:backfill:admission:dry-run
+      docker compose exec -T api npm run eef:backfill:search:dry-run
       docker compose exec -T api npm run eef:backfill -- --dry-run
     else
       if ! docker compose exec -T api test -f dist/common/eef-provenance.js; then
@@ -690,6 +784,7 @@ case "$ACTION" in
       docker compose exec -T api npm run eef:import
       docker compose exec -T api npm run eef:backfill:cycle
       docker compose exec -T api npm run eef:backfill:admission
+      docker compose exec -T api npm run eef:backfill:search
       docker compose exec -T api npm run eef:backfill -- --apply
       echo
       echo "── Preuve : un second passage ne crée plus rien ──"

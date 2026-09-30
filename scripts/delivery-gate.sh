@@ -83,13 +83,13 @@ fetch "${BASE}/config/app" \
 import json, sys
 d = json.load(sys.stdin)
 features = d.get('features') or {}
-for key in ('eefTeaser', 'eef'):
+for key in ('eefTeaser', 'eef', 'eefSpace'):
     assert key in features, f'features.{key} absent — ancienne image en prod'
 campaign = d.get('eefCampaign')
 assert isinstance(campaign, dict), f'eefCampaign absent ou mal typé: {campaign!r}'
 for key in ('opensAt', 'closesAt', 'suspendedCountries'):
     assert key in campaign, f'eefCampaign.{key} absent'
-print('features.eefTeaser=', features['eefTeaser'], '· features.eef=', features['eef'])
+print('features.eefTeaser=', features['eefTeaser'], '· features.eef=', features['eef'], '· features.eefSpace=', features['eefSpace'])
 print('eefCampaign.opensAt=', campaign['opensAt'])
 print('eefCampaign.suspendedCountries=', campaign['suspendedCountries'])
 "

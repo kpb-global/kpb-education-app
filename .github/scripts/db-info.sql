@@ -92,4 +92,18 @@ FROM "Field" f
 LEFT JOIN "Program" p ON p."fieldId" = f."id" AND p."id" LIKE 'eef-prog-%'
 GROUP BY 1, 2 ORDER BY 1;
 
+\echo ''
+\echo '=== 11. Texte cherchable des formations de l import (a combler par eef:backfill:search) ==='
+-- Sans texte normalise, la recherche libre retombe sur la comparaison brute :
+-- « genie » ne trouve alors pas « Genie civil ». 0 = rien a faire. La requete est
+-- construite par \gexec pour ne pas echouer sur une base dont le backend n est pas
+-- encore deploye (colonne absente).
+SELECT 'SELECT COUNT(*) AS formations_import, COUNT(*) FILTER (WHERE "searchText" IS NULL) AS sans_texte_cherchable FROM "Program" WHERE id LIKE ''eef-prog-%'''
+WHERE EXISTS (SELECT 1 FROM information_schema.columns
+              WHERE table_name = 'Program' AND column_name = 'searchText')
+\gexec
+SELECT 'colonne Program.searchText absente : deployer le backend (migration) d abord' AS etat
+WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns
+                  WHERE table_name = 'Program' AND column_name = 'searchText');
+
 COMMIT;

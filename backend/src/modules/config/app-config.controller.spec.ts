@@ -21,6 +21,7 @@ describe('AppConfigController', () => {
       process.env.KPB_SUCCESS_LAB_ROLLOUT_PERCENT,
     KPB_FEATURE_ROLLOUT_SECRET: process.env.KPB_FEATURE_ROLLOUT_SECRET,
     KPB_EEF_ENABLED: process.env.KPB_EEF_ENABLED,
+    KPB_EEF_SPACE_ENABLED: process.env.KPB_EEF_SPACE_ENABLED,
     KPB_EEF_TEASER_ENABLED: process.env.KPB_EEF_TEASER_ENABLED,
     KPB_EEF_CAMPAIGN_OPENS_AT: process.env.KPB_EEF_CAMPAIGN_OPENS_AT,
     KPB_EEF_CAMPAIGN_CLOSES_AT: process.env.KPB_EEF_CAMPAIGN_CLOSES_AT,
@@ -65,6 +66,7 @@ describe('AppConfigController', () => {
       publicImpactStats: false,
       eefTeaser: false,
       eef: false,
+      eefSpace: false,
     });
     expect(config.eefCampaign).toEqual({
       opensAt: null,
@@ -135,6 +137,56 @@ describe('AppConfigController', () => {
 
     expect(config.features.eefTeaser).toBe(true);
     expect(config.features.eef).toBe(false);
+  });
+
+  // `eefSpace` ouvre l'espace réel pour la seule build 54. Il ne peut PAS
+  // passer par `eef`, que les builds 49 à 53 lisent aussi : pour elles, `eef`
+  // retire la vitrine et affiche un espace vide.
+  describe('eefSpace — l\'ouverture de l\'espace pour la seule build 54', () => {
+    it('est fermé par défaut', () => {
+      expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(false);
+    });
+
+    it('s\'ouvre SANS toucher à la vitrine ni à `eef` que lisent les builds ≤ 53', () => {
+      process.env.KPB_EEF_TEASER_ENABLED = 'true';
+      process.env.KPB_EEF_SPACE_ENABLED = 'true';
+
+      const { features } = new AppConfigController().getAppConfig();
+
+      expect(features.eefSpace).toBe(true);
+      // Ce que voit une build 53 n'a pas bougé d'un octet.
+      expect(features.eefTeaser).toBe(true);
+      expect(features.eef).toBe(false);
+    });
+
+    it('ne s\'ouvre pas sur une autre valeur que « true »', () => {
+      for (const value of ['1', 'yes', 'on', 'false', '', 'TRUEISH']) {
+        process.env.KPB_EEF_SPACE_ENABLED = value;
+        expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(false);
+      }
+      process.env.KPB_EEF_SPACE_ENABLED = ' TRUE ';
+      expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(true);
+    });
+
+    it('l\'ancien commutateur `eef` ouvre aussi l\'espace de la 54', () => {
+      process.env.KPB_EEF_ENABLED = 'true';
+
+      const { features } = new AppConfigController().getAppConfig();
+
+      expect(features.eef).toBe(true);
+      expect(features.eefSpace).toBe(true);
+    });
+
+    it('éteindre `eefSpace` ne rallume ni ne retire rien d\'autre', () => {
+      process.env.KPB_EEF_TEASER_ENABLED = 'true';
+      process.env.KPB_EEF_SPACE_ENABLED = 'false';
+
+      expect(new AppConfigController().getAppConfig().features).toMatchObject({
+        eefTeaser: true,
+        eef: false,
+        eefSpace: false,
+      });
+    });
   });
 
   // Une faute de frappe dans une variable de déploiement ne doit pas faire

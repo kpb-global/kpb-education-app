@@ -1,8 +1,45 @@
 import type { PrismaClient } from '@prisma/client';
 
+/// Ce qu'une réponse de l'espace a le droit de dire d'un établissement PUBLIÉ :
+/// de quoi l'afficher sur une carte (nom, ville, logo et sa licence) et le
+/// retrouver par son nom ou son sigle. Ni la présentation ni l'effectif daté :
+/// c'est la fiche, pas la carte.
+export interface PublishedInstitution {
+  readonly id: string;
+  readonly nameFr: string;
+  readonly nameEn: string;
+  readonly acronym: string | null;
+  readonly locationFr: string;
+  readonly locationEn: string;
+  readonly institutionType: string | null;
+  readonly websiteUrl: string | null;
+  readonly logoUrl: string | null;
+  readonly logoSourceUrl: string | null;
+  readonly logoLicence: string | null;
+}
+
+const PUBLISHED_INSTITUTION_SELECT = {
+  id: true,
+  nameFr: true,
+  nameEn: true,
+  acronym: true,
+  locationFr: true,
+  locationEn: true,
+  institutionType: true,
+  websiteUrl: true,
+  logoUrl: true,
+  logoSourceUrl: true,
+  logoLicence: true,
+} as const;
+
 /**
- * Les identifiants des établissements PUBLIÉS du pays — ceux dont une formation
- * a le droit d'être servie.
+ * Les établissements PUBLIÉS du pays — ceux dont une formation a le droit d'être
+ * servie — avec de quoi les nommer sur une carte.
+ *
+ * Les clauses `IN` n'en consomment que les identifiants (`publishedInstitutionIds`) ;
+ * le reste sert à DIRE, dans chaque item, de quelle université il s'agit. Une
+ * seule lecture pour les deux usages : deux lectures pourraient décrire deux
+ * ensembles différents d'établissements dans la même réponse.
  *
  * ## Le défaut que cette liste ferme
  *
@@ -47,14 +84,20 @@ import type { PrismaClient } from '@prisma/client';
  * donc prouvée directement (`eef-provenance.postgres.spec.ts`), pas déduite de
  * l'état d'une base.
  */
-export async function loadPublishedInstitutionIds(
+export async function loadPublishedInstitutions(
   prisma: Pick<PrismaClient, 'institution'>,
   countryId: string,
-): Promise<string[]> {
-  const rows = await prisma.institution.findMany({
+): Promise<PublishedInstitution[]> {
+  return prisma.institution.findMany({
     where: { isActive: true, countryId },
-    select: { id: true },
+    select: PUBLISHED_INSTITUTION_SELECT,
     orderBy: { id: 'asc' },
   });
-  return rows.map((row) => row.id);
+}
+
+/// Les identifiants seuls : ce que les clauses `IN` des requêtes consomment.
+export function publishedInstitutionIds(
+  institutions: readonly PublishedInstitution[],
+): string[] {
+  return institutions.map((institution) => institution.id);
 }

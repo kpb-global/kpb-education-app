@@ -252,7 +252,7 @@ déclaration d'intérêt, qui lui est authentifié au niveau de la classe.
 
 | Paramètre | Forme | Notes |
 |---|---|---|
-| `q` | texte | découpé en mots (6 max). Chaque mot doit apparaître dans l'intitulé **ou** la ville — « droit rennes » fonctionne. |
+| `q` | texte | découpé en mots (6 max, 10 après découpage des composés). **Tous** les mots doivent être satisfaits ; un mot l'est s'il figure dans l'intitulé ou la ville, **sans tenir compte des accents ni de la casse** (« genie » trouve « Génie civil »), s'il désigne l'**établissement** par un mot de son nom ou son sigle (« sorbonne », « UPEC »), ou s'il désigne un **niveau** (« licence », « master », « L2 »). Voir *Ce que la recherche libre comprend*. |
 | `procedureType` | CSV | `dap_blanche`, `dap_jaune`, `eef`, `parcoursup`, `hors_eef` |
 | `cycle` | CSV | `licence1`, `licence2`, `licence3`, `but1`, `deust`, `sante`, `ingenieur`, `master` |
 | `fieldId` | CSV | `d01`..`d12` |
@@ -289,9 +289,60 @@ borne se fabrique avec une simple URL.
     "campusCity": ["…"], "institutionId": ["…"]
   },
   "facetsTruncated": ["campusCity", "institutionId"],
+  "catalogPublished": true,
   "source": "database"
 }
 ```
+
+### Ce que chaque item porte
+
+La forme de `GET /catalog/programs`, **plus** (ajouts seulement : un client qui ne
+connaît que la première forme continue de tout lire) :
+
+| Champ | Sens |
+|---|---|
+| `procedureType`, `cycle`, `selectivity` | la procédure (DAP blanche, Études en France…), le cycle exact, la sélectivité publiée |
+| `campusCity`, `formationCode` | où se déroule la formation, son code officiel |
+| `recommendedBachelors`, `admissionModes` | licences conseillées à l'entrée et modalités de candidature, telles que l'établissement les publie |
+| `institution` | l'établissement, en résumé : `id`, `name`, `acronym`, `location`, `institutionType`, `websiteUrl`, `logoUrl` (servi à la largeur standard de Wikimedia), `logoSourceUrl`, `logoLicence` |
+
+`institution` est servi aussi dans les items de la **shortlist**
+(`tiers[].items[].program`). Sans lui, « L1 - Droit » — proposée par quarante
+universités — s'affichait quarante fois sans qu'aucune soit nommée. Il ne porte
+ni la présentation ni l'effectif daté (c'est la fiche) ; il est `null` si
+l'établissement n'est plus dans la liste des établissements publiés, ce que la
+clause de la requête exclut déjà.
+
+### `catalogPublished`
+
+Vrai si le catalogue publié contient **au moins une formation, quel que soit le
+filtre**. Faux ⇒ rien n'est encore publié : l'écran doit dire « le catalogue
+arrive », pas « ta recherche est trop étroite » — ce que `total: 0` seul ne
+permet pas de distinguer. Sans filtre, `total` répond ; avec un filtre, une sonde
+(une seule formation publiée, sans aucun filtre) est posée **dans la même
+transaction** que la page, le total et les facettes : lue après, une publication
+survenue entre les deux ferait coexister un résultat vide d'un instant et un
+`catalogPublished` d'un autre.
+
+### Ce que la recherche libre comprend
+
+- **Sans accents.** La comparaison se fait sur `Program.searchText` (intitulé +
+  ville, normalisés : minuscules, sans accents, ponctuation en espaces), écrit à
+  l'import, **recalculé quand l'intitulé est modifié dans l'admin**, et rattrapé
+  sur les lignes existantes par `npm run eef:backfill:search` (qui comble les
+  vides ET répare les textes périmés). Une ligne dont ce texte est encore nul
+  retombe sur la comparaison brute d'avant (insensible à la casse, pas aux
+  accents) : **jamais moins de résultats qu'avant**.
+- **Par établissement.** Un mot désigne un établissement s'il **commence** un mot
+  de son nom, ou s'il est son sigle (`Institution.acronym`, publié par le
+  ministère). Jamais par un morceau au milieu d'un mot, et sous trois lettres seul
+  le sigle entier compte. Seuls les établissements **publiés** sont candidats : un
+  établissement en attente n'est trouvable par personne.
+- **Par niveau.** `licence` → L1, L2, L3, licence pro ; `bachelor` → les mêmes et
+  BUT ; `l1`/`l2`/`l3`, `master` (`m1`, `m2`), `but`, `deust`, `ingenieur`.
+- **Les mots vides** (`de`, `la`, `et`…) sont ignorés, sauf s'il n'y a rien
+  d'autre. Un mot composé (« paris-saclay », « l'économie ») est découpé en ses
+  mots.
 
 ### Ce que la pagination garantit
 
@@ -605,6 +656,30 @@ dernier consentement donné.
 
 L'écriture est un `upsert` sur `userId` (unique) : une redéclaration corrige la
 ligne au lieu d'en créer une seconde.
+
+### `PATCH /etudes-en-france/interest`
+
+Met à jour les **niveaux et les domaines** d'une déclaration existante — rien
+d'autre. Comptes `student` seulement.
+
+```json
+{ "targetLevel": "master", "fieldIds": ["d07", "d02"] }
+```
+
+- **Ne touche ni au consentement ni à l'intérêt Premium.** `POST` est un
+  remplacement complet : `wantsPremium` retombe à `false` s'il n'est pas renvoyé
+  et `consentedAt` / `consentVersion` sont réécrits à chaque appel. S'en servir
+  pour « modifier mon profil » effacerait l'intérêt Premium et fabriquerait un
+  consentement au rappel commercial que l'étudiant n'a pas redonné. Le `PATCH`
+  n'écrit que les colonnes reçues ; `consent`, `consentVersion`, `wantsPremium`
+  (et tout champ inconnu) sont **refusés en 400**, pas ignorés.
+- **Trois états par champ** : absent = inchangé ; chaîne vide ou tableau vide =
+  effacé ; valeur = remplacée. `null` est refusé (400).
+- **Corps sans aucun champ** : 400.
+- **Sans déclaration préalable : 404 `EEF_INTEREST_NOT_DECLARED`**, jamais une
+  création — la ligne existerait sans consentement. Le client passe par `POST` et
+  sa feuille de consentement.
+- Réponse : la même forme que `POST`, avec le `consentedAt` **d'origine**.
 
 ### `DELETE /etudes-en-france/interest`
 

@@ -33,6 +33,7 @@ import {
   programRequirements,
 } from './eef-catalog.copy';
 import { recommendedFieldIdsOf } from './eef-admission-signals';
+import { programSearchText } from './eef-search-text';
 import type { EefCatalog, EefProgramRecord } from './eef-catalog.types';
 
 /// Une ligne `Institution` prête à écrire. Les noms de champs sont ceux du
@@ -60,6 +61,9 @@ export interface PlannedInstitution {
   readonly isActive: false;
   readonly institutionType: string;
   readonly uaiCode: string;
+  /// Le sigle publié par le ministère (« UPEC », « ENS Lyon »), pour retrouver
+  /// l'établissement quand l'étudiant tape son sigle plutôt que son nom.
+  readonly acronym: string | null;
   readonly websiteUrl: string;
   readonly sourceUrl: string;
   readonly logoUrl: string | null;
@@ -101,6 +105,9 @@ export interface PlannedProgram {
   readonly admissionModes: string[];
   readonly formationCode: string;
   readonly campusCity: string;
+  /// Intitulé + ville, normalisés (`normalizeSearchText`) : ce que la recherche
+  /// libre compare, pour que « genie » trouve « Génie civil ».
+  readonly searchText: string;
   /// Null assumé : aucun jeu ouvert ne publie le niveau de français exigé
   /// formation par formation. Écrire « B2 » partout serait inventer une
   /// exigence ; la phrase des `requirements` dit la règle et renvoie à la fiche.
@@ -174,6 +181,7 @@ export function planEefImport(
       institutionType:
         institution.institutionKind ?? INSTITUTION_TYPE_PUBLIC_UNIVERSITY,
       uaiCode: institution.uai,
+      acronym: institution.acronym,
       websiteUrl: institution.websiteUrl,
       sourceUrl: institution.sourceUrl,
       logoUrl: institution.logo
@@ -218,6 +226,7 @@ export function planEefImport(
         admissionModes: [...program.admissionModes],
         formationCode: program.formationCode,
         campusCity: program.campusCity,
+        searchText: programSearchText(name, program.campusCity),
         frenchLevelRequired: null,
         applicationFeeEur: null,
         tuitionMinEur: null,

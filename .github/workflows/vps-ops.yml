@@ -12,13 +12,14 @@ name: VPS ops (feature flag / catalogue)
 # ── CE QUE CE WORKFLOW N'EST PAS ────────────────────────────────────────────
 #
 # Ce n'est PAS un exécuteur de commandes. Il n'accepte aucune commande, aucun
-# nom de variable, aucune valeur libre. `action` est une liste fermée de quatre
-# opérations écrites ici, en clair, relisibles en revue. Un workflow qui prendrait
+# nom de variable, aucune valeur libre. `action` est une liste fermée
+# d'opérations écrites ici, en clair, relisibles en revue. Un workflow qui prendrait
 # une commande en entrée aurait transformé un secret de déploiement en shell
 # distant pour quiconque peut cliquer sur « Run workflow ».
 #
-# Les seules clés que la branche `eef-*` écrit dans le `.env` sont les trois
-# `KPB_EEF_*` ci-dessous. Le fichier est sauvegardé avant écriture, et la clé
+# Les seules clés que les branches `eef-*` écrivent dans le `.env` sont les
+# `KPB_EEF_*` (vitrine, espace, fenêtre de campagne), aux valeurs écrites dans
+# `.github/scripts/vps-ops.sh` : en changer une passe par une PR. Le fichier est sauvegardé avant écriture, et la clé
 # est REMPLACÉE si elle existe déjà plutôt qu'ajoutée en double — un `.env` avec
 # deux fois la même clé prend la dernière, ce qui rend le fichier illisible pour
 # la personne qui le relit ensuite.
@@ -58,6 +59,9 @@ on:
           - show-state
           - eef-teaser-on
           - eef-teaser-off
+          - eef-space-on
+          - eef-space-off
+          - eef-campaign-set
           - publish-catalog
           - recreate-clamav
           - import-partners
@@ -70,7 +74,7 @@ on:
           - eef-purge-pending
           - reviews-purge-orphans
       dry_run:
-        description: 'Simuler seulement (publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, reviews-purge-orphans). Décocher pour appliquer.'
+        description: 'Simuler seulement (eef-space-on, eef-campaign-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, reviews-purge-orphans). Décocher pour appliquer.'
         type: boolean
         required: false
         default: true
@@ -174,3 +178,25 @@ jobs:
           # de ce que l'app lira réellement.
           curl -fsS "${HEALTH_URL}/api/config/app" \
             | python3 -c 'import json,sys; d=json.load(sys.stdin); print("features:", json.dumps(d.get("features"), ensure_ascii=False)); print("eefCampaign:", json.dumps(d.get("eefCampaign"), ensure_ascii=False))'
+
+      # L'ouverture ou la fermeture de l'espace se PROUVE depuis l'extérieur, pas
+      # par le code de sortie du script : ce que l'app lira, c'est `/config/app`.
+      # Et `eef` doit rester éteint — c'est lui qui retirerait la vitrine des
+      # builds 49 à 53.
+      - name: Prouver l'état de l'espace (eefSpace)
+        if: ${{ success() && ((inputs.action == 'eef-space-on' && !inputs.dry_run) || inputs.action == 'eef-space-off') }}
+        env:
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+          WANT_OPEN: ${{ inputs.action == 'eef-space-on' }}
+        run: |
+          set -euo pipefail
+          curl -fsS "${HEALTH_URL}/api/config/app" | python3 -c '
+          import json, os, sys
+          features = json.load(sys.stdin).get("features") or {}
+          want = os.environ["WANT_OPEN"] == "true"
+          assert "eefSpace" in features, "features.eefSpace absent : ancienne image en production"
+          got = features["eefSpace"]
+          assert got is want, "features.eefSpace=%r, attendu %r" % (got, want)
+          assert features.get("eef") is False, "features.eef est vrai : la vitrine des builds 49 a 53 a disparu"
+          print("eefSpace =", features["eefSpace"], "| eef =", features["eef"], "| eefTeaser =", features.get("eefTeaser"))
+          '
