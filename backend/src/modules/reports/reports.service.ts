@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
 import { VERIFICATION_POLICIES } from '../admin-catalog/admin-catalog.service';
+import {
+  countryVerificationDueWhere,
+  institutionVerificationDueWhere,
+  programVerificationDueWhere,
+  scholarshipVerificationDueWhere,
+} from '../admin-catalog/verification-due';
 import { PrismaService } from '../prisma/prisma.service';
 
 const REVENUE_STATUSES = ['paid', 'in_progress', 'delivered'] as const;
@@ -10,7 +16,6 @@ const CLOSED_CASE_STATUSES = ['completed', 'rejected', 'cancelled'] as const;
 // (same set the reassignment cron treats as staff activity).
 const ADVISOR_ROLES = ['counselor', 'advisor', 'commercial'] as const;
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const DAY_MS = 24 * 60 * 60 * 1000;
 // Weeks shown on the dashboard's North-Star bar chart.
 const NORTH_STAR_WEEKS = 8;
 // A lead counts as "qualified" once it has at least reached that tag —
@@ -26,13 +31,6 @@ function weekStartUtc(date: Date): Date {
   );
   start.setUTCDate(start.getUTCDate() - daysSinceMonday);
   return start;
-}
-
-function verificationDueWhere(cadenceDays: number, now: Date) {
-  const cutoff = new Date(now.getTime() - cadenceDays * DAY_MS);
-  return {
-    OR: [{ lastVerifiedAt: null }, { lastVerifiedAt: { lt: cutoff } }],
-  };
 }
 
 interface FirstResponseSample {
@@ -194,36 +192,34 @@ export class ReportsService {
           select: { createdAt: true },
         }),
         prisma.case.count({ where: { status: 'documents_needed' } }),
+        // Les QUATRE prédicats viennent de `verification-due.ts`, les mêmes que
+        // ceux de la file admin — pays et bourses compris, qui étaient recopiés
+        // ici. Lignes EEF en attente exclues : sans cela, ce compteur annonçait
+        // « 10 600 à revérifier » dès l'import, pour des fiches qui n'ont jamais
+        // été publiées.
         prisma.country.count({
-          where: {
-            isActive: true,
-            ...verificationDueWhere(
-              VERIFICATION_POLICIES.countryVisa.cadenceDays,
-              now,
-            ),
-          },
+          where: countryVerificationDueWhere(
+            VERIFICATION_POLICIES.countryVisa.cadenceDays,
+            now,
+          ),
         }),
         prisma.institution.count({
-          where: verificationDueWhere(
+          where: institutionVerificationDueWhere(
             VERIFICATION_POLICIES.institutionScolarite.cadenceDays,
             now,
           ),
         }),
         prisma.program.count({
-          where: verificationDueWhere(
+          where: programVerificationDueWhere(
             VERIFICATION_POLICIES.programScolarite.cadenceDays,
             now,
           ),
         }),
         prisma.scholarship.count({
-          where: {
-            isActive: true,
-            moderationStatus: 'approved',
-            ...verificationDueWhere(
-              VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
-              now,
-            ),
-          },
+          where: scholarshipVerificationDueWhere(
+            VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
+            now,
+          ),
         }),
         prisma.forumModerationAction.count(),
       ]);

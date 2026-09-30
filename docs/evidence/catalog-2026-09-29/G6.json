@@ -1,0 +1,784 @@
+{
+ "group": "G6",
+ "records": [
+  {
+   "id": "schwarzman_scholars_2027",
+   "readAtUtc": "2026-09-29T15:02:30.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.schwarzmanscholars.org/program-experience/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.schwarzmanscholars.org/program-experience/",
+     "read": true,
+     "title": "Program Experience - Schwarzman Scholars",
+     "note": "Lue en HTML statique. Donne le financement complet et la liste « What’s Covered » ; ne dit rien du calendrier ni de l’éligibilité."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+     "read": true,
+     "title": "Application Instructions - Schwarzman Scholars",
+     "note": "Lue en HTML statique. La page décrit désormais la promotion 2028-2029 (dates au 1er août 2028) ; les dates 2027 de la fiche n’y figurent plus littéralement, seule la règle générale « 1er août de l’année d’entrée » est écrite."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.schwarzmanscholars.org/program-experience/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.schwarzmanscholars.org/program-experience/",
+     "read": true,
+     "title": "Program Experience - Schwarzman Scholars",
+     "note": "Même page que overview."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+     "read": true,
+     "title": "Application Instructions - Schwarzman Scholars",
+     "note": "Même page que eligibility."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+     "read": true,
+     "title": "Application Instructions - Schwarzman Scholars",
+     "note": "Même page. Elle annonce la fenêtre 2027-2028 close mais ne répète plus la date du 9 septembre 2026. Cette date est relue sur trois autres pages officielles Schwarzman (connect.schwarzmanscholars.org/apply/, /events-and-news/application-tips-from-the-admissions-team/, /admissions/) — voir « confirmed »."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Financement complet, programme d’un an à Tsinghua University (Pékin)",
+     "sourceKind": "overview",
+     "quote": "Schwarzman Scholars is a fully-funded, one-year master’s degree and leadership program at Tsinghua University in Beijing, China."
+    },
+    {
+     "claim": "Avantages : frais de scolarité, chambre et pension, voyage d’étude en Chine, voyage vers/depuis Pékin, assurance santé, allocation pour dépenses personnelles (les six lignes de la fiche)",
+     "sourceKind": "benefits",
+     "quote": "Tuition & Fees Room & Board in-country study tour Travel to and from Beijing Health Insurance Stipend for personal expenses"
+    },
+    {
+     "claim": "Âge : au moins 18 ans et moins de 29 ans au 1er août de l’année d’entrée (règle générale ; la page donne l’exemple 1er août 2028 pour la promotion suivante, donc 1er août 2027 pour la promotion 2027-2028)",
+     "sourceKind": "eligibility",
+     "quote": "Candidates must be at least 18 but not yet 29 years of age as of August 1 of their Schwarzman Scholars enrollment year"
+    },
+    {
+     "claim": "Diplôme de premier cycle exigé au 1er août de l’année d’entrée (la page cite 2028 pour la promotion en cours de sélection ; la fiche vise 2027 pour la promotion 2027-2028)",
+     "sourceKind": "eligibility",
+     "quote": "applicants must complete all requirements and have an undergraduate degree conferred by August 1, 2028"
+    },
+    {
+     "claim": "Anglais : dispense après au moins deux ans d’études en programme anglophone (premier cycle ou supérieur)",
+     "sourceKind": "eligibility",
+     "quote": "This requirement is waived for applicants who studied for at least two years in an English-speaking program at an undergraduate or graduate level."
+    },
+    {
+     "claim": "Anglais : sinon résultat de test, seuil IELTS 7 / TOEFL iBT 100",
+     "sourceKind": "eligibility",
+     "quote": "TOEFL iBT (120-point scale): 100 IELTS: 7"
+    },
+    {
+     "claim": "Candidature entièrement en ligne et en anglais",
+     "sourceKind": "application",
+     "quote": "The online application form must be completed in English. All requirements must be submitted electronically; we do not accept materials via mail or email."
+    },
+    {
+     "claim": "Profil biographique de 100 mots et CV de deux pages maximum",
+     "sourceKind": "application",
+     "quote": "Provide a biographical profile of up to 100 words summarizing your leadership accomplishments and future aspirations."
+    },
+    {
+     "claim": "CV : deux pages maximum",
+     "sourceKind": "application",
+     "quote": "Note there is a two-page maximum limit."
+    },
+    {
+     "claim": "Essai de leadership 750 mots et déclaration d’intention 500 mots",
+     "sourceKind": "application",
+     "quote": "The two required essays are a Leadership Essay (750 words) and a Statement of Purpose (500 words)."
+    },
+    {
+     "claim": "Deux réponses courtes de 100 mots",
+     "sourceKind": "application",
+     "quote": "The two Short Answer responses have a 100-word limit each."
+    },
+    {
+     "claim": "Relevés de chaque diplôme",
+     "sourceKind": "application",
+     "quote": "You are required to upload a transcript for each undergraduate and graduate degree you attended."
+    },
+    {
+     "claim": "Traduction anglaise des relevés non anglophones",
+     "sourceKind": "application",
+     "quote": "For transcripts not in English, you must provide accurate and complete translations with the original transcript."
+    },
+    {
+     "claim": "Trois lettres de recommandation, hors famille",
+     "sourceKind": "application",
+     "quote": "Register three recommenders by providing their names, professional titles, and contact details."
+    },
+    {
+     "claim": "Recommandeurs : pas de membre de la famille",
+     "sourceKind": "application",
+     "quote": "Family members or relatives cannot be selected as recommenders."
+    },
+    {
+     "claim": "Vidéo d’une minute fortement recommandée, non obligatoire",
+     "sourceKind": "application",
+     "quote": "A video introduction is highly recommended but is not required."
+    },
+    {
+     "claim": "Démarche : créer un compte pour ouvrir un dossier ; soumission finale sans réouverture",
+     "sourceKind": "application",
+     "quote": "To begin, create an account to start a new application."
+    },
+    {
+     "claim": "Entretiens éventuels fin octobre à Londres et début novembre à New York",
+     "sourceKind": "application",
+     "quote": "In-person interviews will take place in late October in London and early November in New York."
+    },
+    {
+     "claim": "Calendrier : la fenêtre suivante (promotion 2028-2029) est annoncée d’avril à septembre 2027, en mois seulement (aucun jour écrit)",
+     "sourceKind": "cycle",
+     "quote": "The U.S. and Global application for the class of 2028-2029 will be open from April 2027 to September 2027."
+    },
+    {
+     "claim": "Calendrier : la fenêtre de candidature 2027-2028 est close",
+     "sourceKind": "cycle",
+     "quote": "The application window for the class of 2027-2028 is now closed."
+    },
+    {
+     "claim": "Calendrier de la prochaine sélection (candidature avril–septembre 2027, sélection octobre–novembre 2027, rentrée août 2028)",
+     "sourceKind": "cycle",
+     "quote": "Application Period: Apr 2027 - Sep 2027 Selection Cycle: Oct - Nov 2027 Program Begins: Aug 2028"
+    },
+    {
+     "claim": "Date limite de la fenêtre 2027-2028 : 9 septembre 2026 à 15 h EDT (= 19:00 UTC). Lue sur la page officielle du portail de candidature (hors des cinq URL de la fiche, domaine officiel schwarzmanscholars.org).",
+     "sourceKind": "cycle",
+     "quote": "The Application Deadline is September 9, 2026 - 3 p.m., Eastern Daylight Time (EDT)."
+    },
+    {
+     "claim": "Même date limite confirmée par la page officielle de conseils aux candidats (9 septembre 2026, 15 h EDT)",
+     "sourceKind": "cycle",
+     "quote": "the application deadline is September 9, 2026, at 3:00 p.m. EDT."
+    },
+    {
+     "claim": "Critères de sélection de la fiche (leadership, caractère, aptitude intellectuelle, empathie interculturelle, ouverture d’esprit) — lus sur la page officielle Admissions (hors des cinq URL de la fiche)",
+     "sourceKind": "eligibility",
+     "quote": "Leadership Abilities Exemplary Character & Integrity Academic Aptitude & Intellectual Ability Empathy & Intercultural Competency Open Mindedness"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "cycle.status",
+     "recordSays": "open (dateConfidence confirmed, closesAt 2026-09-09T19:00:00.000Z)",
+     "pageSays": "Fenêtre 2027-2028 close ; la suivante (promotion 2028-2029) ouvrira d’avril à septembre 2027",
+     "quote": "The application window for the class of 2027-2028 is now closed.",
+     "sourceKind": "cycle",
+     "severity": "blocking"
+    },
+    {
+     "field": "deadlineLabel",
+     "recordSays": "Ouvert — clôture le 9 septembre 2026 à 15 h EDT / Open — closes 9 September 2026 at 3:00 PM EDT",
+     "pageSays": "La clôture (9 septembre 2026, 15 h EDT) est dépassée au 29/09/2026 ; le libellé affirme encore « Ouvert ».",
+     "quote": "The application window for the class of 2027-2028 is now closed.",
+     "sourceKind": "cycle",
+     "severity": "blocking"
+    },
+    {
+     "field": "tags",
+     "recordSays": "['master','china','tsinghua','open','leadership','fully-funded']",
+     "pageSays": "La fenêtre est close ; le tag « open » n’est plus exact (McCall MacBain, fiche voisine, porte « closed »).",
+     "quote": "The application window for the class of 2027-2028 is now closed.",
+     "sourceKind": "cycle",
+     "severity": "minor"
+    },
+    {
+     "field": "cycle.opensAt",
+     "recordSays": "2026-04-08T00:00:00.000Z",
+     "pageSays": "Aucune page relue n’écrit le jour d’ouverture 2026 ; la FAQ donne seulement le mois (« between April and September »).",
+     "quote": "Applicants holding a passport from any other country apply between April and September.",
+     "sourceKind": "cycle",
+     "severity": "minor"
+    },
+    {
+     "field": "steps[3] (Soumettre avant l’heure limite)",
+     "recordSays": "Finaliser au plus tard le 9 septembre à 15 h EDT et se préparer à un entretien éventuel.",
+     "pageSays": "Fait exact mais périmé : la fenêtre est close, l’étape n’est plus actionnable. Non bloquant pour le validateur ; à laisser tel quel ou à reformuler par le rédacteur.",
+     "quote": "The application window for the class of 2027-2028 is now closed.",
+     "sourceKind": "application",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "cycle.status",
+     "newFr": "closed",
+     "newEn": "closed",
+     "justificationQuote": "The application window for the class of 2027-2028 is now closed."
+    },
+    {
+     "field": "cycle.dateConfidence",
+     "newFr": "confirmed",
+     "newEn": "confirmed",
+     "justificationQuote": "The Application Deadline is September 9, 2026 - 3 p.m., Eastern Daylight Time (EDT)."
+    },
+    {
+     "field": "cycle.closesAt",
+     "newFr": "2026-09-09T19:00:00.000Z",
+     "newEn": "2026-09-09T19:00:00.000Z",
+     "justificationQuote": "The Application Deadline is September 9, 2026 - 3 p.m., Eastern Daylight Time (EDT)."
+    },
+    {
+     "field": "cycle.opensAt",
+     "newFr": "(retirer la ligne — facultative pour un cycle confirmé)",
+     "newEn": "(remove the line — optional for a confirmed cycle)",
+     "justificationQuote": "Applicants holding a passport from any other country apply between April and September."
+    },
+    {
+     "field": "cycle.academicYear",
+     "newFr": "2027-2028 (inchangé)",
+     "newEn": "2027-2028 (unchanged)",
+     "justificationQuote": "The application window for the class of 2027-2028 is now closed."
+    },
+    {
+     "field": "cycle.sourceUrl",
+     "newFr": "https://www.schwarzmanscholars.org/admissions/application-instructions/ (inchangé)",
+     "newEn": "https://www.schwarzmanscholars.org/admissions/application-instructions/ (unchanged)",
+     "justificationQuote": "The U.S. and Global application for the class of 2028-2029 will be open from April 2027 to September 2027."
+    },
+    {
+     "field": "deadlineLabel",
+     "newFr": "Clôturé — la candidature 2027–2028 s’est terminée le 9 septembre 2026 à 15 h EDT ; prochaine candidature (promotion 2028–2029) annoncée d’avril à septembre 2027",
+     "newEn": "Closed — the 2027–2028 application ended on 9 September 2026 at 3:00 PM EDT; next application (class of 2028–2029) announced for April to September 2027",
+     "justificationQuote": "The application window for the class of 2027-2028 is now closed."
+    },
+    {
+     "field": "tags",
+     "newFr": "['master', 'china', 'tsinghua', 'closed', 'leadership', 'fully-funded']",
+     "newEn": "['master', 'china', 'tsinghua', 'closed', 'leadership', 'fully-funded']",
+     "justificationQuote": "The application window for the class of 2027-2028 is now closed."
+    },
+    {
+     "field": "OPTION non recommandée : nouvelle fiche forecast 2028-2029",
+     "newFr": "Ne pas convertir cette fiche en forecast : la page écrit seulement « April 2027 to September 2027 » (mois, sans jour). Un forecast+estimated exigerait des ISO (estimatedOpenAt/estimatedCloseAt) que la page n’écrit pas ; un forecast+confirmed exigerait un closesAt exact, que la page n’écrit pas non plus. La page ne permet donc PAS d’écrire les dates 2027–2028 suivantes en ISO sans les déduire. Si le rédacteur crée malgré tout une fiche 2028-2029, il doit la marquer estimated, avec des bornes de mois arrondies (2027-04-01 / 2027-09-30) et un texte disant qu’une confirmation est attendue ; la fiche actuelle reste la promotion 2027-2028 (âge et diplôme au 1er août 2027).",
+     "newEn": "Do not turn this record into a forecast: the page only writes “April 2027 to September 2027” (months, no day). A forecast+estimated needs ISO dates (estimatedOpenAt/estimatedCloseAt) the page does not write; a forecast+confirmed needs an exact closesAt, which it does not write either. So the page does NOT allow writing the next window in ISO without deducing it. If the editor nevertheless adds a 2028-2029 record, it must be estimated, with rounded month bounds (2027-04-01 / 2027-09-30) and copy saying confirmation is awaited; the current record stays the 2027-2028 class (age and degree at 1 August 2027).",
+     "justificationQuote": "The U.S. and Global application for the class of 2028-2029 will be open from April 2027 to September 2027."
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Jour d’ouverture 2026 (8 avril 2026, cycle.opensAt)",
+     "reason": "page silencieuse : les pages relues donnent seulement « April » ; le jour 8 n’est écrit nulle part"
+    },
+    {
+     "claim": "Âge et diplôme « au 1er août 2027 » textuellement",
+     "reason": "la page ne cite plus que la promotion 2028-2029 (1er août 2028) ; 2027 n’est déduit que de la règle générale « 1er août de l’année d’entrée »"
+    },
+    {
+     "claim": "Libellé « Master en affaires mondiales / Master in Global Affairs » (levelLabel)",
+     "reason": "les pages relues disent « master’s degree and leadership program » et parlent d’« global affairs » comme pilier du curriculum, sans écrire « Master in Global Affairs » comme intitulé"
+    },
+    {
+     "claim": "Programme « résidentiel » (description)",
+     "reason": "déduit de « Room & Board » ; le mot « residential » n’apparaît pas sur les pages relues"
+    },
+    {
+     "claim": "Nationalité : la fiche n’énonce pas la restriction sur la citoyenneté chinoise pour la voie U.S./Global",
+     "reason": "omission plutôt qu’écart : la page dit que les candidats U.S./Global doivent être non chinois ; sans effet pour le public francophone d’Afrique, non proposée en correction"
+    }
+   ]
+  },
+  {
+   "id": "daad_helmut_schmidt_2027",
+   "readAtUtc": "2026-09-29T15:04:51.000Z",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.daad.de/en/information-services-for-higher-education-institutions/further-information-on-daad-programmes/ppgg/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.daad.de/en/information-services-for-higher-education-institutions/further-information-on-daad-programmes/ppgg/",
+     "read": true,
+     "title": "Helmut-Schmidt-Programme (Public Policy and Good Governance, PPGG) - DAAD",
+     "note": "curl direct via le proxy : 403 « Request forbidden by administrative rules » (non contourné). Page lue avec WebFetch (statut HTTP non exposé par l’outil ; 200 déduit du succès de la lecture). Texte restitué par WebFetch, non par le HTML brut : les citations de cette page sont celles que l’outil a rendues entre guillemets. La page décrit le programme, cite les 7 établissements et les résultats depuis 2009 ; elle ne donne ni date limite ni critères détaillés."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf",
+     "read": true,
+     "title": "Helmut-Schmidt-Programme — Master’s Scholarships for Public Policy and Good Governance 2027 (ST42, Stipendienausschreibung 05/2026, 6 pages)",
+     "note": "curl direct : 403 (même règle). PDF récupéré par WebFetch (application/pdf, 199 KB), puis texte extrait localement avec pypdf : lecture intégrale des 6 pages, citations verbatim. Métadonnées : créé le 06/05/2026, modifié le 07/05/2026. Les coupures de mots en fin de ligne du PDF (ex. « Janu-ary ») sont recollées dans les citations."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf",
+     "read": true,
+     "title": "Helmut-Schmidt-Programme — Master’s Scholarships for Public Policy and Good Governance 2027",
+     "note": "Même PDF que eligibility."
+    },
+    {
+     "kind": "application",
+     "url": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf",
+     "read": true,
+     "title": "Helmut-Schmidt-Programme — Master’s Scholarships for Public Policy and Good Governance 2027",
+     "note": "Même PDF que eligibility."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_helmut_schmidt_programme_current_announcement.pdf",
+     "read": true,
+     "title": "Helmut-Schmidt-Programme — Master’s Scholarships for Public Policy and Good Governance 2027",
+     "note": "Même PDF que eligibility. Édition 05/2026 : c’est bien l’appel 2027 dont la fenêtre s’est close le 31 juillet 2026."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Objet : sept Masters du programme Helmut-Schmidt en politiques publiques et bonne gouvernance",
+     "sourceKind": "overview",
+     "quote": "The following master’s courses are part of the Helmut-Schmidt-Programme (Master’s Scholarships for Public Policy and Good Governance)"
+    },
+    {
+     "claim": "Études en anglais, début septembre/octobre 2027",
+     "sourceKind": "benefits",
+     "quote": "will take place from September/October 2027. The courses have an international focus and are offered in English."
+    },
+    {
+     "claim": "Allocation mensuelle de 992 EUR",
+     "sourceKind": "benefits",
+     "quote": "scholarships (of currently € 992 per month) for master’s courses at German higher education institutions"
+    },
+    {
+     "claim": "Exonération des frais de scolarité",
+     "sourceKind": "benefits",
+     "quote": "DAAD scholarship holders are exempt from paying tuition fees."
+    },
+    {
+     "claim": "Assurance maladie en Allemagne",
+     "sourceKind": "benefits",
+     "quote": "health insurance cover in Germany"
+    },
+    {
+     "claim": "Forfaits de voyage Allemagne–pays d’origine",
+     "sourceKind": "benefits",
+     "quote": "fixed travel allowances (lump sums) for travel between Germany and the respective developing and emerging countries"
+    },
+    {
+     "claim": "Subvention d’études et de recherche ; subvention de loyer et compléments familiaux",
+     "sourceKind": "benefits",
+     "quote": "a study and research grant • rent subsidies and family supplements, as applicable"
+    },
+    {
+     "claim": "Cours d’allemand obligatoire, jusqu’à quatre mois",
+     "sourceKind": "benefits",
+     "quote": "preceding German language course in Germany, lasting up to 4 months; participation is mandatory"
+    },
+    {
+     "claim": "Master « Social Protection » : taux sur place de 500 EUR au 4e semestre en ligne",
+     "sourceKind": "benefits",
+     "quote": "A sur place rate of € 500 per month is paid in the 4th semester"
+    },
+    {
+     "claim": "Éligibilité : diplômés de pays en développement/émergents, première Licence ou équivalent",
+     "sourceKind": "eligibility",
+     "quote": "Graduates from developing and emerging countries (bachelor or equivalent)"
+    },
+    {
+     "claim": "Résultats au-dessus de la moyenne, tiers supérieur, dans les disciplines listées",
+     "sourceKind": "eligibility",
+     "quote": "above-average grades (upper third) in Social and Political Sciences, Law, Economics, Public Policy and Administration"
+    },
+    {
+     "claim": "Expérience pratique pertinente (emploi, stages, engagement)",
+     "sourceKind": "eligibility",
+     "quote": "who have already gained practical experience relevant for the programme (professional experience, internships, political/social commitment)"
+    },
+    {
+     "claim": "Dernier diplôme de six ans au plus, délivré au plus tôt le 1er janvier 2020",
+     "sourceKind": "eligibility",
+     "quote": "should not date back more than six years at the time of application (date of issue not before 1 January 2020)"
+    },
+    {
+     "claim": "Plus de 15 mois passés hors liste CAD : inéligible",
+     "sourceKind": "eligibility",
+     "quote": "Candidates who have spent more than the past 15 months in a country not listed on the DAC list are not eligible."
+    },
+    {
+     "claim": "Détenteurs d’un Master : argumentation solide requise",
+     "sourceKind": "eligibility",
+     "quote": "Candidates who already hold a master’s degree must make a well-argued case"
+    },
+    {
+     "claim": "Critères propres à chaque Master, dont la langue",
+     "sourceKind": "eligibility",
+     "quote": "All master’s courses have their own selection criteria (degree, grades, language skills, practical experience, etc.)"
+    },
+    {
+     "claim": "Candidature en anglais ou allemand, jusqu’à deux Masters",
+     "sourceKind": "application",
+     "quote": "All applications must be submitted in English or German. You may apply for up to two master’s courses listed below."
+    },
+    {
+     "claim": "Dépôt directement auprès des Masters, jamais au DAAD",
+     "sourceKind": "application",
+     "quote": "Scholarship applications must be sent directly to the master’s courses."
+    },
+    {
+     "claim": "Lettre de motivation unique, deux pages maximum, même lettre pour les deux Masters",
+     "sourceKind": "application",
+     "quote": "a single letter of motivation (even when applying for two master’s courses)"
+    },
+    {
+     "claim": "CV Europass chronologique inverse, interruptions de trois mois ou plus expliquées",
+     "sourceKind": "application",
+     "quote": "gaps of three months or more must be explained"
+    },
+    {
+     "claim": "Diplômes et relevés avec traductions certifiées si l’original n’est ni en allemand ni en anglais",
+     "sourceKind": "application",
+     "quote": "Please provide a certified translation if the original is not in German or English"
+    },
+    {
+     "claim": "Téléversement sur le portail DAAD seulement en cas de nomination",
+     "sourceKind": "application",
+     "quote": "Please do not upload any application documents unless you are nominated (by email) by the DAAD."
+    },
+    {
+     "claim": "Sélection en octobre/novembre 2026",
+     "sourceKind": "cycle",
+     "quote": "The selection will be made by a selection committee in October/November 2026."
+    },
+    {
+     "claim": "Fenêtre de candidature de l’appel 2027 : 1er juin – 31 juillet 2026 (donc close au 29/09/2026)",
+     "sourceKind": "cycle",
+     "quote": "The application period for all seven higher education institutions is from 1 June until 31 July 2026."
+    },
+    {
+     "claim": "Réponses écrites à tous les candidats en décembre 2026 / janvier 2027",
+     "sourceKind": "cycle",
+     "quote": "All applicants are informed in writing after the end of the selection process, expected in December 2026/January 2027."
+    },
+    {
+     "claim": "Programme destiné aux futurs dirigeants de pays en développement (page de présentation, texte rendu par WebFetch)",
+     "sourceKind": "overview",
+     "quote": "supports future leaders from developing countries who strive to promote democracy and social justice."
+    }
+   ],
+   "discrepancies": [],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "« prochain appel attendu vers juin 2027 » (deadlineLabel FR/EN et statut de l’extrapolation)",
+     "reason": "page silencieuse : le PDF (édition 05/2026) et la page de présentation ne décrivent que la fenêtre du 1er juin au 31 juillet 2026 et n’annoncent aucun appel ultérieur. Le libellé le formule comme une attente (« attendu »), pas comme une date annoncée ; l’état closed/confirmed n’en dépend pas. Si le rédacteur veut écarter toute extrapolation : « Clôturé — la période 2027 s’est achevée le 31 juillet 2026 ; le prochain appel n’est pas encore annoncé » / « Closed — the 2027 call ended on 31 July 2026; the next call has not been announced yet »."
+    },
+    {
+     "claim": "Heures exactes d’ouverture et de clôture (00:00 le 1er juin, 23:59:59 UTC le 31 juillet)",
+     "reason": "le PDF donne les jours, pas les heures ; les bornes horaires de la fiche sont une convention du catalogue"
+    },
+    {
+     "claim": "« Formulaire Helmut-Schmidt » (requirements[0])",
+     "reason": "le PDF écrit « the DAAD “Application Form” » et « a ticked off checklist and list of criteria, signed by hand » ; l’intitulé « Helmut-Schmidt » du formulaire n’est pas écrit tel quel (sans incidence)"
+    },
+    {
+     "claim": "« Financement complet du programme » (fundingLabel) / fundingType fully_funded",
+     "reason": "le PDF liste les prestations (allocation, scolarité, assurance, voyage) sans employer les mots « full funding » ; le contenu de la liste correspond aux avantages de la fiche"
+    },
+    {
+     "claim": "Contenu de la page de présentation lu via WebFetch (HTML brut inaccessible par curl : 403)",
+     "reason": "citations de la page overview rendues par un outil de résumé, non vérifiées sur le HTML brut ; le PDF, source des quatre autres kinds, est lu verbatim"
+    }
+   ]
+  },
+  {
+   "id": "daad_epos_2027",
+   "readAtUtc": "2026-09-29T15:12:42.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.daad.de/en/information-services-for-higher-education-institutions/further-information-on-daad-programmes/epos/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.daad.de/en/information-services-for-higher-education-institutions/further-information-on-daad-programmes/epos/",
+     "read": true,
+     "title": "Development-Related Postgraduate Courses (EPOS) - DAAD",
+     "note": "curl direct via le proxy : 403 « Request forbidden by administrative rules » (non contourné). Lue avec WebFetch après sept réponses 503 consécutives (le 8e essai a abouti) ; statut HTTP non exposé par l’outil, 200 déduit du succès de la lecture. Texte restitué par WebFetch (résumeur), pas par le HTML brut. Contenu : contexte, objectifs, résultats, renvoi vers la base de bourses DAAD ; aucune date limite."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50076777",
+     "httpStatus": 200,
+     "finalUrl": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50076777",
+     "read": true,
+     "title": "Development-Related Postgraduate Courses (EPOS) - DAAD (base de bourses DAAD, fiche 50076777)",
+     "note": "curl direct : 403 (même règle). Lue avec WebFetch en plusieurs passes (rubriques : Overview, Objective, Who can apply, What can be funded, Duration, Value, Selection, Application requirements, Language skills, Application deadline, Application documents, Application location). Texte restitué par un résumeur : les citations retenues sont celles répétées à l’identique d’une passe à l’autre. La version PDF de la même fiche (…21148-scholarship-database.pdf?detail=50076777) répondait 503."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50076777",
+     "httpStatus": 200,
+     "finalUrl": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50076777",
+     "read": true,
+     "title": "Development-Related Postgraduate Courses (EPOS) - DAAD (base de bourses DAAD, fiche 50076777)",
+     "note": "Même page que eligibility (rubriques Duration of the funding et Value)."
+    },
+    {
+     "kind": "application",
+     "url": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50076777",
+     "httpStatus": 200,
+     "finalUrl": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?detail=50076777",
+     "read": true,
+     "title": "Development-Related Postgraduate Courses (EPOS) - DAAD (base de bourses DAAD, fiche 50076777)",
+     "note": "Même page que eligibility (rubriques Application documents, Application location)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_epos_deadlines.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://static.daad.de/media/daad_de/pdfs_nicht_barrierefrei/in-deutschland-studieren-forschen-lehren/daad_epos_deadlines.pdf",
+     "read": true,
+     "title": "List of Application Deadlines — Development-Related Postgraduate Courses, Application Deadlines for Intake 2027/2028 (ST42 - EPOS Deadlines - Stand 06/2026)",
+     "note": "curl direct : 403. PDF de 2 pages récupéré via WebFetch (application/pdf, 112 Ko, créé le 10/08/2026), texte extrait localement avec pypdf et lu en entier : 25 cursus, chacun avec « see website of the course » dans les deux colonnes (DAAD Scholarship et Self-financing). Aucune date chiffrée."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Programme de bourses individuelles du DAAD pour participants de pays en développement",
+     "sourceKind": "overview",
+     "quote": "The EPOS programme offers individual scholarships to participants from developing countries"
+    },
+    {
+     "claim": "La page de présentation renvoie l’appel en cours vers la base de bourses DAAD (pas de dates sur cette page)",
+     "sourceKind": "overview",
+     "quote": "The current EPOS call for applications can be found in the DAAD scholarship database"
+    },
+    {
+     "claim": "Bourse limitée aux cursus de la liste officielle 2027/2028 (un Master allemand hors liste n’est pas finançable)",
+     "sourceKind": "eligibility",
+     "quote": "Individual scholarships exclusively for Postgraduate courses in Germany that are listed on the List of all Postgraduate courses with application deadlines 2027/2028"
+    },
+    {
+     "claim": "Allocation mensuelle de 992 EUR au niveau Master",
+     "sourceKind": "benefits",
+     "quote": "monthly payments of 992 euros for graduates or 1,300 euros (1,400 euros beginning with February 2026)"
+    },
+    {
+     "claim": "Assurance maladie, accident et responsabilité civile",
+     "sourceKind": "benefits",
+     "quote": "Payments towards health, accident and personal liability insurance cover"
+    },
+    {
+     "claim": "Subvention de loyer et allocation pour membres de la famille",
+     "sourceKind": "benefits",
+     "quote": "Monthly rent subsidy"
+    },
+    {
+     "claim": "Durée de financement de 12 à 42 mois selon le programme",
+     "sourceKind": "benefits",
+     "quote": "12 to 42 months (dependent on study programme)"
+    },
+    {
+     "claim": "Diplômés de pays listés, avec au moins deux ans d’expérience professionnelle",
+     "sourceKind": "eligibility",
+     "quote": "Graduates with at least two years' professional experience from the following countries"
+    },
+    {
+     "claim": "Licence (en règle générale de quatre ans) exigée",
+     "sourceKind": "eligibility",
+     "quote": "Candidates have a Bachelor degree (usually a four-year course) in an appropriate subject"
+    },
+    {
+     "claim": "Résultats supérieurs à la moyenne, tiers supérieur",
+     "sourceKind": "eligibility",
+     "quote": "above-average result for first academic exam – top performance third"
+    },
+    {
+     "claim": "Dernier diplôme de six ans au plus, en principe",
+     "sourceKind": "eligibility",
+     "quote": "His/her academic degrees should normally not be more than six years old."
+    },
+    {
+     "claim": "Séjour en Allemagne de plus de 15 mois : candidature écartée (attention : mesuré à la date limite, cf. écart mineur)",
+     "sourceKind": "eligibility",
+     "quote": "Applicants who have been resident in Germany for longer than 15 months at the application deadline cannot be considered"
+    },
+    {
+     "claim": "Cursus en allemand : niveau B1 exigé à la candidature",
+     "sourceKind": "eligibility",
+     "quote": "a minimum German language level of B1 at the time of application is a requirement"
+    },
+    {
+     "claim": "Cursus en allemand : DSH 2 ou TestDaF 4 avant le début des études",
+     "sourceKind": "eligibility",
+     "quote": "Successful passing of the language examination DSH 2 or TestDaF 4 before the start of the study course."
+    },
+    {
+     "claim": "Cursus en anglais : preuve de niveau selon le règlement de chaque cursus",
+     "sourceKind": "eligibility",
+     "quote": "Proof of adequate language skills, according to the regulations of the respective course."
+    },
+    {
+     "claim": "Dossier envoyé directement au cursus, jamais au DAAD",
+     "sourceKind": "application",
+     "quote": "Applications have only to be sent to the respective course directly!"
+    },
+    {
+     "claim": "Un dossier adressé au DAAD n’est pas transmis aux cursus",
+     "sourceKind": "application",
+     "quote": "Applications sent to the DAAD will not be forwarded to the respective course/university."
+    },
+    {
+     "claim": "Jusqu’à trois cursus",
+     "sourceKind": "application",
+     "quote": "You can apply for up to three courses."
+    },
+    {
+     "claim": "Dossier complet en anglais ou en allemand",
+     "sourceKind": "application",
+     "quote": "applications have to be submitted in English or German to be considered"
+    },
+    {
+     "claim": "Lettre de motivation unique (académique, professionnelle, personnelle)",
+     "sourceKind": "application",
+     "quote": "One Letter of Motivation with detailed reference to academic, professional and personal reasons for applying for the programme."
+    },
+    {
+     "claim": "Lettre de recommandation de l’employeur, en-tête, signature et tampon",
+     "sourceKind": "application",
+     "quote": "Letter of recommendation from your current employer; the letter must include official letterhead, signature and official stamp"
+    },
+    {
+     "claim": "Garantie de réembauche si possible",
+     "sourceKind": "application",
+     "quote": "if possible, a guarantee of re-employment from your current employer upon returning home"
+    },
+    {
+     "claim": "Attestation(s) d’emploi montrant au moins deux ans d’expérience",
+     "sourceKind": "application",
+     "quote": "Certificate(s) of Employment from the employer(s) showing at least two years of relevant work experience after the Bachelor's degree"
+    },
+    {
+     "claim": "Copies des diplômes",
+     "sourceKind": "application",
+     "quote": "Copies of your higher education degree certificates."
+    },
+    {
+     "claim": "Sélection : un comité propose des candidats au DAAD",
+     "sourceKind": "application",
+     "quote": "A selection committee suggests potential candidates for a DAAD scholarship."
+    },
+    {
+     "claim": "Pas de date limite unique : la fiche DAAD renvoie à chaque cursus",
+     "sourceKind": "cycle",
+     "quote": "Depending on chosen study programme; please check scholarship brochure or the website of your chosen study programme."
+    },
+    {
+     "claim": "Liste des dates limites du DAAD pour l’admission 2027/2028 (édition 06/2026)",
+     "sourceKind": "cycle",
+     "quote": "Application Deadlines for Intake 2027/2028 Development-Related Postgraduate Courses"
+    },
+    {
+     "claim": "Le PDF imprime littéralement « see website of the course » en face de chaque cursus (25 lignes sur 25, colonnes DAAD Scholarship et Self-financing) : aucune date chiffrée pour 2027/2028",
+     "sourceKind": "cycle",
+     "quote": "see website of the course see website of the course"
+    },
+    {
+     "claim": "Édition du document : juin 2026",
+     "sourceKind": "cycle",
+     "quote": "ST42 - EPOS Deadlines - Stand 06/2026"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "advantages[2] (forfait voyage)",
+     "recordSays": "Forfait voyage vers l’Allemagne et retour pris en charge par le DAAD / Travel allowance to Germany and back covered by DAAD",
+     "pageSays": "L’allocation de voyage est conditionnelle : elle n’est pas versée si ces frais sont couverts par le pays d’origine ou une autre source",
+     "quote": "Travel allowance, unless these expenses are covered by the home country or another source of funding",
+     "sourceKind": "benefits",
+     "severity": "minor"
+    },
+    {
+     "field": "eligibility[4] (séjour en Allemagne)",
+     "recordSays": "Ne pas avoir séjourné en Allemagne plus de quinze mois à la date de la candidature / … at the date of application",
+     "pageSays": "Le décompte des 15 mois s’apprécie à la date limite de candidature, pas à la date où l’on postule",
+     "quote": "Applicants who have been resident in Germany for longer than 15 months at the application deadline cannot be considered",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "advantages[2]",
+     "newFr": "Forfait voyage vers l’Allemagne et retour, sauf si ces frais sont couverts par le pays d’origine ou une autre source de financement",
+     "newEn": "Travel allowance to Germany and back, unless these expenses are covered by the home country or another source of funding",
+     "justificationQuote": "Travel allowance, unless these expenses are covered by the home country or another source of funding"
+    },
+    {
+     "field": "eligibility[4]",
+     "newFr": "Ne pas avoir séjourné en Allemagne plus de quinze mois à la date limite de candidature",
+     "newEn": "Not have resided in Germany for more than fifteen months at the application deadline",
+     "justificationQuote": "Applicants who have been resident in Germany for longer than 15 months at the application deadline cannot be considered"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Cycle : estimatedOpenAt 2026-05-15 et estimatedCloseAt 2027-01-31, et libellé « du printemps 2026 à fin janvier 2027 »",
+     "reason": "AUCUNE des pages ne donne ces dates pour 2027/2028 (le PDF de juin 2026 ne contient que « see website of the course »). La fiche doit donc rester forecast + estimated, ce qu’elle dit (« Ouverture estimée »). Base de l’estimation relue : liste de l’admission 2026/2027 (ST42, Stand 05/2025, …/daad_epos_deadlines_2026_27.pdf), décalée d’un an pour les cursus toujours listés : ouverture de fenêtre la plus précoce documentée « MSc 12 months 15.05.-15.10.2025 30.04.2026 » (Heidelberg) → 15 mai 2026 ; échéance DAAD la plus tardive « MSc 24 months 31.01.2026 31.01.2026 » (ENREM) → 31 janvier 2027. Le cursus à l’échéance DAAD la plus tardive de la liste précédente (International Media Studies, 15.03.2026) ne figure plus dans la liste 2027/2028. Cette liste précédente porte la mention « (all information without guarantee, please verify with the websites of the courses) ». Aucune page relue n’écrit ces dates pour 2027/2028."
+    },
+    {
+     "claim": "Statut « forecast » au 29/09/2026 alors que l’ouverture estimée (15 mai 2026) est passée",
+     "reason": "sans date confirmée par une page, la fiche ne peut être ni open (exige des dates confirmées) ni requalifiée ; certains cursus ont sans doute déjà ouvert ou clos leur fenêtre 2027/2028, mais chaque date est sur le site du cursus (25 sites, hors périmètre). Aucune correction proposée ; à signaler comme limite de l’estimation."
+    },
+    {
+     "claim": "Anglais : « en règle générale IELTS 6 ou TOEFL 550 papier / 213 ordinateur / 80 internet »",
+     "reason": "page silencieuse sur ces seuils (la base DAAD dit seulement « according to the regulations of the respective course » et « English – IELTS or TOEFL »). Retrouvé dans l’EPOS-FAQ du DAAD, édition 10/2019 (hors des cinq sources, ancienne) : « The minimum requirement to apply for a DAAD scholarship normally is an IELTS (band 6) certificate or TOEFL (minimum score 550 paper based, 213 computer based and 80 internet based). »"
+    },
+    {
+     "claim": "CV Europass « signé à la main »; lettre de motivation « signée à la main, deux pages maximum, rattachée à l’emploi actuel »",
+     "reason": "page silencieuse sur la signature manuscrite et les deux pages (la base DAAD cite l’Europass et la lettre unique, sans ces précisions). Retrouvé dans l’EPOS-FAQ 10/2019 : « hand-signed CV (please use the europass specimen form » et « hand-signed letter of motivation (with reference to current occupation), maximum 2 pages »."
+    },
+    {
+     "claim": "Lettre de recommandation « de date récente »",
+     "reason": "la base DAAD écrit « must be of current date » selon un rendu du résumeur non répété à l’identique ; le FAQ 10/2019 écrit « of recent date ». Sans incidence."
+    },
+    {
+     "claim": "Aucune admission préalable au Master n’est exigée pour candidater à la bourse",
+     "reason": "page silencieuse (cinq sources). Retrouvé dans l’EPOS-FAQ 10/2019 : « Do I need to be accepted for the masters programme before I apply for the scholarship? No, that is not necessary. »"
+    },
+    {
+     "claim": "« L’essentiel de la procédure de sélection est achevé en mars » et « c’est le cursus, et non le DAAD, qui informe du résultat »",
+     "reason": "page silencieuse (cinq sources) ; la base DAAD dit même que les candidats proposés sont contactés par le DAAD pour téléverser leur dossier (« The suggested candidates will be contacted by DAAD to upload their complete application to the DAAD Portal. »). EPOS-FAQ 10/2019 : « You will be informed by the according course that you applied for. The majority of the selection process will be finished in March. »"
+    },
+    {
+     "claim": "Deux ans d’expérience « appréciée à la date de la candidature » et attestation d’emploi « dans le pays d’origine »",
+     "reason": "page silencieuse sur ces deux précisions. EPOS-FAQ 10/2019 : « The requirement two years of (relevant) work experience refers to the time of your application. » et « confirmation of employment from the employer in your home country »."
+    },
+    {
+     "claim": "Diplômé d’un pays de la liste CAD",
+     "reason": "la base DAAD renvoie à une « list of eligible countries » (PDF dac_laenderliste_epos.pdf, non lu, hors des cinq sources) ; le sigle DAC/CAD n’apparaît pas dans le texte relu"
+    },
+    {
+     "claim": "Quatre années de Licence « en règle générale » et cursus « de 12 à 42 mois »",
+     "reason": "confirmés par la base DAAD ; note : le PDF des dates 2027/2028 affiche des durées de 12 à 24 mois « without German language course », sans contradiction avec 12 à 42 mois du programme (doctorats et cours d’allemand inclus, non détaillé)"
+    },
+    {
+     "claim": "Fiabilité des citations de la base DAAD (eligibility/benefits/application)",
+     "reason": "lue via WebFetch (résumeur), pas en HTML brut (curl 403) : deux rendus successifs d’une même phrase ont différé (« Complete applications… » / « The complete applications… ») ; seules les sous-chaînes stables sont citées. Le PDF des dates, source du cycle, est lu verbatim."
+    }
+   ]
+  }
+ ]
+}

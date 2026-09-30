@@ -41,6 +41,8 @@ import { EtudesEnFranceController } from './modules/etudes-en-france/etudes-en-f
 import { EtudesEnFranceService } from './modules/etudes-en-france/etudes-en-france.service';
 import { AdminEefInterestController } from './modules/etudes-en-france/admin-eef-interest.controller';
 import { AdminEefInterestService } from './modules/etudes-en-france/admin-eef-interest.service';
+import { EefPublicationController } from './modules/etudes-en-france/publication/eef-publication.controller';
+import { EefPublicationService } from './modules/etudes-en-france/publication/eef-publication.service';
 import { PremiumWaitlistController } from './modules/premium/premium-waitlist.controller';
 import { PremiumWaitlistService } from './modules/premium/premium-waitlist.service';
 import { AdminPremiumWaitlistController } from './modules/premium/admin-premium-waitlist.controller';
@@ -202,6 +204,7 @@ import { SalonService } from './modules/salon/salon.service';
     EefSearchController,
     EefShortlistController,
     AdminEefInterestController,
+    EefPublicationController,
     PremiumWaitlistController,
     AdminPremiumWaitlistController,
     HealthController,
@@ -307,6 +310,7 @@ import { SalonService } from './modules/salon/salon.service';
     EefSearchService,
     EefShortlistService,
     AdminEefInterestService,
+    EefPublicationService,
     PremiumWaitlistService,
     AdminPremiumWaitlistService,
     AmbassadorService,

@@ -13,6 +13,7 @@
 // nombre opaque que cette fonctionnalité refuse — « 72 % » dont personne ne
 // sait s'il parle du dossier ou de la filière.
 // ─────────────────────────────────────────────────────────────────────────────
+import { eefProgramWhere } from '../../../common/eef-provenance';
 import {
   ANY_BACHELOR_LABEL,
   acceptsAnyBachelor,
@@ -205,6 +206,8 @@ export interface BuildShortlistWhereOptions {
   readonly declaredFieldIds: readonly string[];
   readonly tier: EefShortlistTier;
   readonly stratum: EefCandidateStratum;
+  /// Les établissements PUBLIÉS du pays. Obligatoire : voir [buildShortlistWhere].
+  readonly publishedInstitutionIds: readonly string[];
 }
 
 /**
@@ -214,11 +217,24 @@ export interface BuildShortlistWhereOptions {
  * vérificateur a relu et ce que le pipeline a déposé. Une shortlist —
  * c'est-à-dire une recommandation nominative — construite sur des lignes non
  * relues serait la pire surface possible pour cette barrière.
+ *
+ * Et la formation n'est recommandable que si SON ÉTABLISSEMENT est publié.
+ * `Program` n'a pas de relation vers `Institution` : sans cette clause, une
+ * formation publiée sous une université que personne n'a relue était
+ * recommandée, avec pour établissement une fiche non vérifiée. Le champ est
+ * obligatoire pour qu'un appel qui l'oublie ne compile pas.
  */
 export function buildShortlistWhere(
   options: BuildShortlistWhereOptions,
 ): Record<string, unknown> {
-  const { path, countryId, declaredFieldIds, tier, stratum } = options;
+  const {
+    path,
+    countryId,
+    declaredFieldIds,
+    tier,
+    stratum,
+    publishedInstitutionIds,
+  } = options;
 
   const linkedBranches = [
     { fieldId: { in: [...declaredFieldIds] } },
@@ -254,11 +270,26 @@ export function buildShortlistWhere(
   // « dossier seul » — c'est-à-dire que la liste se trompait précisément sur
   // ce qu'elle promet d'expliquer. `AND` rend la collision impossible plutôt
   // que de compter sur la vigilance à chaque ajout de clause.
+  //
+  // L'établissement publié est le TROISIÈME élément de ce `AND`, après l'étage
+  // et la strate : les tests indexent les deux premiers, et il n'a rien à
+  // partager avec eux — pas de `OR`, pas de `NOT`, donc aucune collision.
+  //
+  // La PROVENANCE est le QUATRIÈME, pour la même raison : elle porte un `OR`
+  // (identifiant de la formation, ou de son établissement) qui n'a pas à
+  // partager de clé avec l'étage ni la strate. `cycle` ci-dessus filtre sur des
+  // valeurs qu'une formation partenaire pourrait aussi porter ; c'est cette
+  // clause, et elle seule, qui dit « cette ligne vient de l'import ».
   return {
     isActive: true,
     countryId,
     cycle: { in: [...EEF_PATH_CYCLES[path]] },
-    AND: [tierWhere(tier, path), stratumClause],
+    AND: [
+      tierWhere(tier, path),
+      stratumClause,
+      { institutionId: { in: [...publishedInstitutionIds] } },
+      eefProgramWhere(),
+    ],
   };
 }
 

@@ -22,9 +22,14 @@ KPB-47 turns the verification badge into an operational promise: every sensitive
 ## Le catalogue « Études en France » (ajouté le 20/09/2026)
 
 10 247 formations dans 70 universités publiques françaises sont désormais
-importables, et arrivent **inactives**. Elles entrent dans la cadence
-« Formations » ci-dessus (180 jours), avec deux différences qui changent la
-façon de les relire :
+importables, et arrivent **inactives**. Tant qu'elles le sont, elles **ne sont
+PAS dans la file `/verification`** (mise à jour du 29/09/2026) : cette file liste
+les fiches PUBLIÉES dont la cadence est échue, et les 10 500 lignes en attente
+n'ont jamais été publiées. Leur revue est le flux de PUBLICATION, qui demande un
+outil dédié — à construire ; valider une ligne dans `/verification` ne pose que le
+tampon de vérification, jamais `isActive`. Une fois publiées, elles entrent dans
+la cadence « Formations » ci-dessus (180 jours), avec deux différences qui
+changent la façon de les relire :
 
 - **Le volume interdit la relecture ligne à ligne.** Ce qui doit être relu en
   priorité, c'est ce que la machine ne peut pas juger : le partage DAP /
@@ -32,10 +37,26 @@ façon de les relire :
   ouvertes datent de 2021 et peuvent avoir fermé depuis. Les 2e et 3e années
   de licence, elles, sont attestées par les effectifs de la rentrée 2024 :
   elles vieillissent moins vite.
-- **La source est déjà attachée.** Chaque ligne porte sa fiche officielle
-  (Parcoursup ou site de l'université) dans `sourceUrl`. La vérification
-  consiste à confirmer que la fiche existe toujours et dit la même chose —
-  pas à retrouver une source.
+- **La source est attachée, mais ce n'est PAS toujours la fiche de la formation**
+  (corrigé le 29/09/2026 : cette procédure affirmait le contraire). Sur 10 502
+  lignes, `sourceUrl` désigne :
+
+  | Ce que la source est | Lignes | Ce que vérifier veut dire |
+  | --- | ---: | --- |
+  | la fiche Parcoursup de la formation | 4 140 | confirmer que la fiche existe toujours et dit la même chose |
+  | une page de l'établissement (master) | 2 150 | idem — mais la page n'a pas été relue une à une |
+  | **la racine du portail `monmaster.gouv.fr`** (masters) | **1 078** | **il n'y a pas de fiche à relire** : il faut en trouver une |
+  | **la page du jeu de données ouvert** (L2 et L3) | **3 134** | idem : c'est la preuve que la formation existe, pas une page candidat |
+
+  Soit **4 212 lignes (40 %) sans fiche de formation**. Pour elles, « confirmer la
+  fiche » n'a pas d'objet : le relecteur doit retrouver la page de la formation sur
+  le site de l'université (elle devient alors le `sourceUrl`), ou publier la ligne
+  en sachant que l'étudiant qui touche « Voir la source officielle » arrive sur un
+  portail ou un tableur. L'écran de publication de l'admin annonce ce nombre pour
+  chaque établissement AVANT d'écrire ; il ne bloque pas, parce que refuser ces
+  lignes reviendrait à ne rien publier du tout tant qu'on n'a pas re-sourcé
+  3 134 L2/L3 à la main — c'est une décision de contenu (voir
+  `docs/eef-catalog-pipeline.md` § 2.8), pas de code.
 
 Le pipeline, ses limites et ses portes de CI : `docs/eef-catalog-pipeline.md`.
 
@@ -48,6 +69,49 @@ Use official school, government, scholarship, Campus France, embassy, or partner
 > n'est pas nommée pour chaque cadence, la file de vérification n'a pas de
 > propriétaire et le badge « Vérifié » reste vert sans que personne ne soit tenu
 > de le rouvrir.
+
+## La relecture mensuelle des bourses (mode d'emploi, écrit le 29/09/2026)
+
+Le validateur refuse toute source (`checkedAt`) ou vérification (`verifiedAt`)
+de plus de 30 jours : chaque mois, chaque fiche doit être rouverte.
+
+**Annoncer qui relit quoi avant de commencer.** Le 29/09, deux sessions ont relu
+les mêmes 33 fiches le même jour sans le savoir ; il a fallu comparer les deux
+résultats champ par champ avant de fusionner. Le côté heureux : deux lectures
+indépendantes se sont recoupées (44 champs reformulés, aucune contradiction de
+fond sur ces 44) et ont chacune trouvé des corrections que l'autre avait
+manquées. Un désaccord entre deux lectures se tranche en rouvrant la source, pas
+en choisissant un camp.
+
+Ce qui a fonctionné le 29/09 (33 fiches, dix relecteurs en parallèle, ~3 fiches
+chacun) :
+
+1. **Lire, ne pas recopier.** Ouvrir les cinq pages officielles de la fiche
+   (présentation, éligibilité, avantages, candidature, dates du cycle) et
+   comparer champ par champ : dates, montants, niveaux, pays éligibles, statut
+   du cycle (ouvert, clos, prévu). Une citation par affirmation vérifiée, copiée
+   mot pour mot.
+2. **`checkedAt` = l'heure réelle de la lecture** (`date -u` au moment où la
+   page est lue), une par fiche. Ne jamais poser une date « du jour » sur des
+   fiches qu'on n'a pas relues : c'est faire affirmer au catalogue une
+   vérification qui n'a pas eu lieu.
+3. **Une page illisible n'est pas une page relue.** Écran anti-robot, PDF
+   introuvable, page qui ne charge pas : la fiche garde sa date, le test de
+   fraîcheur reste rouge pour elle, et une personne la relit dans un navigateur
+   ordinaire. On ne contourne pas le blocage.
+4. **Un cycle dont la clôture est passée devient `closed`** (avec sa date de
+   clôture confirmée) ; il ne reste jamais `open`. Les URL du contenu doivent
+   être celles de la source correspondante — le validateur le vérifie.
+5. **Contrôler les preuves.** Chaque citation d'un rapport de relecteur doit se
+   retrouver mot pour mot dans la page enregistrée (le 29/09 : 858 sur 858
+   retrouvées ; les citations d'une lecture faite par un outil qui résume la
+   page, comme `WebFetch`, ne sont pas vérifiables de cette façon et sont
+   signalées comme telles dans le journal).
+6. **Déployer, puis réaligner la production** : `publish-catalog` (import →
+   reconcile → switch). Sans `reconcile`, les lignes déjà en base gardent
+   l'ancien contenu.
+
+Les preuves de la vague du 29/09 : `docs/catalog-verification-2026-09-29.md`.
 
 ## Publier le catalogue vérifié en production
 

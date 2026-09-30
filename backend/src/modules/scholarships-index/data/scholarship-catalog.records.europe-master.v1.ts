@@ -58,8 +58,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'EUR 1,200 monthly allowance at Master level, the amount applicable since January 2026',
         ],
         [
-          'Bourse versée de 12 à 36 mois selon le diplôme et l’année d’inscription : 12 mois en Master 2, 24 mois en Master 1',
-          'Funding paid for 12 to 36 months depending on the degree and year of enrolment: 12 months in Master 2, 24 months in Master 1',
+          'Bourse versée de 12 à 36 mois selon le diplôme et l’année d’inscription : au maximum 12 mois en Master 2, 24 mois en Master 1 et 36 mois pour un diplôme d’ingénieur',
+          'Funding paid for 12 to 36 months depending on the degree and year of enrolment: a maximum of 12 months in Master 2, 24 months in Master 1 and 36 months for an engineering degree',
         ],
         [
           'Billets d’avion aller et retour (classe la moins chère) remboursés sur justificatifs dans la limite de 50 % du tarif maximal fixé par le ministère de l’Europe et des Affaires étrangères, ainsi que le transport national jusqu’au lieu d’études',

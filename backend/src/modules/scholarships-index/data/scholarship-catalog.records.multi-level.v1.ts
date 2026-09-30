@@ -67,8 +67,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     name: ['Programme conjoint Türkiye–BID — prévision 2027', 'Türkiye–IsDB Joint Scholarship — 2027 forecast'],
     country: ['tur', 'Turquie', 'Türkiye'],
     levelLabel: ['Licence et Master', 'Bachelor and Master'],
-    fundingLabel: ['Financement complet', 'Fully funded'],
-    fundingType: 'fully_funded',
+    fundingLabel: ['Master : financement complet ; Licence : prêt sans intérêt remboursable après les études', 'Master: fully funded; Bachelor: interest-free loan repayable after graduation'],
+    fundingType: 'partially_funded',
     deadlineLabel: ['Prévision 2027 — environ du 10 janvier au 20 février 2027, à reconfirmer', '2027 forecast — approximately 10 January to 20 February 2027, to be reconfirmed'],
     description: [
       'Volet conjoint de Türkiye Scholarships et de la Banque islamique de développement pour les candidats des pays membres de la BID et des communautés musulmanes éligibles. Les dates 2027 sont estimées depuis l’appel 2026.',
@@ -80,6 +80,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Assurance santé', 'Health insurance'],
       ['Cours de turc pendant un an', 'One-year Turkish language course'],
       ['Billet aller-retour unique', 'One-time round-trip ticket'],
+      ['En Licence, le financement est un prêt à rembourser après les études et l’emploi, en versements échelonnés, auprès de l’IsDB Education Trust du pays du candidat', 'For Bachelor, the funding is a loan repaid after graduation and employment, in instalments, to the IsDB Education Trust in the candidate’s country'],
     ],
     eligibility: [
       ['Être citoyen d’un pays membre de la BID ou membre d’une communauté musulmane éligible', 'Be a citizen of an IsDB member country or member of an eligible Muslim community'],
@@ -110,11 +111,11 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     sources: {
       overview: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
       eligibility: 'https://www.turkiyeburslari.gov.tr/scholarshipsprograms',
-      benefits: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
+      benefits: 'https://www.turkiyeburslari.gov.tr/partneredprograms',
       application: 'https://tbbs.turkiyeburslari.gov.tr/',
       cycle: 'https://www.turkiyeburslari.gov.tr/announcements/ytb-islamic-development-bank-isdb-joint-scholarship-program-2026-applicaiton-period-122',
     },
-    tags: ['bachelor', 'master', 'turkiye', 'isdb', 'fully-funded'],
+    tags: ['bachelor', 'master', 'turkiye', 'isdb'],
     checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
@@ -127,8 +128,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     fundingType: 'partially_funded',
     deadlineLabel: ['Prévision 2027–2028 — ouverture estimée en novembre-décembre 2026, clôture estimée vers le 15 janvier 2027 à 14 h CET, à reconfirmer', '2027–2028 forecast — opening estimated in November–December 2026, closing estimated around 15 January 2027 at 2 pm CET, to be reconfirmed'],
     description: [
-      'Programme du gouvernement hongrois accessible via les partenaires d’envoi, pour des cursus admissibles en Hongrie. Au 10 août 2026, seul le cycle 2026–2027 est publié (clôture le 15 janvier 2026 à 14 h CET) : la fenêtre suivante est estimée depuis ce calendrier.',
-      'Hungarian government programme accessed through sending partners for eligible study programmes in Hungary. As of 10 August 2026 only the 2026–2027 cycle is published (closing 15 January 2026 at 2 pm CET), so the next window is estimated from that schedule.',
+      'Programme du gouvernement hongrois accessible via les partenaires d’envoi, pour des cursus admissibles en Hongrie. Au 29 septembre 2026, seul le cycle 2026–2027 est publié (clôture le 15 janvier 2026 à 14 h CET) : la fenêtre suivante est estimée depuis ce calendrier.',
+      'Hungarian government programme accessed through sending partners for eligible study programmes in Hungary. As of 29 September 2026 only the 2026–2027 cycle is published (closing 15 January 2026 at 2 pm CET), so the next window is estimated from that schedule.',
     ],
     advantages: [
       ['Exonération des frais de scolarité', 'Tuition-free education'],
@@ -149,7 +150,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Preuve linguistique et traductions', 'Language proof and translations'],
       ['Diplôme et relevés de notes, ou déclaration si le document final arrive plus tard', 'Diploma and transcripts, or declaration when a final document will arrive later'],
       ['Copie du document d’identité', 'Copy of identity document'],
-      ['Certificat médical uniquement à l’étape prévue pour les candidats nommés', 'Medical certificate only at the prescribed stage for nominated applicants'],
+      ['Certificat médical exigé seulement des lauréats de la bourse, à présenter en Hongrie sans le téléverser', 'Medical certificate required only from awarded scholarship holders, presented in Hungary and not uploaded'],
     ],
     steps: [
       ['Vérifier le partenaire', 'Check the sending partner', 'Confirmer son pays, les filières ouvertes et la procédure parallèle du partenaire.', 'Confirm country, available fields and any parallel sending-partner process.'],
@@ -190,7 +191,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     ],
     advantages: [
       ['Exonération des frais de dossier, de langue préparatoire et de scolarité', 'Exemption from application, preparatory-language and tuition fees'],
-      ['Bourse mensuelle selon le niveau', 'Monthly scholarship according to study level'],
+      ['Bourse mensuelle pendant l’année préparatoire puis pendant le cycle d’études, dans la limite de la durée du cycle', 'Monthly scholarship during the preparatory year and then the study cycle, up to the duration of the cycle'],
       ['Subvention d’hébergement en résidence, sous réserve de places', 'Dormitory accommodation subsidy, subject to availability'],
       ['Accès à une année préparatoire de roumain lorsque requise', 'Access to a Romanian preparatory year when required'],
     ],
@@ -204,9 +205,9 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     requirements: [
       ['Diplômes, relevés et traductions autorisées', 'Diplomas, transcripts and authorised translations'],
       ['Acte de naissance et pages du passeport', 'Birth certificate and passport pages'],
-      ['Curriculum vitae en anglais ou français', 'Curriculum vitae in English or French'],
+      ['Curriculum vitae en anglais, français ou roumain', 'Curriculum vitae in English, French or Romanian'],
       ['Documents conditionnels applicables : changement de nom, diplôme provisoire ou déclaration parentale', 'Applicable conditional documents: name change, provisional certificate or parental declaration'],
-      ['Authentification ou apostille lorsque demandée', 'Authentication or apostille where requested'],
+      ['Apostille ou authentification de tous les documents d’études par les autorités du pays d’origine', 'Apostille or authentication of all study documents by the relevant authorities in the home country'],
     ],
     steps: [
       ['Créer le compte Study in Romania', 'Create a Study in Romania account', 'S’inscrire uniquement sur la plateforme officielle.', 'Register only on the official platform.'],
@@ -432,17 +433,17 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       ['Ne pas être ressortissant taïwanais ni compatriote d’outre-mer', 'Not be a Taiwan national or overseas compatriot'],
       ['Satisfaire les conditions de l’université partenaire ainsi que celles du visa et de l’ARC', 'Meet partner-university, visa and ARC requirements'],
       ['Ne pas cumuler une autre bourse du gouvernement taïwanais la même année', 'Not hold another Taiwan government scholarship in the same year'],
-      ['Ne pas avoir eu une bourse TaiwanICDF révoquée ni avoir été expulsé d’un établissement taïwanais', 'Not have had a TaiwanICDF award revoked or been expelled from a Taiwanese institution'],
+      ['Ne jamais s’être vu retirer une bourse par une agence publique taïwanaise ou une institution liée, ni avoir été expulsé d’une université taïwanaise', 'Never have had a scholarship revoked by any ROC (Taiwan) government agency or related institution, or been expelled from any Taiwanese university'],
     ],
     requirements: [
-      ['Formulaire TaiwanICDF signé', 'Signed TaiwanICDF application form'],
+      ['Candidature en ligne TaiwanICDF à compléter avant la date limite', 'TaiwanICDF online application, to be completed before the deadline'],
       ['Passeport et diplôme/relevés du niveau précédent', 'Passport and previous qualification/transcripts'],
       ['Preuve d’admission ou candidature séparée à l’université partenaire', 'Separate partner-university admission proof or application'],
       ['Documents linguistiques et autres pièces du programme choisi', 'Language and other documents required by the selected programme'],
       ['Dépôt éventuel auprès de l’ambassade ou mission taïwanaise compétente', 'Possible submission through the responsible Taiwan embassy or mission'],
     ],
     steps: [
-      ['Vérifier le pays et le niveau', 'Check country and level', 'Comparer sa nationalité et le niveau visé à la liste TaiwanICDF 2027.', 'Compare nationality and target level with the TaiwanICDF 2027 list.'],
+      ['Vérifier le pays et le niveau', 'Check country and level', 'Comparer sa nationalité et le niveau visé à la liste TaiwanICDF publiée (édition 2026 en ligne ; liste 2027 à reconfirmer).', 'Compare nationality and target level with the published TaiwanICDF list (2026 edition online; 2027 list to be reconfirmed).'],
       ['Choisir un programme partenaire', 'Choose a partner programme', 'Sélectionner un seul cursus admissible et lire ses conditions universitaires.', 'Select one eligible programme and review its university requirements.'],
       ['Faire les deux candidatures', 'Complete both applications', 'Déposer le dossier TaiwanICDF et la candidature universitaire selon les instructions.', 'Submit both TaiwanICDF and university applications as instructed.'],
       ['Transmettre à la mission', 'Submit to the mission', 'Remettre les pièces à la représentation taïwanaise lorsqu’elle est l’intermédiaire désigné.', 'Provide documents to the Taiwan mission where it is the designated channel.'],
@@ -488,8 +489,8 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     ],
     eligibility: [
       ['Être citoyen étranger ou apatride', 'Be a foreign citizen or stateless person'],
-      ['Pour la Licence, avoir 16 à 23 ans et achever ou avoir achevé le secondaire requis', 'For Bachelor, be 16–23 and complete or have completed qualifying secondary education'],
-      ['Pour le Master, avoir 20 à 33 ans et achever ou avoir achevé une Licence', 'For Master, be 20–33 and complete or have completed a Bachelor degree'],
+      ['Pour la Licence, avoir 16 à 23 ans à la date d’ouverture des inscriptions (20 août 2026) et achever ou avoir achevé le secondaire requis', 'For Bachelor, be 16–23 on the registration opening date (20 August 2026) and complete or have completed qualifying secondary education'],
+      ['Pour le Master, avoir 20 à 33 ans à la date d’ouverture des inscriptions (20 août 2026) et achever ou avoir achevé une Licence', 'For Master, be 20–33 on the registration opening date (20 August 2026) and complete or have completed a Bachelor degree'],
       ['Ne pas déjà détenir un diplôme du niveau ou d’un niveau supérieur exclu par le règlement', 'Not already hold a degree at an excluded same or higher level'],
       ['Pouvoir participer en russe ou en anglais', 'Be able to participate in Russian or English'],
     ],
@@ -502,7 +503,7 @@ export const VERIFIED_MULTI_LEVEL_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
     steps: [
       ['S’inscrire', 'Register', 'Créer le compte dès l’ouverture et sélectionner le niveau et le domaine.', 'Create an account when registration opens and select level and subject area.'],
       ['Construire le portfolio', 'Build the portfolio', 'Ajouter les résultats, réalisations et justificatifs demandés.', 'Add results, achievements and requested evidence.'],
-      ['Passer les étapes', 'Complete the stages', 'Première étape jusqu’au 13 novembre 2026 (portfolio et test), puis seconde étape en ligne du 13 novembre au 21 décembre 2026.', 'First stage until 13 November 2026 (portfolio and test), then the online second stage from 13 November to 21 December 2026.'],
+      ['Passer les étapes', 'Complete the stages', 'Portfolio (test d’entrée, lettre de motivation, passeport, justificatifs) à déposer avant la clôture des inscriptions le 1er novembre 2026 ; résultats de la première étape le 13 novembre 2026, puis seconde étape en ligne du 13 novembre au 21 décembre 2026.', 'Submit the portfolio (entry test, motivation letter, passport, supporting documents) before registration closes on 1 November 2026; first-stage results on 13 November 2026, then the online second stage from 13 November to 21 December 2026.'],
       ['Choisir le programme', 'Choose a programme', 'Après classement, suivre la procédure de placement et d’inscription universitaire.', 'After ranking, follow programme placement and university enrolment.'],
     ],
     cycle: {

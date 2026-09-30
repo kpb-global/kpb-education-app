@@ -5,7 +5,6 @@ import {
   Get,
   NotFoundException,
   Param,
-  Patch,
   Post,
   Res,
   Req,
@@ -21,7 +20,6 @@ import { StorageService } from '../storage/storage.service';
 import { CasesService } from './cases.service';
 import { CreateCaseMessageDto } from './dto/create-case-message.dto';
 import { CreateCaseDto } from './dto/create-case.dto';
-import { UpdateCaseDto } from './dto/update-case.dto';
 import { UploadCaseDocumentDto } from './dto/upload-case-document.dto';
 
 interface UploadedMulterFile {
@@ -92,14 +90,13 @@ export class CasesController {
     return this.casesService.create(input, req.studentUser.id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() input: UpdateCaseDto,
-    @Req() req: any,
-  ) {
-    return this.casesService.update(id, input, req.studentUser.id);
-  }
+  // Pas de `PATCH /cases/:id` côté étudiant. Il laissait le propriétaire fixer lui-
+  // même le `status` de son dossier — et donc se déclarer « terminé » —, choisir
+  // le nom du conseiller affiché, et rédiger un événement de chronologie
+  // présenté comme « mis à jour par un admin ou un conseiller ». Aucun client ne
+  // l'appelait ; ce que l'équipe change passe par `PATCH /admin/cases/:id`.
+  // « Terminé » ouvre le droit de noter un conseiller (voir `createReview`) : un
+  // état que l'intéressé se donne lui-même ne peut pas le porter.
 
   @Get(':id/messages')
   findMessages(@Param('id') id: string, @Req() req: any) {

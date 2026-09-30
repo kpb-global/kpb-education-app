@@ -1,7 +1,14 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
-import { AdminCatalogService } from './admin-catalog.service';
+import {
+  AdminCatalogService,
+  VERIFICATION_QUEUE_LIMIT,
+} from './admin-catalog.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
@@ -287,6 +294,279 @@ describe('AdminCatalogService — verification SLA (KPB-161)', () => {
 });
 
 /**
+ * La file de revérification face à l'import « Études en France ».
+ *
+ * L'import crée 10 500 lignes INACTIVES, toutes « jamais vérifiées ». La file
+ * liste des fiches PUBLIÉES dont la cadence est échue : sans exclusion, ces
+ * lignes y entraient d'un coup. La page admin rend un champ par ligne (et sert
+ * aussi à revérifier les bourses), et l'alerte de 07 h annonçait chaque matin
+ * « SLA breach : 10 5xx never verified » jusqu'à ne plus rien vouloir dire.
+ *
+ * Ces tests regardent la clause envoyée à la base, pas ce qu'elle rend : la
+ * régression se voit à l'endroit où elle se produit.
+ */
+describe('AdminCatalogService — file de revérification et import EEF', () => {
+  function neverVerifiedProgram(index: number) {
+    return {
+      id: `prog-${index}`,
+      nameFr: `Formation ${index}`,
+      nameEn: `Programme ${index}`,
+      countryId: 'fra',
+      institutionId: 'inst-1',
+      lastVerifiedAt: null,
+      verifiedByName: null,
+      sourceUrl: null,
+    };
+  }
+
+  function makeService(
+    rows: {
+      programs?: unknown[];
+      institutions?: unknown[];
+      countries?: unknown[];
+      scholarships?: unknown[];
+    } = {},
+  ) {
+    const wheres: Record<string, unknown[]> = {
+      institution: [],
+      program: [],
+    };
+    const client = {
+      country: { findMany: async () => rows.countries ?? [] },
+      institution: {
+        findMany: async (args: { where: unknown }) => {
+          wheres.institution.push(args.where);
+          return rows.institutions ?? [];
+        },
+      },
+      program: {
+        findMany: async (args: { where: unknown }) => {
+          wheres.program.push(args.where);
+          return rows.programs ?? [];
+        },
+      },
+      scholarship: { findMany: async () => rows.scholarships ?? [] },
+      $transaction: async (ps: Promise<unknown>[]) => Promise.all(ps),
+    };
+    const prisma = {
+      isEnabled: true,
+      execute: async (fn: (c: typeof client) => unknown) => fn(client),
+    } as unknown as PrismaService;
+    return { service: new AdminCatalogService(prisma), wheres };
+  }
+
+  it('ne met jamais en file une ligne EEF importée et pas encore publiée', async () => {
+    const { service, wheres } = makeService();
+
+    await service.listVerificationDue();
+
+    // « importée par l'EEF ET inactive » — ni plus (les lignes EEF PUBLIÉES
+    // doivent être revérifiées à leur cadence), ni moins.
+    expect((wheres.program[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-prog-' } }, { isActive: false }],
+      },
+    });
+    expect((wheres.institution[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-univ-' } }, { isActive: false }],
+      },
+    });
+  });
+
+  it('garde la cadence : jamais vérifié, ou vérifié avant la limite', async () => {
+    const { service, wheres } = makeService();
+    await service.listVerificationDue();
+    const clause = (wheres.program[0] as { AND: Record<string, unknown>[] }).AND[0];
+    expect(clause.OR).toEqual([
+      { lastVerifiedAt: null },
+      { lastVerifiedAt: { lt: expect.any(Date) } },
+    ]);
+  });
+
+  it('applique la même exclusion au calcul du SLA de 07 h', async () => {
+    // Le SLA se calcule sur la file : si la file exclut les lignes en attente,
+    // l'alerte aussi — c'est ce qui l'empêche d'annoncer 10 5xx lignes. La
+    // clause EXACTE, pas une sous-chaîne : `toContain('eef-prog-')` serait vrai
+    // d'une clause qui n'exclurait rien.
+    const { service, wheres } = makeService();
+    await service.verificationSlaSummary();
+    expect((wheres.program[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-prog-' } }, { isActive: false }],
+      },
+    });
+    expect((wheres.institution[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-univ-' } }, { isActive: false }],
+      },
+    });
+  });
+
+  describe('plafond de la réponse', () => {
+    it('ne tronque pas sous le plafond, et le dit', async () => {
+      const { service } = makeService({
+        programs: Array.from({ length: 3 }, (_, i) => neverVerifiedProgram(i)),
+      });
+      const queue = await service.listVerificationDue();
+      expect(queue.items).toHaveLength(3);
+      expect(queue.total).toBe(3);
+      expect(queue.truncated).toBe(false);
+    });
+
+    it('plafonne la réponse, donne le compte COMPLET et dit qu’il en reste', async () => {
+      // Une page qui rend un champ par ligne cesse de s'ouvrir bien avant dix
+      // mille lignes, et elle sert aussi à revérifier les bourses.
+      const { service } = makeService({
+        programs: Array.from({ length: VERIFICATION_QUEUE_LIMIT + 100 }, (_, i) =>
+          neverVerifiedProgram(i),
+        ),
+      });
+      const queue = await service.listVerificationDue();
+      expect(queue.items).toHaveLength(VERIFICATION_QUEUE_LIMIT);
+      expect(queue.total).toBe(VERIFICATION_QUEUE_LIMIT + 100);
+      expect(queue.truncated).toBe(true);
+    });
+
+    it('garde ce qui presse le plus : les jamais-vérifiés passent avant les anciens', async () => {
+      const DAY = 24 * 60 * 60 * 1000;
+      const old = Array.from({ length: VERIFICATION_QUEUE_LIMIT }, (_, i) => ({
+        ...neverVerifiedProgram(10_000 + i),
+        lastVerifiedAt: new Date(Date.now() - 400 * DAY),
+        verifiedByName: 'Amina',
+      }));
+      const fresh = Array.from({ length: 5 }, (_, i) => neverVerifiedProgram(i));
+      // Les anciens sont listés AVANT les jamais-vérifiés : c'est le tri, pas
+      // l'ordre de la base, qui doit décider de ce que le plafond garde.
+      const { service } = makeService({ programs: [...old, ...fresh] });
+
+      const queue = await service.listVerificationDue();
+
+      expect(queue.items.slice(0, 5).map((item) => item.id)).toEqual(
+        fresh.map((row) => row.id),
+      );
+      expect(queue.truncated).toBe(true);
+    });
+
+    it('ne dit « tronqué » qu’AU-DELÀ du plafond : exactement 500 tient', async () => {
+      // La frontière, des deux côtés. Un `>=` à la place du `>` annoncerait
+      // « il en reste » pour une file de 500 qui s'affiche en entier.
+      const exactly = makeService({
+        programs: Array.from({ length: VERIFICATION_QUEUE_LIMIT }, (_, i) =>
+          neverVerifiedProgram(i),
+        ),
+      });
+      const full = await exactly.service.listVerificationDue();
+      expect(full.items).toHaveLength(VERIFICATION_QUEUE_LIMIT);
+      expect(full.total).toBe(VERIFICATION_QUEUE_LIMIT);
+      expect(full.truncated).toBe(false);
+
+      const over = makeService({
+        programs: Array.from({ length: VERIFICATION_QUEUE_LIMIT + 1 }, (_, i) =>
+          neverVerifiedProgram(i),
+        ),
+      });
+      const cut = await over.service.listVerificationDue();
+      expect(cut.items).toHaveLength(VERIFICATION_QUEUE_LIMIT);
+      expect(cut.total).toBe(VERIFICATION_QUEUE_LIMIT + 1);
+      expect(cut.truncated).toBe(true);
+    });
+
+    it('ne laisse pas 800 formations jamais vérifiées chasser les bourses en retard', async () => {
+      // Deux universités publiées par `PATCH { isActive: true }` : `updateProgram`
+      // ne pose pas `lastVerifiedAt`, donc plus de 800 formations « jamais
+      // vérifiées ». Elles passent devant toutes les fiches vérifiées, dont les
+      // bourses en retard — seule catégorie qui périme en 30 jours, et que cette
+      // page sert à revérifier chaque mois.
+      const DAY = 24 * 60 * 60 * 1000;
+      const { service } = makeService({
+        programs: Array.from({ length: 830 }, (_, i) => neverVerifiedProgram(i)),
+        scholarships: [1, 2, 3].map((n) => ({
+          id: `bourse-${n}`,
+          nameFr: `Bourse ${n}`,
+          nameEn: `Scholarship ${n}`,
+          countryId: 'fra',
+          deadlineLabelFr: 'Juin',
+          lastVerifiedAt: new Date(Date.now() - 45 * DAY),
+          verifiedByName: 'Amina',
+          sourceUrl: null,
+        })),
+        countries: [
+          {
+            id: 'pays-1',
+            nameFr: 'Maroc',
+            nameEn: 'Morocco',
+            lastVerifiedAt: new Date(Date.now() - 60 * DAY),
+            verifiedByName: 'Amina',
+            sourceUrl: null,
+          },
+        ],
+      });
+
+      const queue = await service.listVerificationDue();
+      const shown = new Set(queue.items.map((item) => item.id));
+
+      expect(queue.truncated).toBe(true);
+      expect(queue.total).toBe(834);
+      for (const id of ['bourse-1', 'bourse-2', 'bourse-3', 'pays-1']) {
+        expect(shown.has(id)).toBe(true);
+      }
+      expect(queue.items).toHaveLength(VERIFICATION_QUEUE_LIMIT);
+    });
+
+    it('trie les vérifiées par ÉCHÉANCE : la bourse en retard de 70 jours avant la formation en retard d’un jour', async () => {
+      const DAY = 24 * 60 * 60 * 1000;
+      const { service } = makeService({
+        programs: [
+          {
+            ...neverVerifiedProgram(1),
+            id: 'formation-181-jours',
+            lastVerifiedAt: new Date(Date.now() - 181 * DAY),
+            verifiedByName: 'Amina',
+          },
+        ],
+        scholarships: [
+          {
+            id: 'bourse-100-jours',
+            nameFr: 'Bourse',
+            nameEn: 'Scholarship',
+            countryId: 'fra',
+            deadlineLabelFr: 'Juin',
+            lastVerifiedAt: new Date(Date.now() - 100 * DAY),
+            verifiedByName: 'Amina',
+            sourceUrl: null,
+          },
+        ],
+      });
+
+      const queue = await service.listVerificationDue();
+
+      // L'âge brut (181 > 100) mettait la formation devant.
+      expect(queue.items.map((item) => item.id)).toEqual([
+        'bourse-100-jours',
+        'formation-181-jours',
+      ]);
+    });
+
+    it('calcule le SLA sur la file COMPLÈTE, pas sur la version plafonnée', async () => {
+      // Un SLA sur la réponse plafonnée annoncerait « 500 en retard » quand il
+      // y en a 600 — l'alarme minimiserait précisément le jour où elle compte.
+      const { service } = makeService({
+        programs: Array.from({ length: VERIFICATION_QUEUE_LIMIT + 100 }, (_, i) =>
+          neverVerifiedProgram(i),
+        ),
+      });
+      const sla = await service.verificationSlaSummary();
+      expect(sla.totalOverdue).toBe(VERIFICATION_QUEUE_LIMIT + 100);
+      expect(sla.neverVerified).toBe(VERIFICATION_QUEUE_LIMIT + 100);
+      expect(sla.byCategory.program_scolarite.overdue).toBe(
+        VERIFICATION_QUEUE_LIMIT + 100,
+      );
+    });
+  });
+});
+
+/**
  * Guards the match-scoring columns on Program writes (lot 1).
  *
  * `minGpaRequired`, `tuitionMinEur`, `applicationDeadline`, `teachingLanguages`
@@ -533,11 +813,178 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
     });
   });
 
+  // L'import « Études en France » se publie par UNE porte : l'écran « Publication
+  // EEF » (`admin/etudes-en-france/publication`), qui vérifie la source, la
+  // procédure et le domaine, demande de confirmer le nombre et signe du nom de
+  // l'administrateur connecté. Les routes génériques ci-dessous restent la
+  // porte des fiches qui ne sont PAS de l'import (partenaires, saisie à la main) ;
+  // si elles acceptaient aussi `isActive: true` sur une ligne de l'import, la
+  // porte gardée ne garderait rien — `content_manager` y a accès, pas à elle.
+  describe("l'import ne se publie pas par les routes génériques", () => {
+    function makeGuarded(
+      before: { institutionId: string; isActive: boolean } | null,
+    ) {
+      const programUpdates: Array<Record<string, unknown>> = [];
+      const programCreates: Array<Record<string, unknown>> = [];
+      const institutionUpdates: Array<Record<string, unknown>> = [];
+      const client = {
+        program: {
+          create: async ({ data }: { data: Record<string, unknown> }) => {
+            programCreates.push(data);
+            return { id: 'created', ...data };
+          },
+          update: async ({ where, data }: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
+            programUpdates.push(data);
+            return { id: where.id, ...data };
+          },
+          findUnique: async () => before,
+          findMany: async () => [],
+        },
+        institution: {
+          update: async ({ where, data }: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
+            institutionUpdates.push(data);
+            return { id: where.id, ...data };
+          },
+          updateMany: async () => ({ count: 1 }),
+        },
+      };
+      const prisma = {
+        isEnabled: true,
+        execute: async (fn: (c: typeof client) => unknown) => fn(client),
+      } as unknown as PrismaService;
+      return {
+        service: new AdminCatalogService(prisma),
+        programUpdates,
+        programCreates,
+        institutionUpdates,
+      };
+    }
+    const EEF_INST = 'eef-univ-0123456789abcdef';
+    const EEF_PROG = 'eef-prog-0123456789abcdef';
+
+    describe('établissement', () => {
+      it("refuse de publier un établissement de l'import", async () => {
+        const { service, institutionUpdates } = makeGuarded(null);
+        await expect(
+          service.updateInstitution(EEF_INST, { isActive: true }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(institutionUpdates).toEqual([]);
+      });
+
+      it('laisse retirer un établissement de l’import, ou l’éditer sans toucher au drapeau', async () => {
+        const { service, institutionUpdates } = makeGuarded(null);
+        await service.updateInstitution(EEF_INST, { isActive: false });
+        await service.updateInstitution(EEF_INST, { nameFr: 'Nouveau nom' });
+        expect(institutionUpdates).toHaveLength(2);
+        expect(institutionUpdates[0].isActive).toBe(false);
+        expect(Object.keys(institutionUpdates[1])).not.toContain('isActive');
+      });
+
+      it("publie toujours un établissement qui n'est pas de l'import", async () => {
+        const { service, institutionUpdates } = makeGuarded(null);
+        await service.updateInstitution('omnes-ece', { isActive: true });
+        expect(institutionUpdates[0].isActive).toBe(true);
+      });
+    });
+
+    describe('formation', () => {
+      it("refuse de publier une formation de l'import même rangée sous un autre établissement", async () => {
+        // Le préfixe de la formation suffit : un établissement réaffecté ne blanchit pas.
+        const { service, programUpdates } = makeGuarded({
+          institutionId: 'omnes-ece',
+          isActive: false,
+        });
+        await expect(
+          service.updateProgram(EEF_PROG, { isActive: true }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programUpdates).toEqual([]);
+      });
+
+      it("refuse de publier une formation de l'import", async () => {
+        const { service, programUpdates } = makeGuarded({
+          institutionId: EEF_INST,
+          isActive: false,
+        });
+        await expect(
+          service.updateProgram(EEF_PROG, { isActive: true }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programUpdates).toEqual([]);
+      });
+
+      it("refuse de publier une formation saisie à la main SOUS un établissement de l'import", async () => {
+        // Son identifiant n'a pas le préfixe, son parent l'a : c'est la définition
+        // de la provenance (`eefProgramWhere`), et la recherche la servirait.
+        const { service, programUpdates } = makeGuarded({
+          institutionId: EEF_INST,
+          isActive: false,
+        });
+        await expect(
+          service.updateProgram('manual-1', { isActive: true }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programUpdates).toEqual([]);
+      });
+
+      it("refuse de ranger une formation PUBLIÉE sous un établissement de l'import", async () => {
+        const { service, programUpdates } = makeGuarded({
+          institutionId: 'omnes-ece',
+          isActive: true,
+        });
+        await expect(
+          service.updateProgram('partner-1', { institutionId: EEF_INST }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programUpdates).toEqual([]);
+      });
+
+      it("laisse éditer, retirer ou renommer une formation de l'import déjà publiée", async () => {
+        const { service, programUpdates } = makeGuarded({
+          institutionId: EEF_INST,
+          isActive: true,
+        });
+        await service.updateProgram(EEF_PROG, { tuitionMinEur: 7025 });
+        await service.updateProgram(EEF_PROG, { isActive: false });
+        await service.updateProgram(EEF_PROG, { isActive: true }); // déjà publiée : rien ne change
+        expect(programUpdates).toHaveLength(3);
+      });
+
+      it("publie toujours une formation qui n'est pas de l'import", async () => {
+        const { service, programUpdates } = makeGuarded({
+          institutionId: 'omnes-ece',
+          isActive: false,
+        });
+        await service.updateProgram('partner-1', { isActive: true });
+        expect(programUpdates[0].isActive).toBe(true);
+      });
+
+      it("ne crée pas, publiée, une formation sous un établissement de l'import", async () => {
+        const { service, programCreates } = makeGuarded(null);
+        await expect(
+          service.createProgram({ ...required, institutionId: EEF_INST }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programCreates).toEqual([]);
+      });
+
+      it("crée en attente une formation sous un établissement de l'import", async () => {
+        const { service, programCreates } = makeGuarded(null);
+        await service.createProgram({
+          ...required,
+          institutionId: EEF_INST,
+          isActive: false,
+        });
+        expect(programCreates[0].isActive).toBe(false);
+      });
+
+      it("crée publiée, comme avant, une formation d'un autre établissement", async () => {
+        const { service, programCreates } = makeGuarded(null);
+        await service.createProgram(required);
+        expect(programCreates[0].isActive).toBe(true);
+      });
+    });
+  });
+
   describe('publier une ligne importée', () => {
-    // L'import du catalogue « Études en France » crée ses lignes
-    // `isActive: false`. Sans ce chemin d'écriture, le drapeau serait une
-    // impasse et non une file d'attente : 10 247 formations créées, aucune
-    // publiable.
+    // Les fiches créées `isActive: false` qui ne sont PAS de l'import « Études en
+    // France » (partenaires, saisie à la main) se publient par ce chemin ; celles
+    // de l'import ont le leur (voir le bloc précédent).
     it('accepte isActive pour publier une formation en attente', async () => {
       const { service, updates } = makeService();
       await service.updateProgram('prog-1', { isActive: true });

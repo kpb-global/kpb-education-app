@@ -117,6 +117,12 @@ function evaluate(
     } else if ('isEmpty' in op) {
       const list = (actual as unknown[]) ?? [];
       parts.push((list.length === 0) === op.isEmpty);
+    } else if ('startsWith' in op) {
+      if (actual === null || actual === undefined) parts.push(null);
+      else
+        parts.push(
+          typeof actual === 'string' && actual.startsWith(op.startsWith as string),
+        );
     } else {
       throw new Error(`opérateur non pris en charge dans le test : ${
         JSON.stringify(op)}`);
@@ -257,11 +263,16 @@ describe('tierWhere et tierOf disent la même chose', () => {
 });
 
 describe('buildShortlistWhere', () => {
+  /// L'établissement PUBLIÉ des lignes d'essai. Sans lui, aucune ligne ne
+  /// satisfait la clause : la formation n'est recommandable que si son parent
+  /// est publié.
+  const PUBLISHED = 'eef-univ-0353074b';
   const base = {
     path: 'master' as EefEntryPath,
     countryId: 'france',
     declaredFieldIds: ['d02'],
     tier: 'securite' as EefShortlistTier,
+    publishedInstitutionIds: [PUBLISHED],
   };
 
   it('ne sort jamais du relu ni du bon pays', () => {
@@ -270,6 +281,143 @@ describe('buildShortlistWhere', () => {
       expect(where.isActive).toBe(true);
       expect(where.countryId).toBe('france');
     }
+  });
+
+  // ── Le parent doit être publié ────────────────────────────────────────────
+  //
+  // `Program` n'a pas de relation vers `Institution` : une formation publiée
+  // sous une université que personne n'a relue était RECOMMANDÉE nominativement,
+  // avec pour établissement une fiche non vérifiée.
+  describe('l’établissement doit être publié', () => {
+    const eligible = {
+      isActive: true,
+      countryId: 'france',
+      cycle: 'master',
+      fieldId: 'd02',
+      recommendedFieldIds: [],
+      recommendedBachelors: ['Toutes licences'],
+      admissionModes: ['Dossier'],
+    };
+
+    it('recommande une formation dont l’établissement est publié', () => {
+      const where = buildShortlistWhere({ ...base, stratum: 'linked' });
+      expect(
+        matchesWhere(where, { ...eligible, institutionId: PUBLISHED }),
+      ).toBe(true);
+    });
+
+    it('ne recommande pas une formation dont l’établissement ne l’est pas', () => {
+      // Étage, strate et comptage : la clause vaut pour TOUTES les variantes,
+      // le total compris — un total qui compterait ces lignes annoncerait des
+      // formations que la liste ne montrera jamais.
+      for (const tier of EEF_SHORTLIST_TIERS) {
+        for (const stratum of ['linked', 'open', 'any'] as const) {
+          const where = buildShortlistWhere({ ...base, tier, stratum });
+          expect({
+            tier,
+            stratum,
+            served: matchesWhere(where, {
+              ...eligible,
+              fieldId: 'd02',
+              institutionId: 'eef-univ-non-publiee',
+            }),
+          }).toEqual({ tier, stratum, served: false });
+        }
+      }
+    });
+
+    // ── La provenance : une seule définition de « EEF » ─────────────────────
+    //
+    // `cycle` filtre sur des valeurs qu'une formation partenaire pourrait aussi
+    // porter le jour où l'exploitation la qualifie. Seule la PROVENANCE dit
+    // « cette ligne vient de l'import » — la même que celle que le catalogue
+    // général exclut.
+    describe('la formation vient de l’import', () => {
+      const PARTNER = 'omnes-essec';
+      const both = { ...base, publishedInstitutionIds: [PUBLISHED, PARTNER] };
+      const servedBy = (row: Record<string, unknown>) => {
+        const served: string[] = [];
+        for (const tier of EEF_SHORTLIST_TIERS) {
+          for (const stratum of ['linked', 'open', 'any'] as const) {
+            const where = buildShortlistWhere({ ...both, tier, stratum });
+            if (matchesWhere(where, { ...eligible, fieldId: 'd02', ...row })) {
+              served.push(`${tier}/${stratum}`);
+            }
+          }
+        }
+        return served;
+      };
+
+      it('ne recommande pas la formation d’une école partenaire publiée, même qualifiée', () => {
+        // Établissement actif (donc dans la liste des publiés), cycle et domaine
+        // compatibles : seule la provenance l'écarte.
+        expect(
+          servedBy({ id: 'omnes-p-42', institutionId: PARTNER }),
+        ).toEqual([]);
+        // Un identifiant généré (saisie manuelle) sous un établissement
+        // partenaire ne change rien.
+        expect(
+          servedBy({ id: 'cm1abcdef0000', institutionId: PARTNER }),
+        ).toEqual([]);
+      });
+
+      it('recommande une formation de l’import', () => {
+        expect(
+          servedBy({ id: 'eef-prog-0387ffdcaab99c8a', institutionId: PUBLISHED })
+            .length,
+        ).toBeGreaterThan(0);
+      });
+
+      it('compte aussi une formation saisie à la main sous une université de l’import', () => {
+        // Même règle que `notEefProgram` : le parent EEF fait la ligne EEF.
+        expect(
+          servedBy({ id: 'cm1abcdef0000', institutionId: PUBLISHED }).length,
+        ).toBeGreaterThan(0);
+      });
+
+      it('exclut une ligne dont on ne sait rien', () => {
+        expect(servedBy({ id: undefined, institutionId: null })).toEqual([]);
+      });
+    });
+
+    it('ne recommande pas une formation sans établissement connu', () => {
+      // `NULL IN (…)` vaut NULL, donc faux : une ligne sans parent ne passe pas.
+      const where = buildShortlistWhere({ ...base, stratum: 'linked' });
+      expect(matchesWhere(where, { ...eligible, institutionId: null })).toBe(
+        false,
+      );
+      expect(matchesWhere(where, { ...eligible })).toBe(false);
+    });
+
+    it('sans aucun établissement publié, ne recommande rien', () => {
+      // La liste vide reste dans la clause : l'omettre servirait tout.
+      for (const stratum of ['linked', 'open', 'any'] as const) {
+        const where = buildShortlistWhere({
+          ...base,
+          stratum,
+          publishedInstitutionIds: [],
+        });
+        expect(where.AND).toContainEqual({ institutionId: { in: [] } });
+        expect(
+          matchesWhere(where, { ...eligible, institutionId: PUBLISHED }),
+        ).toBe(false);
+      }
+    });
+
+    it('copie la liste au lieu de la partager', () => {
+      // Le service passe UNE liste à chaque requête d'étage et de total.
+      const shared = [PUBLISHED];
+      const where = buildShortlistWhere({
+        ...base,
+        stratum: 'linked',
+        publishedInstitutionIds: shared,
+      });
+      const clause = (where.AND as { institutionId?: { in: string[] } }[]).find(
+        (part) => part.institutionId !== undefined,
+      )!;
+      clause.institutionId!.in.push('intrus');
+      expect(shared).toEqual([PUBLISHED]);
+    });
   });
 
   it('restreint aux cycles du chemin, et à eux seuls', () => {
@@ -299,6 +447,7 @@ describe('buildShortlistWhere', () => {
             ...candidate,
             isActive: true,
             countryId: 'france',
+            institutionId: PUBLISHED,
             admissionModes: ['Dossier'],
           } as unknown as Record<string, unknown>),
         ).toBe(true);
@@ -308,6 +457,7 @@ describe('buildShortlistWhere', () => {
           ...neither,
           isActive: true,
           countryId: 'france',
+          institutionId: PUBLISHED,
           admissionModes: ['Dossier'],
         } as unknown as Record<string, unknown>),
       ).toBe(false);
@@ -320,6 +470,7 @@ describe('buildShortlistWhere', () => {
     const target = {
       isActive: true,
       countryId: 'france',
+      institutionId: PUBLISHED,
       cycle: 'master',
       fieldId: 'd02',
       recommendedFieldIds: [],
@@ -356,6 +507,7 @@ describe('buildShortlistWhere', () => {
       const interviewed = {
         isActive: true,
         countryId: 'france',
+        institutionId: PUBLISHED,
         cycle: 'master',
         fieldId: 'd11',
         recommendedFieldIds: [],
@@ -387,6 +539,7 @@ describe('buildShortlistWhere', () => {
         const candidate = {
           isActive: true,
           countryId: 'france',
+          institutionId: PUBLISHED,
           cycle: 'master',
           fieldId: 'd02',
           recommendedFieldIds: [],
@@ -416,6 +569,7 @@ describe('buildShortlistWhere', () => {
     const target = {
       isActive: true,
       countryId: 'france',
+      institutionId: PUBLISHED,
       cycle: 'master',
       fieldId: 'd11',
       recommendedFieldIds: [],

@@ -58,6 +58,33 @@ export interface AvatarStream {
   object: StoredObject | null;
 }
 
+/**
+ * Les avis conseiller qui sont « à » cet utilisateur : ceux qu'il a signés, ET
+ * ceux qu'aucun auteur ne rattache mais qui portent l'un de SES dossiers.
+ *
+ * Le second critère existe à cause de l'historique. Tant que l'auteur venait du
+ * corps de la requête, l'app ne l'envoyait pas : les avis déjà enregistrés ont
+ * `reviewerUserId = NULL`, et la seule trace de leur auteur est le dossier noté —
+ * que la suppression du compte emporte. Sans ce critère, le nom civil et le
+ * texte survivent à l'effacement (RGPD, droit à l'effacement) ; sans lui non
+ * plus, l'export ne les rendrait pas à leur auteur.
+ *
+ * La migration de reprise n'en rattache qu'une partie : elle exige que le
+ * conseiller du dossier soit celui qui est noté, parce qu'un rattachement rend
+ * l'avis éligible à la publication au titre du consentement de CE propriétaire.
+ * Effacer et exporter n'ont pas cette contrainte : « trop » est la bonne
+ * direction d'erreur pour une suppression, et un avis qui porte le dossier de
+ * quelqu'un lui appartient assez pour lui être rendu.
+ */
+function reviewsOfUser(userId: string, caseIds: string[]) {
+  return {
+    OR: [
+      { reviewerUserId: userId },
+      { reviewerUserId: null, caseId: { in: caseIds } },
+    ],
+  };
+}
+
 @Injectable()
 export class ProfilesService {
   private readonly logger = new Logger(ProfilesService.name);
@@ -593,7 +620,7 @@ export class ProfilesService {
       // denormalized avgRating/reviewCount can be recomputed AFTER it. Deleting
       // a published review would otherwise leave those counters inflated. P2 #246.
       const authoredReviews = await prisma.counsellorReview.findMany({
-        where: { reviewerUserId: id },
+        where: reviewsOfUser(id, caseIds),
         select: { counsellorId: true },
       });
       const affectedCounsellorIds = [
@@ -642,8 +669,10 @@ export class ProfilesService {
         // revue P1 sur #244. Gardés par profiles.postgres.spec.ts.
         //
         // (1) Avis conseiller rédigé PAR l'utilisateur : porte `reviewerName`
-        // (nom civil) + `body`. `reviewerUserId` est `String?` sans relation.
-        prisma.counsellorReview.deleteMany({ where: { reviewerUserId: id } }),
+        // (nom civil) + `body`. `reviewerUserId` est `String?` sans relation —
+        // et NULL pour tous les avis enregistrés avant que l'auteur vienne du
+        // jeton : ceux-là se retrouvent par le dossier noté (voir reviewsOfUser).
+        prisma.counsellorReview.deleteMany({ where: reviewsOfUser(id, caseIds) }),
         // (2) L'utilisateur EN TANT QU'ambassadeur : la ligne `Ambassador` porte le
         // `payoutAccount`. Ses `referrals` / `commissions` / `withdrawals` ont
         // `ambassador … onDelete: Cascade` (relationMode foreignKeys), donc
@@ -1347,6 +1376,29 @@ export class ProfilesService {
         }),
       ]);
 
+      // Les avis que l'étudiant a rédigés sur ses conseillers : son nom, sa note
+      // et son texte sont SES données. Ils manquaient à l'export alors que la
+      // suppression de compte les efface — tant que l'auteur restait NULL, il
+      // n'existait aucun moyen de les retrouver. Lus après les dossiers : ceux
+      // d'avant l'auteur ne se rattachent que par le dossier noté.
+      const counsellorReviews = await prisma.counsellorReview.findMany({
+        where: reviewsOfUser(
+          id,
+          cases.map((c) => c.id),
+        ),
+        orderBy: { createdAt: 'asc' },
+        select: {
+          id: true,
+          counsellorId: true,
+          caseId: true,
+          reviewerName: true,
+          rating: true,
+          body: true,
+          isPublished: true,
+          createdAt: true,
+        },
+      });
+
       const workspaceIds = scholarshipWorkspaces.map(
         (workspace) => workspace.id,
       );
@@ -1387,6 +1439,7 @@ export class ProfilesService {
         coachConversations,
         orientationSessions,
         parentLinks: { asParent: parentLinksAsParent, asChild: parentLinksAsChild },
+        counsellorReviews,
         scholarshipWorkspaces,
         consentReceipts,
         aiQuotaBuckets,

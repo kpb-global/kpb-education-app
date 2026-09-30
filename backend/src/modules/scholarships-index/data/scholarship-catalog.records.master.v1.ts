@@ -77,8 +77,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       'Closed — 2027 cohort applications closed (international deadline 19 August 2026, Canada/US 23 September 2026, 4:00 PM ET); next cycle expected around June 2027, date not published',
     ],
     description: [
-      'Bourse de leadership de McGill pour un Master ou diplôme professionnel admissible, pour une entrée à l’été ou à l’automne 2027. La source officielle publie deux dates limites : 19 août 2026 pour les candidats des universités hors Canada et États-Unis, 23 septembre 2026 pour le Canada et les États-Unis. Jusqu’à 30 bourses complètes et 100 prix d’admission sont offerts chaque année.',
-      'McGill leadership scholarship for an eligible Master or professional degree, for Summer/Fall 2027 entry. The official source publishes two deadlines: 19 August 2026 for applicants from universities outside Canada and the United States, 23 September 2026 for Canada and the United States. Up to 30 full scholarships and 100 entrance awards are offered each year.',
+      'Bourse de leadership de McGill pour un Master ou diplôme professionnel admissible, pour une entrée à l’été ou à l’automne 2027. Les candidatures 2027 sont closes : la source officielle avait fixé deux dates limites, le 19 août 2026 pour les candidats des universités hors Canada et États-Unis et le 23 septembre 2026 pour le Canada et les États-Unis. Jusqu’à 30 bourses complètes et 100 prix d’admission sont offerts chaque année.',
+      'McGill leadership scholarship for an eligible Master or professional degree, for Summer/Fall 2027 entry. 2027 applications are closed: the official source set two deadlines, 19 August 2026 for applicants from universities outside Canada and the United States and 23 September 2026 for Canada and the United States. Up to 30 full scholarships and 100 entrance awards are offered each year.',
     ],
     advantages: [
       ['Frais de scolarité et droits du programme admissible', 'Tuition and fees for the eligible programme'],
@@ -233,7 +233,8 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       ['CV selon le modèle SI', 'CV using the SI template'],
       ['Preuves d’emploi et de leadership selon les formulaires SI', 'Work and leadership evidence using SI forms'],
       ['Copie du passeport ou de la pièce d’identité', 'Passport or identity copy'],
-      ['Formulaire de motivation et pièces publiées au prochain appel', 'Motivation form and documents published with the next call'],
+      ['Deux lettres de recommandation (modèle SI), signées et tamponnées', 'Two letters of reference (SI template), signed and stamped'],
+      ['Motivation rédigée dans le portail de candidature SI ; modèles et pièces à reconfirmer au prochain appel', 'Motivation written in the SI application portal; templates and documents to be reconfirmed at the next call'],
     ],
     steps: [
       ['Choisir des Masters SI', 'Choose SI-eligible Masters', 'À publication de la liste, identifier les programmes compatibles avec son impact de développement.', 'When the list is published, identify programmes aligned with the applicant’s development impact.'],

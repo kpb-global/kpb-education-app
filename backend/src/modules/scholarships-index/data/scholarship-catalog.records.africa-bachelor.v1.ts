@@ -135,8 +135,8 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         [
           'Compléter le formulaire d’aide financière',
           'Complete the financial aid form',
-          'Joindre le formulaire d’aide au dossier d’admission et indiquer le montant nécessaire ; l’aide ne peut plus être demandée une fois l’admission prononcée.',
-          'Attach the financial aid form to the admissions file and state the amount required; aid can no longer be requested once admission has been decided.',
+          'Joindre le formulaire d’aide au dossier d’admission et indiquer le montant nécessaire ; l’université demande de remplir ce formulaire pour pouvoir recevoir une aide.',
+          'Attach the financial aid form to the admissions file and state the amount required; the university asks applicants to complete this form in order to receive assistance.',
         ],
         [
           'Passer l’entretien et attendre la décision',
@@ -191,7 +191,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         'Tuition fee waiver, up to full funding',
       ],
       fundingType: 'partially_funded',
-      applicationRequirement: 'automatic',
+      applicationRequirement: 'separate_application',
       deadlineLabel: [
         'Rentrée de septembre 2027 — échéance non publiée, estimée vers la mi-juin 2027 ; dépôt en continu',
         'September 2027 intake — deadline not yet published, estimated around mid-June 2027; rolling applications',
@@ -214,8 +214,8 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
           'Full-ride scholarships covering full tuition and additional financial support throughout the journey',
         ],
         [
-          'Aide évaluée dans la même candidature, à l’étape « Finances », sans dossier de bourse séparé',
-          'Aid assessed inside the same application, at the Finances stage, with no separate scholarship file',
+          'Éligibilité à l’aide vérifiée dans la même candidature, à l’étape « Finances », qui indique si l’on peut demander une aide financière ALU',
+          'Aid eligibility checked inside the same application, at the Finances stage, which shows whether you qualify to apply for ALU financial aid',
         ],
         [
           'Frais de scolarité de référence bas : environ 3 000 US$ par an, 4 000 US$ pour International Business & Trade',

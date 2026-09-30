@@ -238,3 +238,187 @@ appliquée (« All migrations have been successfully applied »), et
   points d'entrée se masquent — même mécanique que le masquage des outils IA. Le
   déploiement couplé reste dû, maintenant pour deux raisons : `AiConsentGuard`
   et la table `EefInterest`.
+
+## Déploiements backend sans build
+
+Un déploiement du backend seul ne consomme aucun numéro de build : il n'a donc
+pas de ligne sous **Consommés**, ni sous le numéro courant. Il est consigné ici
+pour que l'ordre de livraison (`docs/DEPLOYMENT.md`, « le backend d'abord, le
+mobile ensuite ») reste lisible.
+
+### 29/09/2026 — frontière de l'import « Études en France » et auteur des avis conseillers
+
+**État : prêt, PAS déployé.** Sur la branche `claude/campus-france-space-98orw9`,
+non fusionné, sans PR : la CI ne se déclenche que sur `main` et sur les PR vers
+`main`, elle n'a donc PAS encore tourné sur ces commits (le dernier run de la
+branche date du 22/08/2026). La production tourne au SHA `113cc55a39cf` (démarrée le
+22/09/2026) ; trois commits de `main` n'y sont pas non plus (#285, #286 —
+étiquettes OneSignal pour la segmentation —, #291 — l'email manquant bloquait
+toute la synchro du profil).
+
+**Couplage : `tolerates-old` côté mobile.** Aucune route nouvelle, aucun champ
+que les builds installées (49 à 53) devraient envoyer. **Côté admin, le
+déploiement est couplé** : voir la file `/verification` ci-dessous.
+
+- `GET /catalog/institutions`, `GET /catalog/programs` et `/matches/*` cessent de
+  servir des lignes de l'import « Études en France ». **Aucune n'est publiée
+  aujourd'hui : rien ne change à l'écran.** La garde est posée AVANT la première
+  publication, ce qui est tout son sens (voir `docs/eef-catalog-pipeline.md`,
+  § 2ter).
+- `GET /etudes-en-france/search` et `/shortlist` ne servent plus QUE les lignes de
+  l'import (même définition que l'exclusion ci-dessus) : une formation d'école
+  partenaire que l'exploitation qualifierait d'une procédure resterait dans le
+  catalogue général, et n'entrerait pas dans l'espace. Aucune ligne n'est publiée
+  aujourd'hui : rien ne change à l'écran.
+- `POST /counsellors/:id/reviews` : l'auteur vient du jeton. Le corps
+  qu'envoient les builds 49 à 53 (`rating`, `body`, `reviewerName`, `caseId`) est
+  **accepté tel quel** — `reviewerName` est déclaré et ignoré, sans quoi la
+  validation globale (`forbidNonWhitelisted`) répondrait 400 à tous leurs avis.
+  Un texte trop long est **tronqué à 1 000 caractères** (sans couper un emoji en
+  deux) et non refusé : le champ de saisie de l'app n'a aucune limite, un 400 lui
+  ferait perdre le texte. Ce qui change de leur point de vue : un avis sur un
+  dossier qui n'est pas terminé (409), qui n'est pas le leur (404), qu'un autre
+  conseiller a traité (403) ou qui est déjà noté (409) est refusé, alors qu'il
+  était enregistré. L'app ne propose de noter qu'un dossier terminé, traité par
+  son conseiller, une fois : ces refus ne correspondent à aucun parcours de
+  l'app. « Un avis par dossier » est une garde au mieux-effort — aucune contrainte
+  d'unicité en base.
+- `GET /counsellors/:id` ne sert plus la clé de rattachement (`reviewerUserId`,
+  `caseId`) des avis publiés, et ne sert que ceux dont l'auteur a un reçu
+  `public_testimonial` actif — la porte de `/impact/reviews`. Aucun client de
+  l'app n'appelle cette fiche.
+- `PATCH /cases/:id` **côté étudiant est supprimé** (404). Il laissait le
+  propriétaire fixer `status`, `assignedAdvisorName` et le texte de la prochaine
+  étape de son propre dossier — donc se déclarer « terminé » et ouvrir le droit de
+  noter un conseiller. Le client de l'app définissait `updateCase` sans qu'aucun
+  écran ni test ne l'appelle (constaté sur l'historique disponible, qui remonte
+  au 23/08/2026 : les builds antérieures ne peuvent pas être relues d'ici) ;
+  l'équipe passe par `PATCH /admin/cases/:id`, inchangé. Si une build installée
+  l'appelait, elle recevrait un 404.
+- `GET /profiles/me/export` gagne un champ `counsellorReviews` (les avis que
+  l'utilisateur a laissés) ; la suppression de compte efface ses avis, signés ou
+  restés sans auteur mais posés sur l'un de ses dossiers. Additif.
+- `GET /admin/catalog/verification-due` : les lignes de l'import « Études en
+  France » **encore inactives** en sortent, ainsi que du compteur du tableau de
+  bord et de l'alerte de 07 h — elles n'ont jamais été publiées, ce ne sont pas
+  des fiches à REvérifier. Si l'import a été appliqué en production (le plan de
+  livraison en mesure 10 247 formations, inactives), le code actuel les y liste
+  comme « jamais vérifiées » : la page et l'alerte s'allègent d'autant le jour du
+  déploiement. `total` et `truncated` s'ajoutent ; la file est plafonnée à
+  500 éléments **sans qu'aucune catégorie soit affamée** (chacune de celles qui
+  ont des lignes reçoit au moins 500 ÷ leur nombre de places — 125 avec les
+  quatre) et triée dans un ordre total (jamais-vérifiés et plus périssables
+  d'abord, puis échéance la plus ancienne). Les quatre catégories (pays,
+  établissements, formations, bourses) partagent désormais UNE définition avec le
+  compteur du tableau de bord et l'alerte de 07 h.
+
+  **L'admin doit partir avec l'API (`scope=full`).** Un admin qui ne serait pas
+  redéployé ignore `total` et `truncated` : il afficherait « 500 ouvertes »
+  sans le moindre avertissement, alors qu'il en reste davantage. C'est le seul
+  couplage de ce lot ; la page `/verification` de l'admin fourni ici affiche le
+  nombre de lignes montrées sur le total réel, et invite à recharger une fois le
+  lot validé.
+
+- **Nouvelles routes admin de publication de l'import** (`admin/etudes-en-france/
+  publication/*`, `admin` et `super_admin` seulement) : publier ou retirer un
+  établissement et ses formations, simulation par défaut, relecteur = la session.
+  Aucun client de l'app ne les appelle ; aucune ligne n'est publiée tant que
+  personne ne s'en sert. Détail : `docs/api-contracts.md`. **Couplage admin :** le
+  nouvel écran « Publication EEF » de l'admin appelle ces routes, donc le backend
+  part AVANT l'admin (un admin plus ancien n'a simplement pas l'écran). L'écran a
+  été exercé dans un navigateur contre un faux serveur qui réutilise le vrai plan
+  du backend (parcours complet, refus, retrait), pas contre une base de production.
+- **Publication de l'import : trois failles fermées après la revue automatique de la
+  PR.** (1) `PATCH`/`POST /admin/catalog/…` ne peuvent plus ACTIVER une ligne de
+  l'import (409) : la publication passe uniquement par « Publication EEF » ; les
+  autres usages de ces routes sont inchangés. (2) Activer un établissement
+  revalide ses formations déjà actives ; l'une invalide refuse l'établissement
+  (`institution_has_invalid_active_program`, `plan.programs.activeInvalid`) — un
+  motif de refus de plus, que l'écran affiche. (3) La transaction d'écriture est en
+  `RepeatableRead` : une modification concurrente annule la publication (409) au
+  lieu d'être publiée et signée. **Couplage admin :** un admin plus ancien
+  ne connaît pas le nouveau motif et l'afficherait en clé brute ; le backend part
+  AVANT l'admin, comme pour le reste du lot.
+- **Documentation des sources corrigée, deux dossiers de décision ouverts.** La SOP
+  et le pipeline affirmaient « chaque ligne porte sa fiche officielle » : c'est faux
+  pour 4 212 lignes sur 10 502 (portail Mon Master, jeu de données ouvert) —
+  `docs/eef-catalog-pipeline.md` § 2.8. L'écran de publication compte ces lignes
+  avant de demander la signature (`programs.genericSource`). À faire trancher :
+  `docs/eef-dossier-relecture-procedures.md` (partage DAP / Études en France) et
+  `docs/eef-dossier-juridique-logos.md`.
+- **Logos des établissements : 320 px → 330 px.** Wikimedia refuse les largeurs
+  hors liste standard (HTTP 400) : les 26 logos SVG de l'import ne s'affichaient
+  pas. Le serveur sert désormais 330 px, y compris pour une ligne importée avec
+  l'ancien 320 px. Les builds installées affichent l'URL du serveur telle quelle :
+  elles en profitent sans mise à jour ; le client Flutter est aligné pour la
+  prochaine build. Détail : `docs/eef-catalog-pipeline.md` § 2.6bis.
+- **Domaines de l'import « Études en France » réalignés sur l'orientation.**
+  Dix domaines sur douze de l'import portaient le nom d'un autre (`d03` était
+  « Finance », `d05` « Ingénierie »…). Les 10 502 formations versionnées sont
+  réécrites (3 134 changent) et la recherche, le validateur et le classement de la
+  shortlist ne parlent plus qu'une liste. Aucun effet à l'écran aujourd'hui
+  (rien n'est publié). **Les lignes déjà importées en production gardent
+  l'ancien domaine** : avant toute publication, `eef-purge-pending` puis
+  `eef-import` (VPS ops, dry-run d'abord), après avoir lu `db-info` section 10.
+  Détail et choix à confirmer : `docs/eef-catalog-pipeline.md` § 2.7.
+
+**Une migration s'applique :** `20260929120000_counsellor_review_author_backfill`.
+Des DONNÉES seulement — un `UPDATE` qui rattache les avis déjà enregistrés sans
+auteur au propriétaire du dossier noté — sans changement de schéma,
+idempotente, sur une table de quelques lignes. Appliquée par le
+`prisma migrate deploy` du déploiement `scope=full`. L'ordre entre la migration
+et le remplacement des conteneurs est sans conséquence, avec une réserve : entre
+les deux — et après tout retour à l'ancien code — l'ancien service peut encore
+créer un avis sans auteur ; rejouer le SQL de la migration (idempotent) le
+rattache. Ce n'est pas un trou d'effacement : la suppression de compte et l'export
+retrouvent aussi les avis sans auteur par le dossier de l'utilisateur.
+
+**Avis orphelins — une décision à prendre, avec son chiffre.** Un avis dont le
+dossier n'existe plus (compte déjà supprimé) ou n'a jamais été renseigné n'a plus
+d'auteur retrouvable ; il peut porter un nom civil. Le compter avant de décider
+(anonymiser `reviewerName`, ou supprimer) :
+
+```sql
+SELECT count(*) AS orphelins,
+       count(*) FILTER (WHERE r."isPublished") AS dont_publies
+FROM "CounsellorReview" AS r
+WHERE r."reviewerUserId" IS NULL
+  AND NOT EXISTS (SELECT 1 FROM "Case" AS c WHERE c."id" = r."caseId");
+```
+
+Validée à la main sur PostgreSQL 16 — les 64 migrations sur base neuve (puis
+« No pending migrations to apply » au second passage), et un `migrate deploy` sur
+une base peuplée de 7 avis (2 rattachés, 4 laissés à `NULL` faute de
+correspondance, 1 déjà attribué et non écrasé), rejeu à `UPDATE 0`, et trois
+mutants de la clause `WHERE` tous détectés — parce que la CI ne l'exécute pas
+tant que son pas unitaire est rouge (voir ci-dessous). La CI, elle, tourne sur
+PostgreSQL 15 et Node 20 : ces deux versions n'ont pas pu être exercées ici.
+
+**Catalogue de bourses relu le 29/09/2026 — blocage levé par #292, version
+1.4.0.** Le validateur refuse toute source contrôlée il y a plus de 30 jours : les
+34 fiches, relues le 24/08, étaient périmées depuis le 23/09 et un seul test
+(`scholarship-catalog.validator.spec.ts › reste importable à la date du jour`)
+tenait `Backend CI` rouge sur `main`, donc bloquait `deploy.yml`, qui exige un run
+vert sur le SHA exact. **#292 l'a levé le 29/09** (Backend CI vert sur `51a620a`) :
+34 fiches relues, dont UP Mastercard relue au navigateur par l'équipe — le site
+bloque les robots (Cloudflare), qu'on ne contourne pas.
+
+Cette branche portait une **seconde relecture indépendante** des mêmes fiches
+(`docs/catalog-verification-2026-09-29.md`, rapports bruts dans
+`docs/evidence/catalog-2026-09-29/`). Comparée champ par champ à #292 avant la
+fusion, elle y ajoute **58 champs sur 15 fiches**, dont deux qui changent ce que
+l'étudiant lit sur le financement : en Licence la bourse Türkiye–IsDB est un
+**prêt** à rembourser, et la demande d'aide ALU est un **dossier distinct**. Le
+catalogue passe en 1.4.0. Le détail, et ce qui a été écarté, est dans le journal.
+
+- **Trois clôtures proches** : UP **le 30/09** (le cycle doit passer en `closed`
+  aujourd'hui), Chevening et Knight-Hennessy le 06/10. `catalog-freshness.yml`
+  (issue #270) les signale ; `catalog:publish` saute les fiches périmées.
+- **La production ne bénéficie pas de ces corrections toute seule.** Les lignes de
+  bourses en base datent de l'import d'août (catalogue 1.3.0 mesuré le 31/08) :
+  après le déploiement, lancer `publish-catalog` (VPS ops) — `import` →
+  `reconcile` → `switch`, dans cet ordre. `import` seul ne corrige rien.
+- **À revérifier** : la source « éligibilité » d'IsDB (`/scholarshipsprograms`) ne
+  contient pas IsDB dans son HTML statique ; les écarts entre les formulaires PDF
+  2027 d'UP et ses pages HTML (facultés, Master de première année seulement,
+  moyenne minimale de 70 %).

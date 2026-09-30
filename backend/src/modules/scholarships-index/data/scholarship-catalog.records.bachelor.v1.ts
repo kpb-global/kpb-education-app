@@ -163,7 +163,7 @@ export const VERIFIED_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = 
       ['Être étudiant international non canadien nécessitant un permis d’études', 'Be a non-Canadian international student requiring a study permit'],
       ['Être en dernière année du secondaire en 2026–2027 ou diplômé au plus tôt en juin 2026', 'Be in the final secondary year in 2026–2027 or have graduated no earlier than June 2026'],
       ['Commencer les études à l’Université de Toronto en septembre 2027', 'Begin University of Toronto studies in September 2027'],
-      ['Ne pas être déjà inscrit dans le postsecondaire et ne pas commencer ailleurs en janvier 2027', 'Not already be in post-secondary study and not begin elsewhere in January 2027'],
+      ['Ne pas être déjà inscrit dans le postsecondaire et ne pas commencer d’études postsecondaires en janvier 2027, à l’Université de Toronto ou ailleurs', 'Not already be in post-secondary study and not begin post-secondary studies in January 2027, at the University of Toronto or elsewhere'],
       ['Être nommé par son lycée actuel : la candidature spontanée est impossible et le lycée ne peut nommer qu’un seul élève par an', 'Be nominated by your current high school: self-application is impossible and a school may nominate only one student per year'],
       ['Démontrer excellence scolaire, créativité, leadership et impact', 'Demonstrate academic excellence, creativity, leadership and impact'],
       ['Postuler à un programme de Licence de première entrée : la bourse n’est utilisable qu’à l’Université de Toronto', 'Apply to a first-entry undergraduate programme: the scholarship is tenable only at the University of Toronto'],

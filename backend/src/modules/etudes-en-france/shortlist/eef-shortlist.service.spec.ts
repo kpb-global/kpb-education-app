@@ -61,7 +61,11 @@ function isImpossible(clause: unknown): boolean {
   if (!clause || typeof clause !== 'object') return false;
   const entries = Object.entries(clause as Record<string, unknown>);
   return entries.some(([key, value]) => {
-    if (key === 'id') {
+    // `id IN ()` interdit un étage sans socle ; `institutionId IN ()` interdit
+    // toute formation quand aucun établissement n'est publié. Même logique,
+    // deux colonnes : la doublure doit honorer les deux, sinon la seconde
+    // garantie ne serait testée par rien.
+    if (key === 'id' || key === 'institutionId') {
       const op = value as { in?: unknown[] };
       if (Array.isArray(op?.in) && op.in.length === 0) return true;
     }
@@ -69,11 +73,16 @@ function isImpossible(clause: unknown): boolean {
   });
 }
 
+/// L'établissement publié par défaut des lignes de test.
+const PUBLISHED_INSTITUTION = 'eef-univ-0353074b';
+
 function serviceWith(opts: {
   interest?: Record<string, unknown> | null;
   rows?: Record<string, unknown>[];
   total?: number;
   countries?: { id: string; code: string }[];
+  /// Les établissements publiés que la base répond. Par défaut, un seul.
+  publishedInstitutions?: string[];
   isEnabled?: boolean;
   throws?: boolean;
 }) {
@@ -81,6 +90,14 @@ function serviceWith(opts: {
   const client: Record<string, unknown> = {
     country: {
       findMany: async () => opts.countries ?? [{ id: 'france', code: 'FRA' }],
+    },
+    institution: {
+      findMany: async (args: Record<string, unknown>) => {
+        captured.calls.push({ kind: 'institution', ...args });
+        return (opts.publishedInstitutions ?? [PUBLISHED_INSTITUTION]).map(
+          (id) => ({ id }),
+        );
+      },
     },
     eefInterest: {
       findUnique: async (args: Record<string, unknown>) => {
@@ -172,6 +189,60 @@ describe('EefShortlistService', () => {
         await expect(service.getShortlist('u-1'))
           .rejects.toBeInstanceOf(HttpException);
       }
+    });
+
+    // ── Le parent doit être publié ──────────────────────────────────────────
+    //
+    // `Program` n'a pas de relation vers `Institution` : une formation publiée
+    // sous une université que personne n'a relue était RECOMMANDÉE
+    // nominativement, avec pour établissement une fiche non vérifiée.
+    describe('l’établissement doit être publié', () => {
+      it('lit les établissements actifs du pays, et rien d’autre', async () => {
+        const { service, captured } = serviceWith({ rows: [programRow()] });
+        await service.getShortlist('u-1');
+        const asked = captured.calls.filter((c) => c.kind === 'institution');
+        expect(asked).toHaveLength(1);
+        expect(asked[0].where).toEqual({ isActive: true, countryId: 'france' });
+      });
+
+      it('passe la MÊME liste à chaque étage et à chaque total', async () => {
+        const { service, captured } = serviceWith({
+          rows: [programRow()],
+          publishedInstitutions: ['eef-univ-a', 'eef-univ-b'],
+        });
+        await service.getShortlist('u-1');
+
+        const reads = captured.calls.filter(
+          (c) => c.kind === 'findMany' || c.kind === 'count',
+        );
+        expect(reads.length).toBeGreaterThan(0);
+        for (const call of reads) {
+          expect((call.where as Record<string, unknown>).AND).toContainEqual({
+            institutionId: { in: ['eef-univ-a', 'eef-univ-b'] },
+          });
+        }
+      });
+
+      it('sans aucun établissement publié, ne recommande rien', async () => {
+        // C'est l'état de la production aujourd'hui. La doublure honore
+        // `IN ()` : ce test échoue si la clause a disparu de la requête.
+        const { service } = serviceWith({
+          rows: [programRow()],
+          total: 42,
+          publishedInstitutions: [],
+        });
+        const result = await service.getShortlist('u-1');
+        expect(result.tiers).toEqual([]);
+        expect(result.blocked).toBeNull();
+      });
+
+      it('ne lit aucun établissement tant que la déclaration est bloquée', async () => {
+        // Un étudiant qui n'a rien déclaré n'a pas de catalogue à interroger :
+        // la lecture des établissements ne doit pas précéder ce constat.
+        const { service, captured } = serviceWith({ interest: null });
+        await service.getShortlist('u-1');
+        expect(captured.calls.filter((c) => c.kind === 'institution')).toEqual([]);
+      });
     });
   });
 

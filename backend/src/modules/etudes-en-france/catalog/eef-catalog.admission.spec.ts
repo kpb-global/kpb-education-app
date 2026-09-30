@@ -1,6 +1,7 @@
 import { admissionGuidance } from './eef-catalog.copy';
 import {
   cohortFromParcoursupRow,
+  COMMONS_STANDARD_THUMB_WIDTHS,
   commonsRasterDisplayUrl,
   logoFromCommons,
 } from './eef-catalog.admission';
@@ -169,19 +170,52 @@ describe('logoFromCommons', () => {
 });
 
 describe('commonsRasterDisplayUrl', () => {
+  const SVG =
+    'https://upload.wikimedia.org/wikipedia/commons/c/c6/Universit%C3%A4t_Artois_Logo.svg';
+  const THUMB = (width: number) =>
+    `https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Universit%C3%A4t_Artois_Logo.svg/${width}px-Universit%C3%A4t_Artois_Logo.svg.png`;
+
   it('laisse un PNG ou un JPEG inchangé', () => {
     const png =
       'https://upload.wikimedia.org/wikipedia/commons/6/6d/Logo_Reims_University.png';
     expect(commonsRasterDisplayUrl(png)).toBe(png);
   });
 
-  it('pointe le PNG miniature Commons d’un SVG', () => {
-    expect(
-      commonsRasterDisplayUrl(
-        'https://upload.wikimedia.org/wikipedia/commons/c/c6/Universit%C3%A4t_Artois_Logo.svg',
-      ),
-    ).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Universit%C3%A4t_Artois_Logo.svg/320px-Universit%C3%A4t_Artois_Logo.svg.png',
-    );
+  it('pointe le PNG miniature Commons d’un SVG, à une largeur que Wikimedia accepte', () => {
+    expect(commonsRasterDisplayUrl(SVG)).toBe(THUMB(330));
+  });
+
+  it('ne demande jamais une largeur que Wikimedia refuse', () => {
+    // 320 px répondait HTTP 400 : aucun logo ne s'affichait. Une largeur demandée
+    // hors liste est ramenée à la standard qui la contient.
+    for (const asked of [1, 20, 200, 300, 320, 330, 331, 400, 640, 2000, 9999]) {
+      const url = commonsRasterDisplayUrl(SVG, asked);
+      const width = Number(url.match(/\/(\d+)px-/)?.[1]);
+      expect(COMMONS_STANDARD_THUMB_WIDTHS).toContain(width);
+    }
+    expect(commonsRasterDisplayUrl(SVG, 320)).toBe(THUMB(330));
+    expect(commonsRasterDisplayUrl(SVG, 400)).toBe(THUMB(500));
+    expect(commonsRasterDisplayUrl(SVG, 9999)).toBe(THUMB(3840));
+  });
+
+  it('ramène à une largeur acceptée une miniature déjà stockée en 320 px', () => {
+    // Les lignes importées avant le correctif portent `/320px-…` en base.
+    expect(commonsRasterDisplayUrl(THUMB(320))).toBe(THUMB(330));
+    expect(commonsRasterDisplayUrl(THUMB(200))).toBe(THUMB(250));
+  });
+
+  it('laisse une miniature déjà à une largeur standard exactement telle quelle', () => {
+    for (const width of COMMONS_STANDARD_THUMB_WIDTHS) {
+      expect(commonsRasterDisplayUrl(THUMB(width))).toBe(THUMB(width));
+    }
+  });
+
+  it('ne touche pas une miniature qui n’est pas sur Wikimedia', () => {
+    const foreign = 'https://cdn.example.org/wikipedia/commons/thumb/c/c6/Logo.svg/320px-Logo.svg.png';
+    expect(commonsRasterDisplayUrl(foreign)).toBe(foreign);
+  });
+
+  it('garde une URL à paramètres intacte quand elle est déjà standard', () => {
+    expect(commonsRasterDisplayUrl(`${THUMB(330)}?utm=1`)).toBe(`${THUMB(330)}?utm=1`);
   });
 });

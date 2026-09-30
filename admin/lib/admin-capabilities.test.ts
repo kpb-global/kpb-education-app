@@ -240,3 +240,39 @@ describe('ManageCatalogContent — miroir du contrôleur backend', () => {
     ).toBe(false);
   });
 });
+
+describe('PublishEefCatalog — miroir du contrôleur backend', () => {
+  // `EefPublicationController` porte @Roles(Admin, SuperAdmin) : PAS ContentManager,
+  // qui édite le catalogue sans signer sa publication. La navigation masque
+  // l'entrée sur cette capacité ; si les deux listes divergent, un rôle voit une
+  // porte fermée, ou un rôle habilité perd l'accès sans le savoir.
+  it.each([InternalRole.Admin, InternalRole.SuperAdmin])(
+    '%s peut publier l’import',
+    (role) => {
+      expect(hasAdminCapability(role, AdminCapability.PublishEefCatalog)).toBe(true);
+    },
+  );
+
+  it.each([
+    InternalRole.ContentManager,
+    InternalRole.Moderator,
+    InternalRole.Commercial,
+    InternalRole.Counselor,
+  ])('%s ne le peut pas', (role) => {
+    expect(hasAdminCapability(role, AdminCapability.PublishEefCatalog)).toBe(false);
+  });
+
+  it('reste distincte de ManageCatalogContent, que ContentManager possède', () => {
+    expect(AdminCapability.PublishEefCatalog).not.toBe(
+      AdminCapability.ManageCatalogContent,
+    );
+    expect(
+      hasAdminCapability(InternalRole.ContentManager, AdminCapability.ManageCatalogContent),
+    ).toBe(true);
+  });
+
+  it('un rôle inconnu n’a aucun accès', () => {
+    expect(hasAdminCapability('stagiaire', AdminCapability.PublishEefCatalog)).toBe(false);
+    expect(hasAdminCapability(null, AdminCapability.PublishEefCatalog)).toBe(false);
+  });
+});

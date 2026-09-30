@@ -23,7 +23,8 @@
     "reports": "Reports",
     "competitionReadiness": "Competition readiness",
     "eef": "Studying in France",
-    "catalogue": "Catalog"
+    "catalogue": "Catalog",
+    "eefPublication": "EEF publication"
   },
   "login": {
     "eyebrow": "KPB Operations",
@@ -755,7 +756,10 @@
     "empty": "No catalog row to review.",
     "never": "Never",
     "notProvided": "Not provided",
-    "tableNote": "Fees, deadlines, and program facts are re-checked on the cadence defined per category above."
+    "tableNote": "Fees, deadlines, and program facts are re-checked on the cadence defined per category above.",
+    "truncatedNotice": "The queue is long. Rows shown: {shown} of {total}, most urgent first. Validate some, then reload the page to bring in the next ones.",
+    "batchDone": "The rows shown are done. Reload the queue to bring in the next ones.",
+    "reloadCta": "Reload the queue"
   },
   "scholarships": {
     "title": "Scholarship moderation",
@@ -1034,5 +1038,70 @@
     "withdraw": "Remove",
     "withdrawConfirm": "Remove {name} from the interest list? The row will be permanently deleted.",
     "withdrawError": "Could not remove. Try again."
+  },
+  "eefPub": {
+    "title": "Études en France — publication",
+    "subtitle": "Make the import's institutions and programmes visible, or take them down.",
+    "publicWarning": "Publishing exposes these records to any student, even without an account: search is public, even when the space is switched off in the app. You are recorded as the reviewer of what you publish.",
+    "forbidden": "Only administrators can publish the import.",
+    "loading": "Loading…",
+    "loadError": "Could not load the institutions.",
+    "simulateError": "Simulation failed.",
+    "writeError": "Nothing was done. Run the simulation again.",
+    "emptyTitle": "No imported institution",
+    "emptyBody": "The import has not been applied to the database yet (VPS ops → eef-import).",
+    "totalInstitutions": "Institutions",
+    "totalPublishedInstitutions": "Published",
+    "totalPending": "Programmes pending",
+    "totalPublished": "Programmes published",
+    "colName": "Institution",
+    "colStatus": "Status",
+    "colPending": "Pending",
+    "colPublished": "Published",
+    "colReviewer": "Last reviewer",
+    "colActions": "Actions",
+    "noSource": "No source",
+    "statusPublished": "Published",
+    "statusPending": "Pending",
+    "simulatePublish": "Simulate publication",
+    "simulateUnpublish": "Simulate takedown",
+    "planTitle": "Plan",
+    "planPublishTitle": "Publishing {name}",
+    "planUnpublishTitle": "Taking down {name}",
+    "willPublish": "programme(s) will be published",
+    "willUnpublish": "programme(s) will be taken down",
+    "willActivate": "the institution will become visible",
+    "willDeactivate": "the institution will be taken down too",
+    "savedWarning": "{n} student(s) will lose this programme from their list (their saved entry is kept).",
+    "refusedTitle": "Programmes refused ({n}) — they stay pending",
+    "refusedMore": "… and {n} more.",
+    "activeInvalidTitle": "Already-active programs to fix or remove ({n}) — they would make the institution invalid",
+    "publishButton": "Publish {n} programme(s)",
+    "unpublishButton": "Take down {n} programme(s)",
+    "close": "Close",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "confirmPublishTitle": "Publish {n} programme(s) of {name}?",
+    "confirmPublishBody": "They will become visible to every student. You will be recorded as the reviewer: {reviewer}.",
+    "confirmUnpublishTitle": "Take down {n} programme(s) of {name}?",
+    "confirmUnpublishBody": "They disappear from search. {n} student(s) had saved them.",
+    "publishedNotice": "{n} programme(s) of {name} published.",
+    "unpublishedNotice": "{n} programme(s) of {name} taken down.",
+    "nothing": {
+      "no_publishable_program": "No programme of this institution can be published.",
+      "already_published": "Everything is already published."
+    },
+    "reason": {
+      "institution_not_from_import": "This institution does not come from the import: it cannot be published here.",
+      "institution_source_missing": "The institution has no official HTTPS source.",
+      "institution_has_invalid_active_program": "Some already-active programs of this institution fail the checks: activating it would make them visible. Fix or remove them first.",
+      "program_unknown": "unknown programme",
+      "program_not_from_import": "not from the import",
+      "program_wrong_institution": "belongs to another institution",
+      "program_source_missing": "source missing or not HTTPS",
+      "program_procedure_missing": "procedure not qualified",
+      "program_field_unknown": "field outside the reference list"
+    },
+    "genericSources": "{n} of the programmes to publish link to a generic source, not to the programme's own page (Mon Master portal: {portal}, ministry dataset: {dataset}). A student tapping “See the official source” will land on that page."
   }
 }

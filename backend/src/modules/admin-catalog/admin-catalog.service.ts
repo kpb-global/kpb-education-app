@@ -17,6 +17,7 @@
 
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -25,8 +26,20 @@ import {
 import { Cron } from '@nestjs/schedule';
 import { Prisma } from '@prisma/client';
 
+import {
+  EEF_INSTITUTION_ID_PREFIX,
+  EEF_PROGRAM_ID_PREFIX,
+} from '../../common/eef-provenance';
 import type { AdminSessionUser } from '../auth/auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  capFairly,
+  compareVerificationItems,
+  countryVerificationDueWhere,
+  institutionVerificationDueWhere,
+  programVerificationDueWhere,
+  scholarshipVerificationDueWhere,
+} from './verification-due';
 
 /// Clean canonical degree label. Mirror of the Flutter referential.
 function normalizeDegreeLevel(raw: string): string {
@@ -88,6 +101,19 @@ export const VERIFICATION_POLICIES = {
 
 type VerificationPolicyName = keyof typeof VERIFICATION_POLICIES;
 type VerificationEntity = 'country' | 'institution' | 'program' | 'scholarship';
+
+/// Nombre maximal d'éléments que la file de revérification RENVOIE à la page
+/// admin. Elle est triée « jamais vérifié d'abord, puis le plus ancien » : ce
+/// que le plafond garde est donc ce qui presse le plus.
+///
+/// Ce n'est pas de la prudence abstraite. La page rend un champ de saisie et
+/// deux boutons par ligne, sur une réponse qui n'avait aucune borne : le jour où
+/// des milliers de lignes reviennent à échéance ensemble — un lot publié en une
+/// fois, dont la cadence de 180 jours tombe le même matin — la page qui sert
+/// aussi à revérifier les BOURSES cesse de s'ouvrir. Le plafond borne la
+/// réponse ; `total` et `truncated` disent honnêtement qu'il en reste, et le SLA
+/// compte sur la file COMPLÈTE, jamais sur celle-ci.
+export const VERIFICATION_QUEUE_LIMIT = 500;
 
 interface VerificationSlaCategory {
   label: string;
@@ -308,13 +334,6 @@ export class AdminCatalogService {
     ) as T;
   }
 
-  private verificationDueWhere(cadenceDays: number, now = new Date()) {
-    const cutoff = new Date(now.getTime() - cadenceDays * DAY_MS);
-    return {
-      OR: [{ lastVerifiedAt: null }, { lastVerifiedAt: { lt: cutoff } }],
-    };
-  }
-
   private verificationData(
     verified: boolean,
     sourceUrl?: unknown,
@@ -414,20 +433,43 @@ export class AdminCatalogService {
     }
   }
 
+  /// La file de revérification telle que l'ADMIN la reçoit : les éléments les
+  /// plus urgents d'abord, au plus [VERIFICATION_QUEUE_LIMIT], SANS qu'une
+  /// catégorie n'en chasse une autre (`capFairly`). `total` est le compte COMPLET
+  /// et `truncated` dit s'il en reste : une page qui n'en montre que la moitié
+  /// sans l'écrire ferait croire que la file est vide de l'autre.
   async listVerificationDue() {
+    const { items, policies } = await this.collectVerificationDue();
+    return {
+      items: capFairly(items, VERIFICATION_QUEUE_LIMIT),
+      total: items.length,
+      truncated: items.length > VERIFICATION_QUEUE_LIMIT,
+      policies,
+    };
+  }
+
+  /// La file COMPLÈTE, triée. C'est d'elle que le SLA compte : un SLA calculé
+  /// sur la version plafonnée annoncerait « 500 en retard » quand il y en a
+  /// dix mille.
+  private async collectVerificationDue(now = new Date()) {
     this.assertDb();
-    const now = new Date();
     const result = await this.prisma.execute((db) =>
       db.$transaction([
+        // Les `orderBy` ne décident PAS de l'ordre de la file (le tri se fait en
+        // mémoire, `compareVerificationItems`) : ils la rendent déterministe et
+        // disent la même chose. Postgres range les NULL en DERNIER en tri
+        // croissant — sans `nulls: 'first'`, un futur `take:` ajouté pour économiser
+        // la mémoire couperait justement les jamais-vérifiés.
         db.country.findMany({
-          where: {
-            isActive: true,
-            ...this.verificationDueWhere(
-              VERIFICATION_POLICIES.countryVisa.cadenceDays,
-              now,
-            ),
-          } as Prisma.CountryWhereInput,
-          orderBy: [{ lastVerifiedAt: 'asc' }, { displayOrder: 'asc' }],
+          where: countryVerificationDueWhere(
+            VERIFICATION_POLICIES.countryVisa.cadenceDays,
+            now,
+          ),
+          orderBy: [
+            { lastVerifiedAt: { sort: 'asc', nulls: 'first' } },
+            { displayOrder: 'asc' },
+            { id: 'asc' },
+          ],
           select: {
             id: true,
             nameFr: true,
@@ -438,11 +480,15 @@ export class AdminCatalogService {
           },
         }),
         db.institution.findMany({
-          where: this.verificationDueWhere(
+          where: institutionVerificationDueWhere(
             VERIFICATION_POLICIES.institutionScolarite.cadenceDays,
             now,
-          ) as Prisma.InstitutionWhereInput,
-          orderBy: [{ lastVerifiedAt: 'asc' }, { nameFr: 'asc' }],
+          ),
+          orderBy: [
+            { lastVerifiedAt: { sort: 'asc', nulls: 'first' } },
+            { nameFr: 'asc' },
+            { id: 'asc' },
+          ],
           select: {
             id: true,
             nameFr: true,
@@ -454,11 +500,15 @@ export class AdminCatalogService {
           },
         }),
         db.program.findMany({
-          where: this.verificationDueWhere(
+          where: programVerificationDueWhere(
             VERIFICATION_POLICIES.programScolarite.cadenceDays,
             now,
-          ) as Prisma.ProgramWhereInput,
-          orderBy: [{ lastVerifiedAt: 'asc' }, { nameFr: 'asc' }],
+          ),
+          orderBy: [
+            { lastVerifiedAt: { sort: 'asc', nulls: 'first' } },
+            { nameFr: 'asc' },
+            { id: 'asc' },
+          ],
           select: {
             id: true,
             nameFr: true,
@@ -471,15 +521,15 @@ export class AdminCatalogService {
           },
         }),
         db.scholarship.findMany({
-          where: {
-            isActive: true,
-            moderationStatus: 'approved',
-            ...this.verificationDueWhere(
-              VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
-              now,
-            ),
-          } as Prisma.ScholarshipWhereInput,
-          orderBy: [{ lastVerifiedAt: 'asc' }, { deadlineAt: 'asc' }],
+          where: scholarshipVerificationDueWhere(
+            VERIFICATION_POLICIES.scholarshipDeadline.cadenceDays,
+            now,
+          ),
+          orderBy: [
+            { lastVerifiedAt: { sort: 'asc', nulls: 'first' } },
+            { deadlineAt: 'asc' },
+            { id: 'asc' },
+          ],
           select: {
             id: true,
             nameFr: true,
@@ -548,20 +598,9 @@ export class AdminCatalogService {
           now,
         }),
       ),
-    ].sort((a, b) => {
-      if (a.lastVerifiedAt == null && b.lastVerifiedAt != null) return -1;
-      if (a.lastVerifiedAt != null && b.lastVerifiedAt == null) return 1;
-      return (
-        (b.daysSinceVerification ?? Number.MAX_SAFE_INTEGER) -
-        (a.daysSinceVerification ?? Number.MAX_SAFE_INTEGER)
-      );
-    });
+    ].sort(compareVerificationItems);
 
-    return {
-      items,
-      total: items.length,
-      policies: Object.values(VERIFICATION_POLICIES),
-    };
+    return { items, policies: Object.values(VERIFICATION_POLICIES) };
   }
 
   /// Aggregate the verification queue into an SLA view: how many catalog items
@@ -569,7 +608,9 @@ export class AdminCatalogService {
   /// oldest age and the count never verified. Derived from the same source as
   /// the admin queue, so counts always match what admins see.
   async verificationSlaSummary(now = new Date()): Promise<VerificationSlaSummary> {
-    const { items } = await this.listVerificationDue();
+    // La file COMPLÈTE, pas celle que la page reçoit : un SLA calculé sur la
+    // version plafonnée annoncerait « 500 en retard » quand il y en a dix mille.
+    const { items } = await this.collectVerificationDue(now);
     const byCategory: Record<string, VerificationSlaCategory> = {};
     for (const policy of Object.values(VERIFICATION_POLICIES)) {
       byCategory[policy.key] = {
@@ -671,6 +712,51 @@ export class AdminCatalogService {
     );
   }
 
+  /**
+   * Les lignes de l'import « Études en France » ne se publient PAS par les routes
+   * génériques.
+   *
+   * Elles ont leur porte — `admin/etudes-en-france/publication` — qui vérifie la
+   * source, la procédure et le domaine, demande de confirmer le nombre et signe du
+   * nom de l'administrateur connecté. `content_manager` a accès à ces routes-ci et
+   * pas à celle-là : si `PATCH { isActive: true }` acceptait aussi une ligne de
+   * l'import, la porte gardée ne garderait rien.
+   *
+   * Une ligne est de l'import par son identifiant OU par son établissement
+   * (`eefProgramWhere`) : une formation saisie à la main sous une université de
+   * l'import est servie par la recherche au même titre que les autres.
+   *
+   * Ce qui reste permis : créer ou remettre EN ATTENTE, éditer une ligne déjà
+   * publiée, retirer.
+   */
+  private assertNotPublishingEef(input: {
+    readonly what: 'program' | 'institution';
+    readonly id?: string;
+    readonly institutionId: string | undefined;
+    readonly nextActive: boolean | undefined;
+    readonly before?: { institutionId: string; isActive: boolean } | null;
+  }) {
+    if (input.nextActive !== true) return;
+    const isEef = (id: string | undefined, institutionId: string | undefined) =>
+      input.what === 'institution'
+        ? (id ?? '').startsWith(EEF_INSTITUTION_ID_PREFIX)
+        : (id ?? '').startsWith(EEF_PROGRAM_ID_PREFIX)
+          || (institutionId ?? '').startsWith(EEF_INSTITUTION_ID_PREFIX);
+    const becomesEef = isEef(input.id, input.institutionId);
+    if (!becomesEef) return;
+    // Déjà publiée ET déjà de l'import : rien ne change, l'éditer reste permis.
+    const alreadyPublishedEef =
+      input.before != null
+      && input.before.isActive
+      && isEef(input.id, input.before.institutionId);
+    if (alreadyPublishedEef) return;
+    throw new ConflictException(
+      "Les lignes de l'import « Études en France » se publient par "
+        + "« Publication EEF » (admin/etudes-en-france/publication), qui vérifie "
+        + 'la source, la procédure et le domaine, et signe la publication.',
+    );
+  }
+
   async createProgram(input: Record<string, unknown>) {
     this.assertDb();
     const data: Prisma.ProgramCreateInput = {
@@ -703,6 +789,11 @@ export class AdminCatalogService {
       // attente.
       isActive: this.bool(input.isActive) ?? true,
     };
+    this.assertNotPublishingEef({
+      what: 'program',
+      institutionId: data.institutionId,
+      nextActive: data.isActive,
+    });
     const created = await this.prisma.execute((db) =>
       db.program.create({ data }),
     );
@@ -735,16 +826,28 @@ export class AdminCatalogService {
       applicationDeadline: this.pickDateOrNull(input, 'applicationDeadline'),
       teachingLanguages: this.pickStrArr(input, 'teachingLanguages'),
       campusOfferings: this.pickCampusOfferings(input, 'campusOfferings'),
-      // Le chemin de publication d'une ligne importée. Sans lui, une fiche
-      // créée `isActive: false` par l'import n'aurait aucun moyen de devenir
-      // visible : le drapeau serait une impasse, pas une file d'attente.
+      // Le chemin de publication d'une fiche créée `isActive: false` (partenaire,
+      // saisie à la main). Les lignes de l'import ont le leur : voir
+      // `assertNotPublishingEef`.
       isActive: this.bool(input.isActive),
     });
     // L'établissement peut changer : les DEUX listes doivent bouger, celle
     // qu'on quitte comme celle qu'on rejoint.
     const before = await this.prisma.execute((db) =>
-      db.program.findUnique({ where: { id }, select: { institutionId: true } }),
+      db.program.findUnique({
+        where: { id },
+        select: { institutionId: true, isActive: true },
+      }),
     );
+    if (before) {
+      this.assertNotPublishingEef({
+        what: 'program',
+        id,
+        institutionId: this.str(input.institutionId) ?? before.institutionId,
+        nextActive: this.bool(input.isActive) ?? before.isActive,
+        before,
+      });
+    }
     const updated = await this.runUpdate(
       () => this.prisma.execute((db) => db.program.update({ where: { id }, data })),
       'Program',
@@ -828,8 +931,15 @@ export class AdminCatalogService {
       intakePeriods: this.strArr(input.intakePeriods),
       programIds: this.strArr(input.programIds),
       isPartner: this.bool(input.isPartner),
-      // Même rôle que sur la formation : publier un établissement importé.
+      // Même rôle que sur la formation : publier une fiche créée en attente qui
+      // n'est pas de l'import (voir `assertNotPublishingEef`).
       isActive: this.bool(input.isActive),
+    });
+    this.assertNotPublishingEef({
+      what: 'institution',
+      id,
+      institutionId: id,
+      nextActive: this.bool(input.isActive),
     });
     return this.runUpdate(
       () =>

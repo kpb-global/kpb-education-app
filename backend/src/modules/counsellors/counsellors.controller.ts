@@ -6,15 +6,23 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import type { Request } from 'express';
 
 import { Roles } from '../../common/decorators/roles.decorator';
 import { InternalRole } from '../../common/enums/internal-role.enum';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
+import type { SupabaseTokenUser } from '../auth/supabase-auth.service';
 import { CounsellorsService } from './counsellors.service';
+import { CreateCounsellorReviewDto } from './dto/create-counsellor-review.dto';
+
+/// `StudentAuthGuard` pose l'utilisateur vérifié ici. C'est LA source de
+/// l'identité : rien de ce que le corps de la requête déclare n'en tient lieu.
+type AuthedReq = Request & { studentUser?: SupabaseTokenUser };
 
 /** Public (mobile) — browse the marketplace. */
 @Controller('counsellors')
@@ -41,20 +49,22 @@ export class CounsellorsController {
    * Authenticated students can leave a review after a completed case. The
    * review enters moderation (isPublished=false) — admin publishes it via
    * the admin endpoint below.
+   *
+   * L'AUTEUR est celui du jeton (`req.studentUser`), jamais un champ du corps :
+   * le corps est un DTO validé qui ne peut pas en porter un, et le service
+   * vérifie que le dossier noté appartient à l'appelant et a été traité par ce
+   * conseiller. Auparavant le corps était un type en ligne, effacé à
+   * l'exécution ; l'auteur manquait donc en base, et la suppression de compte
+   * ne trouvait aucun avis.
    */
   @Post(':id/reviews')
   @UseGuards(StudentAuthGuard)
   createReview(
     @Param('id') id: string,
-    @Body()
-    body: {
-      rating: number;
-      body: string;
-      reviewerName: string;
-      caseId?: string;
-    },
+    @Body() body: CreateCounsellorReviewDto,
+    @Req() req: AuthedReq,
   ) {
-    return this.counsellorsService.createReview(id, body);
+    return this.counsellorsService.createReview(id, body, req.studentUser!);
   }
 }
 

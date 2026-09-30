@@ -26,6 +26,8 @@
 // insertion ailleurs dans la liste ne décale rien, et chaque page coûte le
 // même prix parce que l'index la trouve directement.
 // ─────────────────────────────────────────────────────────────────────────────
+import { eefProgramWhere } from '../../../common/eef-provenance';
+import { KNOWN_FIELD_IDS } from '../catalog/eef-catalog.normalize';
 import {
   EEF_CYCLES,
   EEF_PROCEDURE_TYPES,
@@ -45,10 +47,6 @@ export const EEF_SEARCH_MAX_FILTER_VALUES = 20;
 /// barre de recherche devienne une requête à cinquante branches.
 export const EEF_SEARCH_MAX_TERMS = 6;
 
-const KNOWN_FIELD_IDS = new Set([
-  'd01', 'd02', 'd03', 'd04', 'd05', 'd06',
-  'd07', 'd08', 'd09', 'd10', 'd11', 'd12',
-]);
 const KNOWN_SELECTIVITY = new Set(['selective', 'non_selective']);
 const KNOWN_PROCEDURES = new Set<string>(EEF_PROCEDURE_TYPES);
 const KNOWN_CYCLES = new Set<string>(EEF_CYCLES);
@@ -249,10 +247,18 @@ export interface BuildWhereOptions {
  * `isActive: true` et `countryId` ne sont jamais optionnels : le premier est la
  * frontière entre ce qui est relu et ce qui ne l'est pas, le second empêche
  * la recherche d'un catalogue français de rendre une école marocaine.
+ *
+ * Il en va de même de `publishedInstitutionIds`, et pour la même raison : une
+ * formation n'est publique que si SON ÉTABLISSEMENT l'est. `Program` n'a pas de
+ * relation vers `Institution`, donc rien en base ne l'impose — c'est cette
+ * clause, ou personne. Le paramètre est positionnel et OBLIGATOIRE : un appel qui
+ * l'oublie ne compile pas, au lieu de servir en silence des fiches dont le
+ * parent n'a jamais été relu.
  */
 export function buildEefSearchWhere(
   params: EefSearchParams,
   countryId: string,
+  publishedInstitutionIds: readonly string[],
   options: BuildWhereOptions = {},
 ): Record<string, unknown> {
   const where: Record<string, unknown> = {
@@ -260,6 +266,8 @@ export function buildEefSearchWhere(
     countryId,
     // Une ligne sans procédure n'appartient pas à ce catalogue : ce sont les
     // formations des écoles privées partenaires, qui ont leur propre espace.
+    // C'est un garde-fou de DONNÉES, pas la définition de ce qui est « EEF » :
+    // celle-ci est la PROVENANCE, posée plus bas (`eefProgramWhere`).
     procedureType: { not: null },
   };
   const and: Record<string, unknown>[] = [];
@@ -304,7 +312,27 @@ export function buildEefSearchWhere(
     });
   }
 
-  if (and.length > 0) where.AND = and;
+  // L'établissement publié va dans `AND`, jamais à plat sur `institutionId` :
+  // la facette du même nom écrit déjà cette clé plus haut, et la seconde
+  // affectation écraserait la première sans un mot. `AND` rend la collision
+  // impossible plutôt que de compter sur la vigilance de la prochaine personne
+  // qui touchera à cette fonction — c'est le défaut qu'a connu la shortlist.
+  //
+  // Placée en DERNIER et posée sans condition : `and` n'est donc jamais vide, et
+  // la clause accompagne aussi bien la page que le total et chaque facette.
+  and.push({ institutionId: { in: [...publishedInstitutionIds] } });
+
+  // La PROVENANCE, dans le sens de l'inclusion. Le catalogue général exclut les
+  // lignes de l'import par leur identifiant (`notEefProgram`) ; cet espace ne
+  // sert QUE ces lignes. Sans cette clause, deux définitions de « EEF »
+  // cohabitaient : l'exclusion par préfixe et l'inclusion par `procedureType`.
+  // Le jour où l'exploitation qualifie une formation partenaire (OMNES, ICN…)
+  // d'une procédure, elle serait entrée ici — et serait restée dans le
+  // catalogue général : dans les deux espaces à la fois. Maintenant elle reste
+  // dans un seul : le sien.
+  and.push(eefProgramWhere());
+
+  where.AND = and;
   return where;
 }
 

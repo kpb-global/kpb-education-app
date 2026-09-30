@@ -1,6 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 
+import {
+  eligiblePublicTestimonialUserIds,
+  loadPublicTestimonialReceipts,
+} from '../impact/public-testimonial-consent';
 import { PrismaService } from '../prisma/prisma.service';
+
+/** Avis affichés sur la fiche publique d'un conseiller. */
+const PUBLIC_REVIEWS_SHOWN = 20;
+/**
+ * Avis publiés examinés pour en garder `PUBLIC_REVIEWS_SHOWN` : le travail reste
+ * borné même si le conseiller en a des milliers. Les plus récents d'abord.
+ */
+const PUBLIC_REVIEW_CANDIDATES = 200;
+
+/// Aucune base configurée : on ne prétend pas avoir enregistré l'avis.
+function reviewsUnavailable(): ServiceUnavailableException {
+  return new ServiceUnavailableException('Reviews are temporarily unavailable.');
+}
 
 type CounsellorInput = {
   fullName?: string;
@@ -72,8 +95,9 @@ export class CounsellorsService {
   }
 
   async getPublic(id: string) {
-    const counsellor = await this.prismaService.execute((prisma) =>
-      prisma.counsellor.findFirst({
+    const now = new Date();
+    const counsellor = await this.prismaService.execute(async (prisma) => {
+      const found = await prisma.counsellor.findFirst({
         where: { id, isActive: true, kycStatus: 'approved' },
         // Explicit select: the public detail view must never leak the
         // counsellor's personal contact details (email/phone/whatsApp) or
@@ -90,18 +114,78 @@ export class CounsellorsService {
           hourlyRateXOF: true,
           avgRating: true,
           reviewCount: true,
-          reviews: {
-            where: { isPublished: true },
-            orderBy: { createdAt: 'desc' },
-            take: 20,
-          },
         },
-      }),
-    );
+      });
+      if (!found) return null;
+      return {
+        ...found,
+        reviews: await this.consentedPublishedReviews(prisma, id, now),
+      };
+    });
     if (!counsellor) {
       throw new NotFoundException(`Counsellor ${id} not available.`);
     }
     return counsellor;
+  }
+
+  /**
+   * Les avis PUBLIÉS dont l'auteur a un reçu `public_testimonial` actif — la
+   * porte de `/impact/reviews`, et non la seule modération.
+   *
+   * Avant, la fiche servait `reviewerName` (le nom civil du profil) dès que
+   * `isPublished` valait `true` : la modération suffisait. Un avis sans auteur
+   * — tous ceux d'avant la reprise, ou dont le dossier a disparu — ne peut pas
+   * franchir cette porte, et ne doit pas : personne n'a consenti à ce qu'il soit
+   * montré. Aucune colonne de rattachement (`reviewerUserId`, `caseId`) ne sort :
+   * on lit la clé pour juger le consentement, puis on la retire.
+   */
+  private async consentedPublishedReviews(
+    prisma: Parameters<Parameters<PrismaService['execute']>[0]>[0],
+    counsellorId: string,
+    now: Date,
+  ) {
+    const candidates = await prisma.counsellorReview.findMany({
+      where: {
+        counsellorId,
+        isPublished: true,
+        reviewerUserId: { not: null },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: PUBLIC_REVIEW_CANDIDATES,
+      select: {
+        id: true,
+        counsellorId: true,
+        reviewerUserId: true,
+        reviewerName: true,
+        rating: true,
+        body: true,
+        createdAt: true,
+      },
+    });
+    const authorIds = Array.from(
+      new Set(
+        candidates.flatMap((review) =>
+          review.reviewerUserId ? [review.reviewerUserId] : [],
+        ),
+      ),
+    );
+    const receipts = await loadPublicTestimonialReceipts(prisma, now, authorIds);
+    const consenting = new Set(eligiblePublicTestimonialUserIds(receipts, now));
+
+    return candidates
+      .filter(
+        (review) =>
+          review.reviewerUserId !== null && consenting.has(review.reviewerUserId),
+      )
+      .slice(0, PUBLIC_REVIEWS_SHOWN)
+      .map((review) => ({
+        id: review.id,
+        counsellorId: review.counsellorId,
+        reviewerName: review.reviewerName,
+        rating: review.rating,
+        body: review.body,
+        createdAt: review.createdAt,
+      }));
   }
 
   /** Admin list — includes pending/rejected for the KYC queue. */
@@ -220,28 +304,103 @@ export class CounsellorsService {
     return updated;
   }
 
+  /**
+   * Un étudiant note le conseiller qui a traité SON dossier terminé.
+   *
+   * ## L'auteur est celui du jeton
+   *
+   * `reviewer` vient du jeton vérifié par `StudentAuthGuard` — jamais du corps.
+   * Le service recopiait auparavant `reviewerUserId` depuis ce que le client
+   * envoyait. L'app ne l'envoyait pas : les avis n'avaient aucun auteur en base,
+   * la suppression de compte (`deleteMany WHERE reviewerUserId = …`) n'en
+   * trouvait aucun, et le nom civil de l'étudiant survivait à l'effacement de
+   * son compte. Et un client pouvait poster au nom de n'importe qui.
+   *
+   * Le nom est celui du PROFIL, que l'utilisateur maîtrise (`PATCH /profiles/me`) :
+   * ce que ce code garantit, c'est que la requête ne le déclare pas — pas qu'il
+   * soit civil ou exact.
+   *
+   * ## Le dossier lie l'avis à un parcours réel — il ne le PROUVE pas
+   *
+   * L'avis n'est accepté que si le dossier existe, appartient à l'appelant, a été
+   * traité par CE conseiller et est terminé — exactement ce que l'app ne propose
+   * qu'à ce moment-là. Un dossier introuvable ET un dossier d'un autre répondent
+   * la même chose (404) : on ne confirme pas l'existence du dossier d'autrui.
+   *
+   * « Terminé » est posé par l'ÉQUIPE : il n'existe plus de `PATCH /cases/:id`
+   * côté étudiant (il laissait le propriétaire se déclarer « terminé » lui-même ;
+   * aucun client de l'app ne l'appelait). Ce n'est pas pour autant une preuve de
+   * qualité du parcours — un conseiller ou un admin peut terminer un dossier — et
+   * la modération reste la défense de fond (un avis naît non publié).
+   *
+   * ## Un avis par dossier
+   *
+   * Un second avis sur le même dossier est refusé (409). Sans contrainte d'unicité
+   * en base, la garde est au mieux-effort : deux requêtes simultanées peuvent
+   * toutes deux passer. Elle borne le cas ordinaire — un double envoi, un
+   * utilisateur qui insiste — sans migration de schéma.
+   *
+   * ## Base absente : 503, jamais une réponse d'apparence normale
+   *
+   * `execute` rend `null` quand aucune base n'est configurée. L'ancien code
+   * renvoyait alors ce `null` : un 201 au corps vide, donc un étudiant persuadé
+   * d'avoir noté son conseiller alors que rien n'avait été écrit. En pratique le
+   * garde d'authentification répond 401 avant d'arriver ici quand la base manque ;
+   * ce 503 est la défense en profondeur d'un service qui ne doit jamais
+   * confondre « rien n'a été écrit » et « c'est fait ».
+   */
   async createReview(
     counsellorId: string,
-    input: {
-      rating: number;
-      body: string;
-      reviewerName: string;
-      reviewerUserId?: string;
-      caseId?: string;
-    },
+    input: { rating: number; body: string; caseId: string },
+    reviewer: { id: string; fullName: string },
   ) {
-    if (input.rating < 1 || input.rating > 5) {
-      throw new NotFoundException('Rating must be between 1 and 5.');
+    // Le résultat est EMBALLÉ : `findUnique` rend légitimement `null` pour un
+    // dossier inconnu, et `execute` rend aussi `null` quand la base est absente.
+    // Sans emballage, les deux se confondraient — un 404 métier prendrait le
+    // masque d'une panne, ou l'inverse.
+    const lookup = await this.prismaService.execute(async (prisma) => ({
+      found: await prisma.case.findUnique({
+        where: { id: input.caseId },
+        select: { userId: true, counsellorId: true, status: true },
+      }),
+      // Tout avis qui porte ce dossier, quel que soit son auteur : ceux d'avant
+      // l'auteur-par-jeton n'en ont pas, et ils comptent autant.
+      alreadyReviewed: await prisma.counsellorReview.findFirst({
+        where: { caseId: input.caseId },
+        select: { id: true },
+      }),
+    }));
+    if (lookup === null) throw reviewsUnavailable();
+
+    const { found, alreadyReviewed } = lookup;
+    if (!found || found.userId !== reviewer.id) {
+      throw new NotFoundException('Case not found.');
     }
+    if (found.counsellorId !== counsellorId) {
+      throw new ForbiddenException(
+        'This case was not handled by this counsellor.',
+      );
+    }
+    if (found.status !== 'completed') {
+      throw new ConflictException(
+        'A counsellor can be reviewed once the case is completed.',
+      );
+    }
+    if (alreadyReviewed) {
+      throw new ConflictException('This case has already been reviewed.');
+    }
+
     const review = await this.prismaService.execute(async (prisma) => {
       const created = await prisma.counsellorReview.create({
         data: {
           counsellorId,
-          reviewerName: input.reviewerName,
-          reviewerUserId: input.reviewerUserId,
+          // Le nom affiché est celui du profil vérifié, pas celui que la requête
+          // déclare : elle ne peut plus signer « Marie Curie » d'un seul appel.
+          reviewerName: reviewer.fullName?.trim() || 'KPB',
+          reviewerUserId: reviewer.id,
           caseId: input.caseId,
           rating: input.rating,
-          body: input.body,
+          body: input.body.trim(),
           // Reviews are unpublished by default — moderators approve them. Cuts
           // down on fake/abusive reviews during beta.
           isPublished: false,
@@ -263,6 +422,7 @@ export class CounsellorsService {
       });
       return created;
     });
+    if (review === null) throw reviewsUnavailable();
     return review;
   }
 

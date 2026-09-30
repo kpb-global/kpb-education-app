@@ -1,0 +1,837 @@
+{
+ "group": "G7",
+ "records": [
+  {
+   "id": "knight_hennessy_2027",
+   "verdict": "verified",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://knight-hennessy.stanford.edu/",
+     "httpStatus": 200,
+     "finalUrl": "https://knight-hennessy.stanford.edu/",
+     "read": true,
+     "title": "Knight-Hennessy Scholars at Stanford University",
+     "note": "HTML statique lisible (Drupal)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "httpStatus": 200,
+     "finalUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "read": true,
+     "title": "Eligibility | Knight-Hennessy Scholars at Stanford University",
+     "note": "Page dit que les critères sont ceux de la cohorte 2027 et peuvent changer pour les suivantes."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://knight-hennessy.stanford.edu/program-overview/funding",
+     "httpStatus": 200,
+     "finalUrl": "https://knight-hennessy.stanford.edu/program-overview/funding",
+     "read": true,
+     "title": "Funding | Knight-Hennessy Scholars at Stanford University",
+     "note": ""
+    },
+    {
+     "kind": "application",
+     "url": "https://apply.knight-hennessy.stanford.edu/apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://apply.knight-hennessy.stanford.edu/apply/",
+     "read": true,
+     "title": "Apply to join the 2027 cohort",
+     "note": "Portail de connexion / création de compte : ne porte ni dates ni critères ; confirme seulement que le portail est celui de la cohorte 2027 (message réseau 'resources blocked' sans incidence sur le texte)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "httpStatus": 200,
+     "finalUrl": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "read": true,
+     "title": "Your Applications | Knight-Hennessy Scholars at Stanford University",
+     "note": "En-tête last-modified : 29 sept. 2026 08:40 GMT (page à jour le jour de la relecture). Page complémentaire lue en plus des cinq : /admission/preparing-your-applications/application-deadlines (HTTP 200), qui écrit : 'The Knight-Hennessy Scholars application deadline is October 6, 2026, 1:00pm Pacific Time.'"
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Clôture KHS le 6 octobre 2026 (date)",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "October 6, 2026"
+    },
+    {
+     "claim": "Heure de clôture KHS : 13 h heure du Pacifique. Le 6 oct. 2026 le Pacifique est en heure d'été (PDT, UTC-7) : 20:00 UTC, ce qui correspond à cycle.closesAt 2026-10-06T20:00:00.000Z",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "1:00 pm Pacific Time"
+    },
+    {
+     "claim": "Date limite KHS identique pour tous (page complémentaire application-deadlines, même site)",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/application-deadlines",
+     "quote": "The Knight-Hennessy Scholars application deadline is October 6, 2026, 1:00pm Pacific Time."
+    },
+    {
+     "claim": "Ouverture de la candidature KHS le 1er juin 2026",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "June 1, 2026"
+    },
+    {
+     "claim": "Date limite du programme Stanford : la plus proche entre la date du programme pour les candidats KHS et le 1er décembre 2026",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "The earlier of these two dates: the degree program application deadline for KHS applicants or December 1, 2026"
+    },
+    {
+     "claim": "Cycle d'entrée 2027 (portail de candidature de la cohorte 2027)",
+     "sourceKind": "application",
+     "url": "https://apply.knight-hennessy.stanford.edu/apply/",
+     "quote": "Apply to join the 2027 cohort"
+    },
+    {
+     "claim": "Financement jusqu'à trois ans pour tout diplôme supérieur Stanford",
+     "sourceKind": "benefits",
+     "url": "https://knight-hennessy.stanford.edu/program-overview/funding",
+     "quote": "Knight-Hennessy scholars receive funding for up to three years for any graduate degree(s) at Stanford."
+    },
+    {
+     "claim": "Frais de scolarité et droits associés couverts",
+     "sourceKind": "benefits",
+     "url": "https://knight-hennessy.stanford.edu/program-overview/funding",
+     "quote": "A fellowship applied directly to cover tuition and associated fees"
+    },
+    {
+     "claim": "Allocation de vie et d'études (logement, repas, livres, fournitures, transport local, dépenses personnelles raisonnables)",
+     "sourceKind": "benefits",
+     "url": "https://knight-hennessy.stanford.edu/program-overview/funding",
+     "quote": "A stipend for living and academic expenses (such as room and board, books, academic supplies, instructional materials, local transportation, and reasonable personal expenses)"
+    },
+    {
+     "claim": "Allocation de voyage : un aller-retour annuel en classe économique vers Stanford",
+     "sourceKind": "benefits",
+     "url": "https://knight-hennessy.stanford.edu/program-overview/funding",
+     "quote": "A travel stipend intended to cover an economy-class ticket for one annual trip to and from Stanford"
+    },
+    {
+     "claim": "Allocation unique d'installation et/ou d'équipement pour les nouveaux boursiers",
+     "sourceKind": "benefits",
+     "url": "https://knight-hennessy.stanford.edu/program-overview/funding",
+     "quote": "Newly enrolling scholars receive a one-time relocation stipend intended to offset some of the costs associated with relocation to the area"
+    },
+    {
+     "claim": "Financement complémentaire d'enrichissement académique en années 2 et 3",
+     "sourceKind": "benefits",
+     "url": "https://knight-hennessy.stanford.edu/program-overview/funding",
+     "quote": "Scholars in their second and third years may apply for supplemental funds to support academic enrichment activities"
+    },
+    {
+     "claim": "Aucune restriction de nationalité, d'âge, d'université d'origine, de domaine ou de projet professionnel au-delà des conditions publiées",
+     "sourceKind": "eligibility",
+     "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "quote": "Knight-Hennessy Scholars has no restrictions based on age, college or university, field of study, or career aspiration."
+    },
+    {
+     "claim": "Candidats de tous pays encouragés (pas de quotas par région)",
+     "sourceKind": "eligibility",
+     "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "quote": "We encourage citizens and residents of all countries to apply."
+    },
+    {
+     "claim": "Premier diplôme de Licence obtenu en janvier 2020 ou après (cohorte 2027)",
+     "sourceKind": "eligibility",
+     "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "quote": "you must have earned, in January 2020 or later, a U.S. bachelor’s degree or its equivalent from a college or university of recognized standing."
+    },
+    {
+     "claim": "Fenêtre étendue pour les anciens militaires : janvier 2018 ou après",
+     "sourceKind": "eligibility",
+     "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "quote": "you must have earned your degree in January 2018 or later to enroll in 2027."
+    },
+    {
+     "claim": "Étudiants en cours de Licence : premier diplôme avant septembre 2027",
+     "sourceKind": "eligibility",
+     "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "quote": "Current college students are eligible if you will earn your first degree by September 2027."
+    },
+    {
+     "claim": "Admission obligatoire à un diplôme supérieur Stanford à temps plein",
+     "sourceKind": "eligibility",
+     "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "quote": "you must apply to, be accepted by, and enroll in a full-time Stanford graduate degree program"
+    },
+    {
+     "claim": "Cursus exclus : HCP, MLA, JSD/MLS, diplômes coterminaux",
+     "sourceKind": "eligibility",
+     "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+     "quote": "Doctor of Science of Law (JSD) and the Master of Legal Studies (MLS)"
+    },
+    {
+     "claim": "Qualités recherchées : indépendance de pensée, leadership intentionnel, esprit civique",
+     "sourceKind": "overview",
+     "url": "https://knight-hennessy.stanford.edu/",
+     "quote": "Independence of thought"
+    },
+    {
+     "claim": "Deux candidatures distinctes et parallèles : KHS + programme Stanford",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "you must submit separate applications: one application to Knight-Hennessy Scholars, and an application(s) to your desired Stanford graduate degree program(s)."
+    },
+    {
+     "claim": "Pièces KHS : formulaire en ligne",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "Online application form"
+    },
+    {
+     "claim": "Pièces KHS : lettres de recommandation",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "Recommendation Letters"
+    },
+    {
+     "claim": "Pièces KHS : réponses courtes et essai",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "Short Answers & Essay"
+    },
+    {
+     "claim": "Tests de niveau uniquement si le programme Stanford les exige",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "if your graduate degree program does not require standardized tests, then you do not need to submit any with your Knight-Hennessy Scholars application."
+    },
+    {
+     "claim": "Tout le dossier KHS en anglais, en ligne",
+     "sourceKind": "cycle",
+     "url": "https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications",
+     "quote": "You must submit all Knight-Hennessy Scholars application materials in English via our online application."
+    }
+   ],
+   "discrepancies": [],
+   "proposedEdits": [],
+   "unverified": [
+    {
+     "claim": "'Manquer l'une des deux échéances annule la candidature' (steps[3])",
+     "reason": "La page /application-deadlines dit seulement qu'une candidature de programme déposée après le 1er décembre 2026 rend le candidat inéligible à KHS ; elle ne dit pas explicitement que manquer la date KHS annule la candidature (conséquence évidente mais non écrite). Sans gravité, aucune correction proposée."
+    },
+    {
+     "claim": "Détails du contenu de l'essai, du CV et des lettres (nombre de lettres, formats)",
+     "reason": "Hors périmètre des cinq URLs (sous-pages Resume / Recommendation Letters / Short Answers non ouvertes) ; la fiche ne fait que les nommer."
+    },
+    {
+     "claim": "Détail des programmes Stanford ouvrant droit aux 6 trimestres / 1-2 ans de financement pour les Masters",
+     "reason": "Le tableau de la page funding donne 'Up to six academic quarters' pour MA/MS/MBA/MPP ; la fiche dit 'jusqu'à trois ans' (maximum), cohérent mais non nuancé par diplôme. Pas de correction demandée."
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:01:44.000Z"
+  },
+  {
+   "id": "rhodes_southern_africa_2027",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "read": true,
+     "title": "The Rhodes Scholarship | Rhodes Trust",
+     "note": "Page générique toutes circonscriptions. Bandeau en tête : 'Applications for the Rhodes Scholarship 2027 are open!' (non spécifique à l'Afrique australe ; voir la page circonscription et le PDF, qui donnent la clôture du 3 août 2026)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "read": true,
+     "title": "Southern Africa — Information for Candidates 2027 (PDF, 15 p., créé le 2026-06-23)",
+     "note": "PDF texte extrait avec PyMuPDF (pypdf inutilisable dans cet environnement). Contient aussi le Guidance for Referees."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "read": true,
+     "title": "The Rhodes Scholarship | Rhodes Trust",
+     "note": "Même page que overview ; section 'What does the Rhodes Scholarship cover?'. Le montant de l'allocation affiché est toujours celui de 2025-26."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "httpStatus": 200,
+     "finalUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "read": true,
+     "title": "The Rhodes Scholarship | Rhodes Trust",
+     "note": "Même page que overview ; bouton 'Start your Application' mais la démarche détaillée est dans le PDF (section 'How to Apply'). Page complémentaire lue : /scholarships/applications/southern-africa/ (HTTP 200) : 'Closing date: 23:59, SAST, 3 August 2026' et 'the form won’t be available outside of these dates!'."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "httpStatus": 200,
+     "finalUrl": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "read": true,
+     "title": "Southern Africa — Information for Candidates 2027 (PDF)",
+     "note": "Même PDF que eligibility ; encadré 'Key Dates' page 1 et 'Selection Process and Timeline' page 10."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Ouverture des candidatures : 00:01 SAST, 1er juin 2026 (= 2026-05-31T22:01:00Z, cycle.opensAt correct)",
+     "sourceKind": "cycle",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "Applications Open: 00:01 SAST, Monday 01 June 2026"
+    },
+    {
+     "claim": "Clôture des candidatures : 23:59 SAST, 3 août 2026 (= 2026-08-03T21:59:00Z, cycle.closesAt correct) ; cycle passé, statut 'closed' correct au 29/09/2026",
+     "sourceKind": "cycle",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "Applications Close: 23:59 SAST, Monday 03 August 2026"
+    },
+    {
+     "claim": "Date limite des références : 17 août 2026, 23:59 SAST",
+     "sourceKind": "cycle",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "Reference Deadline: 23:59 SAST, Monday 17 August 2026"
+    },
+    {
+     "claim": "Clôture confirmée par la page circonscription (page complémentaire, non listée dans les sources)",
+     "sourceKind": "application",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/southern-africa/",
+     "quote": "Closing date: 23:59, SAST, 3 August 2026"
+    },
+    {
+     "claim": "Entrée à Oxford en octobre 2027 (cycle 2027-2028)",
+     "sourceKind": "cycle",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "Applications submitted for the Rhodes Scholarship in 2026 are for entry to the University of Oxford in October 2027"
+    },
+    {
+     "claim": "Sélection : entretiens en Afrique du Sud de septembre à novembre, résultats d'ici décembre 2026",
+     "sourceKind": "cycle",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "September - November: Interviews will be held in South Africa."
+    },
+    {
+     "claim": "Financement : frais de cursus + allocation annuelle",
+     "sourceKind": "benefits",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "The Rhodes Scholarship covers University of Oxford course fees, as well as providing an annual stipend."
+    },
+    {
+     "claim": "Montant publié de l'allocation 2025-26 : 20 400 GBP",
+     "sourceKind": "benefits",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "For the 2025-26 academic year, the stipend is £20,400 per annum (£1,700 per month)"
+    },
+    {
+     "claim": "Frais de candidature au cursus Oxford pris en charge après sélection",
+     "sourceKind": "benefits",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "The fee required to apply to study at the University of Oxford"
+    },
+    {
+     "claim": "Frais de visa étudiant et IHS pris en charge",
+     "sourceKind": "benefits",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "Fees for a student visa and associated International Health Surcharge (IHS)"
+    },
+    {
+     "claim": "Deux vols en classe économique",
+     "sourceKind": "benefits",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "Two economy class flights to and from the UK, for the beginning and end of studies in Oxford."
+    },
+    {
+     "claim": "Allocation d'installation à l'arrivée",
+     "sourceKind": "benefits",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "On arrival in Oxford, Scholars receive a settling in allowance"
+    },
+    {
+     "claim": "Deux années ou plus à Oxford ; durée dépendant du cursus",
+     "sourceKind": "benefits",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "Rhodes Scholars come to the UK for two or more years"
+    },
+    {
+     "claim": "Bourse entièrement financée, études postgraduées à temps plein à Oxford",
+     "sourceKind": "overview",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "The Rhodes Scholarship is a fully-funded postgraduate award"
+    },
+    {
+     "claim": "Programme de développement du leadership et communauté Rhodes",
+     "sourceKind": "overview",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "Our programming develops your skills to lead with integrity and purpose"
+    },
+    {
+     "claim": "Nationalité / résidence permanente dans l'un des six pays",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "You must be a citizen or legal permanent resident of South Africa, Botswana, Lesotho, Malawi, Namibia or eSwatini."
+    },
+    {
+     "claim": "Réfugiés / demandeurs d'asile en Afrique du Sud considérés",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "Applications from refugees/asylum seekers in South Africa will also be considered in this constituency."
+    },
+    {
+     "claim": "Résidence : cinq des dix dernières années",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "You must have been resident in South Africa, Botswana, Lesotho, Malawi, Namibia or eSwatini for at least five of the last ten years."
+    },
+    {
+     "claim": "Âge : 19 ans révolus et pas plus de 24 ans au 1er octobre 2027 (voies particulières pour candidats plus âgés / santé)",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "you must be at least 19 years old and not have passed your 25th birthday"
+    },
+    {
+     "claim": "Licence achevée avant juillet 2027, niveau au moins égal aux exigences du cursus Oxford",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "You must have completed an undergraduate degree (usually a Bachelor’s) by July 2027"
+    },
+    {
+     "claim": "Niveau académique visé : GPA 3,70/4,0 ou First Class Honours",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "A GPA of 3.70/4.0 or higher"
+    },
+    {
+     "claim": "Anglais : niveau supérieur d'Oxford (sauf dispense)",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "you must check that you meet Oxford University's English language requirements at the higher level."
+    },
+    {
+     "claim": "Documents : acte de naissance",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "A copy of your birth certificate."
+    },
+    {
+     "claim": "Documents : passeport ou pièce d'identité",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "A copy of a valid passport or ID document."
+    },
+    {
+     "claim": "Documents : traductions anglaises officielles si documents non anglais",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "If your official documents, such as your birth certificate, passport or transcript are not in English you must also upload official English translations."
+    },
+    {
+     "claim": "CV de deux pages maximum",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "your CV document should not exceed 2 pages"
+    },
+    {
+     "claim": "Déclarations académique (450 mots max) et personnelle (1000 mots max)",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "You will need to provide a personal statement of no more than 1000 words."
+    },
+    {
+     "claim": "Quatre référents : trois académiques, un de caractère",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "Three of your referees should be academic referees."
+    },
+    {
+     "claim": "Un référent de caractère",
+     "sourceKind": "eligibility",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "You should also nominate one character referee"
+    },
+    {
+     "claim": "Démarche : dépôt en ligne avant la clôture, aucun autre format accepté",
+     "sourceKind": "application",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "you must complete and submit our online application form before 23:59 SAST, 03 August 2026."
+    },
+    {
+     "claim": "Aucun frais de candidature Rhodes",
+     "sourceKind": "application",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "There is no application fee for submission of the Rhodes Scholarship application."
+    },
+    {
+     "claim": "Candidature Oxford après sélection avec l'appui de Rhodes House",
+     "sourceKind": "application",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "Candidates selected for the Rhodes Scholarship are then required to apply for their chosen course via the University of Oxford’s graduate application form"
+    },
+    {
+     "claim": "Candidature Oxford après sélection : appui de Rhodes House",
+     "sourceKind": "application",
+     "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+     "quote": "with support from the team at Rhodes House"
+    },
+    {
+     "claim": "Responsabilité du candidat : références déposées avant le 17 août 2026",
+     "sourceKind": "cycle",
+     "url": "https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf",
+     "quote": "It is your responsibility to ensure that referees submit their references online before 23:59 SAST, 17 August 2026."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "deadlineLabel (fr/en) — 'les références restent attendues jusqu’au 17 août 2026' / 'references remain due until 17 August 2026'",
+     "recordSays": "Clôturé — ... les références restent attendues jusqu’au 17 août 2026 ; prochain cycle attendu vers juin 2027, date non publiée",
+     "pageSays": "La date limite des références (17 août 2026) est désormais passée au 29/09/2026 : le présent ('restent attendues') est périmé.",
+     "quote": "Reference Deadline: 23:59 SAST, Monday 17 August 2026",
+     "sourceKind": "cycle",
+     "severity": "minor"
+    },
+    {
+     "field": "deadlineLabel (fr/en) — 'prochain cycle attendu vers juin 2027'",
+     "recordSays": "prochain cycle attendu vers juin 2027, date non publiée",
+     "pageSays": "Aucune page lue (accueil, page circonscription Afrique australe, FAQ, PDF) ne donne de date de réouverture ; elles disent seulement d'attendre une notification. 'Vers juin 2027' est une extrapolation du cycle 2026 (ouverture le 1er juin 2026), non écrite sur les pages. Le libellé précise déjà 'date non publiée', d'où gravité mineure ; suppression du mois recommandée pour respecter la règle 4.",
+     "quote": "You can sign up to our mailing list to be notified when applications reopen in future years.",
+     "sourceKind": "overview",
+     "severity": "minor"
+    },
+    {
+     "field": "requirements (omission)",
+     "recordSays": "La liste ne mentionne ni le certificat de fin d’études secondaires (Grade 12 / Matric) ni la photo d’identité couleur ; elle dit 'Preuve d’anglais lorsque requise' alors que le PDF ne liste aucun test d’anglais parmi les documents exigés.",
+     "pageSays": "Le PDF liste aussi le certificat Grade 12 et une photo tête-épaules, et ne demande pas de test d’anglais dans 'Key Documents' (seulement de vérifier son niveau vis-à-vis d’Oxford). Omission, pas contradiction ; aucune édition proposée (à l'appréciation du rédacteur).",
+     "quote": "A copy of your Grade 12 school leaving certificate.",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    },
+    {
+     "field": "cycle.status (observation, pas d'erreur de fiche)",
+     "recordSays": "closed",
+     "pageSays": "Le bandeau de la page d'accueil Rhodes annonce 'Applications ... 2027 are open!' mais il est générique (toutes circonscriptions) ; la page Afrique australe et le PDF donnent une clôture au 3 août 2026, passée. Le statut 'closed' est donc correct.",
+     "quote": "Applications for the Rhodes Scholarship 2027 are open!",
+     "sourceKind": "overview",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "deadlineLabel",
+     "newFr": "Clôturé — les candidatures 2027 ont fermé le 3 août 2026 à 23 h 59 SAST ; les références étaient attendues jusqu’au 17 août 2026 ; date d’ouverture du prochain cycle non publiée",
+     "newEn": "Closed — 2027 applications closed on 3 August 2026 at 23:59 SAST; references were due by 17 August 2026; opening date of the next cycle not published",
+     "justificationQuote": "Reference Deadline: 23:59 SAST, Monday 17 August 2026"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Prochain cycle attendu vers juin 2027 / date de réouverture",
+     "reason": "page silencieuse : le site Rhodes ne publie aucune date pour le cycle suivant"
+    },
+    {
+     "claim": "Allocation annuelle pour 2026-27 ou 2027-28 (le montant 2025-26 est le seul publié)",
+     "reason": "page silencieuse : la page affiche encore 20 400 GBP pour 2025-26 ; la fiche le dit déjà ('révisable')"
+    },
+    {
+     "claim": "Preuve d'anglais 'lorsque requise' (requirements[6])",
+     "reason": "le PDF impose de vérifier le niveau supérieur d'Oxford mais ne liste aucun certificat d'anglais parmi les pièces à téléverser ; la nécessité d'une preuve est décidée par l'admission Oxford, non lue sur ces pages"
+    },
+    {
+     "claim": "Détail des critères de sélection (page selection-criteria)",
+     "reason": "page non listée dans les sources ; critères lus uniquement dans le PDF (Guidance for Referees et Personal Statement)"
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:03:19.000Z"
+  },
+  {
+   "id": "australia_awards_africa_2028_forecast",
+   "verdict": "not_fully_verifiable",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.dfat.gov.au/geo/africa-middle-east/development-assistance-in-sub-saharan-africa/australia-awards-africa",
+     "httpStatus": 503,
+     "finalUrl": "",
+     "read": false,
+     "title": "",
+     "note": "ILLISIBLE. WebFetch : HTTP 503 (3 essais). curl (HTTP/2 puis --http1.1, 4 User-Agents, 3 essais) : 'HTTP/2 stream not closed cleanly INTERNAL_ERROR', 'Empty reply from server' ou timeout, code 000. Tout le domaine dfat.gov.au est concerné (accueil, autres pages, et le PDF /sites/default/files/australia-awards-africa-information-for-intake.pdf répond 403 Akamai NetStorage). archive.org répond 429 (limite de débit). WebSearch restreint à dfat.gov.au renvoie seulement un résumé paraphrasé, non exploité comme citation."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://australiaawardsafrica.org/awards/apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://australiaawardsafrica.org/awards/apply/",
+     "read": true,
+     "title": "Apply for an Award - Australia Awards Africa",
+     "note": "Page lue mais elle ne contient AUCUN critère d'éligibilité (seulement l'avis de clôture 2027 et l'annonce du cycle 2028) ; le lien 'Check eligibility' du pied de page pointe vers elle-même. Critères confrontés au document officiel du cycle 2027 hébergé sur le même site : https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf (HTTP 200, PDF 3 p., créé le 2026-01-30, 'Australia Awards scholarships information for study commencing in 2027'), et à la FAQ https://australiaawardsafrica.org/contact/faq/ (HTTP 200)."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.dfat.gov.au/geo/africa-middle-east/development-assistance-in-sub-saharan-africa/australia-awards-africa",
+     "httpStatus": 503,
+     "finalUrl": "",
+     "read": false,
+     "title": "",
+     "note": "ILLISIBLE (même URL et mêmes échecs que 'overview'). Les avantages ont été confrontés au PDF officiel 2027 du site australiaawardsafrica.org (voir eligibility) : substitut cité, la page DFAT elle-même n'a pas été lue."
+    },
+    {
+     "kind": "application",
+     "url": "https://oasis.dfat.gov.au/",
+     "httpStatus": 200,
+     "finalUrl": "https://oasis.dfat.gov.au/",
+     "read": true,
+     "title": "News - OASIS",
+     "note": "Page d'accueil / actualités du portail OASIS (Logon / Register). Confirme la clôture des candidatures 2027 pour 'Australia Awards Scholarships' ; ne cite pas l'Afrique nommément."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://australiaawardsafrica.org/awards/apply/",
+     "httpStatus": 200,
+     "finalUrl": "https://australiaawardsafrica.org/awards/apply/",
+     "read": true,
+     "title": "Apply for an Award - Australia Awards Africa",
+     "note": "Le champ 'modified' de l'API WordPress (wp-json/wp/v2/pages/19) indique 2025-10-20 pour cette page. Page complémentaire /awards/types-of-awards/ (HTTP 200) : 'The next round of applications will open from 1 February 2027.'"
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Le cycle 2027 est clos (cycle.sourceUrl)",
+     "sourceKind": "cycle",
+     "url": "https://australiaawardsafrica.org/awards/apply/",
+     "quote": "Applications for the Australia Awards Scholarships 2027 Intake are now closed."
+    },
+    {
+     "claim": "Le cycle suivant (rentrée 2028) ouvre en février 2027 : statut 'forecast' correct, ouverture désormais annoncée au niveau du mois",
+     "sourceKind": "cycle",
+     "url": "https://australiaawardsafrica.org/awards/apply/",
+     "quote": "Applications for the 2028 Intake will open in February 2027."
+    },
+    {
+     "claim": "Ouverture du prochain appel 'à partir du 1er février 2027' (page complémentaire du même site, non listée dans les cinq sources) : cohérent avec estimatedOpenAt 2027-02-01",
+     "sourceKind": "cycle",
+     "url": "https://australiaawardsafrica.org/awards/types-of-awards/",
+     "quote": "The next round of applications will open from 1 February 2027."
+    },
+    {
+     "claim": "Le portail OASIS confirme la clôture de la rentrée 2027 (schéma 'Australia Awards Scholarships')",
+     "sourceKind": "application",
+     "url": "https://oasis.dfat.gov.au/",
+     "quote": "Applications for the 2027 intake of the following scholarship schemes have closed:"
+    },
+    {
+     "claim": "L'appel de référence 2027 (dont dérive la prévision) courait du 1er février au 30 avril 2026, 23 h 59 AEST",
+     "sourceKind": "cycle",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "Closing date: 30 April 2026 (11:59PM AEST)"
+    },
+    {
+     "claim": "Dépôt en ligne via OASIS par le site Australia Awards Africa",
+     "sourceKind": "application",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "All applications must be lodged online through OASIS via the Australia Awards Africa website."
+    },
+    {
+     "claim": "Niveau : Master en Australie (le programme ne finance ni Licence ni doctorat)",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/contact/faq/",
+     "quote": "The Australia Awards Africa program does not support bachelors or PhD studies."
+    },
+    {
+     "claim": "Financement : frais de scolarité complets",
+     "sourceKind": "benefits",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "full tuition fees"
+    },
+    {
+     "claim": "Financement : voyage aérien aller-retour",
+     "sourceKind": "benefits",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "return air travel"
+    },
+    {
+     "claim": "Allocation d'installation unique",
+     "sourceKind": "benefits",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "a one-off establishment allowance on arrival"
+    },
+    {
+     "claim": "Contribution aux frais de vie",
+     "sourceKind": "benefits",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "contribution to living expenses"
+    },
+    {
+     "claim": "Couverture santé des étudiants étrangers pendant la bourse",
+     "sourceKind": "benefits",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "overseas student health cover for the duration of the scholarship"
+    },
+    {
+     "claim": "Programme d'introduction et soutien académique supplémentaire",
+     "sourceKind": "benefits",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "supplementary academic support"
+    },
+    {
+     "claim": "Allocation de terrain pour les Masters avec terrain obligatoire",
+     "sourceKind": "benefits",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "fieldwork allowance for research students and masters by coursework which has a compulsory fieldwork component"
+    },
+    {
+     "claim": "Âge minimal 25 ans au 1er février de l'année de l'appel",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "Be a minimum of 25 years of age on 1 February 2027."
+    },
+    {
+     "claim": "Cinq ans d'expérience professionnelle post-diplôme dans le domaine visé",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "At minimum, have 5 years of post-graduate work experience, working in a field relative to their field of study."
+    },
+    {
+     "claim": "Être employé au moment de la candidature",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "Be employed at the time of applying for the scholarship."
+    },
+    {
+     "claim": "Ne pas déjà détenir ou suivre un Master",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "Not already hold or be undertaking a Master’s degree or equivalent"
+    },
+    {
+     "claim": "Ne pas avoir reçu de précédente Australia Award longue durée",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "Not have previously received a long-term Australia Award."
+    },
+    {
+     "claim": "Résider dans son pays de citoyenneté (sauf organisation régionale africaine ou mission diplomatique) ; les 25 pays de l'appel 2027 sont listés dans le PDF",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "unless working for an African Regional Organisation or working on diplomatic mission for their home country."
+    },
+    {
+     "claim": "Seuil IELTS 6,5 avec aucune bande sous 6,0",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "Meet the minimum English language proficiency of at least 6.5 in IELTS with no band less than 6.0"
+    },
+    {
+     "claim": "Seuil TOEFL iBT 84 avec 21 par section",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "an internet based TOEFL score of at least 84, with a minimum of 21 in all subtests"
+    },
+    {
+     "claim": "Seuil PTE 58 avec 50 par compétence",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "PTE Academic overall score of 58 with no communicative skill score less than 50"
+    },
+    {
+     "claim": "Domaine prioritaire : politique étrangère et sécurité internationale (et quatre autres domaines listés)",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/awards/types-of-awards/",
+     "quote": "Foreign policy and international security"
+    },
+    {
+     "claim": "Pièces : rapports de référence employeur et académique",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "Employer Referee Report"
+    },
+    {
+     "claim": "Pièces : certificat IELTS/TOEFL/PTE (sauf candidats de langue première anglaise ayant étudié en anglais)",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "IELTS/TOEFL/Pearson Test Certificate"
+    },
+    {
+     "claim": "Pièces : diplôme de Licence et relevé de notes, CV, passeport",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf",
+     "quote": "Undergraduate Academic Transcript"
+    },
+    {
+     "claim": "Tous les documents sont exigés au dépôt, sans envoi différé",
+     "sourceKind": "eligibility",
+     "url": "https://australiaawardsafrica.org/contact/faq/",
+     "quote": "No late submission of documents will be considered."
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "deadlineLabel (fr/en) et description",
+     "recordSays": "Prévision prochain cycle — environ du 1er février au 30 avril 2027, à reconfirmer",
+     "pageSays": "Le site officiel annonce désormais l'ouverture du prochain appel en février 2027 ('from 1 February 2027') mais ne publie aucune date de clôture ; le 30 avril 2027 n'est qu'une extrapolation de l'appel 2026 et le libellé ne le dit pas. Le statut 'forecast' et la confiance 'estimated' restent corrects (clôture non publiée).",
+     "quote": "Applications for the 2028 Intake will open in February 2027.",
+     "sourceKind": "cycle",
+     "severity": "minor"
+    },
+    {
+     "field": "sources.eligibility",
+     "recordSays": "https://australiaawardsafrica.org/awards/apply/",
+     "pageSays": "Cette page ne contient aucun critère d'éligibilité (seulement 'now closed' / 'will open in February 2027'). Les critères se trouvent dans le PDF du cycle 2027 https://australiaawardsafrica.org/resources/Africa-Profile-2027-Intake.pdf (HTTP 200, lu) ; à envisager comme URL de la source 'eligibility' (PDF du cycle précédent, à indiquer comme tel).",
+     "quote": "Applications for the Australia Awards Scholarships 2027 Intake are now closed.",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    },
+    {
+     "field": "eligibility[4] (cinq ans d'expérience) — omission",
+     "recordSays": "Avoir au moins cinq ans d’expérience professionnelle après le diplôme, pertinente pour le domaine choisi",
+     "pageSays": "La FAQ ajoute une exception : trois ans suffisent pour un candidat en situation de handicap. Omission, pas contradiction ; aucune édition proposée.",
+     "quote": "unless you have a disability in which case, you must demonstrate at least three years post-graduate work experience.",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "deadlineLabel",
+     "newFr": "Prévision prochain cycle — ouverture annoncée pour février 2027 (à partir du 1er février 2027 selon le site officiel) ; clôture non publiée, estimée vers le 30 avril 2027 d’après l’appel précédent, à reconfirmer",
+     "newEn": "Next-cycle forecast — opening announced for February 2027 (from 1 February 2027 per the official site); closing date not published, estimated around 30 April 2027 from the previous call, to be reconfirmed",
+     "justificationQuote": "Applications for the 2028 Intake will open in February 2027."
+    },
+    {
+     "field": "description",
+     "newFr": "Bourses du gouvernement australien pour professionnels africains de niveau intermédiaire à senior, adossées au partenariat Australie-Afrique 2025-2030. Le portail OASIS confirme que la rentrée 2027 est close et aucune suspension ni coupe budgétaire n’est annoncée sur les pages officielles. Le site Australia Awards Africa annonce l’ouverture du prochain appel en février 2027, sans date de clôture. Les autres dates et critères affichés comme prévision sont dérivés du document officiel pour les études débutant en 2027, dont l’appel courait du 1er février au 30 avril 2026, et doivent être reconfirmés pour l’appel suivant.",
+     "newEn": "Australian Government scholarships for mid- to senior-level African professionals, backed by the 2025-2030 Australia-Africa partnership. The OASIS portal confirms the 2027 intake has closed and no suspension or budget cut is announced on the official pages. The Australia Awards Africa site announces the next call will open in February 2027, with no closing date. Other forecast dates and criteria are derived from the official 2027-intake document, whose call ran from 1 February to 30 April 2026, and must be reconfirmed for the next call.",
+     "justificationQuote": "Applications for the 2028 Intake will open in February 2027."
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Contenu de la page DFAT (sources overview et benefits) : partenariat Australie-Afrique 2025-2030, absence de suspension ou de coupe budgétaire annoncée par le DFAT",
+     "reason": "403 / 503 / réponse vide : www.dfat.gov.au est inaccessible depuis cet environnement (Akamai). Ni la page ni le PDF du DFAT n'ont été lus ; les avantages et critères ont été confrontés à la copie du document officiel 2027 hébergée par australiaawardsafrica.org."
+    },
+    {
+     "claim": "Date de clôture du cycle 2028 (30 avril 2027) et heure de clôture",
+     "reason": "page silencieuse : seules l'ouverture (février 2027 / 1er février 2027) et la clôture 2026 sont écrites ; la fiche doit rester forecast + estimated"
+    },
+    {
+     "claim": "Liste des pays éligibles, âge (au 1er février 2028), seuils de langue et domaines prioritaires pour l'appel 2028",
+     "reason": "page silencieuse : seuls les critères du cycle 2027 sont publiés ; la fiche les présente comme critères 'de référence' à reconfirmer"
+    },
+    {
+     "claim": "Passeport / diplôme / relevé 'certifiés' (requirements[0-1], steps[1])",
+     "reason": "page silencieuse : le PDF 2027 dit seulement que les lauréats devront produire les originaux pour certification ; l'exigence de copies certifiées au dépôt relève du Policy Handbook DFAT, illisible"
+    },
+    {
+     "claim": "Alerte à activer, 'PDF couleur lisibles' (steps[0], steps[3])",
+     "reason": "page silencieuse : aucun texte lu sur une alerte ni sur le format couleur des PDF (probablement dans le guide OASIS non lu)"
+    },
+    {
+     "claim": "Pages anciennes du même site (/awards/australia-awards-scholarships/ : 'Applications open annually, in September', pays et secteurs différents ; FAQ : 'Applications opened on 1 February and will close on 30 April' sans année ; brochure 2025)",
+     "reason": "contenus périmés et non datés, non retenus comme preuve ; ils ne contredisent pas la fiche mais ne la confirment pas non plus"
+    }
+   ],
+   "readAtUtc": "2026-09-29T15:12:44.000Z"
+  }
+ ]
+}

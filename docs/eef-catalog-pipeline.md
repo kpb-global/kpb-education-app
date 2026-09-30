@@ -25,7 +25,7 @@ Le noyau reste les 70 universités à typologie MESR. Le 21 septembre 2026, quat
 | dont 2e et 3e années de licence | 3 134 |
 | dont mentions de master | 3 244 |
 | Par procédure | `eef` 7 260 · `dap_blanche` 3 133 · `dap_jaune` 29 · `hors_eef` 80 |
-| Classement de domaine par repli | 2,28 % (plafond CI : 8 %) |
+| Classement de domaine par repli | 1,86 % — 195 formations sur 10 502 (plafond CI : 8 %) |
 | Profils d'admission Parcoursup 2025 | 3 525 formations |
 | Logos Commons réutilisables | 40 établissements |
 | Sources | jeux MESR en **Licence Ouverte v2.0**, logos sous la licence de chaque fichier |
@@ -43,8 +43,16 @@ données ouvertes MESR
   → eef-catalog.validator.ts           (portes strictes ; CI + avant import)
   → scripts/import-eef-catalog.ts      (--dry-run | --apply, jamais de défaut)
   → Institution / Program, isActive = false
-  → file /verification en admin        ← le seul endroit où une ligne devient visible
+  → « Publication EEF » en admin       ← le seul endroit où une ligne de l'import devient
+                                         visible (§ 5) ; PATCH/POST /admin/catalog/… refusent
+                                         d'en activer une (409)
+  → file /verification en admin        ← ne liste que les lignes DÉJÀ publiées, à leur cadence (§ 2ter)
 ```
+
+La file `/verification` n'a jamais été le chemin de publication : valider une
+ligne y pose le tampon de vérification (`lastVerifiedAt`, `verifiedByName`),
+jamais `isActive`. Une ligne importée qu'on y « validait » sortait donc de la
+file sans devenir visible.
 
 C'est, trait pour trait, le pipeline des bourses
 (`backend/src/modules/scholarships-index/data/`). Le dépôt l'a déjà éprouvé, et
@@ -62,9 +70,10 @@ humain ne vérifiera avant la campagne — c'est exactement ainsi que
 « Bourse McCall MacBain », qui n'existe nulle part, a atteint un appareil de
 production (`lib/app/core/data/catalog_source.dart:1-9`).
 
-Les jeux du ministère, eux, **sont** la source. Chaque formation porte le lien
-de sa fiche officielle (Parcoursup, ou le site de l'université), et la collecte
-est rejouable à l'identique : le manifeste garde la requête exacte.
+Les jeux du ministère, eux, **sont** la source, et la collecte est rejouable à
+l'identique : le manifeste garde la requête exacte. Chaque formation porte un lien
+de source — mais **ce n'est la fiche de la formation que pour 60 % d'entre elles**
+(§ 2.8).
 
 ### 2.2 Licence Ouverte seulement — l'Onisep est écarté
 
@@ -104,7 +113,7 @@ Depuis 2019, une université peut appliquer des droits différenciés aux
 aucun jeu ouvert ne dit laquelle s'applique où. Annoncer un montant serait donc
 faux pour une moitié du catalogue.
 
-Les lignes portent la règle et renvoient à la fiche officielle ;
+Les lignes portent la règle et renvoient à leur source (§ 2.8) ;
 `tuitionMinEur` reste `null`, ce que le scoring de budget traite déjà comme un
 facteur neutre (`Program.tuitionMinEur` est nullable exprès).
 
@@ -154,6 +163,127 @@ C'est le point le plus sensible du lot : se tromper de procédure envoie un
 étudiant sur le mauvais calendrier. Il mérite une relecture métier avant la
 publication.
 
+### 2.6bis Les logos : Wikimedia ne sert que des largeurs standard (corrigé le 29/09/2026)
+
+L'import transforme le SVG d'un logo en miniature PNG Commons (Flutter ne décode
+pas le SVG). La largeur demandée était **320 px, que Wikimedia refuse**
+(HTTP 400) : mesuré le 29/09/2026 sur un même fichier, 20, 40, 60, 120, 250, 330
+et 500 px répondent 200 ; 200, 300, 320, 400 et 640 px répondent 400. Sur les
+26 logos qui sont des SVG, l'écran aurait affiché son repli, sans aucune erreur.
+
+`commonsRasterDisplayUrl` (backend et app) ne produit plus que des largeurs de la
+liste standard (330 par défaut) et **ramène à la voisine une miniature déjà
+stockée en 320 px** : les lignes importées avant le correctif sont donc servies
+correctement sans réécrire la base. Une build déjà installée affiche l'URL que
+le serveur lui envoie telle quelle : le correctif du backend suffit pour elle.
+Le contrôle réel (HTTP 200 sur les 40 logos, depuis un réseau qui atteint
+Wikimedia) reste à faire après l'import : `curl -I` sur chaque `logoUrl`.
+
+### 2.8 Ce que `sourceUrl` désigne réellement (corrigé le 29/09/2026)
+
+Ce document, la SOP et le README des données disaient « chaque ligne porte sa
+fiche officielle ». C'est faux pour 4 212 lignes sur 10 502 (40,1 %), mesurées sur
+les fichiers versionnés :
+
+| Jeu | Cycle | Lignes | `sourceUrl` | Fiche de la formation ? |
+| --- | --- | ---: | --- | --- |
+| Parcoursup 2025 | L1, BUT, PASS, DEUST, ingénieur (+ 16 masters de Sciences Po) | 4 140 | `dossierappel.parcoursup.fr/…afficherFicheFormation?g_ta_cod=…` | **oui** |
+| Trouver Mon Master | master | 2 150 | page du site de l'établissement | oui, non relue une à une |
+| Trouver Mon Master | master | **1 078** | `https://www.monmaster.gouv.fr/` (repli `MASTER_PORTAL_SEARCH`) | **non** : la page d'accueil du portail |
+| Principaux diplômes préparés | L2 (1 497), L3 (1 637) | **3 134** | vue filtrée de `data.enseignementsup-recherche.gouv.fr` | **non** : un jeu de données, pas une page candidat |
+
+Pourquoi ce n'est pas un défaut de collecte : pour ces deux familles, aucun jeu
+ouvert ne publie l'adresse de la page de la formation. Le lien prouve que la
+formation EXISTE (c'est la source de la donnée), pas où s'y inscrire. L'app
+l'affiche pourtant comme « Voir la source officielle » (`source_link.dart`), ce
+qui promet une page de formation.
+
+Ce que fait le code aujourd'hui : rien de plus que d'exiger une source HTTPS (le
+validateur et l'outil de publication). L'outil de publication **compte** les
+formations concernées pour chaque établissement (`programs.genericSource`) et
+l'écran de l'admin l'affiche avant la confirmation. Il ne les refuse pas.
+
+Ce qui reste à décider (contenu, pas code) :
+
+1. **Première vague sans ces lignes**, ou avec elles ? Les exclure revient à ne
+   publier que les 6 290 lignes à fiche : toutes les entrées en 1re année
+   (L1, BUT, PASS, DEUST, ingénieur) et 2 166 des 3 244 masters, aucune L2/L3 — or
+   c'est le cas le plus courant du public visé (§ 2.5).
+2. **Libellé honnête** pour les autres : « Données publiques du ministère » plutôt
+   que « Voir la source officielle » (client Flutter, textes FR/EN).
+3. **Re-sourcer d'abord les L2 et L3** des universités qu'on publie, à la main :
+   chercher la page de la formation sur le site de l'établissement et l'écrire dans
+   `sourceUrl` (l'écran de publication ne le fait pas).
+
+### 2.7 Les douze domaines sont ceux de l'orientation (corrigé le 29/09/2026)
+
+Le classement en domaines `d01..d12` parlait un autre vocabulaire que le reste de
+l'app : l'import appelait `d03` « Finance, Banque & Comptabilité » et `d05`
+« Ingénierie & Sciences Appliquées », alors que l'orientation — donc les
+domaines que l'étudiant choisit, `EefInterest.fieldIds` — appelle `d03`
+« Ingénierie & Sciences » et `d05` « Architecture & BTP ». Dix domaines sur
+douze portaient le nom d'un autre, deux (`d11` Arts & Culture, `d12` Logistique)
+ne recevaient qu'un contresens. Conséquence : la recherche filtrait par
+domaine, et le classement de la shortlist (`field_declared`) proposait un master
+de finance à qui avait déclaré l'ingénierie.
+
+**Pourquoi l'orientation est la référence.** Le seed `seed-catalogue-unique` écrit
+les lignes `Field` du serveur depuis `ORIENTATION_FIELDS` ; la migration
+`20260705180000_remap_legacy_field_ids` appelle ces identifiants « canoniques »
+(`d01` Informatique, `d02` Commerce & Management, `d03` Ingénierie & Sciences) ;
+l'import des écoles partenaires (`FIELD_BY_LABEL`) et le scoreur d'orientation
+parlent la même langue. Les anciens noms de l'import venaient du catalogue Dart
+hors ligne (`lib/app/core/data/mock_catalog/fields_data.dart`), qui n'a jamais
+été réaligné. **À contrôler en production avant le réimport** (je n'y ai pas
+accès) : `db-info`, section 10, liste `Field` (id, nom) — les noms doivent être
+ceux de l'orientation. **Écart hors périmètre, à traiter à part** : ce mock Dart
+sert quand le cache du catalogue est vide (premier lancement hors ligne) et
+affiche encore `d03` « Finance, Banque & Comptabilité » là où le serveur dit
+« Ingénierie & Sciences » ; le réaligner demande de réécrire le contenu de onze
+domaines, pas seulement leurs noms.
+
+La référence est désormais **une seule liste**, `ORIENTATION_FIELDS`
+(`KNOWN_FIELD_IDS` en dérive ; le validateur et la recherche n'en recopient
+plus). Les règles de mots-clés (`FIELD_KEYWORD_RULES`) rangent chaque intitulé
+sous le domaine qui porte son nom canonique, et le test qui les garde ne
+nomme **aucun numéro** : il dit « la finance est dans Commerce & Management »
+puis va lire le nom que l'orientation donne au domaine renvoyé. Deuxième filet :
+`eef-catalog.data.spec.ts` exige que chacune des 10 502 lignes versionnées porte
+le domaine que donnent les règles **actuelles** — une règle changée sans
+régénération des fichiers fait échouer la CI avec l'intitulé.
+
+Ce qui a changé sur les 10 502 lignes (3 134 le sont) : la santé et les sciences
+de la vie passent en `d04` (684 : sciences de la vie, biologie, STAPS), les arts et l'histoire
+de l'art en `d11` (399), la logistique et les transports en `d12` (72),
+l'architecture et le bâtiment en `d05` (124), l'ingénierie en `d03` (1 234), le
+tourisme en `d10` (75), l'agriculture en `d08` (46), la finance et le commerce
+en `d02` (277). Quatre défauts de mots-clés ont été corrigés au passage parce
+qu'ils faussaient le résultat : « eau » captait « réseaux » et « bureaux » (43
+formations de transport rangées en environnement), « mode » captait
+« modélisation », « patrimoine » rangeait 58 formations d'histoire, de musées et de droit
+du patrimoine en finance, et une quarantaine de masters de santé (« Santé », « Sciences du
+médicament… ») ne tenaient que par le repli.
+
+**Deux choix à faire confirmer par l'exploitation**, parce qu'aucun mot-clé ne
+les tranche : les **STAPS** sont rangées en santé (`d04`), faute de domaine
+« sport » dans l'orientation ; et le mot entier « santé » range en `d04` ce qui
+le contient, « Droit de la santé » comprise (15 formations) — la santé passe
+avant le droit, comme elle passe avant l'informatique.
+
+Les fichiers ont été réécrits **hors ligne**, sans `eef:fetch` : les règles
+appliquées à l'intitulé reproduisaient les 10 263 lignes classées par mot-clé à
+l'identique avant la correction, donc le résultat est celui qu'aurait produit le
+générateur. Les 239 lignes classées par repli n'ont pas gardé leur grand domaine
+source ; 44 ont trouvé un mot-clé, les autres gardent leur repli (seul `d05` →
+`d03` change). Un prochain `eef:fetch` recalcule tout, repli compris.
+
+**Les lignes déjà en base ne suivent pas.** `eef:import` est création seule : les
+10 247 formations importées inactives gardent l'ancien domaine, et
+`eef:backfill` ne comble que des colonnes vides. Tant qu'aucune n'est publiée,
+personne ne les a relues ni enregistrées : les supprimer puis réimporter est le
+réalignement (§ 5, `eef:purge-pending`). Après la première publication, il
+faudra un `eef:reconcile` que personne n'a encore écrit.
+
 ---
 
 ## 2bis. La mise en attente est APPLIQUÉE, pas seulement écrite
@@ -171,11 +301,12 @@ Ce qui tient la promesse maintenant :
 
 | Surface | Règle |
 |---|---|
-| `GET /catalog/programs` | `isActive: true`, jamais optionnel |
-| `GET /catalog/institutions` | `isActive: true`, jamais optionnel |
-| `MatchesService` (recommandations) | `isActive: true` |
+| `GET /catalog/programs` | `isActive: true`, jamais optionnel — et **aucune ligne EEF, publiée ou non** (§ 2ter) |
+| `GET /catalog/institutions` | `isActive: true`, jamais optionnel — et **aucune ligne EEF, publiée ou non** (§ 2ter) |
+| `MatchesService` (recommandations) | `isActive: true` — et **aucune ligne EEF** (§ 2ter) |
+| `GET /etudes-en-france/search` et `/shortlist` | `isActive: true` **et établissement publié** (§ 2ter) |
 | `Institution.programIds` servi | privé des identifiants connus comme inactifs |
-| `PATCH /admin/catalog/programs/:id` et `/institutions/:id` | acceptent `isActive` — c'est le chemin de publication |
+| `PATCH /admin/catalog/programs/:id` et `/institutions/:id`, `POST /admin/catalog/programs` | acceptent `isActive` pour une fiche de l'équipe ; **refusent (409) d'ACTIVER une ligne de l'import** — elle se publie par « Publication EEF », qui vérifie et signe. Désactiver, ou modifier une ligne déjà publiée, reste permis |
 
 Deux points méritent d'être dits explicitement :
 
@@ -198,20 +329,144 @@ publication d'une université et d'une de ses formations : 1 établissement,
 
 ---
 
+## 2ter. La frontière : ce que le catalogue général ne sert JAMAIS
+
+Ajouté le 29/09/2026, la veille de l'ouverture de la campagne. § 2bis garantissait
+que l'inactif ne se sert pas. Restait ce qui se passe **après publication** :
+`isActive` ne dit pas d'où vient une ligne, et le catalogue général n'a que ce
+drapeau.
+
+### Le défaut
+
+Chaque build installée charge le catalogue d'un seul appel —
+`GET /catalog/programs?limit=1000`, trié par nom — et le serveur ne voit aucun
+en-tête de version pour distinguer les clients. Le débordement commence à
+**367 lignes EEF actives** (1 000 moins les 634 formations partenaires servies
+aujourd'hui), alors qu'une seule université en compte jusqu'à 414. Mesuré : avec
+les 10 502 lignes actives, il ne reste que **121 des 634** formations
+partenaires (OMNES, ICN, Mundiapolis) dans l'instantané. Personne n'aurait vu
+d'erreur : des fiches disparaissent, c'est tout — dans l'app de tout le monde,
+sans mise à jour possible côté client.
+
+### La règle
+
+Le catalogue général, les recommandations (`MatchesService`, y compris son repli
+`loadPrograms({})` quand le profil est inexploitable) et — pour la file de
+revérification — les lignes en attente **excluent la provenance EEF**. Elle se
+reconnaît à l'identifiant que l'import écrit : `eef-univ-…` pour les
+établissements, `eef-prog-…` pour les formations. Une formation dont
+l'ÉTABLISSEMENT porte `eef-univ-…` en est aussi, même saisie à la main
+(identifiant généré, active par défaut) : sans cela elle serait servie par le
+catalogue général sur une carte sans école, l'école étant, elle, exclue. Les deux
+préfixes et les clauses qui les excluent vivent dans **un seul fichier**,
+`backend/src/common/eef-provenance.ts`, importé aussi par le constructeur de
+l'import.
+
+Pourquoi le préfixe et non la procédure : le code connaissait déjà trois façons
+de dire « ceci est une ligne EEF » (`procedureType IS NOT NULL`, `cycle IN (…)`,
+l'identifiant). Le préfixe est la seule qui ne dépende d'aucune décision future :
+le schéma prévoit `hors_eef`, qualifier un jour les 133 formations partenaires
+(aujourd'hui `NULL`) est plausible, et un établissement privé partenaire a lui
+aussi un code UAI. Le seed OMNES délimite déjà ses lignes de la même façon
+(`omnes-`, `omnes-p-`).
+
+| Surface | Provenance EEF | Établissement non publié |
+|---|---|---|
+| `/catalog/institutions`, `/catalog/programs` | jamais servie | — |
+| `/matches/aha-moment`, `/matches/school/:id` | jamais chargée | — |
+| `/etudes-en-france/search`, `/shortlist` | servie | formation **non servie** |
+| file `/verification`, SLA de 07 h, compteur du tableau de bord | comptée **si publiée**, pas si en attente | — |
+
+### L'établissement publié
+
+`Program` n'a aucune relation vers `Institution`. Sans garde, une formation
+activée sous une université que personne n'a relue était recherchée et
+recommandée, avec pour établissement une fiche non vérifiée. La recherche et la
+shortlist lisent donc une fois les établissements publiés du pays, puis
+appliquent `institutionId IN (…)` à la page, au total, aux facettes et à chaque
+étage. Une liste vide se lit « rien », jamais « tout » — et la liste n'est jamais
+omise de la clause. Cette propriété est prouvée DIRECTEMENT sur une base réelle,
+lignes en place : sur une base neuve « rien » et « pas de filtre » donnent tous
+deux zéro, et sur une base semée la liste n'est jamais vide.
+
+**La liste contient les établissements ACTIFS du pays, partenaires compris**
+(ESSEC, OMNES…), pas seulement ceux de l'import. Ce n'est pas elle qui garde
+leurs formations hors de l'espace : c'est la **provenance**, posée dans la
+recherche comme dans la shortlist (`eefProgramWhere`, la clause dont
+`notEefProgram` est le contraire). Il n'y a donc qu'**une définition de
+« EEF »**, dans les deux sens : le catalogue général exclut les lignes de
+l'import, cet espace ne sert QUE ces lignes. Avant, l'exclusion se faisait par
+préfixe et l'inclusion par `procedureType` / `cycle` : le jour où l'exploitation
+aurait qualifié une formation partenaire, elle serait entrée dans l'espace ET
+restée dans le catalogue général. Prouvé sur une base réelle : une formation
+partenaire active, dotée d'une procédure, d'un cycle et d'une modalité, sous un
+établissement partenaire présent dans la liste des publiés, n'est ni cherchée ni
+recommandée — et reste servie par `/catalog/programs`. `procedureType IS NOT
+NULL` subsiste comme garde-fou de données (une ligne de l'import sans procédure
+n'est pas servie), plus comme définition.
+
+### La file de revérification
+
+La règle « à revérifier » existait en **deux copies** (la file admin et le
+compteur du tableau de bord) qui devaient rester identiques sans que rien ne le
+garantisse. Elle vit désormais dans `verification-due.ts` et exclut les lignes
+EEF **en attente** : l'import en dépose 10 500 « jamais vérifiées », dont la
+revue est le flux de PUBLICATION. Sans cela la page admin aurait rendu un champ
+et deux boutons par ligne (elle sert aussi à revérifier les bourses) et
+l'alerte de 07 h aurait annoncé chaque matin « 10 5xx never verified ». Une
+ligne publiée y entre normalement, à sa cadence. La réponse est plafonnée à 500
+éléments, avec `total` et `truncated` — et le plafond **n'affame aucune
+catégorie** : deux universités publiées d'un coup (`updateProgram` ne pose pas
+`lastVerifiedAt`) ajoutent plus de 800 formations « jamais vérifiées », qui
+passaient devant les bourses en retard et les chassaient de la page. L'ordre est
+total (jamais-vérifiés d'abord, puis échéance la plus ancienne, puis identifiant),
+et les quatre catégories partagent une seule définition.
+
+### Ce que ça ne fait pas, et ce qui reste ouvert
+
+- **Publier une université ne la fait pas apparaître dans Explore des builds
+  actuelles.** C'est voulu : son espace est `/etudes-en-france/*`. Qu'elle
+  apparaisse un jour dans Explore, le comparateur ou le « moment aha » est une
+  décision produit, qui se prendra dans `eef-provenance.ts`, en un endroit.
+- La page `/verification` n'a pas de pagination : elle avertit quand la file est
+  tronquée. Valider des lignes puis recharger fait apparaître les suivantes.
+- **L'admin ne liste plus les lignes de l'import.** Ses pages catalogue lisent les
+  routes publiques `/catalog/*`, qui les excluent : une ligne EEF PUBLIÉE ne s'y
+  affiche plus, et une ligne en attente ne s'y est jamais affichée. Il n'existe
+  donc aucun écran pour retrouver, corriger ou DÉPUBLIER une ligne de l'import ;
+  seule la file `/verification` (plafonnée) y mène — le `PATCH` par identifiant
+  ne peut plus ACTIVER une ligne de l'import (409), seulement la désactiver.
+  L'écran « Publication EEF » liste ces établissements, publie ET retire.
+- **Les cartes de l'espace n'ont pas le nom de l'établissement.** La recherche et
+  la shortlist servent des formations dont l'`institutionId` renvoie à un
+  établissement que `/catalog/institutions` ne sert plus. L'écran de l'espace
+  doit donc recevoir l'établissement (nom, ville, logo) avec la formation, ou par
+  une route dédiée : c'est une dépendance de l'écran, pas un défaut de la
+  frontière.
+- Une **nouvelle surface** qui lirait `Program` ou `Institution` sans portée
+  ferait échouer `eef-provenance.doors.spec.ts` (voir § 3), qui lit le code par
+  son arbre syntaxique.
+
+---
+
 ## 3. Ce que la CI vérifie
 
 | Porte | Quand | Ce qu'elle juge |
 |---|---|---|
 | `eef:validate:structure` | chaque PR (`backend-ci.yml`) | forme : sources HTTPS, identifiants uniques, référentiels fermés, cohérence du manifeste |
 | `eef-catalog.data.spec.ts` | suite de tests | les 70 fichiers réels passent les portes **strictes** |
-| `catalog-active-gate.spec.ts` | suite de tests | les surfaces publiques ne servent que du relu, `programIds` compris |
+| `catalog-active-gate.spec.ts` | suite de tests | les surfaces publiques ne servent que du relu, `programIds` compris, et aucune ligne EEF |
+| `eef-provenance.spec.ts` | suite de tests | l'import n'écrit que des identifiants que les clauses reconnaissent, sur les vrais fichiers de données |
+| `eef-provenance.doors.spec.ts` | suite de tests | **aucune méthode ne lit `program` ni `institution` sans APPELER sa fonction de portée** : lecture du code par son arbre syntaxique (pas par des expressions régulières — un `/*` cité dans un commentaire de ligne avalait le code et rendait le catalogue général et la recherche invisibles), registre explicite fichier → méthode → fonction, nombre d'accès épinglé, alias / déstructuration / SQL brut refusés. Le scanner se teste lui-même. |
+| `verification-due.spec.ts`, `verification-due.consumers.spec.ts` | suite de tests | les quatre prédicats « à revérifier » (coupure, cadence, actif / approuvé), l'ordre de la file, le plafond équitable — et que la file et le compteur envoient à la base les MÊMES clauses, sur une horloge figée |
+| `eef-provenance.postgres.spec.ts` | `Backend CI`, étape « PostgreSQL Études en France provenance integration » | sur un vrai Postgres : catalogue, recommandations, recherche, shortlist, file, SLA et compteur — `NOT`, `AND`, `IN ()` sont acceptés par Prisma **et filtrent** |
 | `verify:eef` | avant tout import | planchers de volume, plafond de repli, couverture |
 
 Le plafond de repli mérite un mot : le domaine d'une formation (`d01..d12`) est
 déduit de mots-clés de son intitulé. Tant que le taux de repli reste bas, la
 déduction est marginale ; s'il monte, c'est que la source a changé de
 vocabulaire et que le classement ne veut plus rien dire. Le plafond est à 8 %,
-la valeur actuelle est 3,28 % — la marge est volontairement étroite pour que la
+la valeur actuelle est 1,86 % — la marge est volontairement étroite pour que la
 dérive fasse du bruit tôt.
 
 ---
@@ -224,7 +479,14 @@ dérive fasse du bruit tôt.
    plan (§ 12.1) : une personne réelle. Sans elle, ces 10 247 lignes restent
    inactives pour toujours, ce qui est le comportement correct mais pas le
    comportement utile.
-2. **La relecture métier du partage DAP / Études en France** (§ 2.5).
+2. **La relecture métier du partage DAP / Études en France** (§ 2.6). Le dossier est
+   prêt, avec les 7 points à trancher, leurs comptes et des lignes d'exemple :
+   `docs/eef-dossier-relecture-procedures.md`.
+3. **La décision sur les sources qui ne sont pas des fiches** (§ 2.8) : 4 212 lignes
+   sur 10 502. Elle ne bloque pas le code (l'écran de publication les compte), elle
+   décide ce qu'on promet à l'étudiant qui touche « Voir la source officielle ».
+4. **La validation juridique des logos**, seulement pour l'AFFICHAGE des logos
+   (l'espace fonctionne sans) : `docs/eef-dossier-juridique-logos.md`.
 
 ### Dans le catalogue
 
@@ -252,6 +514,9 @@ dérive fasse du bruit tôt.
    les écrit ; rien ne les lit encore. `isActive`, lui, est bien lu (§ 2bis).
 10. **La file de vérification en admin** ne propose pas encore de bouton
    « publier » : le champ est accepté par l'API, l'interface reste à câbler.
+   Depuis le 29/09/2026 elle ne liste plus les lignes en attente (§ 2ter) : le
+   flux de publication en masse reste donc **un outil à construire**, pas une
+   page à filtrer.
 
 ---
 
@@ -280,6 +545,63 @@ Commons (si les trois colonnes sont encore vides) et réécrit description +
 repère d'admission sur les formations encore inactives, jamais vérifiées, et
 dont la prose de procédure est encore celle de l'import. Il n'écrit ni
 `isActive` ni `lastVerifiedAt`.
+
+**Réaligner des lignes déjà importées** (règle de domaine, procédure, intitulé
+corrigés dans le dépôt) tant qu'AUCUNE n'est publiée :
+
+```bash
+docker compose exec -T api npm run eef:purge-pending            # dry-run par défaut
+docker compose exec -T api npm run eef:purge-pending -- --apply
+docker compose exec -T api npm run eef:import -- --dry-run
+docker compose exec -T api npm run eef:import
+```
+
+ou, sans accès SSH, GitHub Actions → **VPS ops** → `eef-purge-pending` puis
+`eef-import` (`dry_run` reste vrai par défaut ; lire le décompte avant de
+l'enlever). L'outil ne supprime qu'une ligne portant le préfixe de l'import,
+inactive ET jamais vérifiée ; il protège et compte à part une formation
+enregistrée par un étudiant, un établissement qui garde une formation non
+supprimée, qu'un accord de partenariat référence ou qu'on a enregistré. Les
+correspondances (`Match`) d'une formation supprimée partent avec elle : ce sont
+des lignes de cache de 24 heures. **Après la première publication, ne pas
+l'utiliser** : ce qui est publié n'est jamais candidat, et le réalignement des
+lignes publiées demande `eef:reconcile`.
+
+**Publier** — écran **Admin → « Publication EEF »** (`/etudes-en-france/publication`,
+réservé à `admin` et `super_admin`), qui appelle l'API décrite dans
+`docs/api-contracts.md` § « Admin — publication de l'import ». Il n'y a pas de
+commande en ligne : le relecteur inscrit est l'administrateur connecté, ce qu'un
+script ne peut pas être. Par établissement :
+simulation (`apply` absent), lecture du plan — formations refusées et pourquoi —,
+puis écriture avec `expectedPrograms` égal au nombre annoncé. Le retrait est
+l'inverse exact et annonce combien d'étudiants perdent la formation de leur liste.
+
+Ce que l'outil vérifie : l'établissement et chaque formation viennent de l'import,
+portent une source HTTPS, la formation une procédure qualifiée et un domaine du
+référentiel. Ce qu'il **ne peut pas** vérifier, et que le relecteur signe en
+appuyant : que la procédure Études en France / DAP est la bonne (§ 2.6), et que la
+source est la fiche de la formation plutôt que la page d'accueil de
+l'établissement. Les deux préalables du § 4 (un propriétaire nommé de la file,
+la relecture métier de la procédure) restent des décisions humaines que le code
+ne remplace pas.
+
+Deux garde-fous tiennent cette promesse sous concurrence :
+
+- **Les formations déjà actives sont revalidées avant d'activer leur établissement.**
+  Activer l'établissement rend visibles ses formations déjà actives (la recherche
+  exige les deux). Elles passent donc par les mêmes contrôles que celles qu'on
+  publie ; l'une d'elles invalide refuse l'établissement
+  (`institution_has_invalid_active_program`, `plan.programs.activeInvalid`) et rien
+  n'est écrit.
+- **La transaction d'écriture est en `RepeatableRead`.** Le plan y est relu puis
+  écrit ; l'`UPDATE` ne teste que l'identifiant, l'établissement et l'état. Sous
+  l'isolation par défaut, une formation modifiée entre les deux (source vidée,
+  domaine changé) serait publiée et signée « vérifiée ». Sous `RepeatableRead`,
+  PostgreSQL refuse l'écriture (`P2034`), le service répond 409 et rien n'est écrit.
+
+Le drapeau du client (`KPB_EEF_ENABLED`) ne protège PAS l'API : la recherche est
+publique, donc dès qu'un établissement est publié ses formations sont servies à
+qui interroge `/etudes-en-france/search`, l'espace fût-il éteint dans l'app.
 
 Il n'existe **pas encore** de `eef:reconcile` général, équivalent de
 `catalog:reconcile` pour les bourses. `eef:backfill` ne couvre que les champs

@@ -31,6 +31,19 @@ Purpose:
 Purpose:
 - feed Explore, Scholarships, and recommendation surfaces
 
+**Frontière de l'import « Études en France ».** `GET /catalog/institutions` et
+`GET /catalog/programs` ne servent **jamais** une ligne créée par cet import
+(identifiants `eef-univ-…` / `eef-prog-…`), qu'elle soit publiée ou non : le
+paramètre `institutionId` ne la fait pas réapparaître. Une formation dont
+l'ÉTABLISSEMENT est de l'import en est aussi, même saisie à la main (identifiant
+généré, active par défaut) : sans cette règle elle serait servie sur une carte
+sans école, l'école étant, elle, exclue. C'est la surface de
+TOUTES les builds installées, qui la chargent en un seul appel (`limit=1000`,
+trié par nom) ; y laisser des lignes EEF actives aurait évincé des formations
+partenaires de la liste de tout le monde. L'espace « Études en France » a ses
+propres routes (`/etudes-en-france/*`). La règle vit en un seul endroit :
+`backend/src/common/eef-provenance.ts`.
+
 ## Matches (Phase 0 / P0-D — kit US-003/US-004)
 
 - `GET /matches/aha-moment?limit=3` (student auth)
@@ -67,6 +80,12 @@ Response item shape:
 Zones: green > 0.70 · yellow 0.30–0.70 · blue < 0.30. Missing inputs score a
 neutral 0.5 with `isEstimate`; ≥2 missing caps probability at 0.65.
 
+Les formations et établissements de l'import « Études en France » ne sont
+**jamais** recommandés ici, publiés ou non : `GET /matches/school/:institutionId`
+sur l'un d'eux répond 404 `Institution not found.`. L'espace a sa propre
+shortlist (`GET /etudes-en-france/shortlist`). Même règle, même fichier que le
+catalogue général.
+
 ## Content
 
 - `GET /content/service-offers`
@@ -89,7 +108,6 @@ Purpose:
 - `GET /cases`
 - `GET /cases/:id`
 - `POST /cases`
-- `PATCH /cases/:id`
 - `GET /cases/:id/messages`
 - `POST /cases/:id/messages`
 - `POST /cases/:id/documents`
@@ -125,6 +143,92 @@ Purpose:
 
 Purpose:
 - persist saved countries, fields, programs, institutions, and scholarships
+
+## Avis sur un conseiller
+
+- `GET /counsellors/:id` (public) — fiche d'un conseiller approuvé, avec ses
+  20 derniers avis **publiés**
+- `POST /counsellors/:id/reviews` (auth étudiant) — laisser un avis
+- `PATCH /admin/counsellors/reviews/:reviewId/publish` (admin) — publier ou
+  dépublier
+
+Corps de `POST /counsellors/:id/reviews` :
+
+```json
+{ "rating": 5, "body": "…", "caseId": "…", "reviewerName": "…" }
+```
+
+| Champ | Règle |
+|---|---|
+| `rating` | entier de 1 à 5 |
+| `body` | texte ; **tronqué à 1 000 caractères, pas refusé** (le champ de saisie de l'app n'a aucune limite, et un 400 lui ferait perdre le texte) ; **peut être vide** — la note seule suffit |
+| `caseId` | obligatoire, 64 caractères au plus |
+| `reviewerName` | **accepté et ignoré**, de toute longueur : les builds 49 à 53 l'envoient encore, et la validation globale (`forbidNonWhitelisted`) répondrait 400 à tous leurs avis si le champ n'était pas déclaré |
+
+**L'auteur et le nom affiché viennent du jeton**, jamais du corps. Le nom
+publié est le `fullName` du profil vérifié (« KPB » s'il est vide) — un nom que
+l'utilisateur maîtrise via `PATCH /profiles/me` : la requête ne peut plus le
+déclarer, ce qui ne dit pas qu'il est civil ou exact. Un `reviewerUserId` dans
+le corps est refusé en 400 : il n'est pas ignoré en silence. Auparavant le corps
+était un type en ligne, effacé à l'exécution, et le service recopiait ce que le
+client envoyait ; l'app n'envoyait jamais l'auteur, donc les avis n'en avaient
+aucun en base, la suppression de compte (`deleteMany WHERE reviewerUserId = …`)
+ne les trouvait pas, et le nom civil de l'étudiant survivait à l'effacement de
+son compte.
+
+**Le dossier lie l'avis à un parcours réel — il ne le prouve pas.** Il doit
+exister, appartenir à l'appelant, avoir été traité par CE conseiller, et être
+terminé : exactement ce que l'app ne propose qu'à ce moment-là. « Terminé » reste
+un contrôle de cohérence : le statut d'un dossier n'est fixé que par l'équipe
+(`PATCH /admin/cases/:id`) — il n'existe plus de `PATCH /cases/:id` côté
+étudiant, qui laissait le propriétaire se déclarer « terminé » lui-même (aucun
+écran de l'app ne l'appelait). Ce n'est pas une preuve de la qualité du
+parcours ; la modération reste la défense de fond.
+
+| Réponse | Cas |
+|---|---|
+| `201` | avis enregistré, **en modération** (`isPublished = false`) |
+| `400` | corps invalide : note hors 1–5, `caseId` absent, champ non déclaré… |
+| `401` | jeton absent ou invalide — y compris quand la base est absente : le garde d'authentification répond avant le service |
+| `403` | le dossier est celui de l'appelant, mais un autre conseiller l'a traité |
+| `404` | dossier inconnu **ou appartenant à quelqu'un d'autre** — même réponse, pour ne pas confirmer l'existence du dossier d'autrui |
+| `409` | dossier pas encore terminé, **ou déjà noté** (un avis par dossier ; sans contrainte d'unicité en base, la garde est au mieux-effort) |
+| `503` | défense en profondeur du service quand `execute` rend `null` — jamais un `201` au corps vide. Atteignable seulement si le garde laisse passer |
+
+Les avis publiés que `GET /counsellors/:id` sert ne portent que `id`,
+`counsellorId`, `reviewerName`, `rating`, `body` et `createdAt` — les mêmes
+colonnes que `GET /impact/reviews`. L'identifiant interne de l'auteur et celui
+du dossier n'en sortent pas : depuis que l'auteur est renseigné, les servir aurait
+publié une clé de rattachement au profil.
+
+**La même porte que `/impact/reviews`.** Un avis publié n'apparaît sur la fiche
+que si son AUTEUR a un reçu `public_testimonial` actif (notice en vigueur à
+l'accord, non retirée ; reçu non révoqué ; pour un mineur, autorisation parentale
+vérifiée, non révoquée, non expirée). La règle est écrite une fois
+(`impact/public-testimonial-consent.ts`) et importée par les deux surfaces. Deux
+conséquences : la modération (`isPublished`) est nécessaire mais pas suffisante,
+et un avis sans auteur — ceux d'avant la reprise, ou dont le dossier a disparu —
+ne s'y affiche jamais. Retirer son accord fait disparaître l'avis de la fiche
+sans toucher à la modération. La lecture est bornée : les 200 avis publiés les
+plus récents sont examinés, les 20 premiers consentants sont servis, et seuls les
+reçus de leurs auteurs sont lus. Aucun client de l'app n'appelle cette fiche
+(`getCounsellor` existe dans le client mais aucun écran ne s'en sert).
+
+**Effacement et export.** La suppression de compte efface les avis que
+l'utilisateur a signés ET ceux, sans auteur, qui portent l'un de ses dossiers
+(`reviewsOfUser`, `profiles.service.ts`) ; les compteurs du conseiller sont
+recalculés. L'export RGPD les rend à leur auteur (`counsellorReviews`). Un avis
+sans auteur posé sur le dossier d'un AUTRE n'est jamais touché.
+
+**Reprise de l'existant.** La migration
+`20260929120000_counsellor_review_author_backfill` rattache les avis déjà
+enregistrés sans auteur au propriétaire du dossier noté — seulement si ce
+dossier a bien été traité par le conseiller noté : un rattachement rend l'avis
+éligible à la publication au titre du consentement de CE propriétaire. Les
+autres restent sans auteur ; l'effacement et l'export les retrouvent par leur
+dossier tant qu'il existe. Restent les avis dont le dossier a disparu (compte
+déjà supprimé) ou n'a jamais été renseigné : leur auteur est irrécupérable, et
+les anonymiser ou les supprimer est une décision d'exploitation.
 
 ## Partner leads
 
@@ -234,6 +338,23 @@ la France, résolue en base par son **code** — `FRA` comme `FR`, le référent
 M5 étant en ISO 3166-1 alpha-3 — et jamais par un identifiant écrit en dur. La
 règle est partagée avec l'import (`eef-country.ts`) : elle vivait en double, et
 c'est pour cela que l'erreur y vivait aussi.
+
+**Une formation n'est servie que si son établissement est publié**
+(`Institution.isActive = true`, même pays). `Program` n'a aucune relation vers
+`Institution` : la garde est une clause `institutionId IN (établissements
+publiés)`, lue UNE fois puis appliquée à la page, au total et aux six facettes,
+qui décrivent donc le même ensemble. Une formation activée sous une université
+que personne n'a relue n'est pas servie ; publier l'université la fait
+apparaître. Une liste vide sert **zéro** ligne, jamais « tout » (prouvé sur une
+base réelle, lignes en place).
+
+La liste contient les établissements ACTIFS du pays — partenaires compris (ESSEC,
+OMNES…), pas seulement ceux de l'import. Ce qui garde leurs formations hors de
+cette recherche est la **provenance** : la recherche ne sert que les lignes de
+l'import (identifiant `eef-prog-…`, ou établissement `eef-univ-…`) — la clause
+dont le catalogue général est le contraire. Une formation partenaire, même
+qualifiée d'une procédure et d'un cycle, n'y entre donc jamais et reste dans
+`/catalog/programs` : une ligne, un espace. La shortlist suit la même règle.
 
 ## Shortlist « Études en France » (Phase 2)
 
@@ -434,6 +555,11 @@ base réelle : catalogue non relu ⇒ **0 servi sur 10 247** — et rattachées 
 France résolue par son **code**, par la règle partagée avec l'import et la
 recherche (`eef-country.ts`).
 
+Comme la recherche, elle exige un **établissement publié** : une recommandation
+nominative dont l'établissement n'a jamais été relu serait la pire surface
+possible pour cette barrière. La liste des établissements publiés est lue une
+fois et sert à chaque étage et à chaque total.
+
 Les étages et leurs totaux sont lus dans **une seule transaction**
 `RepeatableRead` : servis séparément, une publication concurrente ferait
 apparaître la même formation dans deux colonnes, ou dans aucune.
@@ -589,6 +715,166 @@ L'export est servi en `text/csv; charset=utf-8` avec
 `Content-Disposition: attachment`, un BOM UTF-8 (sans lui Excel sous Windows
 rend « Côte d'Ivoire » en « CÃ´te d'Ivoire »), et chaque cellule neutralisée
 contre l'évaluation de formules par un tableur — voir `eef-interest-csv.ts`.
+
+## Admin — publication de l'import « Études en France »
+
+- `GET  /admin/etudes-en-france/publication/institutions`
+- `POST /admin/etudes-en-france/publication/institutions/:id/publish`
+- `POST /admin/etudes-en-france/publication/institutions/:id/unpublish`
+
+Rôles : `admin`, `super_admin` **seulement** — `content_manager` édite le
+catalogue mais ne signe pas sa publication. Sans session administrateur la route
+répond 401 : le relecteur inscrit est celui de la SESSION, jamais un identifiant
+fabriqué. Publier est l'acte qui rend visibles, à un étudiant sans compte
+(`/etudes-en-france/search` est publique), des fiches que personne n'avait relues.
+
+Corps de `publish` et `unpublish` (tout est optionnel) :
+
+```json
+{ "apply": false, "programIds": ["eef-prog-…"], "expectedPrograms": 153 }
+```
+
+- **`apply` absent ou faux : simulation.** La réponse est le PLAN, rien n'est
+  écrit. `apply` doit être le booléen `true` (une chaîne ou un nombre → 400).
+- **Pour écrire, `expectedPrograms` doit valoir exactement le nombre annoncé par la
+  simulation** (`plan.programs.toPublish.length`, ou `toDeactivate.length` au
+  retrait). Absent → 400 ; différent → 409 et rien n'est écrit. C'est une
+  confirmation saisie et un contrôle de concurrence à la fois.
+- `programIds` restreint l'acte à ces formations (au moins une, sans doublon,
+  5 000 au plus). Sans lui : toutes les formations encore inactives de
+  l'établissement — au retrait, toutes les formations publiées ET l'établissement.
+  Avec lui, l'établissement reste publié au retrait.
+- Le plan est **recalculé dans la transaction d'écriture**, qui s'exécute en
+  `RepeatableRead` ; une formation qui n'est plus publiable, ou que quelqu'un
+  d'autre a publiée ou modifiée entre-temps, annule l'ensemble (409, rien n'est
+  écrit).
+- **Les routes génériques ne publient pas l'import.** `PATCH /admin/catalog/programs/:id`,
+  `PATCH /admin/catalog/institutions/:id` et `POST /admin/catalog/programs` répondent
+  **409** quand elles ACTIVERAIENT une ligne de l'import (préfixe `eef-prog-` /
+  `eef-univ-`, ou formation sous un établissement de l'import) qui n'est pas déjà
+  publiée : sans cela, elles contourneraient la vérification de la source, de la
+  procédure et du domaine, et la signature du relecteur. Désactiver et modifier une
+  ligne déjà publiée restent permis ; les fiches de l'équipe ne sont pas concernées.
+
+Réponse d'une simulation de publication :
+
+```json
+{
+  "mode": "dry-run",
+  "plan": {
+    "institutionId": "eef-univ-…",
+    "institutionName": "…",
+    "institution": { "alreadyActive": false, "willActivate": true, "refusals": [] },
+    "programs": {
+      "toPublish": ["eef-prog-…"],
+      "alreadyActive": 0,
+      "refused": [{ "id": "…", "nameFr": "…", "reasons": ["program_procedure_missing"] }],
+      "activeInvalid": [],
+      "genericSource": { "ministryPortal": 0, "ministryDataset": 0 }
+    },
+    "publishable": true,
+    "nothingToDo": null
+  }
+}
+```
+
+Refus d'établissement : `institution_not_from_import` (une fiche partenaire n'est
+jamais publiable par cette voie), `institution_source_missing` (source absente ou
+non HTTPS), `institution_has_invalid_active_program` (au moins une formation
+DÉJÀ active sous cet établissement encore en attente ne passe pas les contrôles :
+l'activer la rendrait visible ; elle est listée dans `programs.activeInvalid`, avec
+ses motifs). Refus de formation : `program_unknown`, `program_not_from_import`,
+`program_wrong_institution`, `program_source_missing`,
+`program_procedure_missing`, `program_field_unknown`. Un établissement refusé
+annonce `toPublish: []`. Une écriture sans rien à publier répond 422 avec le plan.
+
+`programs.genericSource` compte, parmi les formations à publier, celles dont la
+source n'est pas la fiche de la formation : racine du portail Mon Master
+(`ministryPortal`) ou page du jeu de données ouvert (`ministryDataset`). C'est un
+signal, jamais un refus (`docs/eef-catalog-pipeline.md` § 2.8).
+
+Une écriture réussie répond `mode: "applied"` avec `programsPublished`,
+`institutionActivated`, `verifiedBy` (`id`, `name`) et `verifiedAt`. Elle pose
+`isActive`, `lastVerifiedAt`, `verifiedById` et `verifiedByName` sur chaque
+formation publiée, et sur l'établissement **quand il devient visible ou n'avait
+aucun tampon** : le relecteur d'hier n'est pas écrasé. Le retrait ne touche PAS
+aux tampons, et annonce `plan.savedByStudents` : le nombre d'étudiants qui
+perdent la formation de leur liste (leur enregistrement, lui, n'est pas supprimé).
+
+`GET …/institutions` liste les établissements de l'import (jamais un partenaire)
+avec `programsPending`, `programsPublished`, `hasLogo`, la source et le dernier
+relecteur, plus les totaux.
+
+## Admin — file de revérification du catalogue
+
+- `GET /admin/catalog/verification-due` (rôles `admin`, `super_admin`, `content_manager`)
+
+Les fiches dont la revérification est due : jamais vérifiées, ou vérifiées il y a
+plus que la cadence de leur catégorie (pays et bourses 30 jours ; établissements
+et formations 180 jours). Pays et bourses : actifs seulement (les bourses aussi
+APPROUVÉES). Établissements et formations : actifs ou non — une fiche non EEF que
+l'équipe a désactivée à la main reste dans la file —, à l'exception des lignes de
+l'import encore en attente (voir plus bas).
+
+```json
+{
+  "items": [
+    {
+      "entityType": "institution",
+      "id": "…",
+      "label": "…",
+      "context": "…",
+      "category": "institution_scolarite",
+      "categoryLabel": "…",
+      "cadenceDays": 180,
+      "owner": "…",
+      "lastVerifiedAt": null,
+      "verifiedByName": null,
+      "sourceUrl": null,
+      "dueAt": null,
+      "daysSinceVerification": null,
+      "isOverdue": true
+    }
+  ],
+  "total": 1234,
+  "truncated": true,
+  "policies": [ … ]
+}
+```
+
+- **`items` est plafonné à 500.** L'ordre est TOTAL : les jamais-vérifiés d'abord
+  (les plus périssables en tête — une bourse à 30 jours avant une formation à 180),
+  puis les vérifiées par ÉCHÉANCE la plus ancienne, puis par identifiant. Par
+  échéance et non par âge : une bourse vérifiée il y a 100 jours est en retard de
+  70 jours, une formation vérifiée il y a 181 jours l'est de un.
+  **Le plafond n'affame aucune catégorie** : chacune de celles qui ont des lignes
+  reçoit au moins 500 ÷ (nombre de catégories présentes) places — 125 avec les
+  quatre —, le reste se remplit dans l'ordre global, et la réponse garde l'ordre
+  global. Sans cela, deux universités publiées d'un coup (plus de 800 formations
+  « jamais vérifiées ») chassaient toutes les bourses en retard de la page.
+  **`total`** est le compte COMPLET ; **`truncated`** vaut `true` quand il en
+  reste (strictement plus de 500).
+- `total` et `truncated` sont additifs pour la FORME de la réponse, pas pour son
+  contenu : l'admin déjà déployé afficherait « 500 ouvertes » sans avertissement
+  pour une file de 10 599. Déployer l'API et l'admin ensemble (`deploy.yml`, scope
+  `full`, remplace les deux). Côté admin, l'absence de `total` se lit « la longueur
+  de la liste » : un nouvel admin sur un ancien backend fonctionne.
+- La page `/verification` affiche un avis quand la file est tronquée, ne baisse
+  le compte qu'UNE fois par ligne validée (un double clic ne le fausse plus), et
+  distingue « tout est traité » de « les lignes affichées sont traitées, d'autres
+  attendent » (bouton pour recharger).
+- **Les lignes de l'import « Études en France » encore en attente n'y sont
+  pas** (identifiant `eef-…` ET `isActive = false`) : leur revue est le flux de
+  PUBLICATION, qui demande un outil dédié — **à construire**. Valider une ligne
+  ici ne pose que le tampon de vérification (`lastVerifiedAt`, `verifiedByName`),
+  jamais `isActive`. Une ligne EEF publiée y entre normalement ; une fiche non
+  EEF désactivée à la main, aussi.
+- **Une seule définition** (`backend/src/modules/admin-catalog/verification-due.ts`,
+  les QUATRE catégories : pays, établissements, formations, bourses) sert la file,
+  le SLA quotidien de 07 h et le compteur « Action immédiate requise » du tableau
+  de bord. Un test fait tourner les trois sur une horloge figée et exige les
+  mêmes clauses, catégorie par catégorie. Le SLA compte sur la file COMPLÈTE,
+  jamais sur la version plafonnée.
 
 ## Admin content operations
 

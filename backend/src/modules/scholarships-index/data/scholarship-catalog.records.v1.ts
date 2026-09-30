@@ -100,7 +100,7 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'Références d’enseignants, mentors ou responsables communautaires',
         'Relevés scolaires et autres justificatifs demandés',
         'Autorisation signée du parent ou tuteur légal',
-        'Informations financières si la candidature est retenue pour une nomination',
+        'Informations financières demandées à tous les candidats, pour déterminer l’aide en cas de nomination',
       ],
       keyRequirementsEn: [
         'Online form with personal details, academic history, activities and motivations',
@@ -108,7 +108,7 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         'References from teachers, mentors or community leaders',
         'Academic transcripts and other requested evidence',
         'Signed permission from a parent or legal guardian',
-        'Financial information if shortlisted for nomination',
+        'Financial information requested from all applicants, to determine aid if nominated',
       ],
       relatedFieldIds: [],
       baseMatch: 80,
@@ -159,9 +159,9 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         titleFr: 'Participer à la sélection',
         titleEn: 'Complete selection',
         descriptionFr:
-          'Si présélectionné, participer à l’entretien de panel lors des activités de sélection de février 2027, transmettre les informations financières demandées, puis attendre les décisions finales de mars 2027.',
+          'Si présélectionné, participer à l’entretien de panel lors des activités de sélection de février 2027, puis attendre les décisions finales de mars 2027. Les informations financières sont demandées à tous les candidats, pour déterminer l’aide en cas de nomination.',
         descriptionEn:
-          'If shortlisted, attend the panel interview during the February 2027 selection activities, provide the financial information requested, then await the final decisions in March 2027.',
+          'If shortlisted, attend the panel interview during the February 2027 selection activities, then await the final decisions in March 2027. Financial information is requested from all applicants, to determine aid if nominated.',
         estimatedDurationDays: 45,
       },
     ],
@@ -306,9 +306,9 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         titleFr: 'Constituer le PDF',
         titleEn: 'Build the PDF file',
         descriptionFr:
-          'Obtenir les relevés résumés et les deux recommandations, ajouter les certificats éventuels, puis fusionner les pièces en un PDF.',
+          'Télécharger le formulaire d’information du candidat sur la page officielle, obtenir les relevés de notes officiels et les deux recommandations, ajouter les certificats éventuels, puis fusionner les documents demandés en un seul PDF.',
         descriptionEn:
-          'Obtain transcript summaries and both recommendations, add any certificates, then merge the documents into one PDF.',
+          'Download the Applicant Information Form from the official page, obtain the official transcripts and both recommendations, add any certificates, then merge the requested documents into one PDF.',
         estimatedDurationDays: 21,
       },
       {
@@ -326,9 +326,9 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
         titleFr: 'Préparer la sélection à Nairobi',
         titleEn: 'Prepare for Nairobi selection',
         descriptionFr:
-          'En cas de présélection, préparer la journée d’entretiens de janvier 2027 à Nairobi : activités de groupe, entretien de panel, présentation éventuelle d’un projet personnel et évaluation financière. Les offres sont annoncées en février 2027.',
+          'En cas de présélection, préparer la journée d’entretiens de janvier 2027 à Nairobi : activités de groupe, entretien de panel et présentation éventuelle d’un projet personnel. Les offres sont annoncées en février 2027 ; les informations financières sont demandées à tous les candidats pour déterminer l’aide.',
         descriptionEn:
-          'If shortlisted, prepare for the January 2027 interview day in Nairobi: group activities, panel interview, a possible personal-project presentation and financial assessment. Offers are announced in February 2027.',
+          'If shortlisted, prepare for the January 2027 interview day in Nairobi: group activities, panel interview and a possible personal-project presentation. Offers are announced in February 2027; financial information is requested from all applicants to determine aid.',
         estimatedDurationDays: 31,
       },
     ],
@@ -396,9 +396,9 @@ export const VERIFIED_SCHOLARSHIP_RECORDS_V1: VerifiedScholarshipCatalogRecord[]
       deadlineLabelEn:
         'Applications closed — reopening estimated December 2026, closing estimated January 2027',
       descriptionFr:
-        'Sélection du comité national UWC Tanzanie pour un placement dans le réseau UWC. La nomination peut être entièrement ou partiellement financée après évaluation du besoin. Au 10 août 2026, le site officiel affiche « Applications are currently closed » et propose de s’inscrire pour être notifié de la réouverture : aucune date d’entrée 2027 n’est publiée. Les seules dates affichées restent celles du cycle précédent (8 décembre 2025 au 16 janvier 2026), d’où une fenêtre 2027 estimée au mois près.',
+        'Sélection du comité national UWC Tanzanie pour un placement dans le réseau UWC. La nomination peut être entièrement ou partiellement financée après évaluation du besoin. Au 29 septembre 2026, le site officiel affiche « Applications are currently closed » et propose de s’inscrire pour être notifié de la réouverture : aucune date d’entrée 2027 n’est publiée. Les seules dates affichées restent celles du cycle précédent (8 décembre 2025 au 16 janvier 2026), d’où une fenêtre 2027 estimée au mois près.',
       descriptionEn:
-        'Tanzania UWC national committee selection for a placement in the UWC network. A nomination may be fully or partially funded following a needs assessment. As of 10 August 2026 the official site states "Applications are currently closed" and offers a form to be notified when they reopen: no 2027-entry date is published. The only dates still shown are those of the previous cycle (8 December 2025 to 16 January 2026), so the 2027 window is estimated to the month only.',
+        'Tanzania UWC national committee selection for a placement in the UWC network. A nomination may be fully or partially funded following a needs assessment. As of 29 September 2026 the official site states "Applications are currently closed" and offers a form to be notified when they reopen: no 2027-entry date is published. The only dates still shown are those of the previous cycle (8 December 2025 to 16 January 2026), so the 2027 window is estimated to the month only.',
       advantagesFr: [
         'Placement dans un établissement du réseau international UWC',
         'Cursus résidentiel de deux ans préparant au Baccalauréat International',

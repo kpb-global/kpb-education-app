@@ -12,6 +12,14 @@ import type {
 } from '../../lib/catalog-api';
 import { apiFetch } from '../../lib/api-client';
 import {
+  EMPTY_QUEUE,
+  fromResponse,
+  hasMoreOnServer,
+  markValidated,
+  queueKey,
+  type QueueView,
+} from '../../lib/verification-queue';
+import {
   AdminTable,
   AdminTableRow,
   Alert,
@@ -35,13 +43,22 @@ const policyCardStyle: CSSProperties = {
 export default function VerificationPage() {
   const { session } = useAdminAuth();
   const { t, locale } = useLocale();
-  const [items, setItems] = useState<VerificationQueueItem[]>([]);
+  // Les lignes affichées ET le compte complet de la file : le serveur plafonne la
+  // réponse, donc `items.length` n'est plus le nombre d'éléments à revoir. Un
+  // seul état, transformé par des fonctions pures (`lib/verification-queue.ts`) :
+  // le décompte est testé sans monter la page.
+  const [view, setView] = useState<QueueView>(EMPTY_QUEUE);
+  const { items, total, truncated } = view;
   const [policies, setPolicies] = useState<VerificationPolicy[]>([]);
   const [sourceInputs, setSourceInputs] = useState<Record<string, string>>({});
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  function formatNumber(value: number) {
+    return new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-GB').format(value);
+  }
 
   function formatDate(value: string | null) {
     if (!value) return t('verification.never');
@@ -57,14 +74,11 @@ export default function VerificationPage() {
     setErrorMessage(null);
     try {
       const response = await fetchVerificationDue();
-      setItems(response.items);
+      setView(fromResponse(response));
       setPolicies(response.policies);
       setSourceInputs(
         Object.fromEntries(
-          response.items.map((item) => [
-            `${item.entityType}:${item.id}`,
-            item.sourceUrl ?? '',
-          ]),
+          response.items.map((item) => [queueKey(item), item.sourceUrl ?? '']),
         ),
       );
     } catch (error) {
@@ -85,7 +99,7 @@ export default function VerificationPage() {
   }, [loadQueue, session]);
 
   async function verifyItem(item: VerificationQueueItem, verified: boolean) {
-    const key = `${item.entityType}:${item.id}`;
+    const key = queueKey(item);
     const sourceUrl = (sourceInputs[key] ?? '').trim();
     setPendingKey(key);
     setStatusMessage(null);
@@ -106,16 +120,14 @@ export default function VerificationPage() {
       });
 
       if (verified) {
-        setItems((current) =>
-          current.filter(
-            (entry) =>
-              entry.id !== item.id || entry.entityType !== item.entityType,
-          ),
-        );
+        // Une ligne validée sort de la file, et le compte complet baisse avec
+        // elle — UNE fois, même si deux réponses arrivent pour la même ligne.
+        setView((current) => markValidated(current, item));
       } else {
-        setItems((current) =>
-          current.map((entry) =>
-            entry.id === item.id && entry.entityType === item.entityType
+        setView((current) => ({
+          ...current,
+          items: current.items.map((entry) =>
+            queueKey(entry) === key
               ? {
                   ...entry,
                   lastVerifiedAt: updated?.lastVerifiedAt ?? null,
@@ -124,7 +136,7 @@ export default function VerificationPage() {
                 }
               : entry,
           ),
-        );
+        }));
       }
 
       setSourceInputs((current) => ({
@@ -150,6 +162,16 @@ export default function VerificationPage() {
       <div style={{ display: 'grid', gap: 14 }}>
         {statusMessage ? <Alert variant="success">{statusMessage}</Alert> : null}
         {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
+        {truncated ? (
+          // `info` et non `warning` : c'est une précision, pas une erreur, et
+          // `warning` est annoncé de façon assertive — or ce texte change à
+          // chaque ligne validée.
+          <Alert variant="info">
+            {t('verification.truncatedNotice')
+              .replace('{shown}', formatNumber(items.length))
+              .replace('{total}', formatNumber(total))}
+          </Alert>
+        ) : null}
 
         <div
           style={{
@@ -181,7 +203,11 @@ export default function VerificationPage() {
         </div>
 
         <AdminTable
-          title={`${t('verification.queueTitle')} — ${items.length} ${t('verification.openSuffix')}`}
+          title={`${t('verification.queueTitle')} — ${
+            truncated
+              ? `${formatNumber(items.length)} / ${formatNumber(total)}`
+              : formatNumber(items.length)
+          } ${t('verification.openSuffix')}`}
           columns={[
             t('verification.colItem'),
             t('verification.colCategory'),
@@ -196,10 +222,23 @@ export default function VerificationPage() {
           {loading ? (
             <EmptyState title={t('verification.loading')} />
           ) : items.length === 0 ? (
-            <EmptyState title={t('verification.empty')} />
+            hasMoreOnServer(view) ? (
+              // Les lignes affichées sont traitées, mais d'autres attendent : dire
+              // « aucune ligne à revoir » contredirait la notice au-dessus.
+              <EmptyState
+                title={t('verification.batchDone')}
+                action={
+                  <Button size="sm" onClick={() => void loadQueue()}>
+                    {t('verification.reloadCta')}
+                  </Button>
+                }
+              />
+            ) : (
+              <EmptyState title={t('verification.empty')} />
+            )
           ) : (
             items.map((item) => {
-              const key = `${item.entityType}:${item.id}`;
+              const key = queueKey(item);
               const isPending = pendingKey === key;
               return (
                 <AdminTableRow key={key}>

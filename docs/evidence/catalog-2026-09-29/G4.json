@@ -1,0 +1,783 @@
+{
+ "group": "G4",
+ "records": [
+  {
+   "id": "si_global_professionals_2027_forecast",
+   "readAtUtc": "2026-09-29T15:00:55.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "httpStatus": 200,
+     "finalUrl": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "read": true,
+     "title": "Scholarship for Global Professionals | Svenska institutet",
+     "note": "URL partagée par les cinq kinds ; page rendue côté serveur, texte intégral lu (curl, 200)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "httpStatus": 200,
+     "finalUrl": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "read": true,
+     "title": "Scholarship for Global Professionals | Svenska institutet",
+     "note": "Même URL que overview."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "httpStatus": 200,
+     "finalUrl": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "read": true,
+     "title": "Scholarship for Global Professionals | Svenska institutet",
+     "note": "Même URL que overview."
+    },
+    {
+     "kind": "application",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "httpStatus": 200,
+     "finalUrl": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "read": true,
+     "title": "Scholarship for Global Professionals | Svenska institutet",
+     "note": "Même URL que overview."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "httpStatus": 200,
+     "finalUrl": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+     "read": true,
+     "title": "Scholarship for Global Professionals | Svenska institutet",
+     "note": "Même URL que overview."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Niveau Master, 34 pays éligibles",
+     "sourceKind": "overview",
+     "quote": "Available for 34 countries.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Domaines : gouvernance, santé publique, entrepreneuriat et innovation, STEM",
+     "sourceKind": "overview",
+     "quote": "Governance Public Health Entrepreneurship and Innovation STEM (Science, Technology, Engineering and Mathematics)",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Financement : frais de scolarité intégralement couverts, payés directement à l’université",
+     "sourceKind": "benefits",
+     "quote": "Full tuition fee coverage. The fee is paid directly by SI to your Swedish university each semester.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Allocation mensuelle de 12 000 SEK",
+     "sourceKind": "benefits",
+     "quote": "A monthly allowance of SEK 12,000 to cover your living expenses throughout the study period.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Subvention de voyage unique de 15 000 SEK (10 000 pour six pays)",
+     "sourceKind": "benefits",
+     "quote": "A travel grant of SEK 15,000 (*10,000 for scholars from Armenia, Azerbaijan, Belarus, Georgia, Moldova and Ukraine).",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Non couverts : famille, frais de candidature University Admissions",
+     "sourceKind": "benefits",
+     "quote": "Provide additional grants for family members.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Non couvert : frais de candidature University Admissions",
+     "sourceKind": "benefits",
+     "quote": "Cover the application fee to University Admissions.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Non couvert : assurance",
+     "sourceKind": "benefits",
+     "quote": "Include an insurance.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Éligibilité : citoyenneté d’un des 34 pays",
+     "sourceKind": "eligibility",
+     "quote": "Be a citizen of one of the 34 eligible countries for the SI Scholarship for Global Professionals;",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Pas d’obligation de résidence dans le pays de citoyenneté",
+     "sourceKind": "eligibility",
+     "quote": "you do not need to reside in the country at the time of the application.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Le Maroc et le Sénégal figurent dans la liste (Afrique francophone)",
+     "sourceKind": "eligibility",
+     "quote": "Morocco, Nigeria, Peru, Philippines, Rwanda, Senegal, South Africa, Tanzania",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Master en anglais déclaré admissible par SI",
+     "sourceKind": "eligibility",
+     "quote": "Apply for a master’s programme that is eligible for the SI scholarship;",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Redevable des frais de scolarité",
+     "sourceKind": "eligibility",
+     "quote": "Be liable to pay tuition fees at University Admissions;",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Au moins 3 000 heures d’expérience pour la plupart des pays africains",
+     "sourceKind": "eligibility",
+     "quote": "must have at least 3,000 hours of work experience prior to February 2026.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Expérience de leadership requise (emploi ou société civile)",
+     "sourceKind": "eligibility",
+     "quote": "Have demonstrated leadership experience from a current or previous employer, or from civil society engagement.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Exclusion : bourse SI antérieure",
+     "sourceKind": "eligibility",
+     "quote": "have previously been awarded a Swedish Institute scholarship for studies in Sweden.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Démarche : candidature préalable aux Masters via University Admissions avant le 15 janvier",
+     "sourceKind": "application",
+     "quote": "Go to UniversityAdmissions.se and apply for your master’s programme(s) by 15 January 2026.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "CV selon le modèle SI",
+     "sourceKind": "application",
+     "quote": "You must use SI’s provided template for CV 2026/2027.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Copie du passeport ou de la carte d’identité",
+     "sourceKind": "application",
+     "quote": "You must submit a photocopy of your valid passport or National ID card with your scholarship application.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Dépôt de la candidature SI dans une fenêtre de deux semaines (appel de référence)",
+     "sourceKind": "cycle",
+     "quote": "9-25 February 2026: Application portal for the SI Scholarships is open for two weeks.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Clôture du portail le dernier jour à 14:59 CET (= 13:59 UTC, cohérent avec estimatedCloseAt)",
+     "sourceKind": "cycle",
+     "quote": "Please note that the portal closes at 14:59 CET on the final day.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "La page affiche « Application closed » pour l’appel de référence",
+     "sourceKind": "cycle",
+     "quote": "Application closed",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Bourse ouverte une fois par an, pour la rentrée d’automne",
+     "sourceKind": "cycle",
+     "quote": "The scholarship is open for applications once every year, for master’s studies beginning in the autumn semester.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    },
+    {
+     "claim": "Calendrier de référence : programmes Master du 16 octobre 2025 au 15 janvier 2026",
+     "sourceKind": "cycle",
+     "quote": "16 October 2025 – 15 January 2026: Apply to Swedish master’s programmes through University Admissions.",
+     "url": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "requirements",
+     "recordSays": "CV ; preuves d’emploi/leadership ; passeport ; « Formulaire de motivation et pièces publiées au prochain appel » (les lettres de recommandation ne figurent pas)",
+     "pageSays": "Deux lettres de recommandation (deux référents distincts, modèle SI, signées et tamponnées) sont exigées ; la motivation est saisie dans le portail, non dans un formulaire à part.",
+     "quote": "You are required to submit two letters of reference from two different referees.",
+     "sourceKind": "application",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "requirements (ajouter un élément avant l’item « Formulaire de motivation… »)",
+     "newFr": "Deux lettres de recommandation (modèle SI), signées et tamponnées",
+     "newEn": "Two letters of reference (SI template), signed and stamped",
+     "justificationQuote": "You are required to submit two letters of reference from two different referees."
+    },
+    {
+     "field": "requirements[4] (remplacement de « Formulaire de motivation et pièces publiées au prochain appel »)",
+     "newFr": "Motivation rédigée dans le portail de candidature SI ; modèles et pièces à reconfirmer au prochain appel",
+     "newEn": "Motivation written in the SI application portal; templates and documents to be reconfirmed at the next call",
+     "justificationQuote": "In the application portal you will be asked to write your motivation for applying for the scholarship."
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Dates, critères et pays du prochain appel (2027/2028)",
+     "reason": "page silencieuse : aucune date 2027/2028 n’est publiée ; la page décrit encore l’appel 2026/2027 (« Application closed »). Le cycle reste correctement « forecast » + « estimated »"
+    },
+    {
+     "claim": "Fenêtre attendue en février 2027 (9–25 février)",
+     "reason": "estimation reposant sur le calendrier 2026 (9–25 février 2026, lu sur la page) ; la page précise « The information may be subjected to changes »"
+    },
+    {
+     "claim": "Absence de suspension ou de coupe budgétaire annoncée",
+     "reason": "lecture intégrale de la page : aucune mention de suspension ; la page reste silencieuse sur l’appel suivant"
+    },
+    {
+     "claim": "Liste des Masters éligibles 2027/2028",
+     "reason": "page silencieuse (la liste est publiée à la mi-novembre de chaque cycle ; page 2026/2027 seule disponible)"
+    }
+   ]
+  },
+  {
+   "id": "taiwan_icdf_2027",
+   "readAtUtc": "2026-09-29T15:02:15.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505",
+     "httpStatus": 200,
+     "finalUrl": "https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505",
+     "read": true,
+     "title": "TaiwanICDF - TaiwanICDF International Higher Education Scholarship Program",
+     "note": "HTML lu en entier (curl)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://www.icdf.org.tw/wSite/np?ctNode=31563&CtUnit=365&BaseDSD=7&mp=2",
+     "httpStatus": 200,
+     "finalUrl": "https://www.icdf.org.tw/wSite/ct?xItem=69337&ctNode=31563&mp=2",
+     "read": true,
+     "title": "TaiwanICDF - Eligibility",
+     "note": "Redirigée vers ct?xItem=69337. Première tentative curl : connexion réinitialisée (erreur 35) ; 2e tentative 200. Le corps de la page ne contient AUCUN critère (titre « Eligibility », dates 2027 et trois PDF à télécharger) : les critères ont été lus dans le PDF « 2026 TaiwanICDF Scholarship Application Guidebook v3 » (janvier 2026, 37 p.) lié depuis cette page : https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "kind": "benefits",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach",
+     "httpStatus": 200,
+     "finalUrl": "https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach",
+     "read": true,
+     "title": "Scope of Scholarship (PDF, 2 pages)",
+     "note": "PDF « Scope of Scholarship 2026 » : édition 2026, pas d’édition 2027 publiée. Texte extrait avec PyMuPDF. Le même contenu figure aux p. 3-4 du guidebook 2026."
+    },
+    {
+     "kind": "application",
+     "url": "https://www.icdf.org.tw/wSite/ct?ctNode=31566&mp=2&xItem=69338",
+     "httpStatus": 200,
+     "finalUrl": "https://www.icdf.org.tw/wSite/ct?ctNode=31566&mp=2&xItem=69338",
+     "read": true,
+     "title": "TaiwanICDF - Apply Now",
+     "note": "HTML lu en entier. Lien du système de candidature en ligne non exposé dans le HTML récupéré (non lu). Procédure détaillée lue dans le guidebook 2026 (pp. 8-9, 21-30)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505",
+     "httpStatus": 200,
+     "finalUrl": "https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505",
+     "read": true,
+     "title": "TaiwanICDF - TaiwanICDF International Higher Education Scholarship Program",
+     "note": "Même URL que overview ; les mêmes dates 2027 sont répétées sur les pages eligibility et application (dernière mise à jour affichée : 2026/07/15)."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Cycle 2027 annoncé : candidatures du 1er décembre 2026 au 15 mars 2027 (dates écrites sur la page ; pas encore ouvert au 29/09/2026, donc « forecast » + « confirmed » correct)",
+     "sourceKind": "cycle",
+     "quote": "The 2027 TaiwanICDF Scholarship applications open from December 1, 2026 to March 15, 2027!",
+     "url": "https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505"
+    },
+    {
+     "claim": "Même fenêtre confirmée sur la page candidature",
+     "sourceKind": "application",
+     "quote": "(Application Dates: December 1, 2026 - March 15, 2027).",
+     "url": "https://www.icdf.org.tw/wSite/ct?ctNode=31566&mp=2&xItem=69338"
+    },
+    {
+     "claim": "Financement complet pour des études supérieures à Taïwan",
+     "sourceKind": "overview",
+     "quote": "offers full scholarships to outstanding students from partner countries to pursue higher education in Taiwan",
+     "url": "https://www.icdf.org.tw/wSite/ct?ctNode=31562&mp=2&xItem=12505"
+    },
+    {
+     "claim": "Avantages : billet aller-retour, logement, frais de scolarité, crédits, assurance, manuels, allocation mensuelle (édition 2026)",
+     "sourceKind": "benefits",
+     "quote": "The total scholarship, including airfare (round-trip), housing, tuition, credit fees, insurance, textbook costs and a monthly allowance will be provided by the TaiwanICDF",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach"
+    },
+    {
+     "claim": "Billet en classe économique",
+     "sourceKind": "benefits",
+     "quote": "The TaiwanICDF shall arrange your most-direct flights to and from Taiwan with Economy Class tickets.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach"
+    },
+    {
+     "claim": "Logement universitaire obligatoire",
+     "sourceKind": "benefits",
+     "quote": "Housing: All students must reside in the student dormitories.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach"
+    },
+    {
+     "claim": "Frais de scolarité couverts",
+     "sourceKind": "benefits",
+     "quote": "The TaiwanICDF will cover the tuition fee as required by the student’s university.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach"
+    },
+    {
+     "claim": "Allocation Master : 18 000 NT$ par mois",
+     "sourceKind": "benefits",
+     "quote": "Each student shall receive NT$18,000 per month during the period of the program as allowance for food and miscellaneous living expenses.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?file=f1764223019963.pdf&realname=Scope+of+Scholarship+2026.pdf&type=attach"
+    },
+    {
+     "claim": "Éligibilité : nationalité d’un pays de la liste officielle",
+     "sourceKind": "eligibility",
+     "quote": "Be a citizen of a country on the List of Countries Eligible for TaiwanICDF Scholarship",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Exclusion des nationaux taïwanais et compatriotes d’outre-mer",
+     "sourceKind": "eligibility",
+     "quote": "Neither be a national of the Republic of China (Taiwan) nor an overseas compatriot student.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Conditions de l’université partenaire",
+     "sourceKind": "eligibility",
+     "quote": "Satisfy the admission requirements of the partner university to which he or she has applied to study under a TaiwanICDF scholarship.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Visa de résident (code FS) et ARC",
+     "sourceKind": "eligibility",
+     "quote": "Be able to satisfy all requirements for a Resident Visa (Code: FS) set by the Bureau of Consular Affairs, Ministry of Foreign Affairs",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Pas d’autre bourse du gouvernement taïwanais",
+     "sourceKind": "eligibility",
+     "quote": "Upon accepting a TaiwanICDF scholarship, not hold any other ROC (Taiwan) government-sponsored scholarship",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Licence réservée aux pays ayant des relations diplomatiques avec Taïwan",
+     "sourceKind": "eligibility",
+     "quote": "Countries that have diplomatic relations with Taiwan. Only applicants from these countries are eligible to apply to the bachelor’s programs.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Pays africains éligibles (guidebook 2026) : Eswatini est le seul marqué (*) pour la Licence ; Sénégal et Côte d’Ivoire figurent dans la liste",
+     "sourceKind": "eligibility",
+     "quote": "Côte d'Ivoire Djibouti *Eswatini Ethiopia Kenya Sénégal South Africa Somaliland Tanzania Uganda",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Un diplôme de niveau supérieur est exigé avant une date limite (édition 2026)",
+     "sourceKind": "eligibility",
+     "quote": "Provide the highest-level diploma before July 31,2026.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Démarche : candidature en ligne obligatoire",
+     "sourceKind": "application",
+     "quote": "Applicants for both TaiwanICDF Scholarship and Taiwan-Europe Scholarship must complete an online application.",
+     "url": "https://www.icdf.org.tw/wSite/ct?ctNode=31566&mp=2&xItem=69338"
+    },
+    {
+     "claim": "Un seul programme par candidat + candidature séparée à l’université",
+     "sourceKind": "application",
+     "quote": "each applicant can only apply for one program at a time. The applicant also needs to submit a separate program application to his/her chosen university/program.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Pièces papier ou numériques auprès de l’ambassade/mission selon chaque bureau",
+     "sourceKind": "application",
+     "quote": "Whether hard or soft copies are required depends on the decision of each individual office ROC (Taiwan) Embassies and Missions Abroad.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Aucun test d’anglais exigé par TaiwanICDF (l’université peut en exiger un)",
+     "sourceKind": "application",
+     "quote": "The TaiwanICDF has no requirements regarding English proficiency test.",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    },
+    {
+     "claim": "Formulaire de consentement signé renvoyé via la mission APRÈS attribution",
+     "sourceKind": "application",
+     "quote": "Please read over the consent form and return a signed copy to the TaiwanICDF",
+     "url": "https://www.icdf.org.tw/wSite/DownloadFile?type=attach&file=f1784095315535.pdf&realname=2026+TaiwanICDF+Scholarship+Application+Guidebook.+v3.pdf"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "requirements[0]",
+     "recordSays": "Formulaire TaiwanICDF signé",
+     "pageSays": "La candidature se fait en ligne, avec des informations exactes et complètes ; le seul formulaire signé mentionné est le formulaire de consentement, renvoyé après attribution. Rien n’indique un formulaire de candidature signé.",
+     "quote": "Applicants must ensure that they submit accurate and complete information; failure to do so will result in the application not being processed.",
+     "sourceKind": "application",
+     "severity": "minor"
+    },
+    {
+     "field": "eligibility[5]",
+     "recordSays": "Ne pas avoir eu une bourse TaiwanICDF révoquée ni avoir été expulsé d’un établissement taïwanais",
+     "pageSays": "L’exclusion vise toute bourse retirée par une agence du gouvernement taïwanais (ROC) ou une institution liée, pas seulement TaiwanICDF.",
+     "quote": "Have never had any scholarship revoked by any ROC (Taiwan) government agency or related institution, nor been expelled from any Taiwanese university.",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    },
+    {
+     "field": "steps[0].descriptionFr/En",
+     "recordSays": "Comparer sa nationalité et le niveau visé à la liste TaiwanICDF 2027.",
+     "pageSays": "Les pages n’hébergent que le guidebook et les programmes 2026 (liste de pays incluse) ; aucune liste 2027 n’est publiée à ce jour.",
+     "quote": "2026 TaiwanICDF Scholarship Application Guidebook. v3.pdf",
+     "sourceKind": "overview",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "requirements[0]",
+     "newFr": "Candidature en ligne TaiwanICDF complète et exacte, déposée dans le système officiel",
+     "newEn": "Complete and accurate TaiwanICDF online application submitted through the official system",
+     "justificationQuote": "Applicants for both TaiwanICDF Scholarship and Taiwan-Europe Scholarship must complete an online application."
+    },
+    {
+     "field": "eligibility[5]",
+     "newFr": "Ne jamais s’être vu retirer une bourse par une agence publique taïwanaise ou une institution liée, ni avoir été expulsé d’une université taïwanaise",
+     "newEn": "Never have had a scholarship revoked by any ROC (Taiwan) government agency or related institution, or been expelled from any Taiwanese university",
+     "justificationQuote": "Have never had any scholarship revoked by any ROC (Taiwan) government agency or related institution, nor been expelled from any Taiwanese university."
+    },
+    {
+     "field": "steps[0] description (index 2 FR / index 3 EN)",
+     "newFr": "Comparer sa nationalité et le niveau visé à la liste TaiwanICDF publiée (édition 2026 en ligne ; liste 2027 à reconfirmer).",
+     "newEn": "Compare nationality and target level with the published TaiwanICDF list (2026 edition online; 2027 list to be reconfirmed).",
+     "justificationQuote": "2026 TaiwanICDF Scholarship Application Guidebook. v3.pdf"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "Pièces exactes à téléverser dans le système de candidature en ligne (passeport, relevés du niveau précédent, formulaire)",
+     "reason": "le lien du système en ligne n’est pas exposé dans la page récupérée et le système n’a pas été lu ; le guidebook ne liste pas les pièces de l’étape en ligne (seul le diplôme le plus élevé est mentionné)"
+    },
+    {
+     "claim": "Conditions 2027 (liste de pays, programmes, montants d’allocation, échéance du diplôme)",
+     "reason": "page silencieuse sur le 2027 : seuls le guidebook v3 de janvier 2026, « Programs Available … 2026 » et « Scope of Scholarship 2026 » sont publiés (dernière mise à jour affichée 2026/07/15)"
+    },
+    {
+     "claim": "Heure de clôture du 15 mars 2027 (fiche : 23:59:59 UTC) et fuseau horaire",
+     "reason": "page silencieuse : seule la date est écrite"
+    },
+    {
+     "claim": "Pays africains éligibles au Master en 2027",
+     "reason": "liste 2026 lue (Côte d’Ivoire, Djibouti, Eswatini, Éthiopie, Kenya, Sénégal, Afrique du Sud, Somaliland, Tanzanie, Ouganda) ; liste 2027 non publiée"
+    },
+    {
+     "claim": "Documents linguistiques exigés par le programme choisi",
+     "reason": "page silencieuse côté TaiwanICDF (pas de test d’anglais requis par le Fonds) ; les exigences relèvent de chaque programme partenaire (PDF « Programs Available » : liens non suivis)"
+    }
+   ]
+  },
+  {
+   "id": "open_doors_russia_2027",
+   "readAtUtc": "2026-09-29T15:06:33.000Z",
+   "verdict": "verified_with_edits",
+   "sources": [
+    {
+     "kind": "overview",
+     "url": "https://od.globaluni.ru/about",
+     "httpStatus": 200,
+     "finalUrl": "https://od.globaluni.ru/about",
+     "read": true,
+     "title": "About Open Doors Olympiad: Your Gateway to World-Class Education in Russia",
+     "note": "HTML lu en entier (curl)."
+    },
+    {
+     "kind": "eligibility",
+     "url": "https://od.globaluni.ru/index.php/rules",
+     "httpStatus": 200,
+     "finalUrl": "https://od.globaluni.ru/index.php/rules",
+     "read": true,
+     "title": "Official Rules: International Open Doors Olympiad Russian Scholarship",
+     "note": "Règlement 2026 (66 articles) lu en entier."
+    },
+    {
+     "kind": "benefits",
+     "url": "https://od.globaluni.ru/about",
+     "httpStatus": 200,
+     "finalUrl": "https://od.globaluni.ru/about",
+     "read": true,
+     "title": "About Open Doors Olympiad: Your Gateway to World-Class Education in Russia",
+     "note": "Même URL que overview. Les questions FAQ sur le financement (bourse mensuelle, frais à charge) sont sur la page d’accueil (kind application/cycle) et ont aussi été lues."
+    },
+    {
+     "kind": "application",
+     "url": "https://od.globaluni.ru/",
+     "httpStatus": 200,
+     "finalUrl": "https://od.globaluni.ru/",
+     "read": true,
+     "title": "Open Doors: Study in Russia on Fully Funded Scholarships for International Students",
+     "note": "HTML lu en entier (calendrier, actualités, FAQ complète)."
+    },
+    {
+     "kind": "cycle",
+     "url": "https://od.globaluni.ru/",
+     "httpStatus": 200,
+     "finalUrl": "https://od.globaluni.ru/",
+     "read": true,
+     "title": "Open Doors: Study in Russia on Fully Funded Scholarships for International Students",
+     "note": "Même URL que application. Bouton « Apply Now », compte à rebours « Until the end of registration » et actualité du 15/09/2026 : inscriptions en cours."
+    }
+   ],
+   "confirmed": [
+    {
+     "claim": "Cycle : début des inscriptions le 20 août 2026 (déjà passé au 29/09/2026)",
+     "sourceKind": "cycle",
+     "quote": "20 August 2026 Start of the Open Doors registration",
+     "url": "https://od.globaluni.ru/"
+    },
+    {
+     "claim": "Clôture des inscriptions le 1er novembre 2026 (date écrite ; heure et fuseau non précisés)",
+     "sourceKind": "cycle",
+     "quote": "1 November 2026 Open Doors registration deadline",
+     "url": "https://od.globaluni.ru/"
+    },
+    {
+     "claim": "Les inscriptions sont en cours : actualité du site datée du 15/09/2026",
+     "sourceKind": "cycle",
+     "quote": "This number of participants was reached in less than a month after registration opened. Registration will close on November 1.",
+     "url": "https://od.globaluni.ru/"
+    },
+    {
+     "claim": "Règlement : inscriptions ouvertes du 20 août au 1er novembre 2026",
+     "sourceKind": "eligibility",
+     "quote": "Registration for the Bachelor’s, Master’s, Doctoral, and Postdoctoral tracks is open from August 20 to November 1, 2026.",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Première étape jusqu’au 13 novembre 2026",
+     "sourceKind": "eligibility",
+     "quote": "The First Stage of the Open Doors is held from August 20 to November 13, 2026.",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Seconde étape du 13 novembre au 21 décembre 2026",
+     "sourceKind": "eligibility",
+     "quote": "The Second Stage of the Open Doors is held from November 13 to December 21, 2026.",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Gratuit et entièrement en ligne",
+     "sourceKind": "eligibility",
+     "quote": "No fee is charged for participation in the Open Doors.",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Épreuves conduites en ligne",
+     "sourceKind": "application",
+     "quote": "Participation takes place entirely online",
+     "url": "https://od.globaluni.ru/"
+    },
+    {
+     "claim": "Éligibilité : citoyens étrangers ou apatrides",
+     "sourceKind": "eligibility",
+     "quote": "Foreign citizens and stateless persons, including compatriots residing abroad, who consent to the processing of their personal data are eligible to participate",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Licence : 16 à 23 ans à la date d’ouverture des inscriptions, sans diplôme de niveau Licence ou plus",
+     "sourceKind": "eligibility",
+     "quote": "as of the registration opening date, they are between 16 and 23 years of age; do not hold a Bachelor’s, Specialist, or Master’s degree",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Master : 20 à 33 ans à la date d’ouverture des inscriptions",
+     "sourceKind": "eligibility",
+     "quote": "Applicants aged between 20 and 33 as of the registration opening date are eligible to participate in the Master’s track of the Open Doors",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Master : niveau Licence acquis ou à obtenir dans l’année",
+     "sourceKind": "eligibility",
+     "quote": "an educational qualification corresponding to at least a Bachelor’s degree",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Langues de participation : russe et anglais",
+     "sourceKind": "eligibility",
+     "quote": "The official languages of the Open Doors are Russian and English.",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Avantage : frais de scolarité gratuits pour les lauréats",
+     "sourceKind": "benefits",
+     "quote": "Free tuition for the chosen study program, taught in English or Russian.",
+     "url": "https://od.globaluni.ru/about"
+    },
+    {
+     "claim": "Année préparatoire de russe gratuite si le cursus est en russe",
+     "sourceKind": "benefits",
+     "quote": "Students who have selected a degree program taught in Russian are entitled to a year of complimentary Russian language training;",
+     "url": "https://od.globaluni.ru/about"
+    },
+    {
+     "claim": "Frais de scolarité financés par l’État russe",
+     "sourceKind": "application",
+     "quote": "Your tuition fees will be covered by the Government of the Russian Federation.",
+     "url": "https://od.globaluni.ru/"
+    },
+    {
+     "claim": "Voyage, hébergement, assurance et frais personnels à la charge du lauréat",
+     "sourceKind": "application",
+     "quote": "You will be responsible for covering travel and accommodation expenses, insurance, and personal costs.",
+     "url": "https://od.globaluni.ru/"
+    },
+    {
+     "claim": "Pièces obligatoires du portfolio : lettre de motivation, preuve du niveau d’études, passeport",
+     "sourceKind": "application",
+     "quote": "Only the motivation letter, proof of your education level and passport are mandatory.",
+     "url": "https://od.globaluni.ru/"
+    },
+    {
+     "claim": "Portfolio déposable jusqu’à la clôture des inscriptions",
+     "sourceKind": "eligibility",
+     "quote": "Participants may submit their portfolio at any time before registration closes.",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Choix des universités après classement : jusqu’à six établissements par ordre de préférence",
+     "sourceKind": "eligibility",
+     "quote": "list, in order of preference, up to six higher education institutions offering the selected field of study or specialization.",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    },
+    {
+     "claim": "Les finalistes (runners-up) peuvent obtenir les mêmes droits selon les places disponibles",
+     "sourceKind": "eligibility",
+     "quote": "Runners-up of the Open Doors in the Bachelor’s and Master’s tracks may be granted the same rights as winners",
+     "url": "https://od.globaluni.ru/index.php/rules"
+    }
+   ],
+   "discrepancies": [
+    {
+     "field": "cycle.status",
+     "recordSays": "status: forecast ; deadlineLabel « Prochain cycle confirmé — inscriptions du 20 août au 1er novembre 2026 »",
+     "pageSays": "Les inscriptions ont ouvert le 20 août 2026 et sont en cours jusqu’au 1er novembre 2026 : au 29/09/2026 le cycle est ouvert, avec dates confirmées et clôture future (le validateur exige « open » + « confirmed »).",
+     "quote": "Registration for the Bachelor’s, Master’s, Doctoral, and Postdoctoral tracks is open from August 20 to November 1, 2026.",
+     "sourceKind": "eligibility",
+     "severity": "blocking"
+    },
+    {
+     "field": "fundingLabel / advantages",
+     "recordSays": "Frais de scolarité couverts ; vie et voyage non couverts",
+     "pageSays": "La FAQ précise que la bourse couvre les frais de scolarité ET verse une allocation mensuelle, dont le montant varie selon l’université. La mention « vie … non couverts » omet cette allocation.",
+     "quote": "The scholarship covers tuition fees and provides a monthly stipend.",
+     "sourceKind": "application",
+     "severity": "minor"
+    },
+    {
+     "field": "steps[2] (Passer les étapes)",
+     "recordSays": "Première étape jusqu’au 13 novembre 2026 (portfolio et test)",
+     "pageSays": "La première étape dure jusqu’au 13 novembre (résultats), mais le portfolio doit être déposé avant la clôture des inscriptions le 1er novembre ; après cette date, plus de modification.",
+     "quote": "Participants may submit their portfolio at any time before registration closes.",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    },
+    {
+     "field": "eligibility[1] et eligibility[2]",
+     "recordSays": "Licence : 16 à 23 ans ; Master : 20 à 33 ans (sans date de référence)",
+     "pageSays": "L’âge s’apprécie à la date d’ouverture des inscriptions (20 août 2026).",
+     "quote": "Applicants aged between 20 and 33 as of the registration opening date are eligible to participate in the Master’s track of the Open Doors",
+     "sourceKind": "eligibility",
+     "severity": "minor"
+    }
+   ],
+   "proposedEdits": [
+    {
+     "field": "cycle.status",
+     "newFr": "open",
+     "newEn": "open",
+     "justificationQuote": "Registration for the Bachelor’s, Master’s, Doctoral, and Postdoctoral tracks is open from August 20 to November 1, 2026."
+    },
+    {
+     "field": "cycle.dateConfidence",
+     "newFr": "confirmed",
+     "newEn": "confirmed",
+     "justificationQuote": "1 November 2026 Open Doors registration deadline",
+     "note": "Inchangé (déjà « confirmed »). opensAt 2026-08-20T00:00:00.000Z et closesAt 2026-11-01T23:59:59.000Z inchangés : la page écrit les dates mais pas l’heure ni le fuseau."
+    },
+    {
+     "field": "deadlineLabel",
+     "newFr": "Ouvert — inscriptions du 20 août au 1er novembre 2026",
+     "newEn": "Open — registration from 20 August to 1 November 2026",
+     "justificationQuote": "Registration will close on November 1."
+    },
+    {
+     "field": "tags",
+     "newFr": "remplacer « future-cycle » par « open »",
+     "newEn": "replace “future-cycle” with “open”",
+     "justificationQuote": "Registration will close on November 1.",
+     "note": "Cosmétique, cohérence avec les autres fiches ouvertes (Schwarzman, etc.) ; facultatif."
+    },
+    {
+     "field": "fundingLabel",
+     "newFr": "Frais de scolarité couverts et allocation mensuelle (montant variable selon l’université) ; voyage, logement et assurance non couverts",
+     "newEn": "Tuition covered plus a monthly stipend (amount varies by university); travel, accommodation and insurance excluded",
+     "justificationQuote": "The scholarship covers tuition fees and provides a monthly stipend."
+    },
+    {
+     "field": "advantages (ajouter un élément)",
+     "newFr": "Allocation mensuelle versée aux lauréats (montant variable selon l’université)",
+     "newEn": "Monthly stipend for winners (amount varies by university)",
+     "justificationQuote": "The amount varies depending on the university."
+    },
+    {
+     "field": "steps[2] description (index 2 FR / index 3 EN)",
+     "newFr": "Portfolio (test d’entrée, lettre de motivation, passeport, justificatifs) à déposer avant la clôture des inscriptions le 1er novembre 2026 ; résultats de la première étape le 13 novembre 2026, puis seconde étape en ligne du 13 novembre au 21 décembre 2026.",
+     "newEn": "Submit the portfolio (entry test, motivation letter, passport, supporting documents) before registration closes on 1 November 2026; first-stage results on 13 November 2026, then the online second stage from 13 November to 21 December 2026.",
+     "justificationQuote": "Participants may submit their portfolio at any time before registration closes."
+    },
+    {
+     "field": "eligibility[1] (Licence)",
+     "newFr": "Pour la Licence, avoir 16 à 23 ans à la date d’ouverture des inscriptions (20 août 2026) et achever ou avoir achevé le secondaire requis",
+     "newEn": "For Bachelor, be 16–23 on the registration opening date (20 August 2026) and complete or have completed qualifying secondary education",
+     "justificationQuote": "as of the registration opening date, they are between 16 and 23 years of age; do not hold a Bachelor’s, Specialist, or Master’s degree"
+    },
+    {
+     "field": "eligibility[2] (Master)",
+     "newFr": "Pour le Master, avoir 20 à 33 ans à la date d’ouverture des inscriptions (20 août 2026) et achever ou avoir achevé une Licence",
+     "newEn": "For Master, be 20–33 on the registration opening date (20 August 2026) and complete or have completed a Bachelor degree",
+     "justificationQuote": "Applicants aged between 20 and 33 as of the registration opening date are eligible to participate in the Master’s track of the Open Doors"
+    }
+   ],
+   "unverified": [
+    {
+     "claim": "cycle.academicYear « 2027-2028 »",
+     "reason": "page silencieuse : le règlement est celui de « 2026 » et précise que les lauréats peuvent être admis l’année du concours ou l’année suivante ; aucun millésime d’année académique n’est écrit"
+    },
+    {
+     "claim": "Heure et fuseau horaire de la clôture du 1er novembre 2026 (fiche : 23:59:59 UTC)",
+     "reason": "page silencieuse : seule la date est écrite"
+    },
+    {
+     "claim": "Montant de l’allocation mensuelle",
+     "reason": "la page renvoie à chaque université (« The amount varies depending on the university »)"
+    },
+    {
+     "claim": "Bourse du gouvernement russe complémentaire (décret n° 1837) pour les lauréats étudiant en russe",
+     "reason": "mentionnée au règlement (art. 13-14) sous conditions ; non reprise dans la fiche, montant non précisé"
+    }
+   ]
+  }
+ ]
+}

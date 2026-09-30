@@ -60,6 +60,17 @@ export enum AdminCapability {
    * confondre ferait dériver l'un quand l'autre change de périmètre.
    */
   ManageCatalogContent = 'manage_catalog_content',
+  /**
+   * Publier ou retirer un établissement de l'import « Études en France » et ses
+   * formations.
+   *
+   * Miroir exact du `@Roles(Admin, SuperAdmin)` de `EefPublicationController`.
+   * PAS `ContentManager` : il édite le catalogue mais ne signe pas sa
+   * publication, qui rend visibles à un étudiant sans compte des fiches que
+   * personne n'avait relues. Distincte de [ManageCatalogContent], et c'est le
+   * point : élargir l'une ne doit jamais élargir l'autre.
+   */
+  PublishEefCatalog = 'publish_eef_catalog',
 }
 
 const ALL_ROLES = Object.freeze([
@@ -119,6 +130,7 @@ const ROLE_CAPABILITIES = {
     AdminCapability.ViewScholarshipContent,
     AdminCapability.ManageScholarshipContent,
     AdminCapability.ManageCatalogContent,
+    AdminCapability.PublishEefCatalog,
     AdminCapability.ManagePartnerAgreements,
     AdminCapability.ViewAssignedPilotCohorts,
     AdminCapability.RecruitPilotParticipants,

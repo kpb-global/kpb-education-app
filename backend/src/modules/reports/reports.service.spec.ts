@@ -106,6 +106,83 @@ describe('ReportsService — verified outcomes', () => {
   });
 });
 
+/**
+ * Le compteur « Action immédiate requise » du tableau de bord.
+ *
+ * Il additionne pays, établissements, formations et bourses à revérifier. Sa
+ * règle « à revérifier » vivait en DEUX exemplaires, l'un dans la file admin,
+ * l'autre ici — et la revue de l'import « Études en France » n'avait d'abord
+ * trouvé que le premier. Sans exclusion, ce chiffre aurait affiché « 10 600 »
+ * dès l'import, pour des fiches qui n'ont jamais été publiées.
+ */
+describe('ReportsService — compteur « Action immédiate requise »', () => {
+  function dashboardDb(counts: {
+    institutions?: number;
+    programs?: number;
+    countries?: number;
+    scholarships?: number;
+  }) {
+    const wheres: Record<string, unknown[]> = { institution: [], program: [] };
+    const db = {
+      case: {
+        findMany: jest.fn().mockResolvedValue([]),
+        count: jest.fn().mockResolvedValue(0),
+      },
+      country: { count: jest.fn().mockResolvedValue(counts.countries ?? 0) },
+      institution: {
+        count: jest.fn(async (args: { where: unknown }) => {
+          wheres.institution.push(args.where);
+          return counts.institutions ?? 0;
+        }),
+      },
+      program: {
+        count: jest.fn(async (args: { where: unknown }) => {
+          wheres.program.push(args.where);
+          return counts.programs ?? 0;
+        }),
+      },
+      scholarship: {
+        count: jest.fn().mockResolvedValue(counts.scholarships ?? 0),
+      },
+      forumModerationAction: { count: jest.fn().mockResolvedValue(0) },
+    };
+    return { db, wheres };
+  }
+
+  it('additionne les quatre familles à revérifier', async () => {
+    const { db } = dashboardDb({
+      countries: 1,
+      institutions: 2,
+      programs: 30,
+      scholarships: 4,
+    });
+    const result = await new ReportsService(prismaFor(db)).getDashboardActivation();
+    expect(result.urgent.verificationDue).toBe(37);
+  });
+
+  it('ne compte jamais une ligne EEF importée et pas encore publiée', async () => {
+    const { db, wheres } = dashboardDb({});
+
+    await new ReportsService(prismaFor(db)).getDashboardActivation();
+
+    expect((wheres.program[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-prog-' } }, { isActive: false }],
+      },
+    });
+    expect((wheres.institution[0] as { AND: unknown[] }).AND).toContainEqual({
+      NOT: {
+        AND: [{ id: { startsWith: 'eef-univ-' } }, { isActive: false }],
+      },
+    });
+  });
+
+  // « Utilise la MÊME règle que la file admin » ne se prouve pas ici : on ne voit
+  // que ce service. La comparaison des deux, catégorie par catégorie, sur une
+  // horloge figée, vit dans `admin-catalog/verification-due.consumers.spec.ts` —
+  // là où les deux services sont sous les yeux du même test.
+});
+
 function prismaFor(client: object): PrismaService {
   return {
     isEnabled: true,

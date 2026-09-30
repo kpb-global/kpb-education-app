@@ -6,6 +6,10 @@ import {
   featureDisabled,
 } from '../competition-readiness/common/competition-readiness.errors';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  eligiblePublicTestimonialUserIds,
+  loadPublicTestimonialReceipts,
+} from './public-testimonial-consent';
 
 const MIN_PUBLIC_CELL_SIZE = 20;
 const PUBLIC_SNAPSHOT_METRICS = {
@@ -52,50 +56,6 @@ export interface PublishedReviews {
   reviews: PublishedReview[];
   count: number;
 }
-
-type PublicTestimonialReceipt = {
-  userId: string;
-  purpose: string;
-  grantedAt: Date;
-  revokedAt: Date | null;
-  user: { birthDate: Date | null };
-  notice: {
-    purpose: string;
-    effectiveAt: Date;
-    retiredAt: Date | null;
-  };
-  guardianAuthorization: {
-    minorUserId: string;
-    status: string;
-    verifiedAt: Date | null;
-    expiresAt: Date | null;
-    revokedAt: Date | null;
-  } | null;
-};
-
-const PUBLIC_TESTIMONIAL_RECEIPT_SELECT = {
-  userId: true,
-  purpose: true,
-  grantedAt: true,
-  revokedAt: true,
-  user: { select: { birthDate: true } },
-  notice: {
-    select: {
-      purpose: true,
-      effectiveAt: true,
-      retiredAt: true,
-    },
-  },
-  guardianAuthorization: {
-    select: {
-      minorUserId: true,
-      status: true,
-      verifiedAt: true,
-      expiresAt: true,
-      revokedAt: true,
-    },
-  },
-} as const;
 
 @Injectable()
 export class ImpactService {
@@ -158,7 +118,7 @@ export class ImpactService {
           db.scholarship.count({
             where: { isActive: true, moderationStatus: 'approved' },
           }),
-          this.loadPublicTestimonialReceipts(db, now),
+          loadPublicTestimonialReceipts(db, now),
         ]);
 
         const eligibleReviewerIds = eligiblePublicTestimonialUserIds(
@@ -242,7 +202,7 @@ export class ImpactService {
 
     try {
       const result = await this.prisma.execute(async (db) => {
-        const receipts = await this.loadPublicTestimonialReceipts(db, now);
+        const receipts = await loadPublicTestimonialReceipts(db, now);
         const eligibleReviewerIds = eligiblePublicTestimonialUserIds(
           receipts,
           now,
@@ -289,26 +249,6 @@ export class ImpactService {
     }
   }
 
-  private loadPublicTestimonialReceipts(
-    db: Parameters<Parameters<PrismaService['execute']>[0]>[0],
-    now: Date,
-  ): Promise<PublicTestimonialReceipt[]> {
-    return db.consentReceipt.findMany({
-      where: {
-        purpose: 'public_testimonial',
-        revokedAt: null,
-        grantedAt: { lte: now },
-        user: { birthDate: { not: null } },
-        notice: {
-          purpose: 'public_testimonial',
-          effectiveAt: { lte: now },
-          OR: [{ retiredAt: null }, { retiredAt: { gt: now } }],
-        },
-      },
-      select: PUBLIC_TESTIMONIAL_RECEIPT_SELECT,
-    });
-  }
-
   private assertPublicImpactEnabled(): void {
     const enabled =
       process.env.KPB_COMPETITION_READINESS_ENABLED?.trim().toLowerCase() ===
@@ -347,56 +287,6 @@ function publicSnapshotCount(
     return 0;
   }
   return value as number;
-}
-
-function eligiblePublicTestimonialUserIds(
-  receipts: PublicTestimonialReceipt[],
-  now: Date,
-): string[] {
-  const eligible = receipts
-    .filter((receipt) => isActivePublicTestimonialReceipt(receipt, now))
-    .map((receipt) => receipt.userId);
-  return Array.from(new Set(eligible));
-}
-
-function isActivePublicTestimonialReceipt(
-  receipt: PublicTestimonialReceipt,
-  now: Date,
-): boolean {
-  if (
-    receipt.purpose !== 'public_testimonial' ||
-    receipt.notice.purpose !== 'public_testimonial' ||
-    receipt.revokedAt !== null ||
-    receipt.grantedAt > now ||
-    receipt.notice.effectiveAt > receipt.grantedAt ||
-    (receipt.notice.retiredAt !== null && receipt.notice.retiredAt <= now) ||
-    receipt.user.birthDate === null
-  ) {
-    return false;
-  }
-
-  const requiredGuardian =
-    isMinorAt(receipt.user.birthDate, receipt.grantedAt) ||
-    isMinorAt(receipt.user.birthDate, now);
-  if (!requiredGuardian) return true;
-
-  const guardian = receipt.guardianAuthorization;
-  return Boolean(
-    guardian &&
-      guardian.minorUserId === receipt.userId &&
-      guardian.status === 'verified' &&
-      guardian.verifiedAt !== null &&
-      guardian.verifiedAt <= receipt.grantedAt &&
-      guardian.verifiedAt <= now &&
-      guardian.revokedAt === null &&
-      (guardian.expiresAt === null || guardian.expiresAt > now),
-  );
-}
-
-function isMinorAt(birthDate: Date, at: Date): boolean {
-  const adultThreshold = new Date(at);
-  adultThreshold.setUTCFullYear(adultThreshold.getUTCFullYear() - 18);
-  return birthDate > adultThreshold;
 }
 
 function isCompetitionReadinessException(
