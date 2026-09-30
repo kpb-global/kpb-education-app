@@ -136,6 +136,25 @@ export class AppConfigController {
     const eef = enabled(process.env.KPB_EEF_ENABLED);
     const eefTeaser = !eef && enabled(process.env.KPB_EEF_TEASER_ENABLED);
 
+    // ── `eefSpace` : l'ouverture de l'espace RÉEL, pour la seule build 54 ──
+    //
+    // `eef` ne peut plus être ce commutateur. Les builds 49 à 53 le lisent
+    // aussi, et pour elles `eef: true` veut dire « afficher l'espace » ET
+    // « retirer la vitrine » : un espace qui n'a que trois badges « En
+    // préparation ». Le poser pour ouvrir l'espace à la 54 dégraderait donc
+    // tout le parc installé, sans passer par un store et sans retour arrière
+    // par les utilisateurs.
+    //
+    // `eefSpace` est une clé NOUVELLE, ignorée des anciennes builds (elles
+    // n'écoutent que les clés qu'elles connaissent — « tolerates-old »). Elle
+    // ne touche PAS à `eefTeaser` : tant que KPB_EEF_ENABLED reste éteint, une
+    // build 53 garde sa vitrine pendant que la 54 ouvre l'espace.
+    //
+    // `eef` (l'ancien commutateur) l'allume aussi : quelqu'un qui le poserait
+    // par habitude ouvre l'espace partout, et la 54 ne doit alors pas rester
+    // à la porte de ce que les autres builds montrent déjà.
+    const eefSpace = eef || enabled(process.env.KPB_EEF_SPACE_ENABLED);
+
     return {
       minVersion: process.env.KPB_MIN_APP_VERSION?.trim() || '0.0.0',
       androidStoreUrl:
@@ -156,6 +175,7 @@ export class AppConfigController {
           enabled(process.env.KPB_IMPACT_PUBLIC_STATS_ENABLED),
         eefTeaser,
         eef,
+        eefSpace,
       },
       // La fenêtre de campagne est SERVIE, jamais compilée. Une build vit ~90
       // jours ; une date d'ouverture écrite dans le binaire devient fausse

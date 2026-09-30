@@ -24,8 +24,12 @@ import type { PrismaClient } from '@prisma/client';
 
 import { catalogUnavailable } from '../../catalog/catalog-degraded-mode';
 import { resolveFranceCountryId } from '../catalog/eef-country';
-import { loadPublishedInstitutionIds } from '../catalog/eef-published-institutions';
-import { mapProgram } from '../../catalog/catalog.mapper';
+import {
+  loadPublishedInstitutions,
+  publishedInstitutionIds,
+  type PublishedInstitution,
+} from '../catalog/eef-published-institutions';
+import { mapEefProgram } from '../catalog/eef-program-view';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   EEF_SEARCH_FACETS,
@@ -34,11 +38,13 @@ import {
   EefSearchParamError,
   buildEefSearchWhere,
   encodeEefCursor,
+  isRestricted,
   parseEefSearchInput,
   type EefSearchFacet,
   type EefSearchInput,
   type EefSearchParams,
 } from './eef-search.query';
+import { buildSearchTerms, resolveTermInstitutions } from './eef-search.terms';
 
 /// Les facettes à valeurs ouvertes : ville et établissement en comptent des
 /// dizaines. On rend les plus fournies et on DIT qu'il en reste, plutôt que
@@ -64,6 +70,11 @@ export interface EefSearchResult {
   };
   readonly facets: Record<string, EefFacetValue[]>;
   readonly facetsTruncated: string[];
+  /// Vrai si le catalogue publié contient au moins une formation, QUEL QUE SOIT
+  /// le filtre. Faux ⇒ rien n'est encore publié : l'écran dit « le catalogue
+  /// arrive » et non « ta recherche est trop étroite », ce qui serait faux et
+  /// enverrait l'étudiant retirer des filtres sur une base vide.
+  readonly catalogPublished: boolean;
   readonly source: 'database';
 }
 
@@ -100,21 +111,21 @@ export class EefSearchService {
       // même ensemble d'établissements, même si l'un d'eux est publié pendant
       // que la transaction s'exécute. Sans cette liste, une formation dont
       // l'établissement n'a jamais été relu était servie.
-      const publishedInstitutionIds = await loadPublishedInstitutionIds(
-        prisma,
-        countryId,
+      const institutions = await loadPublishedInstitutions(prisma, countryId);
+      const publishedIds = publishedInstitutionIds(institutions);
+      // Les mots qui désignent un établissement (par son nom ou son sigle),
+      // résolus UNE fois ici : page, total et facettes voient les mêmes.
+      const termInstitutionIds = resolveTermInstitutions(
+        buildSearchTerms(params.terms),
+        institutions,
       );
-      const pageWhere = buildEefSearchWhere(
-        params,
-        countryId,
-        publishedInstitutionIds,
-        { withCursor: true },
-      );
-      const totalWhere = buildEefSearchWhere(
-        params,
-        countryId,
-        publishedInstitutionIds,
-      );
+      const pageWhere = buildEefSearchWhere(params, countryId, publishedIds, {
+        withCursor: true,
+        termInstitutionIds,
+      });
+      const totalWhere = buildEefSearchWhere(params, countryId, publishedIds, {
+        termInstitutionIds,
+      });
 
       // Une seule transaction : le total, la page et les six facettes doivent
       // décrire le MÊME instant. Servis séparément, un import concurrent
@@ -132,12 +143,10 @@ export class EefSearchService {
         ...EEF_SEARCH_FACETS.map((facet) =>
           prisma.program.groupBy({
             by: [facet],
-            where: buildEefSearchWhere(
-              params,
-              countryId,
-              publishedInstitutionIds,
-              { excludeFacet: facet },
-            ),
+            where: buildEefSearchWhere(params, countryId, publishedIds, {
+              excludeFacet: facet,
+              termInstitutionIds,
+            }),
             _count: { _all: true },
             orderBy: { _count: { [facet]: 'desc' } },
             take: OPEN_FACETS.has(facet) ? OPEN_FACET_LIMIT + 1 : undefined,
@@ -150,7 +159,23 @@ export class EefSearchService {
         // `RepeatableRead` fait tenir la promesse que la transaction affiche.
         isolationLevel: 'RepeatableRead',
       });
-      return { rows, total, facetRows };
+
+      // « Le catalogue est-il vide, ou est-ce ma recherche ? » Sans restriction,
+      // `total` répond. Avec, et seulement si `total` est nul, une seule lecture
+      // de plus : le cas courant (des résultats) ne paie rien.
+      let catalogPublished = total > 0;
+      if (!catalogPublished && isRestricted(params) && publishedIds.length > 0) {
+        const any = await prisma.program.findFirst({
+          where: buildEefSearchWhere(
+            parseEefSearchInput({}),
+            countryId,
+            publishedIds,
+          ),
+          select: { id: true },
+        });
+        catalogPublished = any !== null;
+      }
+      return { rows, total, facetRows, institutions, catalogPublished };
     });
 
     const hasMore = result.rows.length > params.limit;
@@ -177,8 +202,12 @@ export class EefSearchService {
       }
     });
 
+    const institutionsById = new Map<string, PublishedInstitution>(
+      result.institutions.map((institution) => [institution.id, institution]),
+    );
+
     return {
-      items: page.map((row) => mapProgram(row as never)),
+      items: page.map((row) => mapEefProgram(row, institutionsById)),
       total: result.total,
       page: {
         limit: params.limit,
@@ -190,6 +219,7 @@ export class EefSearchService {
       },
       facets,
       facetsTruncated,
+      catalogPublished: result.catalogPublished,
       source: 'database',
     };
   }

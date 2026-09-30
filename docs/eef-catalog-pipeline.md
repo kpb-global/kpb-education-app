@@ -599,6 +599,24 @@ Deux garde-fous tiennent cette promesse sous concurrence :
   domaine changé) serait publiée et signée « vérifiée ». Sous `RepeatableRead`,
   PostgreSQL refuse l'écriture (`P2034`), le service répond 409 et rien n'est écrit.
 
+**Le commutateur de l'ouverture n'est plus `KPB_EEF_ENABLED`.** Les builds 49 à
+53 le lisent : le poser leur retire leur vitrine et leur montre une coquille vide.
+L'espace réel de la build 54 s'ouvre par `features.eefSpace`
+(`KPB_EEF_SPACE_ENABLED`, action vps-ops `eef-space-on`), qui n'ôte rien aux
+anciennes builds. L'action refuse d'ouvrir tant qu'aucune formation de l'import
+n'est publiée (elle l'établit en base, pas sur la foi de l'opérateur) ; par
+défaut elle ne fait que SIMULER.
+
+**La recherche libre** compare un texte normalisé (`Program.searchText`), retrouve
+les établissements par nom ou sigle (`Institution.acronym`) et comprend les mots de
+niveau (`docs/api-contracts.md` § « Ce que la recherche libre comprend »). Les deux
+colonnes sont écrites à l'import ; pour les lignes déjà en base,
+`npm run eef:backfill:search` (inclus dans l'action `eef-import`) les comble, sans
+jamais écraser. Tant qu'une ligne n'est pas rattrapée, elle reste trouvable par la
+comparaison brute : `db-info` section 11 dit combien restent à faire. Un intitulé
+corrigé à la main après l'import garde l'ancien texte normalisé jusqu'au prochain
+rattrapage après purge — la comparaison brute le retrouve quand même.
+
 Le drapeau du client (`KPB_EEF_ENABLED`) ne protège PAS l'API : la recherche est
 publique, donc dès qu'un établissement est publié ses formations sont servies à
 qui interroge `/etudes-en-france/search`, l'espace fût-il éteint dans l'app.

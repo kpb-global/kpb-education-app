@@ -1,0 +1,29 @@
+-- Recherche « Études en France » : texte normalisé des formations, sigle des
+-- établissements.
+--
+-- POURQUOI
+--
+-- La recherche libre ne comparait que l'intitulé brut et la ville. Trois défauts
+-- mesurés sur les 10 502 lignes du catalogue :
+--
+--   • les accents : « genie » ne trouvait qu'1 formation là où « génie » en
+--     trouve 507, « economie » 313 et « économie » 47. Un `ILIKE` ignore la casse,
+--     pas les accents, et la plupart des claviers de téléphone n'en mettent pas ;
+--   • l'établissement : « Sorbonne » ou « Paris-Saclay » ne trouvaient rien, le nom
+--     de l'université n'étant nulle part dans la formation ;
+--   • le niveau : « licence droit » ne trouvait que les 27 intitulés contenant le
+--     mot « licence ».
+--
+-- CE QUE CETTE MIGRATION FAIT — RIEN D'AUTRE QU'AJOUTER DEUX COLONNES NULLES
+--
+-- `Program.searchText` : intitulé + ville, minuscules, sans accents (la fonction
+-- est `normalizeSearchText`, côté application). `Institution.acronym` : le sigle
+-- publié par le ministère.
+--
+-- Nulles à la création, et c'est voulu : aucune réécriture de table, aucun verrou
+-- long, aucun index, aucune extension. Les lignes déjà importées sont rattrapées
+-- par `npm run eef:backfill:search` (action « eef-import » de vps-ops), qui ne
+-- comble que les colonnes vides. Tant qu'elles ne le sont pas, la recherche
+-- retombe sur la comparaison brute d'avant : jamais moins qu'avant.
+ALTER TABLE "Program" ADD COLUMN "searchText" TEXT;
+ALTER TABLE "Institution" ADD COLUMN "acronym" TEXT;

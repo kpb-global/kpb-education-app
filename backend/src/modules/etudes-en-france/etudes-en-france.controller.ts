@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -12,6 +13,7 @@ import { Request } from 'express';
 
 import { StudentAuthGuard } from '../../common/guards/student-auth.guard';
 import { DeclareEefInterestDto } from './dto/declare-eef-interest.dto';
+import { UpdateEefProfileDto } from './dto/update-eef-profile.dto';
 import { EtudesEnFranceService } from './etudes-en-france.service';
 
 type AuthedReq = Request & {
@@ -82,6 +84,20 @@ export class EtudesEnFranceController {
       req.studentUser!.id,
       body,
     );
+  }
+
+  /**
+   * Met à jour les niveaux et les domaines d'une déclaration EXISTANTE.
+   *
+   * Ne touche NI au consentement NI à l'intérêt Premium : le corps n'accepte que
+   * `currentLevel`, `targetLevel` et `fieldIds`, et en refuse tout autre (400).
+   * Sans déclaration préalable : 404 — c'est le POST, avec sa feuille de
+   * consentement, qui crée la ligne.
+   */
+  @Patch('interest')
+  updateProfile(@Req() req: AuthedReq, @Body() body: UpdateEefProfileDto) {
+    this.assertStudent(req);
+    return this.etudesEnFranceService.updateProfile(req.studentUser!.id, body);
   }
 
   /**

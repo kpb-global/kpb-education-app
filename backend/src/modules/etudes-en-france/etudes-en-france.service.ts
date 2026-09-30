@@ -1,7 +1,14 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import type { EefInterest } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { DeclareEefInterestDto } from './dto/declare-eef-interest.dto';
+import { UpdateEefProfileDto } from './dto/update-eef-profile.dto';
 
 /** Une déclaration d'intérêt telle que la vitrine la lit. */
 export interface EefInterestView {
@@ -95,6 +102,79 @@ export class EtudesEnFranceService {
       throw new ServiceUnavailableException('Failed to persist interest.');
     }
 
+    return this.toView(saved);
+  }
+
+  /**
+   * Met à jour les niveaux et les domaines d'une déclaration EXISTANTE, sans
+   * toucher à rien de ce qui relève du consentement.
+   *
+   * ## Pourquoi ce n'est pas `declareInterest`
+   *
+   * `declareInterest` est un remplacement complet : `wantsPremium` retombe à
+   * `false` s'il n'est pas renvoyé, et `consentedAt` / `consentVersion` sont
+   * réécrits à chaque appel. S'en servir pour « modifier mon profil » effacerait
+   * l'intérêt Premium de l'étudiant et fabriquerait un NOUVEAU consentement au
+   * rappel commercial, horodaté maintenant, qu'il n'a pas redonné — la preuve
+   * RGPD que ce module refuse de falsifier.
+   *
+   * Ici, l'écriture ne nomme que les colonnes reçues. `consentedAt`,
+   * `consentVersion` et `wantsPremium` n'apparaissent pas dans la requête : ce
+   * n'est pas une convention, c'est vérifiable dans le test.
+   *
+   * ## Sans déclaration préalable : 404, pas une création
+   *
+   * Créer la ligne ici la ferait exister SANS consentement — une ligne de la
+   * liste de rappel que personne n'a acceptée. Le client doit passer par le POST
+   * et sa feuille de consentement ; le 404 le lui dit.
+   */
+  async updateProfile(
+    userId: string,
+    dto: UpdateEefProfileDto,
+  ): Promise<EefInterestView> {
+    this.assertDb();
+
+    const data: {
+      currentLevel?: string | null;
+      targetLevel?: string | null;
+      fieldIds?: string[];
+    } = {};
+    if (dto.currentLevel !== undefined) {
+      data.currentLevel = dto.currentLevel.trim() || null;
+    }
+    if (dto.targetLevel !== undefined) {
+      data.targetLevel = dto.targetLevel.trim() || null;
+    }
+    if (dto.fieldIds !== undefined) {
+      data.fieldIds = this.normalizeFieldIds(dto.fieldIds);
+    }
+    if (Object.keys(data).length === 0) {
+      throw new BadRequestException(
+        'Nothing to update: send currentLevel, targetLevel or fieldIds.',
+      );
+    }
+
+    let saved: EefInterest | null;
+    try {
+      saved = await this.prismaService.execute((prisma) =>
+        prisma.eefInterest.update({ where: { userId }, data }),
+      );
+    } catch (error) {
+      // P2025 : aucune ligne pour cet utilisateur. `execute` a déjà journalisé
+      // le code borné avant de relancer.
+      if ((error as { code?: string } | null)?.code === 'P2025') {
+        throw new NotFoundException({
+          code: 'EEF_INTEREST_NOT_DECLARED',
+          message:
+            'No declaration to update: declare interest first, with consent.',
+        });
+      }
+      throw error;
+    }
+
+    if (!saved) {
+      throw new ServiceUnavailableException('Failed to persist profile.');
+    }
     return this.toView(saved);
   }
 

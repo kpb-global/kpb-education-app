@@ -118,6 +118,10 @@ services:
       # plus éteindre à distance est un plus mauvais échec que rien du tout.
       - KPB_EEF_TEASER_ENABLED=${KPB_EEF_TEASER_ENABLED:-false}
       - KPB_EEF_ENABLED=${KPB_EEF_ENABLED:-false}
+      # L'espace réel pour la SEULE build 54 (`features.eefSpace`). Distinct de
+      # KPB_EEF_ENABLED, que lisent aussi les builds 49 à 53 : le poser n'ôte
+      # pas leur vitrine. Fermé par défaut, comme les deux autres.
+      - KPB_EEF_SPACE_ENABLED=${KPB_EEF_SPACE_ENABLED:-false}
       # Dates VIDES par défaut, jamais une date de repli : le client n'annonce
       # alors aucune date, plutôt qu'une date inventée qu'un étudiant
       # utiliserait pour organiser son dossier.

@@ -32,6 +32,7 @@ import {
   EEF_CYCLES,
   EEF_PROCEDURE_TYPES,
 } from '../catalog/eef-catalog.types';
+import { buildSearchTerms } from './eef-search.terms';
 
 export const EEF_SEARCH_DEFAULT_LIMIT = 20;
 export const EEF_SEARCH_MAX_LIMIT = 50;
@@ -230,7 +231,27 @@ export const EEF_SEARCH_FACETS = [
 
 export type EefSearchFacet = (typeof EEF_SEARCH_FACETS)[number];
 
+/// Vrai quand la requête restreint quoi que ce soit : un mot ou un filtre. Sans
+/// restriction, `total` dit si le catalogue publié est vide ; avec, il ne dit rien
+/// de tel (voir `catalogPublished`).
+export function isRestricted(params: EefSearchParams): boolean {
+  return (
+    params.terms.length > 0
+    || params.procedureTypes.length > 0
+    || params.cycles.length > 0
+    || params.fieldIds.length > 0
+    || params.institutionIds.length > 0
+    || params.campusCities.length > 0
+    || params.selectivities.length > 0
+  );
+}
+
 export interface BuildWhereOptions {
+  /// Pour chaque mot (clé : le mot normalisé), les établissements qu'il désigne
+  /// par leur nom ou leur sigle (`resolveTermInstitutions`). Résolu UNE fois par
+  /// le service et passé aux huit requêtes d'une réponse, pour qu'elles décrivent
+  /// les mêmes établissements. Absent ⇒ aucun mot ne désigne d'établissement.
+  readonly termInstitutionIds?: ReadonlyMap<string, readonly string[]>;
   /// La facette dont on compte les valeurs. Son propre filtre est alors
   /// EXCLU : sans cela, choisir « master » ferait tomber à zéro le compte de
   /// toutes les autres valeurs de la même facette, et l'étudiant ne pourrait
@@ -283,16 +304,32 @@ export function buildEefSearchWhere(
   apply('campusCity', params.campusCities);
   apply('institutionId', params.institutionIds);
 
-  // Chaque mot doit être présent, mais peut l'être dans l'intitulé OU dans la
-  // ville. « droit rennes » trouve donc la licence de droit à Rennes, alors
-  // qu'un `contains` sur la phrase entière ne trouverait rien.
-  for (const term of params.terms) {
-    and.push({
-      OR: [
-        { nameFr: { contains: term, mode: 'insensitive' } },
-        { campusCity: { contains: term, mode: 'insensitive' } },
-      ],
-    });
+  // Chaque mot doit être satisfait, et peut l'être de quatre façons :
+  //
+  //   1. il figure dans le texte normalisé de la formation (intitulé + ville) —
+  //      sans accents, sans casse : « genie » trouve « Génie civil » ;
+  //   2. il figure tel quel dans l'intitulé ou la ville — le REPLI, pour les
+  //      lignes dont le texte normalisé est encore nul ou périmé. Il fait que la
+  //      recherche ne trouve jamais MOINS qu'avant ;
+  //   3. il désigne l'établissement, par son nom ou son sigle ;
+  //   4. il désigne un niveau (« licence », « master », « L2 ») — le cycle.
+  //
+  // « master droit à rennes » se lit donc : niveau master ET droit ET Rennes. Un
+  // `contains` sur la phrase entière ne trouverait rien.
+  for (const term of buildSearchTerms(params.terms)) {
+    const alternatives: Record<string, unknown>[] = [
+      { searchText: { contains: term.norm } },
+      { nameFr: { contains: term.raw, mode: 'insensitive' } },
+      { campusCity: { contains: term.raw, mode: 'insensitive' } },
+    ];
+    const institutionIds = options.termInstitutionIds?.get(term.norm);
+    if (institutionIds && institutionIds.length > 0) {
+      alternatives.push({ institutionId: { in: [...institutionIds] } });
+    }
+    if (term.cycles.length > 0) {
+      alternatives.push({ cycle: { in: [...term.cycles] } });
+    }
+    and.push({ OR: alternatives });
   }
 
   if (options.withCursor && params.cursor) {

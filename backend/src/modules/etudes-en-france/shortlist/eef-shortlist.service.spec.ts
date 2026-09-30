@@ -95,7 +95,19 @@ function serviceWith(opts: {
       findMany: async (args: Record<string, unknown>) => {
         captured.calls.push({ kind: 'institution', ...args });
         return (opts.publishedInstitutions ?? [PUBLISHED_INSTITUTION]).map(
-          (id) => ({ id }),
+          (id) => ({
+            id,
+            nameFr: `Université ${id}`,
+            nameEn: `University ${id}`,
+            acronym: null,
+            locationFr: 'Rennes, Bretagne',
+            locationEn: 'Rennes, Brittany',
+            institutionType: 'universite_publique',
+            websiteUrl: null,
+            logoUrl: null,
+            logoSourceUrl: null,
+            logoLicence: null,
+          }),
         );
       },
     },
@@ -314,6 +326,26 @@ describe('EefShortlistService', () => {
         expect(tier.total).toBe(412);
         expect(tier.items.length).toBeLessThanOrEqual(tier.total);
       }
+    });
+
+    it('nomme l’établissement de chaque formation recommandée', async () => {
+      // « L1 - Droit » est proposée par quarante universités : une carte qui
+      // n'en nomme aucune ne permet pas de choisir.
+      const { service } = serviceWith({
+        rows: [programRow({ procedureType: 'eef', cycle: 'master' })],
+      });
+      const result = await service.getShortlist('u-1');
+      const program = result.tiers[0].items[0].program as {
+        procedureType: string;
+        cycle: string;
+        institution: { id: string; name: { fr: string } } | null;
+      };
+      expect(program.procedureType).toBe('eef');
+      expect(program.cycle).toBe('master');
+      expect(program.institution).toMatchObject({
+        id: 'eef-univ-0353074b',
+        name: { fr: 'Université eef-univ-0353074b' },
+      });
     });
 
     it('ne sert jamais deux fois la même formation dans un étage', async () => {

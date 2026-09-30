@@ -195,15 +195,18 @@ appliquée (« All migrations have been successfully applied »), et
   `countryOfResidence` est un nom saisi au clavier, pas un code. Une
   réouverture se traite en retirant la valeur — pas en passant au store.
 
-  À l'ouverture réelle de l'espace, plus tard :
+  À l'ouverture réelle de l'espace, plus tard — **ne plus poser
+  `KPB_EEF_ENABLED`** (corrigé le 30/09/2026, voir l'entrée « Build 54 —
+  backend ») :
 
   ```bash
-  KPB_EEF_ENABLED=true               # retire la vitrine TOUT SEUL
+  KPB_EEF_SPACE_ENABLED=true         # action vps-ops « eef-space-on »
   ```
 
-  `eef` désactive `eefTeaser` côté serveur : il n'y a rien à éteindre dans un
-  second temps. C'est volontaire — l'oubli inverse afficherait « en préparation »
-  à côté d'un espace vivant, et personne ne voit ça depuis un tableau de bord.
+  `KPB_EEF_ENABLED` désactive `eefTeaser` côté serveur, et les builds 49 à 53
+  le lisent : le poser leur retire leur vitrine et leur montre une coquille
+  vide. `features.eefSpace` est une clé NOUVELLE, que seule la build 54 écoute ;
+  elle ne touche ni à `eef` ni à `eefTeaser`.
 
   Sans variable posée, l'app **n'annonce aucune date** : une date mal
   configurée vaut `null`, jamais un repli. Retour arrière : remettre la variable
@@ -422,3 +425,61 @@ catalogue passe en 1.4.0. Le détail, et ce qui a été écarté, est dans le jo
   contient pas IsDB dans son HTML statique ; les écarts entre les formulaires PDF
   2027 d'UP et ses pages HTML (facultés, Master de première année seulement,
   moyenne minimale de 70 %).
+
+### 30/09/2026 — backend de la build 54 : ouverture de l'espace, recherche, profil
+
+**État : prêt, PAS déployé.** Sur la branche `claude/campus-france-space-98orw9`,
+au-dessus de la fusion de la PR #293. Aucun client n'appelle encore ce qui est
+nouveau ; rien n'est publié, `KPB_EEF_ENABLED` reste faux.
+
+**Couplage : `tolerates-old` côté mobile.** Que des ajouts : une clé dans
+`/config/app`, des champs dans les items de la recherche et de la shortlist, une
+clé dans la réponse de la recherche, une route `PATCH`. Les builds 49 à 53 les
+ignorent et continuent de tout lire. **Une migration** :
+`20260930120000_eef_search_text_and_acronym` — deux colonnes nulles, aucune
+réécriture de table, aucun index, aucune extension.
+
+- **`features.eefSpace` : l'ouverture de l'espace pour la seule build 54.**
+  `KPB_EEF_ENABLED` ne peut plus être le commutateur : les builds 49 à 53 le
+  lisent, et pour elles il retire la vitrine et montre une coquille vide. La
+  nouvelle clé (`KPB_EEF_SPACE_ENABLED`) n'est lue que par la 54, et ne touche ni
+  à `eef` ni à `eefTeaser`. `eef` l'allume aussi. Relayée dans
+  `docker-compose.yml`, documentée dans `.env.example`, gardée par
+  `config_env_relay_test` et `delivery-gate.sh`.
+- **Trois actions vps-ops.** `eef-space-on` (simulation par défaut ; refuse tant
+  qu'aucune formation de l'import n'est publiée, refuse si `KPB_EEF_ENABLED=true`
+  est posé ; le workflow PROUVE ensuite `features.eefSpace` depuis l'extérieur et
+  que `eef` est resté faux), `eef-space-off` (le retour arrière, sans simulation) et
+  `eef-campaign-set` (ouverture, clôture, pays suspendus — valeurs écrites dans le
+  script, donc relues en PR, sans dépendre de `eef-teaser-on`). Exercées contre un
+  faux `docker` (10 scénarios) et la requête de décompte contre un vrai Postgres.
+- **Recherche libre : sans accents, par université, par niveau.** « genie » trouve
+  508 formations au lieu d'1 (mesuré sur les 10 502 lignes : identique à « génie »),
+  « sorbonne » 605, « UPEC » 215, « master droit rennes » 10. Mesuré sur la même
+  base : le coût d'une requête ne change pas (~25 ms le `count`). Jamais moins de
+  résultats qu'avant : une ligne sans texte normalisé retombe sur la comparaison
+  brute. Détail : `docs/api-contracts.md`.
+- **Chaque item nomme son établissement** (recherche et shortlist) et porte la
+  procédure, le cycle, la sélectivité, la ville, le code de formation — de quoi
+  afficher une carte utilisable. Le logo est servi avec sa licence.
+- **`catalogPublished`** dans la réponse de la recherche : « rien n'est publié »
+  se distingue enfin de « ta recherche est trop étroite ».
+- **`PATCH /etudes-en-france/interest`** : modifier ses niveaux et ses domaines
+  sans réécrire le consentement commercial ni effacer l'intérêt Premium. Sans
+  déclaration préalable : 404, jamais une création.
+
+**Après le déploiement, avant d'ouvrir quoi que ce soit :**
+
+1. `eef-import` (simulation, puis application) : il comble maintenant
+   `searchText` et `acronym` sur les lignes déjà en base (`eef:backfill:search`,
+   rejouable, ne comble que les vides). 10 502 lignes en ~7 s sur une base de
+   test.
+2. `db-info` section 11 : `sans_texte_cherchable` doit valoir 0. Tant qu'il ne
+   l'est pas, « genie » ne trouve pas « Génie civil » sur ces lignes.
+3. L'ouverture de l'espace réel : `eef-space-on` (simulation d'abord), jamais
+   `KPB_EEF_ENABLED`.
+
+**Ce qui n'est pas fait ici, et relève de la build 54 (section F)** : lire ces
+champs côté Flutter, afficher l'établissement sur la carte, l'état vide « le
+catalogue arrive » (`catalogPublished`), l'appel au `PATCH`, et lire `eefSpace`
+dans `RemoteFeatureFlags` / `EefEntry`.

@@ -1002,6 +1002,10 @@ model Institution {
   institutionType        String?
   uaiCode                String?
   websiteUrl             String?
+  // Le sigle officiel (« UPEC », « ENS Lyon ») tel que le référentiel du
+  // ministère le publie. Sert à retrouver l'établissement quand l'étudiant tape
+  // son sigle plutôt que son nom. Nul pour les fiches qui n'en ont pas.
+  acronym                String?
   // Logo Wikimedia dont la licence autorise la réutilisation commerciale.
   // Null quand aucun fichier libre n'existe : on n'affiche pas une marque
   // sous copyright pour combler le trou.
@@ -1092,6 +1096,14 @@ model Program {
   recommendedBachelors String[]  @default([])
   recommendedFieldIds  String[]  @default([])
   admissionModes       String[]  @default([])
+  // Le texte cherchable de la formation (intitulé + ville), DÉJÀ NORMALISÉ :
+  // minuscules, sans accents, ponctuation en espaces (`normalizeSearchText`).
+  // Un `ILIKE` ignore la casse mais pas les accents : taper « genie » sur un
+  // clavier de téléphone ne trouvait qu'1 formation sur 508. Nul pour les
+  // lignes qui ne viennent pas de l'import, ou pas encore rattrapées
+  // (`npm run eef:backfill:search`) : la recherche retombe alors sur la
+  // comparaison brute, jamais sur « rien ».
+  searchText           String?
   // Import EEF = lignes INACTIVES en attente de modération. Défaut `true`
   // parce que les lignes déjà en production sont publiées et le restent.
   isActive             Boolean   @default(true)

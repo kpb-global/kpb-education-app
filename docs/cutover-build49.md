@@ -621,7 +621,11 @@ curl -fsS "https://api.kpbeducation.cloud/api/config/app" | jq '.features, .eefC
 - `features.eef` → `false`. **Il doit rester à `false`** : c'est le drapeau de
   l'espace RÉEL, dont le catalogue n'existe pas encore. Le poser à `true`
   retirerait la vitrine tout seul (`app-config.controller.ts` : `eefTeaser` vaut
-  `!eef && …`) et afficherait un espace vide.
+  `!eef && …`) et afficherait un espace vide ;
+- `features.eefSpace` → `false` (clé ajoutée pour la build 54, ignorée des builds
+  plus anciennes). C'est elle, et non `eef`, qui ouvrira l'espace réel de la 54 :
+  action vps-ops `eef-space-on`, qui refuse tant qu'aucune formation n'est
+  publiée. Hors de ce runbook.
 
 **Retour arrière** : total et immédiat. Retirer `KPB_EEF_TEASER_ENABLED` ou la
 passer à `false`, redémarrer `api`. Aucun store, aucune build. C'est précisément

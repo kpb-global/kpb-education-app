@@ -12,6 +12,7 @@ import {
   buildEefSearchWhere,
   decodeEefCursor,
   encodeEefCursor,
+  isRestricted,
   parseEefSearchInput,
   type EefSearchParams,
 } from './eef-search.query';
@@ -288,7 +289,7 @@ describe('buildEefSearchWhere', () => {
     });
   });
 
-  it('exige chaque mot, dans l’intitulé OU dans la ville', () => {
+  it('exige chaque mot, dans le texte normalisé OU l’intitulé OU la ville', () => {
     const where = buildEefSearchWhere(params, 'france', PUBLISHED);
     const and = where.AND as Record<string, unknown>[];
     const termClauses = and.filter(
@@ -297,9 +298,121 @@ describe('buildEefSearchWhere', () => {
     expect(termClauses).toHaveLength(2);
     expect(termClauses[0]).toEqual({
       OR: [
+        // Sans accents ni casse : c'est lui qui fait trouver « Génie » à « genie ».
+        { searchText: { contains: 'droit' } },
+        // Le repli brut : jamais moins de résultats qu'avant sur une ligne dont
+        // le texte normalisé n'est pas encore rattrapé.
         { nameFr: { contains: 'droit', mode: 'insensitive' } },
         { campusCity: { contains: 'droit', mode: 'insensitive' } },
       ],
+    });
+  });
+
+  describe('les mots qui désignent un établissement ou un niveau', () => {
+    const termClausesOf = (where: Record<string, unknown>) =>
+      (where.AND as Record<string, unknown>[]).filter(
+        (clause) => 'OR' in clause && !isDeepStrictEqual(clause, PROVENANCE_CLAUSE),
+      ) as { OR: Record<string, unknown>[] }[];
+
+    it('ajoute l’établissement désigné par le mot, et seulement pour ce mot', () => {
+      const input = parseEefSearchInput({ q: 'sorbonne droit' });
+      const where = buildEefSearchWhere(input, 'france', PUBLISHED, {
+        termInstitutionIds: new Map([['sorbonne', ['eef-univ-sorbonne']]]),
+      });
+      const [sorbonne, droit] = termClausesOf(where);
+      expect(sorbonne.OR).toContainEqual({
+        institutionId: { in: ['eef-univ-sorbonne'] },
+      });
+      expect(droit.OR.some((alt) => 'institutionId' in alt)).toBe(false);
+    });
+
+    it('ne fabrique pas de clause d’établissement sans correspondance', () => {
+      const where = buildEefSearchWhere(
+        parseEefSearchInput({ q: 'xyz' }),
+        'france',
+        PUBLISHED,
+        { termInstitutionIds: new Map([['xyz', []]]) },
+      );
+      expect(termClausesOf(where)[0].OR.some((alt) => 'institutionId' in alt)).toBe(
+        false,
+      );
+    });
+
+    it('traduit un mot de niveau en cycles', () => {
+      const where = buildEefSearchWhere(
+        parseEefSearchInput({ q: 'licence droit' }),
+        'france',
+        PUBLISHED,
+      );
+      const [licence, droit] = termClausesOf(where);
+      expect(licence.OR).toContainEqual({
+        cycle: {
+          in: ['licence1', 'licence2', 'licence3', 'licence_pro'],
+        },
+      });
+      expect(droit.OR.some((alt) => 'cycle' in alt)).toBe(false);
+    });
+
+    it('ignore les mots vides et découpe les composés', () => {
+      const where = buildEefSearchWhere(
+        parseEefSearchInput({ q: 'licence de droit l\'économie' }),
+        'france',
+        PUBLISHED,
+      );
+      const words = termClausesOf(where).map(
+        (clause) => (clause.OR[0] as { searchText: { contains: string } }).searchText.contains,
+      );
+      expect(words).toEqual(['licence', 'droit', 'economie']);
+    });
+
+    it('garde les mots vides quand il n’y a rien d’autre', () => {
+      const where = buildEefSearchWhere(
+        parseEefSearchInput({ q: 'de' }),
+        'france',
+        PUBLISHED,
+      );
+      expect(termClausesOf(where)).toHaveLength(1);
+    });
+
+    it('un mot fait de ponctuation seule ne restreint rien', () => {
+      const where = buildEefSearchWhere(
+        parseEefSearchInput({ q: '- —' }),
+        'france',
+        PUBLISHED,
+      );
+      expect(termClausesOf(where)).toHaveLength(0);
+    });
+
+    it('les clauses d’établissement restent DANS le mot : l’établissement publié tient toujours', () => {
+      const where = buildEefSearchWhere(
+        parseEefSearchInput({ q: 'sorbonne' }),
+        'france',
+        ['eef-univ-publie'],
+        { termInstitutionIds: new Map([['sorbonne', ['eef-univ-non-publie']]]) },
+      );
+      // Même si un identifiant non publié passait dans la table des mots, la
+      // clause des établissements publiés reste un `AND` de plus haut niveau.
+      expect(where.AND).toContainEqual({
+        institutionId: { in: ['eef-univ-publie'] },
+      });
+    });
+  });
+
+  describe('isRestricted', () => {
+    it('dit si la requête restreint quoi que ce soit', () => {
+      expect(isRestricted(parseEefSearchInput({}))).toBe(false);
+      expect(isRestricted(parseEefSearchInput({ limit: '5', cursor: undefined }))).toBe(false);
+      for (const input of [
+        { q: 'droit' },
+        { procedureType: 'eef' },
+        { cycle: 'master' },
+        { fieldId: 'd07' },
+        { institutionId: 'eef-univ-1' },
+        { campusCity: 'Rennes' },
+        { selectivity: 'selective' },
+      ]) {
+        expect(isRestricted(parseEefSearchInput(input))).toBe(true);
+      }
     });
   });
 

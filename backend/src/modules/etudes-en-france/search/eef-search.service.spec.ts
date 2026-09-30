@@ -38,6 +38,25 @@ function programRow(over: Record<string, unknown> = {}) {
 
 type Captured = { calls: Record<string, unknown>[] };
 
+/// Un établissement publié tel que la base le rend : assez pour être nommé sur
+/// une carte et retrouvé par son nom ou son sigle.
+function institutionRow(id: string, over: Record<string, unknown> = {}) {
+  return {
+    id,
+    nameFr: `Université ${id}`,
+    nameEn: `University ${id}`,
+    acronym: null,
+    locationFr: 'Rennes, Bretagne',
+    locationEn: 'Rennes, Brittany',
+    institutionType: 'universite_publique',
+    websiteUrl: 'https://www.exemple.fr',
+    logoUrl: null,
+    logoSourceUrl: null,
+    logoLicence: null,
+    ...over,
+  };
+}
+
 /// L'établissement par défaut des lignes de test : publié, sauf demande contraire.
 const PUBLISHED_INSTITUTION = 'eef-univ-0353074b';
 
@@ -65,10 +84,13 @@ function serviceWith(opts: {
   total?: number;
   facets?: Record<string, { value: string | null; count: number }[]>;
   countries?: { id: string; code: string }[];
-  /// Les établissements publiés que la base répond. Par défaut, un seul.
-  publishedInstitutions?: string[];
+  /// Les établissements publiés que la base répond. Par défaut, un seul. Une
+  /// chaîne est un identifiant ; un objet, un établissement complet.
+  publishedInstitutions?: (string | ReturnType<typeof institutionRow>)[];
   isEnabled?: boolean;
   throws?: boolean;
+  /// Ce que répond « existe-t-il une formation publiée, sans aucun filtre ? ».
+  anyPublished?: boolean;
 }) {
   const captured: Captured = { calls: [] };
   const facets = opts.facets ?? {};
@@ -81,7 +103,7 @@ function serviceWith(opts: {
       findMany: async (args: Record<string, unknown>) => {
         captured.calls.push({ kind: 'institution', ...args });
         return (opts.publishedInstitutions ?? [PUBLISHED_INSTITUTION]).map(
-          (id) => ({ id }),
+          (entry) => (typeof entry === 'string' ? institutionRow(entry) : entry),
         );
       },
     },
@@ -89,6 +111,11 @@ function serviceWith(opts: {
       findMany: async (args: Record<string, unknown>) => {
         captured.calls.push({ kind: 'findMany', ...args });
         return noInstitutionAllowed(args.where) ? [] : (opts.rows ?? []);
+      },
+      findFirst: async (args: Record<string, unknown>) => {
+        captured.calls.push({ kind: 'findFirst', ...args });
+        if (noInstitutionAllowed(args.where)) return null;
+        return opts.anyPublished === false ? null : { id: 'p-any' };
       },
       count: async (args: Record<string, unknown>) => {
         captured.calls.push({ kind: 'count', ...args });
@@ -349,5 +376,165 @@ describe('EefSearchService', () => {
 
     const broken = serviceWith({ throws: true });
     await expect(broken.service.search({})).rejects.toBeInstanceOf(HttpException);
+  });
+
+  describe('ce que chaque item dit de la formation et de son établissement', () => {
+    it('sert la procédure, le cycle et l’établissement nommé', async () => {
+      const { service } = serviceWith({
+        rows: [
+          programRow({
+            procedureType: 'dap_blanche',
+            cycle: 'licence1',
+            selectivity: 'non_selective',
+            campusCity: 'Rennes',
+            formationCode: '12345',
+            admissionModes: [],
+            recommendedBachelors: [],
+          }),
+        ],
+        publishedInstitutions: [
+          institutionRow(PUBLISHED_INSTITUTION, {
+            nameFr: 'Université de Rennes',
+            acronym: 'UR',
+            logoUrl:
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/L.svg/320px-L.svg.png',
+            logoSourceUrl: 'https://commons.wikimedia.org/wiki/File:L.svg',
+            logoLicence: 'CC0',
+          }),
+        ],
+      });
+
+      const { items } = await service.search({});
+
+      expect(items[0]).toMatchObject({
+        procedureType: 'dap_blanche',
+        cycle: 'licence1',
+        campusCity: 'Rennes',
+        institution: {
+          id: PUBLISHED_INSTITUTION,
+          name: { fr: 'Université de Rennes' },
+          acronym: 'UR',
+          logoLicence: 'CC0',
+        },
+      });
+    });
+
+    it('ne met jamais un établissement non publié dans un item', async () => {
+      const { service } = serviceWith({
+        rows: [programRow({ institutionId: 'eef-univ-autre' })],
+        publishedInstitutions: [PUBLISHED_INSTITUTION],
+      });
+      const { items } = await service.search({});
+      expect((items[0] as { institution: unknown }).institution).toBeNull();
+    });
+  });
+
+  describe('la recherche libre par université et par niveau', () => {
+    it('résout le nom ou le sigle en établissements AVANT les requêtes', async () => {
+      const { service, captured } = serviceWith({
+        rows: [programRow()],
+        publishedInstitutions: [
+          institutionRow('eef-univ-sorbonne', { nameFr: 'Sorbonne Université' }),
+          institutionRow('eef-univ-upec', {
+            nameFr: 'Université Paris-Est Créteil',
+            acronym: 'UPEC',
+          }),
+        ],
+      });
+
+      await service.search({ q: 'sorbonne' });
+      await service.search({ q: 'upec' });
+
+      const wheres = captured.calls
+        .filter((c) => c.kind === 'findMany')
+        .map((c) => JSON.stringify(c.where));
+      expect(wheres[0]).toContain('"institutionId":{"in":["eef-univ-sorbonne"]}');
+      expect(wheres[1]).toContain('"institutionId":{"in":["eef-univ-upec"]}');
+    });
+
+    it('applique la MÊME résolution à la page, au total et aux facettes', async () => {
+      const { service, captured } = serviceWith({
+        rows: [programRow()],
+        publishedInstitutions: [
+          institutionRow('eef-univ-sorbonne', { nameFr: 'Sorbonne Université' }),
+        ],
+      });
+      await service.search({ q: 'sorbonne' });
+      const queried = captured.calls.filter((c) =>
+        ['findMany', 'count', 'groupBy'].includes(String(c.kind)),
+      );
+      expect(queried.length).toBeGreaterThan(2);
+      for (const call of queried) {
+        expect(JSON.stringify(call.where)).toContain(
+          '"institutionId":{"in":["eef-univ-sorbonne"]}',
+        );
+      }
+    });
+
+    it('traduit « licence » en cycles, sans lire d’établissement de plus', async () => {
+      const { service, captured } = serviceWith({ rows: [programRow()] });
+      await service.search({ q: 'licence droit' });
+      const where = JSON.stringify(
+        captured.calls.find((c) => c.kind === 'findMany')!.where,
+      );
+      expect(where).toContain('"cycle":{"in":["licence1","licence2","licence3","licence_pro"]}');
+      expect(captured.calls.filter((c) => c.kind === 'institution')).toHaveLength(1);
+    });
+  });
+
+  describe('catalogPublished — le catalogue est-il vide, ou est-ce la recherche ?', () => {
+    it('est vrai dès qu’une formation est servie', async () => {
+      const { service, captured } = serviceWith({ rows: [programRow()], total: 1 });
+      const result = await service.search({ q: 'droit' });
+      expect(result.catalogPublished).toBe(true);
+      // Le cas courant ne paie aucune lecture de plus.
+      expect(captured.calls.some((c) => c.kind === 'findFirst')).toBe(false);
+    });
+
+    it('est faux quand rien n’est publié, sans aucun filtre', async () => {
+      const { service, captured } = serviceWith({
+        rows: [],
+        total: 0,
+        publishedInstitutions: [],
+      });
+      const result = await service.search({});
+      expect(result.total).toBe(0);
+      expect(result.catalogPublished).toBe(false);
+      expect(captured.calls.some((c) => c.kind === 'findFirst')).toBe(false);
+    });
+
+    it('est faux sans restriction et sans résultat, même si des établissements sont publiés', async () => {
+      const { service } = serviceWith({ rows: [], total: 0 });
+      expect((await service.search({})).catalogPublished).toBe(false);
+    });
+
+    it('est VRAI quand la recherche est trop étroite sur un catalogue plein', async () => {
+      // C'est la distinction que l'écran attend : zéro résultat ne veut pas dire
+      // « catalogue vide ».
+      const { service, captured } = serviceWith({ rows: [], total: 0, anyPublished: true });
+      const result = await service.search({ q: 'introuvable' });
+      expect(result.total).toBe(0);
+      expect(result.catalogPublished).toBe(true);
+      const probe = captured.calls.find((c) => c.kind === 'findFirst')!;
+      // La sonde ne porte AUCUN filtre de la requête — seulement la portée.
+      expect(JSON.stringify(probe.where)).not.toContain('introuvable');
+      expect(JSON.stringify(probe.where)).toContain('"isActive":true');
+    });
+
+    it('est faux quand la recherche est étroite ET que le catalogue est vide', async () => {
+      const { service } = serviceWith({ rows: [], total: 0, anyPublished: false });
+      expect((await service.search({ cycle: 'master' })).catalogPublished).toBe(false);
+    });
+
+    it('n’interroge rien de plus quand aucun établissement n’est publié', async () => {
+      const { service, captured } = serviceWith({
+        rows: [],
+        total: 0,
+        publishedInstitutions: [],
+      });
+      const result = await service.search({ q: 'droit' });
+      expect(result.catalogPublished).toBe(false);
+      expect(captured.calls.some((c) => c.kind === 'findFirst')).toBe(false);
+    });
   });
 });

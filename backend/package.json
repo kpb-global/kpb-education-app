@@ -36,6 +36,8 @@
     "eef:backfill:cycle": "ts-node scripts/backfill-eef-cycle.ts --apply",
     "eef:backfill:admission:dry-run": "ts-node scripts/backfill-eef-admission.ts --dry-run",
     "eef:backfill:admission": "ts-node scripts/backfill-eef-admission.ts --apply",
+    "eef:backfill:search:dry-run": "ts-node scripts/backfill-eef-search-text.ts --dry-run",
+    "eef:backfill:search": "ts-node scripts/backfill-eef-search-text.ts --apply",
     "eef:backfill": "ts-node scripts/backfill-eef-enrichment.ts",
     "eef:purge-pending": "ts-node scripts/purge-eef-pending.ts",
     "scholarships:validate:structure": "ts-node scripts/validate-scholarship-catalog.ts --structure-only",
@@ -53,7 +55,7 @@
     "test:integration:privacy": "jest --runInBand src/modules/profiles/profiles.postgres.spec.ts src/modules/competition-readiness/analytics/storage-purge-reconciliation.postgres.spec.ts src/modules/counsellors/counsellors.reviews.postgres.spec.ts src/modules/counsellors/orphan-reviews.postgres.spec.ts",
     "test:integration:catalog-reads": "jest --runInBand src/modules/scholarships-index/scholarships-public-reads.postgres.spec.ts",
     "test:integration:catalog-reconcile": "jest --runInBand src/cli/scholarships-catalog.reconcile.postgres.spec.ts",
-    "test:integration:eef-provenance": "KPB_RUN_POSTGRES_INTEGRATION=true jest --runInBand src/common/eef-provenance.postgres.spec.ts src/modules/etudes-en-france/catalog/eef-pending-purge.postgres.spec.ts src/modules/etudes-en-france/publication/eef-publication.postgres.spec.ts",
+    "test:integration:eef-provenance": "KPB_RUN_POSTGRES_INTEGRATION=true jest --runInBand src/common/eef-provenance.postgres.spec.ts src/modules/etudes-en-france/catalog/eef-pending-purge.postgres.spec.ts src/modules/etudes-en-france/publication/eef-publication.postgres.spec.ts src/modules/etudes-en-france/search/eef-search.postgres.spec.ts src/modules/etudes-en-france/etudes-en-france.postgres.spec.ts",
     "test:integration:migration-upgrade": "ts-node scripts/verify-competition-readiness-populated-upgrade.ts"
   },
   "dependencies": {

@@ -24,6 +24,7 @@ import { EtudesEnFranceController } from './etudes-en-france.controller';
 describe('EtudesEnFranceController — qui peut écrire', () => {
   const service = {
     declareInterest: jest.fn(async () => ({ declared: true })),
+    updateProfile: jest.fn(async () => ({ declared: true })),
     withdraw: jest.fn(async () => ({ declared: false })),
     getMyInterest: jest.fn(async () => ({ declared: false })),
   };
@@ -50,6 +51,23 @@ describe('EtudesEnFranceController — qui peut écrire', () => {
       expect(service.declareInterest).not.toHaveBeenCalled();
     },
   );
+
+  it.each(['parent', 'partner'])(
+    'refuse la mise à jour du profil à un compte %s',
+    (accountType) => {
+      expect(() =>
+        controller.updateProfile(req(accountType), { fieldIds: ['d01'] } as never),
+      ).toThrow(ForbiddenException);
+      expect(service.updateProfile).not.toHaveBeenCalled();
+    },
+  );
+
+  it('transmet la mise à jour du profil d\'un étudiant, pour SON identifiant', async () => {
+    await controller.updateProfile(req('student'), { fieldIds: ['d01'] } as never);
+    expect(service.updateProfile).toHaveBeenCalledWith('user-1', {
+      fieldIds: ['d01'],
+    });
+  });
 
   it.each(['parent', 'partner'])(
     'refuse le retrait à un compte %s',

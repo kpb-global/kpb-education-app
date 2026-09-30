@@ -1,4 +1,8 @@
-import { ServiceUnavailableException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 
 import { DeclareEefInterestDto } from './dto/declare-eef-interest.dto';
 import { EtudesEnFranceService } from './etudes-en-france.service';
@@ -20,6 +24,9 @@ function fakePrisma(options: {
   executeResult?: unknown;
   onUpsert?: (args: UpsertArgs) => void;
   deleteResult?: unknown;
+  /// Enregistre la requête d'`update` ; `updateError` la fait échouer.
+  onUpdate?: (args: { where: unknown; data: Record<string, unknown> }) => void;
+  updateError?: { code: string };
 }) {
   const {
     enabled = true,
@@ -28,6 +35,8 @@ function fakePrisma(options: {
     // `{ count: 0 }` par défaut, et c'est le cas intéressant : retirer une
     // déclaration qui n'existe pas doit réussir, pas lever.
     deleteResult = { count: 0 },
+    onUpdate = () => {},
+    updateError,
   } = options;
 
   return {
@@ -41,6 +50,11 @@ function fakePrisma(options: {
             return executeResult;
           },
           findUnique: async () => executeResult,
+          update: async (args: { where: unknown; data: Record<string, unknown> }) => {
+            onUpdate(args);
+            if (updateError) throw updateError;
+            return executeResult;
+          },
           deleteMany: async () => deleteResult,
         },
       };
@@ -273,6 +287,95 @@ describe('EtudesEnFranceService', () => {
       fieldIds: ['info'],
       wantsPremium: true,
       consentedAt: '2026-08-21T10:00:00.000Z',
+    });
+  });
+
+  // Modifier ses domaines n'est pas redonner un consentement commercial. La
+  // route d'écriture unique (`declareInterest`) réécrit le consentement ET remet
+  // `wantsPremium` à faux : s'en servir pour « modifier mon profil » aurait
+  // fabriqué une preuve que l'étudiant n'a pas donnée et effacé son intérêt.
+  describe('updateProfile — niveaux et domaines, sans toucher au consentement', () => {
+    const update = (over: Record<string, unknown> = {}, opts: Parameters<typeof fakePrisma>[0] = {}) => {
+      const seen: { where: unknown; data: Record<string, unknown> }[] = [];
+      const service = new EtudesEnFranceService(
+        fakePrisma({ executeResult: ROW, onUpdate: (a) => seen.push(a), ...opts }) as never,
+      );
+      return { service, seen, call: () => service.updateProfile('user-1', over as never) };
+    };
+
+    it('n\'écrit QUE les colonnes reçues — jamais le consentement ni wantsPremium', async () => {
+      const { call, seen } = update({ fieldIds: ['d01', 'd07'] });
+      await call();
+      expect(seen).toHaveLength(1);
+      expect(seen[0].where).toEqual({ userId: 'user-1' });
+      expect(Object.keys(seen[0].data)).toEqual(['fieldIds']);
+      for (const forbidden of ['consentedAt', 'consentVersion', 'wantsPremium']) {
+        expect(seen[0].data).not.toHaveProperty(forbidden);
+      }
+    });
+
+    it('rend la déclaration avec le consentement ORIGINAL et l\'intérêt Premium intact', async () => {
+      const { call } = update({ targetLevel: 'master' });
+      const view = await call();
+      expect(view).toMatchObject({
+        declared: true,
+        wantsPremium: true,
+        consentedAt: '2026-08-21T10:00:00.000Z',
+      });
+    });
+
+    it('trois états par champ : absent = inchangé, vide = effacé, valeur = remplacé', async () => {
+      const { call, seen } = update({ currentLevel: '  ', targetLevel: ' master ' });
+      await call();
+      expect(seen[0].data).toEqual({ currentLevel: null, targetLevel: 'master' });
+      expect(seen[0].data).not.toHaveProperty('fieldIds');
+    });
+
+    it('dédoublonne et écarte les domaines vides, comme la déclaration', async () => {
+      const { call, seen } = update({ fieldIds: [' d01 ', 'd01', '', '  '] });
+      await call();
+      expect(seen[0].data).toEqual({ fieldIds: ['d01'] });
+    });
+
+    it('efface les domaines quand on envoie une liste vide', async () => {
+      const { call, seen } = update({ fieldIds: [] });
+      await call();
+      expect(seen[0].data).toEqual({ fieldIds: [] });
+    });
+
+    it('refuse une mise à jour qui ne change rien (400)', async () => {
+      const { call, seen } = update({});
+      await expect(call()).rejects.toBeInstanceOf(BadRequestException);
+      expect(seen).toHaveLength(0);
+    });
+
+    it('répond 404 sans déclaration préalable — elle ne crée JAMAIS la ligne', async () => {
+      // Créer la ligne ici la ferait exister sans consentement.
+      const { call } = update({ fieldIds: ['d01'] }, { updateError: { code: 'P2025' } });
+      const error = await call().catch((e) => e);
+      expect(error).toBeInstanceOf(NotFoundException);
+      expect(error.getResponse()).toMatchObject({ code: 'EEF_INTEREST_NOT_DECLARED' });
+    });
+
+    it('laisse passer une autre panne de base plutôt que de la déguiser en 404', async () => {
+      const { call } = update({ fieldIds: ['d01'] }, { updateError: { code: 'P1001' } });
+      await expect(call()).rejects.toEqual({ code: 'P1001' });
+    });
+
+    it('échoue fermé sans base configurée', async () => {
+      const service = new EtudesEnFranceService(fakePrisma({ enabled: false }) as never);
+      await expect(
+        service.updateProfile('user-1', { fieldIds: ['d01'] } as never),
+      ).rejects.toBeInstanceOf(ServiceUnavailableException);
+    });
+
+    it('échoue fermé quand l\'écriture ne rend rien', async () => {
+      const service = new EtudesEnFranceService(
+        fakePrisma({ enabled: true, executeResult: null }) as never,
+      );
+      await expect(
+        service.updateProfile('user-1', { fieldIds: ['d01'] } as never),
+      ).rejects.toBeInstanceOf(ServiceUnavailableException);
     });
   });
 });
