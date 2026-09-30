@@ -611,11 +611,17 @@ défaut elle ne fait que SIMULER.
 les établissements par nom ou sigle (`Institution.acronym`) et comprend les mots de
 niveau (`docs/api-contracts.md` § « Ce que la recherche libre comprend »). Les deux
 colonnes sont écrites à l'import ; pour les lignes déjà en base,
-`npm run eef:backfill:search` (inclus dans l'action `eef-import`) les comble, sans
-jamais écraser. Tant qu'une ligne n'est pas rattrapée, elle reste trouvable par la
-comparaison brute : `db-info` section 11 dit combien restent à faire. Un intitulé
-corrigé à la main après l'import garde l'ancien texte normalisé jusqu'au prochain
-rattrapage après purge — la comparaison brute le retrouve quand même.
+`npm run eef:backfill:search` (inclus dans l'action `eef-import`) les comble.
+Tant qu'une ligne n'est pas rattrapée, elle reste trouvable par la comparaison
+brute : `db-info` section 11 dit combien restent à faire.
+
+`searchText` est DÉRIVÉ de l'intitulé et de la ville : un texte qui ne correspond
+plus à sa ligne rend des résultats faux (l'ancien mot trouve la formation, le
+nouveau la manque). Il est donc recalculé à chaque renommage par l'admin
+(`AdminCatalogService.updateProgram`, pour les lignes qui en portent un), et le
+rattrapage **répare aussi les textes périmés** — par comparaison-échange : il ne
+remplace une valeur que si la ligne n'a pas bougé depuis sa lecture, donc jamais
+une modification concurrente. Rejouable ; une ligne à jour n'est pas réécrite.
 
 Le drapeau du client (`KPB_EEF_ENABLED`) ne protège PAS l'API : la recherche est
 publique, donc dès qu'un établissement est publié ses formations sont servies à

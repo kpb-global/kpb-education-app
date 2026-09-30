@@ -20,7 +20,7 @@
 // pipeline refuse. Base indisponible ⇒ 503, partout.
 // ─────────────────────────────────────────────────────────────────────────────
 import { BadRequestException, Injectable } from '@nestjs/common';
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient, Program } from '@prisma/client';
 
 import { catalogUnavailable } from '../../catalog/catalog-degraded-mode';
 import { resolveFranceCountryId } from '../catalog/eef-country';
@@ -127,11 +127,20 @@ export class EefSearchService {
         termInstitutionIds,
       });
 
-      // Une seule transaction : le total, la page et les six facettes doivent
-      // décrire le MÊME instant. Servis séparément, un import concurrent
+      // « Le catalogue est-il vide, ou est-ce ma recherche ? » Sans restriction,
+      // `total` répond. Avec, il faut une sonde : une seule formation publiée,
+      // sans aucun des filtres de la requête. Elle est posée DANS la transaction
+      // ci-dessous : lue après, une publication survenue entre les deux ferait
+      // coexister un résultat vide d'un instant et un `catalogPublished` d'un
+      // autre — et l'écran dirait « ta recherche est trop étroite » sur un
+      // catalogue qui vient de se vider, ou l'inverse.
+      const needsProbe = isRestricted(params) && publishedIds.length > 0;
+
+      // Une seule transaction : le total, la page, les six facettes et la sonde
+      // doivent décrire le MÊME instant. Servis séparément, un import concurrent
       // rendrait « 1 240 résultats » au-dessus d'une liste qui en montre
       // d'autres.
-      const [rows, total, ...facetRows] = await prisma.$transaction([
+      const fetched = await prisma.$transaction([
         prisma.program.findMany({
           where: pageWhere,
           orderBy: EEF_SEARCH_ORDER_BY,
@@ -152,6 +161,18 @@ export class EefSearchService {
             take: OPEN_FACETS.has(facet) ? OPEN_FACET_LIMIT + 1 : undefined,
           } as never),
         ),
+        ...(needsProbe
+          ? [
+              prisma.program.findFirst({
+                where: buildEefSearchWhere(
+                  parseEefSearchInput({}),
+                  countryId,
+                  publishedIds,
+                ),
+                select: { id: true },
+              }) as never,
+            ]
+          : []),
       ], {
         // `READ COMMITTED`, l'isolation par défaut de Postgres, donne à CHAQUE
         // instruction son propre instantané : une publication survenue entre
@@ -160,22 +181,17 @@ export class EefSearchService {
         isolationLevel: 'RepeatableRead',
       });
 
-      // « Le catalogue est-il vide, ou est-ce ma recherche ? » Sans restriction,
-      // `total` répond. Avec, et seulement si `total` est nul, une seule lecture
-      // de plus : le cas courant (des résultats) ne paie rien.
-      let catalogPublished = total > 0;
-      if (!catalogPublished && isRestricted(params) && publishedIds.length > 0) {
-        const any = await prisma.program.findFirst({
-          where: buildEefSearchWhere(
-            parseEefSearchInput({}),
-            countryId,
-            publishedIds,
-          ),
-          select: { id: true },
-        });
-        catalogPublished = any !== null;
-      }
-      return { rows, total, facetRows, institutions, catalogPublished };
+      const [rows, total, ...rest] = fetched;
+      const facetRows = rest.slice(0, EEF_SEARCH_FACETS.length);
+      const probe = needsProbe ? rest[EEF_SEARCH_FACETS.length] : null;
+      const catalogPublished = (total as number) > 0 || probe != null;
+      return {
+        rows: rows as Program[],
+        total: total as number,
+        facetRows,
+        institutions,
+        catalogPublished,
+      };
     });
 
     const hasMore = result.rows.length > params.limit;

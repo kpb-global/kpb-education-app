@@ -6,6 +6,7 @@ import {
   EEF_INSTITUTION_ID_PREFIX,
   EEF_PROGRAM_ID_PREFIX,
 } from '../../../common/eef-provenance';
+import { AdminCatalogService } from '../../admin-catalog/admin-catalog.service';
 import type { PrismaService } from '../../prisma/prisma.service';
 import {
   FRANCE_COUNTRY_CODES,
@@ -71,6 +72,7 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
       operation(prisma),
   } as unknown as PrismaService;
   const search = new EefSearchService(prismaService);
+  const admin = new AdminCatalogService(prismaService);
 
   let franceId = '';
   let createdCountryId: string | null = null;
@@ -366,6 +368,23 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
       // autres mots : « licence » désigne des cycles, pas un filtre de cycle.
       expect(cycles.licence1).toBe(1);
       expect(cycles.licence2).toBe(1);
+    });
+  });
+
+  // Doit rester le DERNIER bloc : il renomme p3.
+  describe('une formation renommée depuis l’admin reste cherchée sous son nouveau nom', () => {
+    it('le nouveau mot la trouve, l’ancien non — le texte cherchable suit la ligne', async () => {
+      expect(await served(`${tok} droit`)).toEqual([ids.p3]);
+
+      await admin.updateProgram(ids.p3, { nameFr: 'L1 - Économie' });
+
+      const row = await prisma.program.findUniqueOrThrow({ where: { id: ids.p3 } });
+      expect(row.searchText).toBe('l1 economie rennes');
+      // Sans le recalcul, `searchText` restait « l1 droit rennes » : « droit »
+      // trouvait encore la formation, et « economie » (sans accent) la manquait.
+      expect(await served(`${tok} economie`)).toEqual([ids.p3]);
+      expect(await served(`${tok} économie`)).toEqual([ids.p3]);
+      expect(await served(`${tok} droit`)).toEqual([]);
     });
   });
 });

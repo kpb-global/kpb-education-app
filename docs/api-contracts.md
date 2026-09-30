@@ -318,17 +318,21 @@ clause de la requête exclut déjà.
 Vrai si le catalogue publié contient **au moins une formation, quel que soit le
 filtre**. Faux ⇒ rien n'est encore publié : l'écran doit dire « le catalogue
 arrive », pas « ta recherche est trop étroite » — ce que `total: 0` seul ne
-permet pas de distinguer. Sans filtre, `total` répond ; avec un filtre et zéro
-résultat, une lecture de plus (le cas courant n'en paie aucune).
+permet pas de distinguer. Sans filtre, `total` répond ; avec un filtre, une sonde
+(une seule formation publiée, sans aucun filtre) est posée **dans la même
+transaction** que la page, le total et les facettes : lue après, une publication
+survenue entre les deux ferait coexister un résultat vide d'un instant et un
+`catalogPublished` d'un autre.
 
 ### Ce que la recherche libre comprend
 
 - **Sans accents.** La comparaison se fait sur `Program.searchText` (intitulé +
   ville, normalisés : minuscules, sans accents, ponctuation en espaces), écrit à
-  l'import et rattrapé sur les lignes existantes par `npm run eef:backfill:search`.
-  Une ligne dont ce texte est encore nul retombe sur la comparaison brute d'avant
-  (insensible à la casse, pas aux accents) : **jamais moins de résultats
-  qu'avant**.
+  l'import, **recalculé quand l'intitulé est modifié dans l'admin**, et rattrapé
+  sur les lignes existantes par `npm run eef:backfill:search` (qui comble les
+  vides ET répare les textes périmés). Une ligne dont ce texte est encore nul
+  retombe sur la comparaison brute d'avant (insensible à la casse, pas aux
+  accents) : **jamais moins de résultats qu'avant**.
 - **Par établissement.** Un mot désigne un établissement s'il **commence** un mot
   de son nom, ou s'il est son sigle (`Institution.acronym`, publié par le
   ministère). Jamais par un morceau au milieu d'un mot, et sous trois lettres seul

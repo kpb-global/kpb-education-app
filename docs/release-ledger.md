@@ -472,8 +472,10 @@ réécriture de table, aucun index, aucune extension.
 
 1. `eef-import` (simulation, puis application) : il comble maintenant
    `searchText` et `acronym` sur les lignes déjà en base (`eef:backfill:search`,
-   rejouable, ne comble que les vides). 10 502 lignes en ~7 s sur une base de
-   test.
+   rejouable : comble les vides et répare les textes périmés, par
+   comparaison-échange, sans jamais écraser une modification concurrente).
+   10 502 lignes en ~7 s sur une base de test. Renommer une formation dans l'admin
+   recalcule son texte cherchable.
 2. `db-info` section 11 : `sans_texte_cherchable` doit valoir 0. Tant qu'il ne
    l'est pas, « genie » ne trouve pas « Génie civil » sur ces lignes.
 3. L'ouverture de l'espace réel : `eef-space-on` (simulation d'abord), jamais

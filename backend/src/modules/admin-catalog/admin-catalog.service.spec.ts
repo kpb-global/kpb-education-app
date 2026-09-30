@@ -822,7 +822,12 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
   // porte gardée ne garderait rien — `content_manager` y a accès, pas à elle.
   describe("l'import ne se publie pas par les routes génériques", () => {
     function makeGuarded(
-      before: { institutionId: string; isActive: boolean } | null,
+      before: {
+        institutionId: string;
+        isActive: boolean;
+        campusCity?: string | null;
+        searchText?: string | null;
+      } | null,
     ) {
       const programUpdates: Array<Record<string, unknown>> = [];
       const programCreates: Array<Record<string, unknown>> = [];
@@ -884,6 +889,53 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
         const { service, institutionUpdates } = makeGuarded(null);
         await service.updateInstitution('omnes-ece', { isActive: true });
         expect(institutionUpdates[0].isActive).toBe(true);
+      });
+    });
+
+    // `Program.searchText` est DÉRIVÉ de l'intitulé et de la ville. Une formation
+    // renommée dont le texte ne suit pas rend des résultats faux : l'ancien mot la
+    // trouve, le nouveau la manque.
+    describe('texte cherchable d’une formation renommée', () => {
+      const PUBLISHED = { institutionId: EEF_INST, isActive: true };
+
+      it('le recalcule quand l’intitulé change, avec la ville de la ligne', async () => {
+        const { service, programUpdates } = makeGuarded({
+          ...PUBLISHED,
+          campusCity: 'Besançon',
+          searchText: 'l1 droit besancon',
+        });
+        await service.updateProgram(EEF_PROG, { nameFr: 'L1 - Économie' });
+        expect(programUpdates[0].searchText).toBe('l1 economie besancon');
+      });
+
+      it('laisse nul le texte d’une ligne qui n’en a pas — la recherche brute la couvre', async () => {
+        const { service, programUpdates } = makeGuarded({
+          ...PUBLISHED,
+          campusCity: 'Rennes',
+          searchText: null,
+        });
+        await service.updateProgram(EEF_PROG, { nameFr: 'Économie' });
+        expect(programUpdates[0]).not.toHaveProperty('searchText');
+      });
+
+      it('n’y touche pas quand l’intitulé ne change pas', async () => {
+        const { service, programUpdates } = makeGuarded({
+          ...PUBLISHED,
+          campusCity: 'Rennes',
+          searchText: 'l1 droit rennes',
+        });
+        await service.updateProgram(EEF_PROG, { durationFr: '4 ans' });
+        expect(programUpdates[0]).not.toHaveProperty('searchText');
+      });
+
+      it('gère une ville absente', async () => {
+        const { service, programUpdates } = makeGuarded({
+          ...PUBLISHED,
+          campusCity: null,
+          searchText: 'l1 droit',
+        });
+        await service.updateProgram(EEF_PROG, { nameFr: 'L1 - Histoire' });
+        expect(programUpdates[0].searchText).toBe('l1 histoire');
       });
     });
 

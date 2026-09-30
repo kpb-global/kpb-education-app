@@ -31,6 +31,7 @@ import {
   EEF_PROGRAM_ID_PREFIX,
 } from '../../common/eef-provenance';
 import type { AdminSessionUser } from '../auth/auth.service';
+import { programSearchText } from '../etudes-en-france/catalog/eef-search-text';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   capFairly,
@@ -836,9 +837,25 @@ export class AdminCatalogService {
     const before = await this.prisma.execute((db) =>
       db.program.findUnique({
         where: { id },
-        select: { institutionId: true, isActive: true },
+        select: {
+          institutionId: true,
+          isActive: true,
+          campusCity: true,
+          searchText: true,
+        },
       }),
     );
+    // Le texte cherchable (`Program.searchText`) est DÉRIVÉ de l'intitulé et de la
+    // ville. Renommer une formation sans le recalculer laisse l'ancien mot
+    // trouver la formation et le nouveau la manquer. Recalculé seulement pour une
+    // ligne qui en porte un : les autres retombent sur la comparaison brute de la
+    // recherche, et n'ont rien à garder à jour.
+    if (before && before.searchText != null && typeof data.nameFr === 'string') {
+      (data as Prisma.ProgramUpdateInput).searchText = programSearchText(
+        data.nameFr,
+        before.campusCity,
+      );
+    }
     if (before) {
       this.assertNotPublishingEef({
         what: 'program',

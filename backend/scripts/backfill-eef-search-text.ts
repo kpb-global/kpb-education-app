@@ -4,10 +4,13 @@
 //   npx ts-node scripts/backfill-eef-search-text.ts --dry-run
 //   npx ts-node scripts/backfill-eef-search-text.ts --apply
 //
-// Aucun mode par défaut, comme l'import. Ne comble QUE les colonnes vides : il
-// est rejouable, et il ne peut pas écraser une valeur. Ce qu'il écrit vient de la
-// ligne elle-même (intitulé et ville) pour le texte cherchable, et des fichiers
-// versionnés du catalogue pour les sigles. Voir `eef-search-text.backfill.ts`.
+// Aucun mode par défaut, comme l'import. Comble les colonnes vides ET répare les
+// textes cherchables périmés (un intitulé renommé sans que le texte suive) : ce
+// texte est dérivé de la ligne, donc le recalculer est toujours correct. Une
+// écriture ne remplace la valeur lue que si la ligne n'a pas bougé depuis
+// (comparaison-échange dans le `WHERE`) ; les sigles ne comblent que les vides.
+// Rejouable : une ligne à jour n'est pas réécrite. Voir
+// `eef-search-text.backfill.ts`.
 import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';
 
@@ -36,14 +39,17 @@ const prisma = new PrismaClient();
 const CHUNK = 500;
 
 async function main(): Promise<void> {
-  // La condition de vacuité vit dans le WHERE de chaque écriture : entre la
-  // lecture du plan et l'écriture, un import ou un autre passage peut avoir
-  // renseigné la ligne, et seul le WHERE ferme cette fenêtre.
+  // La condition « la ligne n'a pas bougé » vit dans le WHERE de chaque écriture :
+  // entre la lecture du plan et l'écriture, un import, une édition ou un autre
+  // passage peut avoir changé la ligne, et seul le WHERE ferme cette fenêtre.
   const rows = await prisma.program.findMany({
-    where: { AND: [eefProgramWhere(), { searchText: null }] },
-    select: { id: true, nameFr: true, campusCity: true },
+    where: eefProgramWhere(),
+    select: { id: true, nameFr: true, campusCity: true, searchText: true },
   });
   const programEntries = planSearchTextBackfill(rows);
+  const programsMissing = programEntries.filter(
+    (entry) => entry.previous === null,
+  ).length;
 
   const acronymEntries = planAcronymBackfill(loadEefCatalog());
   const institutionRows = await prisma.institution.findMany({
@@ -60,7 +66,12 @@ async function main(): Promise<void> {
       const results = await prisma.$transaction(
         programEntries.slice(i, i + CHUNK).map((entry) =>
           prisma.program.updateMany({
-            where: { id: entry.id, searchText: null },
+            where: {
+              id: entry.id,
+              nameFr: entry.nameFr,
+              campusCity: entry.campusCity,
+              searchText: entry.previous,
+            },
             data: { searchText: entry.searchText },
           }),
         ),
@@ -84,7 +95,8 @@ async function main(): Promise<void> {
     JSON.stringify(
       {
         mode: apply ? 'apply' : 'dry-run',
-        programsWithoutSearchText: rows.length,
+        programsWithoutSearchText: programsMissing,
+        programsWithStaleSearchText: programEntries.length - programsMissing,
         programsToFill: programEntries.length,
         institutionsWithoutAcronym: acronyms.length,
         ...(apply ? { programsFilled, acronymsFilled } : {}),
@@ -93,7 +105,11 @@ async function main(): Promise<void> {
       2,
     ),
   );
-  console.log(apply ? '\nColonnes vides comblées ; le reste n\'a pas bougé.' : '\nRien écrit.');
+  console.log(
+    apply
+      ? '\nColonnes vides comblées, textes périmés réparés ; le reste n\'a pas bougé.'
+      : '\nRien écrit.',
+  );
 }
 
 main()

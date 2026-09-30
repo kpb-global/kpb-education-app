@@ -1,22 +1,72 @@
-import { planAcronymBackfill, planSearchTextBackfill } from './eef-search-text.backfill';
+import {
+  planAcronymBackfill,
+  planSearchTextBackfill,
+  type ProgramSearchRow,
+} from './eef-search-text.backfill';
 import type { EefCatalog, EefInstitutionRecord } from './eef-catalog.types';
 
 describe('planSearchTextBackfill', () => {
-  it('calcule le texte de la ligne elle-même : intitulé et ville servis par la base', () => {
-    expect(
-      planSearchTextBackfill([
-        { id: 'p1', nameFr: 'Master — Génie civil', campusCity: 'Besançon' },
-        { id: 'p2', nameFr: 'L1 - Droit', campusCity: null },
-      ]),
-    ).toEqual([
-      { id: 'p1', searchText: 'master genie civil besancon' },
-      { id: 'p2', searchText: 'l1 droit' },
+  const row = (over: Partial<ProgramSearchRow> = {}): ProgramSearchRow => ({
+    id: 'p1',
+    nameFr: 'Master — Génie civil',
+    campusCity: 'Besançon',
+    searchText: null,
+    ...over,
+  });
+
+  it('comble un texte nul, calculé depuis la ligne elle-même', () => {
+    expect(planSearchTextBackfill([row()])).toEqual([
+      {
+        id: 'p1',
+        searchText: 'master genie civil besancon',
+        previous: null,
+        nameFr: 'Master — Génie civil',
+        campusCity: 'Besançon',
+      },
     ]);
   });
 
-  it('laisse nulle une ligne dont le texte serait vide', () => {
+  it('tolère une ville absente', () => {
+    const [entry] = planSearchTextBackfill([
+      row({ id: 'p2', nameFr: 'L1 - Droit', campusCity: null }),
+    ]);
+    expect(entry.searchText).toBe('l1 droit');
+  });
+
+  // Le défaut relevé en revue : `searchText` est dérivé, et un intitulé renommé
+  // sans que le texte suive rend des résultats FAUX — l'ancien mot trouve la
+  // formation, le nouveau la manque. Le rattrapage le répare.
+  it('répare un texte PÉRIMÉ : la ligne a été renommée, le texte est resté', () => {
+    const [entry] = planSearchTextBackfill([
+      row({ nameFr: 'Économie', campusCity: 'Rennes', searchText: 'droit rennes' }),
+    ]);
+    expect(entry).toMatchObject({
+      searchText: 'economie rennes',
+      previous: 'droit rennes',
+      nameFr: 'Économie',
+      campusCity: 'Rennes',
+    });
+  });
+
+  it('ne touche pas une ligne déjà à jour : rejouer ne réécrit rien', () => {
     expect(
-      planSearchTextBackfill([{ id: 'p1', nameFr: ' - ', campusCity: null }]),
+      planSearchTextBackfill([row({ searchText: 'master genie civil besancon' })]),
+    ).toEqual([]);
+  });
+
+  it('garde la valeur lue, pour que l\'écriture soit une comparaison-échange', () => {
+    const [entry] = planSearchTextBackfill([row({ searchText: 'ancien' })]);
+    expect(entry.previous).toBe('ancien');
+  });
+
+  it('laisse une ligne dont le texte serait vide comme elle est', () => {
+    expect(
+      planSearchTextBackfill([row({ nameFr: ' - ', campusCity: null })]),
+    ).toEqual([]);
+    expect(
+      planSearchTextBackfill([
+        row({ nameFr: ' - ', campusCity: null, searchText: 'reste' }),
+      ]),
     ).toEqual([]);
   });
 

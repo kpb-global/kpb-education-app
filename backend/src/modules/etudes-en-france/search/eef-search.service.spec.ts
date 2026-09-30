@@ -137,7 +137,7 @@ function serviceWith(opts: {
       ps: Promise<unknown>[],
       options?: Record<string, unknown>,
     ) => {
-      captured.calls.push({ kind: 'transaction', ...options });
+      captured.calls.push({ kind: 'transaction', size: ps.length, ...options });
       return Promise.all(ps);
     },
   };
@@ -484,11 +484,33 @@ describe('EefSearchService', () => {
 
   describe('catalogPublished — le catalogue est-il vide, ou est-ce la recherche ?', () => {
     it('est vrai dès qu’une formation est servie', async () => {
-      const { service, captured } = serviceWith({ rows: [programRow()], total: 1 });
+      const { service } = serviceWith({ rows: [programRow()], total: 1 });
       const result = await service.search({ q: 'droit' });
       expect(result.catalogPublished).toBe(true);
-      // Le cas courant ne paie aucune lecture de plus.
+    });
+
+    // La sonde décrit le MÊME instant que la page, le total et les facettes : lue
+    // après la transaction, une publication survenue entre les deux ferait
+    // coexister un résultat vide d'un instant et un `catalogPublished` d'un autre.
+    it('pose la sonde DANS la transaction isolée, pas après', async () => {
+      const { service, captured } = serviceWith({ rows: [], total: 0, anyPublished: true });
+      await service.search({ q: 'introuvable' });
+
+      const probes = captured.calls.filter((c) => c.kind === 'findFirst');
+      const transactions = captured.calls.filter((c) => c.kind === 'transaction');
+      expect(probes).toHaveLength(1);
+      expect(transactions).toHaveLength(1);
+      // page + total + six facettes + la sonde.
+      expect(transactions[0].size).toBe(2 + 6 + 1);
+      expect(transactions[0].isolationLevel).toBe('RepeatableRead');
+    });
+
+    it('ne pose aucune sonde sans restriction : `total` répond déjà', async () => {
+      const { service, captured } = serviceWith({ rows: [], total: 0 });
+      await service.search({});
       expect(captured.calls.some((c) => c.kind === 'findFirst')).toBe(false);
+      const [transaction] = captured.calls.filter((c) => c.kind === 'transaction');
+      expect(transaction.size).toBe(2 + 6);
     });
 
     it('est faux quand rien n’est publié, sans aucun filtre', async () => {
