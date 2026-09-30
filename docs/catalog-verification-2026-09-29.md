@@ -1,5 +1,13 @@
 # Relecture des 34 bourses aux sources officielles — 29/09/2026
 
+> **Deux relectures indépendantes des mêmes fiches ont eu lieu le 29/09.** La
+> première a été fusionnée dans `main` par #292 (elle a levé le blocage de la CI ;
+> UP Mastercard y a été relue au navigateur par l'équipe). Ce document est le
+> journal de la **seconde**, faite en parallèle sur cette branche. Avant la
+> fusion, les deux ont été comparées champ par champ : voir
+> « Réconciliation avec #292 » à la fin. Les passages ci-dessous qui disent qu'UP
+> « n'a pas été relue » décrivent CETTE seconde lecture, pas l'état de `main`.
+
 > Preuves de la vague de vérification du 29 septembre 2026, journal de bord de
 > ce qui a été **réellement lu** et de ce qui ne l'a pas été. Les rapports
 > bruts des dix relecteurs (extraits verbatim, statuts HTTP, une entrée par
@@ -1252,3 +1260,72 @@ catalogue reste rouge pour cette seule fiche, **et sa clôture est le
 
 - « dépenses restantes possibles » (fundingLabel) et fundingType partially_funded — page silencieuse : elle donne 180 000 CAD sur quatre ans mais ne dit pas si cela couvre l’ensemble des coûts (seuls des témoignages d’étudi…
 - Ouverture du formulaire 2027-2028 (statut forecast) — la page affiche les dates Fall 2027 mais aussi « The scholarship application is now closed » et « Application is now closed! » ; aucune dat…
+
+## Réconciliation avec #292
+
+Les deux lectures ont été comparées avec un export JSON du catalogue à trois
+points (base `b51f964`, `main` après #292, cette branche), en ignorant les
+tampons de vérification. Résultat : **72 champs modifiés par cette lecture
+seulement, 22 par #292 seulement, 22 modifiés à l'identique, 44 modifiés des deux
+côtés avec une valeur différente.** Les 44 sont des formulations différentes des
+mêmes faits (aucune contradiction de fond).
+
+**Règle de fusion : `main` est la base.** Sont ajoutés par-dessus les seuls champs
+que #292 n'a pas touchés ET qu'une citation mot pour mot de ce journal étaye,
+sans reprendre ceux qui reposent sur une source que #292 a remplacée sans les
+revérifier. Cela fait **58 champs sur 15 fiches** :
+
+| Fiche | Champs | Ce que la seconde lecture apporte |
+| --- | ---: | --- |
+| UWC Burkina Faso | 4 | informations financières demandées à TOUS les candidats |
+| UWC Kenya | 4 | l'Applicant Information Form et les relevés dans les étapes (cohérent avec les pièces de #292) |
+| UWC Tanzanie | 2 | date de lecture du texte |
+| Türkiye–IsDB | 7 | en Licence le financement est un **prêt** remboursable (`fundingType` → `partially_funded`) ; source des avantages → `/partneredprograms` |
+| Stipendium Hungaricum | 4 | certificat médical exigé des seuls lauréats ; date de lecture |
+| Roumanie MFA | 6 | CV en roumain accepté ; apostille de tous les documents d'études ; bourse pendant l'année préparatoire |
+| TaiwanICDF | 6 | candidature EN LIGNE (et non « formulaire signé ») ; libellé d'éligibilité ; liste 2026 en ligne |
+| Open Doors | 6 | âge apprécié à l'ouverture des inscriptions (20/08/2026) ; étape 2 |
+| Toronto Lester Pearson | 2 | « en janvier 2027, à l'Université de Toronto ou ailleurs » |
+| McCall MacBain | 2 | description cohérente avec le statut « clôturé » de #292 |
+| SI Global Professionals | 4 | deux lettres de recommandation (modèle SI, signées et tamponnées) |
+| Ashesi | 2 | retrait d'une règle que les cinq pages ne contiennent pas |
+| ALU | 3 | la demande d'aide est un dossier distinct (`separate_application`) |
+| Eiffel | 2 | durées de la bourse par diplôme |
+| UCT | 4 | l'avis d'octobre concerne l'appel 2026 |
+
+Trois désaccords de fond ont été tranchés en relisant, le 30/09, la source que
+#292 avait retenue :
+
+- **ALU** : la page « apply now » dit « you will find out if you qualify to apply
+  for ALU financial aid » — la demande d'aide suit, elle n'est pas « dans la même
+  candidature, sans dossier séparé ».
+- **TaiwanICDF** : le guide 2026 adopté par #292 dit « Applicants MUST Complete
+  online application » et reprend mot pour mot la clause d'éligibilité (« never had
+  any scholarship revoked by any ROC (Taiwan) government agency… ») ; le
+  « formulaire signé » n'y figure qu'à l'étape 6, pour le consentement.
+- **Türkiye–IsDB** : la page `/partneredprograms` dit « Associate degree and
+  bachelor degree students are required to repay the loan after graduation and
+  employment » ; l'annonce 2025 dit « interest-free loan (Qard-Hasan) ».
+
+**Repris de #292, non de cette lecture** : les 44 formulations, les 22 champs
+que cette lecture n'avait pas vus (changement de sources IsDB / Taiwan / ALU /
+Australia, retrait des mentions « signé à la main », « deux pages » et des seuils
+IELTS/TOEFL de DAAD EPOS — lecture ici faite par WebFetch, donc sans citation —,
+liste des majeures d'arts libéraux d'AUC), ainsi que **quatre choix de cette
+lecture volontairement abandonnés** : AUC en dates `confirmed` (les échéances
+d'admission Fall 2027 sont publiées, celles de la bourse ne le sont pas :
+`estimated` ne promet pas une date ferme), `opensAt` retiré chez Schwarzman,
+le libellé Rhodes, l'URL de la source Australia Awards.
+
+**À revérifier, non tranché** (voir la description de la PR) :
+
+- `turkiye_isdb_joint_2027_forecast` : sa source « éligibilité » est désormais
+  `/scholarshipsprograms`, dont le HTML statique (relu le 30/09) ne contient pas
+  IsDB ;
+- UP Mastercard : les formulaires PDF 2027 (facultés du postgrade, Master de
+  première année seulement, moyenne minimale de 70 %) contredisaient la lecture
+  du 24/08 des pages HTML ; #292 indique que les pages ont été relues au
+  navigateur et « inchangées », sans dire si ces écarts avec les PDF ont été
+  examinés ;
+- UP clôt le **30/09/2026** : le cycle doit passer en `closed` aujourd'hui
+  (`catalog-freshness.yml` le signale).

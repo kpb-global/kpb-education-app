@@ -62,7 +62,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications',
     },
     tags: ['master', 'usa', 'stanford', 'open', 'leadership', 'fully-funded'],
-    checkedAt: '2026-09-29T15:01:44.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'rhodes_southern_africa_2027',
@@ -72,7 +72,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     levelLabel: ['Études supérieures à temps plein à Oxford', 'Full-time postgraduate study at Oxford'],
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Clôturé — les candidatures 2027 ont fermé le 3 août 2026 à 23 h 59 SAST ; les références étaient attendues jusqu’au 17 août 2026 ; date d’ouverture du prochain cycle non publiée', 'Closed — 2027 applications closed on 3 August 2026 at 23:59 SAST; references were due by 17 August 2026; opening date of the next cycle not published'],
+    deadlineLabel: ['Clôturé — les candidatures 2027 ont fermé le 3 août 2026 à 23 h 59 SAST ; les références restent attendues jusqu’au 17 août 2026 ; prochain cycle attendu vers juin 2027, date non publiée', 'Closed — 2027 applications closed on 3 August 2026 at 23:59 SAST; references remain due until 17 August 2026; next cycle expected around June 2027, date not published'],
     description: [
       'Voie Rhodes 2027 pour citoyens ou résidents permanents d’Afrique du Sud, Botswana, Lesotho, Malawi, Namibie ou Eswatini, en vue d’études supérieures à Oxford en octobre 2027.',
       '2027 Rhodes route for citizens or permanent residents of South Africa, Botswana, Lesotho, Malawi, Namibia or Eswatini, for postgraduate study at Oxford from October 2027.',
@@ -128,7 +128,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://www.rhodeshouse.ox.ac.uk/media/y4plyclm/southern-africa-information-for-candidates-document-2027-final.pdf',
     },
     tags: ['master', 'uk', 'oxford', 'southern-africa', 'closed', 'fully-funded'],
-    checkedAt: '2026-09-29T15:03:19.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'eth_zurich_esop_2027',
@@ -144,7 +144,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       'ETH Zurich excellence programme combining scholarship, mentorship and network support for approximately 60 new Master students in 2027–2028.',
     ],
     advantages: [
-      ['13 500 CHF par semestre pour les dépenses d’études et de vie à partir du semestre HS27 (rentrée 2027–2028) ; 12 000 CHF auparavant', 'CHF 13,500 per semester for study and living expenses from semester HS27 (2027–2028 intake); CHF 12,000 previously'],
+      ['13 500 CHF par semestre pour les dépenses d’études et de vie (montant applicable à partir du semestre d’automne 2027)', 'CHF 13,500 per semester for study and living expenses (amount applicable from the autumn 2027 semester)'],
       ['Exonération des frais de scolarité', 'Tuition fee waiver'],
       ['Financement pour la durée normale du Master, trois ou quatre semestres', 'Funding for the regular Master duration of three or four semesters'],
       ['Mentorat et accès au réseau de l’ETH Foundation', 'Mentorship and access to the ETH Foundation network'],
@@ -188,7 +188,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html',
     },
     tags: ['master', 'switzerland', 'eth-zurich', 'future-cycle', 'fully-funded'],
-    checkedAt: '2026-09-29T15:06:09.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'jj_wbgsp_2027_forecast',
@@ -200,8 +200,8 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     fundingType: 'fully_funded',
     deadlineLabel: ['Fenêtre 1 : du 18 janvier au 26 février 2027 (fenêtre 2 : du 29 mars au 21 mai 2027)', 'Window 1: 18 January – 26 February 2027 (Window 2: 29 March – 21 May 2027)'],
     description: [
-      'Programme pour ressortissants de pays en développement admis dans un Master participant lié au développement. La liste des pays éligibles 2027 est publiée depuis le 15 juillet 2026, la liste des programmes participants 2027 est datée du 21 août 2026 (44 Masters participants), et la source annonce les deux fenêtres 2027 (relevé le 29/09/2026) : du 18 janvier au 26 février, puis du 29 mars au 21 mai. Les lignes directrices 2027 de la fenêtre 1 (mises à jour en août 2026) sont publiées ; la source précise que les critères d’éligibilité ne changent pas pendant un appel ouvert.',
-      'Programme for developing-country nationals admitted to a participating development-related Master. The 2027 eligible-country list has been published since 15 July 2026, the 2027 participating-programme list is dated 21 August 2026 (44 participating Masters), and the source announces both 2027 windows (checked 29/09/2026): 18 January – 26 February, then 29 March – 21 May. The 2027 Window 1 application guidelines (updated August 2026) are published; the source states that eligibility criteria will not change during an open call.',
+      'Programme pour ressortissants de pays en développement admis dans un Master participant lié au développement. La liste des pays éligibles 2027 est publiée depuis le 15 juillet 2026, et la source annonce désormais les deux fenêtres 2027 (relevé le 29/09/2026) : du 18 janvier au 26 février, puis du 29 mars au 21 mai. Les directives de candidature 2027 (fenêtre 1, mises à jour en août 2026) et la liste des 44 Masters participants dans 24 universités sont publiées : seuls les candidats admis dans l’un de ces programmes sont éligibles en 2027.',
+      'Programme for developing-country nationals admitted to a participating development-related Master. The 2027 eligible-country list has been published since 15 July 2026, and the source now announces both 2027 windows (checked 29/09/2026): 18 January – 26 February, then 29 March – 21 May. The 2027 application guidelines (Window 1, updated August 2026) and the list of 44 participating Master programmes in 24 universities are published; only candidates admitted to one of these programmes are eligible in 2027.',
     ],
     advantages: [
       ['Frais de scolarité du Master participant', 'Tuition for the participating Master programme'],
@@ -230,7 +230,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       ['Traductions anglaises des documents non anglophones', 'English translations of non-English documents'],
     ],
     steps: [
-      ['Vérifier la liste des pays puis attendre les fenêtres', 'Check the country list, then wait for the windows', 'La liste des pays éligibles 2027 et celle des programmes participants sont publiées : vérifier son pays et choisir un Master de la liste. Les deux fenêtres 2027 sont annoncées ; activer l’alerte pour être prévenu de l’ouverture.', 'The 2027 eligible-country list and the participating-programme list are published: check your country and choose a Master from the list. Both 2027 windows are announced; enable the alert to be told when applications open.'],
+      ['Vérifier la liste des pays puis attendre les fenêtres', 'Check the country list, then wait for the windows', 'La liste des pays éligibles 2027 et celle des 44 Masters participants sont publiées : vérifier son pays et choisir un programme de la liste. Les deux fenêtres 2027 sont annoncées.', 'The 2027 eligible-country list and the list of 44 participating Masters are published: check your country and pick a programme from the list. Both 2027 windows are announced.'],
       ['Postuler au Master', 'Apply to the Master', 'Candidater suffisamment tôt à un programme participant et obtenir une admission inconditionnelle.', 'Apply early to a participating programme and secure unconditional admission.'],
       ['Obtenir la présélection', 'Obtain shortlisting', 'L’université vérifie l’éligibilité et transmet le lien privé aux candidats retenus.', 'The university checks eligibility and sends the private link to shortlisted candidates.'],
       ['Préparer les preuves', 'Prepare evidence', 'Rassembler diplôme, CV, emploi admissible, admission et deux recommandations professionnelles.', 'Gather diploma, CV, eligible employment evidence, admission and two professional recommendations.'],
@@ -240,7 +240,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       academicYear: '2027-2028',
       status: 'forecast',
       dateConfidence: 'confirmed',
-      // Fenêtre 1 annoncée par la source (relevé du 24/08/2026, reconfirmé le 29/09/2026) :
+      // Fenêtre 1 annoncée par la source (relevé du 29/09/2026) :
       // 18/01 → 26/02/2027. L'heure de clôture n'est pas publiée — fin de
       // journée UTC retenue, jamais plus précis que la source.
       opensAt: '2027-01-18T00:00:00.000Z',
@@ -255,6 +255,6 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       cycle: 'https://www.worldbank.org/en/programs/scholarships/jj-wbgsp',
     },
     tags: ['master', 'development', 'world-bank', 'forecast', 'fully-funded'],
-    checkedAt: '2026-09-29T15:06:54.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
 ];

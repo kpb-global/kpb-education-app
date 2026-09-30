@@ -383,34 +383,31 @@ mutants de la clause `WHERE` tous détectés — parce que la CI ne l'exécute p
 tant que son pas unitaire est rouge (voir ci-dessous). La CI, elle, tourne sur
 PostgreSQL 15 et Node 20 : ces deux versions n'ont pas pu être exercées ici.
 
-**Catalogue de bourses relu le 29/09/2026 (version 1.4.0) — un seul blocage
-reste.** Le validateur refuse toute source contrôlée il y a plus de 30 jours :
-les 34 fiches, relues en une passe le 24/08/2026, étaient périmées depuis le
-23/09 et ce seul test (`scholarship-catalog.validator.spec.ts › reste importable
-à la date du jour`) tenait `Backend CI` rouge sur `main`. 33 fiches sur 34 ont
-été rouvertes sur leurs pages officielles le 29/09 ; leur `checkedAt` est
-l'heure réelle de la lecture, propre à chaque fiche, et le contenu a été
-corrigé là où la page disait autre chose. Les preuves (extraits mot pour mot,
-statuts HTTP, ce qui n'a PAS pu être lu) sont dans
-`docs/catalog-verification-2026-09-29.md` et
-`docs/evidence/catalog-2026-09-29/`.
+**Catalogue de bourses relu le 29/09/2026 — blocage levé par #292, version
+1.4.0.** Le validateur refuse toute source contrôlée il y a plus de 30 jours : les
+34 fiches, relues le 24/08, étaient périmées depuis le 23/09 et un seul test
+(`scholarship-catalog.validator.spec.ts › reste importable à la date du jour`)
+tenait `Backend CI` rouge sur `main`, donc bloquait `deploy.yml`, qui exige un run
+vert sur le SHA exact. **#292 l'a levé le 29/09** (Backend CI vert sur `51a620a`) :
+34 fiches relues, dont UP Mastercard relue au navigateur par l'équipe — le site
+bloque les robots (Cloudflare), qu'on ne contourne pas.
 
-- **Reste `up_mastercard_scholars_2027`** (Université de Pretoria) : le site
-  répond par un écran anti-robot (Cloudflare) qu'on ne contourne pas ; sa date
-  reste celle du 24/08 et le test de fraîcheur échoue donc **tant qu'une personne
-  n'a pas relu ses 5 pages dans un navigateur ordinaire** (la clôture est le
-  30/09/2026). Il faut aussi y réconcilier les écarts entre le PDF et la page.
-  Si la fiche ne peut pas être relue à temps, la retirer du catalogue est une
-  décision légitime ; repousser sa date sans lecture ne l'est pas.
-- **Trois clôtures proches** : UP (30/09), Chevening et Knight-Hennessy
-  (06/10). Le workflow quotidien `catalog-freshness.yml` (issue #270) les
-  signale ; `catalog:publish` saute les fiches périmées.
-- **La production ne bénéficie pas de ces corrections toute seule.**
-  Les lignes de bourses en base datent de l'import d'août (catalogue 1.3.0 mesuré le 31/08) : après le déploiement,
-  lancer `publish-catalog` (VPS ops) — `import` → `reconcile` → `switch`, dans
-  cet ordre — pour les réaligner. `import` seul ne corrige rien.
-- Tant que ce test est rouge, aucun déploiement backend ne part
-  (`deploy.yml` exige un `Backend CI` vert sur le SHA exact) et la CI **saute**
-  les étapes sur Postgres (migrations sur base neuve, suites d'intégration,
-  semis, démarrage) : un run rouge pour cette raison n'est pas un run qui a
-  exercé la migration.
+Cette branche portait une **seconde relecture indépendante** des mêmes fiches
+(`docs/catalog-verification-2026-09-29.md`, rapports bruts dans
+`docs/evidence/catalog-2026-09-29/`). Comparée champ par champ à #292 avant la
+fusion, elle y ajoute **58 champs sur 15 fiches**, dont deux qui changent ce que
+l'étudiant lit sur le financement : en Licence la bourse Türkiye–IsDB est un
+**prêt** à rembourser, et la demande d'aide ALU est un **dossier distinct**. Le
+catalogue passe en 1.4.0. Le détail, et ce qui a été écarté, est dans le journal.
+
+- **Trois clôtures proches** : UP **le 30/09** (le cycle doit passer en `closed`
+  aujourd'hui), Chevening et Knight-Hennessy le 06/10. `catalog-freshness.yml`
+  (issue #270) les signale ; `catalog:publish` saute les fiches périmées.
+- **La production ne bénéficie pas de ces corrections toute seule.** Les lignes de
+  bourses en base datent de l'import d'août (catalogue 1.3.0 mesuré le 31/08) :
+  après le déploiement, lancer `publish-catalog` (VPS ops) — `import` →
+  `reconcile` → `switch`, dans cet ordre. `import` seul ne corrige rien.
+- **À revérifier** : la source « éligibilité » d'IsDB (`/scholarshipsprograms`) ne
+  contient pas IsDB dans son HTML statique ; les écarts entre les formulaires PDF
+  2027 d'UP et ses pages HTML (facultés, Master de première année seulement,
+  moyenne minimale de 70 %).

@@ -73,8 +73,18 @@ Use official school, government, scholarship, Campus France, embassy, or partner
 ## La relecture mensuelle des bourses (mode d'emploi, écrit le 29/09/2026)
 
 Le validateur refuse toute source (`checkedAt`) ou vérification (`verifiedAt`)
-de plus de 30 jours : chaque mois, chaque fiche doit être rouverte. Ce qui a
-fonctionné le 29/09 (33 fiches, dix relecteurs en parallèle, ~3 fiches chacun) :
+de plus de 30 jours : chaque mois, chaque fiche doit être rouverte.
+
+**Annoncer qui relit quoi avant de commencer.** Le 29/09, deux sessions ont relu
+les mêmes 33 fiches le même jour sans le savoir ; il a fallu comparer les deux
+résultats champ par champ avant de fusionner. Le côté heureux : deux lectures
+indépendantes se sont recoupées (44 champs reformulés, aucune contradiction de
+fond sur ces 44) et ont chacune trouvé des corrections que l'autre avait
+manquées. Un désaccord entre deux lectures se tranche en rouvrant la source, pas
+en choisissant un camp.
+
+Ce qui a fonctionné le 29/09 (33 fiches, dix relecteurs en parallèle, ~3 fiches
+chacun) :
 
 1. **Lire, ne pas recopier.** Ouvrir les cinq pages officielles de la fiche
    (présentation, éligibilité, avantages, candidature, dates du cycle) et

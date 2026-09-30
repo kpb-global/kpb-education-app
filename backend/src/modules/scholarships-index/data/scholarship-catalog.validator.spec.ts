@@ -28,21 +28,13 @@ import {
 // vérification réelle » en fin de fichier, qui interroge l'horloge du système.
 const NOW = new Date('2026-08-10T12:00:00.000Z');
 
-// Le catalogue REEL porte plusieurs vagues de vérification : l'initiale du
-// 10/08/2026, la re-vérification du 24/08 (10 fiches), puis celle du 29/09/2026
-// (toutes les fiches lisibles depuis l'environnement de vérification). Les tests
-// qui valident SCHOLARSHIP_CATALOG_V1 entier ont besoin d'une horloge postérieure
-// à la vague la plus récente — sous [NOW], la vague serait « dans le futur » et le
-// validateur la signalerait. [NOW] reste l'horloge des fixtures synthétiques, qui
-// datent du 10/08.
-//
-// Aucune horloge ne peut rendre `valid` vrai tant qu'une fiche garde une
-// vérification plus ancienne que les autres (UP Mastercard : www.up.ac.za
-// bloque l'environnement de vérification, la fiche attend une relecture
-// humaine). Ces tests jugent donc la STRUCTURE (`validIgnoringClock`) ; la
-// péremption est le rôle du test « fraîcheur des vérifications » plus bas, qui
-// lit l'horloge du système.
-const CATALOG_NOW = new Date('2026-09-29T16:00:00.000Z');
+// Le catalogue REEL porte les vagues de vérification successives ; la plus
+// récente est la re-vérification aux sources du 29/09/2026. Les tests qui
+// valident SCHOLARSHIP_CATALOG_V1 entier ont besoin d'une horloge postérieure
+// à la vague la plus récente — sous [NOW], elle serait « dans le futur » et le
+// validateur la signalerait. [NOW] reste l'horloge des fixtures synthétiques,
+// qui datent du 10/08.
+const CATALOG_NOW = new Date('2026-09-29T18:00:00.000Z');
 
 function validRecord(): VerifiedScholarshipCatalogRecord {
   const checkedAt = '2026-07-15T12:00:00.000Z';
@@ -124,7 +116,7 @@ describe('versioned scholarship catalog', () => {
       now: CATALOG_NOW,
     });
 
-    expect(report.validIgnoringClock).toBe(true);
+    expect(report.valid).toBe(true);
     expect(report.uniqueRecordCount).toBe(34);
     expect(report.uniqueRecordDeficit).toBe(0);
     expect(report.verifiedCounts).toEqual({
@@ -165,7 +157,7 @@ describe('versioned scholarship catalog', () => {
       includeVolumeTargets: false,
       now: CATALOG_NOW,
     });
-    expect(report.validIgnoringClock).toBe(true);
+    expect(report.valid).toBe(true);
   });
 
   // Deux fiches annonçaient « Ouvert » pour une campagne terminée au 10/08/2026
@@ -438,14 +430,12 @@ describe('versioned scholarship catalog', () => {
   // Preuve que la règle de fraîcheur peut encore échouer : si quelqu'un la
   // neutralise, ce compte tombe à zéro et ce test rougit.
   it('expire en entier une fois le plafond de 30 jours dépassé', () => {
-    // Plus de 30 jours après la vague la PLUS RÉCENTE (29/09/2026), pas après la
-    // première : au 30/10 la vague du 29/09 (33 fiches sur 34) est encore à 30
-    // jours pleins et ce compte serait 1, pas 34. (Une horloge ANTÉRIEURE à la
-    // vague donnerait aussi 34 — mais pour la mauvaise raison : des dates « dans
-    // le futur ».)
+    // 30 jours après la vague la PLUS RÉCENTE (24/08, re-vérification des 10
+    // publiées), pas après la première : au 11/09 les 10 re-vérifiées étaient
+    // encore fraîches et ce compte serait 24, pas 34.
     const report = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
       includeVolumeTargets: false,
-      now: new Date('2026-10-31T00:00:00.000Z'),
+      now: new Date('2026-09-25T00:00:00.000Z'),
     });
 
     expect(report.valid).toBe(false);

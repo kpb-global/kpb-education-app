@@ -4,12 +4,6 @@ import { buildVerifiedScholarshipRecord as record } from './scholarship-catalog.
 /**
  * Mastercard Foundation Scholars Program and Southern-African university
  * routes, verified against the institutions' own sites on 10 August 2026.
- * The Foundation and UCT records were re-read page by page on 29 September
- * 2026. The UP record was NOT: www.up.ac.za answers every request from the
- * verification environment with a Cloudflare block page (403), so its five
- * pages must be re-read by a person in a browser — its `checkedAt` is left at
- * the last reading it actually had (24/08/2026). See
- * docs/catalog-verification-2026-09-29.md.
  *
  * Two caveats shared by the three records:
  *
@@ -94,7 +88,7 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['secondary', 'bachelor', 'master', 'africa', 'mastercard-foundation', 'partner-managed', 'no-central-deadline', 'fully-funded'],
     relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06', 'd07', 'd08', 'd09', 'd10', 'd11', 'd12'],
     baseMatch: 76,
-    checkedAt: '2026-09-29T15:05:05.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'uct_international_refugee_2027',
@@ -105,8 +99,8 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     fundingLabel: ['Complément partiel au coût des études', 'Partial contribution towards the cost of attendance'],
     fundingType: 'partially_funded',
     deadlineLabel: [
-      'Aucun appel 2027 publié — l’avis officiel en ligne indique que « l’appel à candidatures pour 2026 n’ouvrira pas » faute de financement et n’annonce rien pour 2027 ; la fenêtre affichée est une projection : aucune date n’est publiée pour cet appel, et le 10 novembre 2026 est la clôture publiée d’une autre bourse UCT, réservée aux Sud-Africains et résidents permanents',
-      'No published 2027 call — the official online notice states the “call for applications for 2026 will not open” due to funding constraints and announces nothing for 2027; the window shown is a projection: no date is published for this call, and 10 November 2026 is the published closing date of another UCT bursary, reserved for South African citizens and permanent residents',
+      'Aucun appel 2027 publié au 29 septembre 2026 — le dernier avis officiel indique que l’appel 2026 « n’ouvrira pas » faute de financement ; la fenêtre affichée est une projection',
+      'No 2027 call published as of 29 September 2026 — the latest official notice states the call for 2026 “will not open, due to funding constraints”; the window shown is a projection',
     ],
     description: [
       'Nombre limité de bourses annuelles pour étudiants internationaux et réfugiés, en postgrade et dans toute discipline à UCT, avec un seul appel par an. Deux avertissements figurent noir sur blanc sur la page officielle : ces bourses sont un simple complément au coût des études, et le candidat doit déjà avoir les moyens de financer ses études. Au 29 septembre 2026 la page n’annonce toujours aucun appel 2027 : le dernier avis publié est que l’appel 2026 n’ouvrira pas faute de financement. À traiter comme une piste secondaire, derrière le NRF et les financements de département.',
@@ -144,10 +138,6 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     ],
     cycle: {
       academicYear: '2027-2028',
-      // Aucune date n'est publiée pour cet appel (relu le 29/09/2026) : les bornes
-      // ci-dessous sont une PROJECTION exigée par le validateur pour un cycle
-      // estimé, et le libellé le dit. Le 10 novembre 2026 est la clôture d'une
-      // autre bourse UCT (Sud-Africains et résidents permanents).
       status: 'suspended',
       dateConfidence: 'estimated',
       estimatedOpenAt: '2026-09-01T00:00:00.000Z',
@@ -164,7 +154,7 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['master', 'south-africa', 'uct', 'international-students', 'refugees', 'no-published-call', 'partially-funded'],
     relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd05', 'd06', 'd07', 'd08', 'd09', 'd10', 'd11', 'd12'],
     baseMatch: 70,
-    checkedAt: '2026-09-29T15:08:11.000Z',
+    checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
     id: 'up_mastercard_scholars_2027',
@@ -243,6 +233,9 @@ export const VERIFIED_MASTERCARD_SOUTHERN_AFRICA_RECORDS_V1: VerifiedScholarship
     tags: ['bachelor', 'master', 'south-africa', 'university-of-pretoria', 'mastercard-foundation', 'january-intake', 'fully-funded'],
     relatedFieldIds: ['d02', 'd03', 'd07', 'd08', 'd09'],
     baseMatch: 80,
-    checkedAt: '2026-08-24T18:45:00.000Z',
+    // Relue au navigateur le 29/09/2026 par l'équipe KPB : les quatre pages
+    // up.ac.za renvoient 403 (Cloudflare) à tout fetch automatisé, la relecture
+    // automatique était donc impossible. Contenu confirmé inchangé.
+    checkedAt: '2026-09-29T12:50:00.000Z',
   }),
 ];

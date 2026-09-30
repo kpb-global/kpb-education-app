@@ -62,8 +62,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'Funding paid for 12 to 36 months depending on the degree and year of enrolment: a maximum of 12 months in Master 2, 24 months in Master 1 and 36 months for an engineering degree',
         ],
         [
-          'Prise en charge du voyage international vers la France et du retour, remboursé sur justificatifs dans la limite de 50 % du barème maximal fixé par le ministère, ainsi que du transport national jusqu’au lieu d’études',
-          'Coverage of international travel to France and the return trip, reimbursed on receipts up to 50% of the maximum rate set by the ministry, plus national transport to the place of study',
+          'Billets d’avion aller et retour (classe la moins chère) remboursés sur justificatifs dans la limite de 50 % du tarif maximal fixé par le ministère de l’Europe et des Affaires étrangères, ainsi que le transport national jusqu’au lieu d’études',
+          'Outbound and return airfare (least-expensive class) reimbursed on receipts up to 50% of the maximum rate set by the Ministry for Europe and Foreign Affairs, plus national transport to the place of study',
         ],
         [
           'Couverture santé assurée par Campus France jusqu’à l’activation de la sécurité sociale étudiante, puis affiliation obligatoire et gratuite',
@@ -187,7 +187,7 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         'estimated-open-date',
       ],
       relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd07', 'd08', 'd09'],
-      checkedAt: '2026-09-29T15:07:35.000Z',
+      checkedAt: '2026-09-29T12:00:00.000Z',
     }),
     record({
       id: 'daad_epos_2027',
@@ -224,8 +224,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'Health, accident and personal liability insurance covered',
         ],
         [
-          'Forfait voyage vers l’Allemagne et retour, sauf si ces frais sont couverts par le pays d’origine ou une autre source de financement',
-          'Travel allowance to Germany and back, unless these expenses are covered by the home country or another source of funding',
+          'Forfait voyage vers l’Allemagne et retour, sauf si ces frais sont pris en charge par le pays d’origine ou un autre financeur',
+          'Travel allowance to Germany and back, unless these costs are covered by the home country or another funder',
         ],
         [
           'Subvention de loyer et allocations familiales possibles selon la situation personnelle',
@@ -262,8 +262,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'Not have resided in Germany for more than fifteen months at the application deadline',
         ],
         [
-          'Satisfaire les exigences de langue du cursus visé : en règle générale IELTS 6 ou TOEFL 550 papier / 213 ordinateur / 80 internet ; pour les cursus en allemand, niveau B1 à la candidature puis DSH 2 ou TestDaF 4 pour l’inscription',
-          'Meet the language requirements of the target course: normally IELTS 6 or TOEFL 550 paper / 213 computer / 80 internet; for German-taught courses, level B1 at application then DSH 2 or TestDaF 4 for matriculation',
+          'Satisfaire les exigences de langue du cursus visé, selon le règlement de chaque cursus ; pour les cursus en allemand, niveau B1 à la candidature puis DSH 2 ou TestDaF 4 pour l’inscription',
+          'Meet the language requirements of the target course, according to the regulations of each course; for German-taught courses, level B1 at application then DSH 2 or TestDaF 4 for matriculation',
         ],
       ],
       requirements: [
@@ -272,12 +272,12 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'DAAD application form for the EPOS programme',
         ],
         [
-          'CV au format Europass, signé à la main',
-          'Europass-format CV, hand-signed',
+          'CV au format Europass',
+          'Europass-format CV',
         ],
         [
-          'Lettre de motivation signée à la main, deux pages maximum, rattachée à l’emploi actuel ; une seule lettre pour un maximum de trois cursus, expliquant l’ordre de priorité retenu',
-          'Hand-signed motivation letter, maximum two pages, linked to current employment; a single letter for up to three courses, explaining the chosen priority order',
+          'Lettre de motivation rattachée à l’emploi actuel ; une seule lettre pour un maximum de trois cursus, expliquant l’ordre de priorité retenu',
+          'Motivation letter linked to current employment; a single letter for up to three courses, explaining the chosen priority order',
         ],
         [
           'Lettre de recommandation professionnelle de l’employeur, sur papier à en-tête, signée, tamponnée et de date récente',
@@ -349,7 +349,7 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         'estimated-open-date',
       ],
       relatedFieldIds: ['d02', 'd03', 'd04', 'd05', 'd08', 'd09'],
-      checkedAt: '2026-09-29T15:12:42.000Z',
+      checkedAt: '2026-09-29T12:00:00.000Z',
     }),
     record({
       id: 'erasmus_mundus_joint_masters_2027',
@@ -377,8 +377,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         'Estimated opening — one calendar per consortium, generally October 2026 to January 2027',
       ],
       description: [
-        'Masters internationaux conçus et délivrés conjointement par au moins trois établissements de trois pays différents, avec des bourses complètes financées par la Commission européenne. Il n’existe ni candidature centralisée ni date limite commune : l’étudiant postule directement au consortium qui pilote le master choisi, chaque consortium publiant son propre calendrier et ses propres critères d’admission. Le catalogue officiel des masters est mis à jour chaque année, la nouvelle promotion apparaissant à l’automne.',
-        'International Masters jointly designed and delivered by at least three institutions from three different countries, with full scholarships funded by the European Commission. There is neither a central application nor a common deadline: students apply directly to the consortium running their chosen Master, each consortium publishing its own calendar and its own admission criteria. The official catalogue of Masters is updated every year, with the new batch appearing in the autumn.',
+        'Masters internationaux conçus et délivrés conjointement par au moins trois établissements de trois pays différents, avec des bourses complètes financées par la Commission européenne. Il n’existe ni candidature centralisée ni date limite commune : l’étudiant postule directement au consortium qui pilote le master choisi, chaque consortium publiant son propre calendrier et ses propres critères d’admission. Le catalogue officiel des masters est mis à jour chaque année, une nouvelle série de masters sélectionnés y étant ajoutée.',
+        'International Masters jointly designed and delivered by at least three institutions from three different countries, with full scholarships funded by the European Commission. There is neither a central application nor a common deadline: students apply directly to the consortium running their chosen Master, each consortium publishing its own calendar and its own admission criteria. The official catalogue of Masters is updated every year, with a new batch of selected Masters added annually.',
       ],
       advantages: [
         [
@@ -428,8 +428,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
           'Meet the consortium’s own admission criteria published on the Master website: language, transcripts, subject prerequisites',
         ],
         [
-          'Postuler à un master figurant au catalogue Erasmus Mundus : seuls ces programmes peuvent offrir la bourse, mais certains masters du catalogue n’en proposent pas',
-          'Apply to a Master listed in the Erasmus Mundus catalogue: only those programmes can carry the scholarship, but some catalogue Masters do not offer one',
+          'Postuler à un master figurant au catalogue Erasmus Mundus et vérifier sur son site qu’il propose encore des bourses de l’UE pour la rentrée 2027 : certains masters listés n’en offrent plus (fin de financement)',
+          'Apply to a Master listed in the Erasmus Mundus catalogue and check on its website that it still offers EU scholarships for the 2027 intake: some listed Masters no longer do (end of funding)',
         ],
       ],
       requirements: [
@@ -462,8 +462,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         [
           'Explorer le catalogue Erasmus Mundus',
           'Search the Erasmus Mundus catalogue',
-          'Filtrer le catalogue officiel de l’EACEA par domaine pour repérer les masters conjoints soutenus par l’Union européenne ; il est mis à jour chaque année et la nouvelle promotion apparaît à l’automne.',
-          'Filter the official EACEA catalogue by subject to find the joint Masters supported by the European Union; it is updated annually and the new batch appears in the autumn.',
+          'Filtrer le catalogue officiel de l’EACEA par domaine pour repérer les masters conjoints soutenus par l’Union européenne ; il est mis à jour chaque année avec une nouvelle série de masters.',
+          'Filter the official EACEA catalogue by subject to find the joint Masters supported by the European Union; it is updated annually with a new batch of Masters.',
         ],
         [
           'Relever le calendrier de chaque master retenu',
@@ -526,6 +526,6 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         'd09',
         'd11',
       ],
-      checkedAt: '2026-09-29T15:07:54.000Z',
+      checkedAt: '2026-09-29T12:00:00.000Z',
     }),
   ];

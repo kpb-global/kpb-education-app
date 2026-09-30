@@ -104,20 +104,15 @@ describe('séparation de l’horloge et de la structure', () => {
 
 describe('l’alerte avant clôture', () => {
   it('annonce Chevening dans sa quinzaine, et pas avant', () => {
-    // Chevening clôt le 06/10/2026 à 11 h UTC. C'est le prochain basculement
-    // connu du catalogue, et c'est le cas qui justifie tout ce fichier. (Le
-    // cas d'origine était Schwarzman, clos le 09/09 : une fiche close n'est
-    // plus « bientôt close » — l'ancre suit la donnée vivante la plus proche.)
+    // Chevening clôt le 06/10/2026 à 11:00 UTC (relu le 29/09/2026). Il a pris
+    // la place de Schwarzman, l'exemple d'origine, passé `closed` depuis sa
+    // clôture du 09/09 : l'alerte ne concerne que des campagnes `open`.
     const ids = (iso: string) => at(iso).closingSoon.map((c) => c.scholarshipId);
 
     // Vingt jours avant : hors horizon, on ne crie pas pour rien.
     expect(ids('2026-09-16T12:00:00.000Z')).not.toContain('chevening_2027');
     // Dix jours avant : dans l'horizon.
     expect(ids('2026-09-26T12:00:00.000Z')).toContain('chevening_2027');
-    // Et une fiche close n'est plus annoncée, quelle que soit la date.
-    expect(ids('2026-08-30T12:00:00.000Z')).not.toContain(
-      'schwarzman_scholars_2027',
-    );
   });
 
   it('rend les jours restants et trie par urgence', () => {

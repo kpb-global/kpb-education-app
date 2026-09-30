@@ -13,17 +13,12 @@
 // L'alarme mourait le jour précis où elle avait quelque chose à dire — encore
 // un défaut caché par l'outil censé le détecter.
 //
-// Schwarzman est CLOSE depuis le 09/09 : la fiche n'est plus `open`, donc plus
-// « bientôt close » à aucune date. Le scénario n'a pas changé, son ANCRE si —
-// voir ANCHOR_CLOCK.
-//
 // ## Pourquoi ce test spawn le vrai CLI
 //
 // Le contrat porte sur ce que le PROCESSUS écrit sur chaque flux, pas sur une
-// fonction : seul un vrai spawn le voit. Et il se joue à `--now` (voir plus bas) —
-// une date où une vraie fiche ouverte est à moins de 14 jours de sa clôture —
-// parce qu'à une date sans clôture proche, le test resterait vert avec ou sans
-// le défaut. Vu rouge par mutation : remettre
+// fonction : seul un vrai spawn le voit. Et il se joue à `--now 2026-08-27` —
+// la date exacte de l'accident — parce qu'à une date sans clôture proche, le
+// test resterait vert avec ou sans le défaut. Vu rouge par mutation : remettre
 // les `::warning::` sur stdout fait échouer « stdout est du JSON pur ».
 
 import { spawnSync } from 'node:child_process';
@@ -34,14 +29,12 @@ import * as path from 'node:path';
 // __dirname = src/modules/scholarships-index/data → 4 crans = racine backend.
 const BACKEND_ROOT = path.join(__dirname, '..', '..', '..', '..');
 
-// Le 23/09/2026 à 06:00 UTC — l'heure du cron — Chevening (clôture le 06/10 à
-// 11 h UTC) est à 14 jours : premier jour où le CLI a une annotation à émettre
-// pour cette fiche. Le scénario d'origine se jouait le 27/08 avec Schwarzman ;
-// cette fiche a clos, et l'ancre suit la donnée VIVANTE la plus proche — au
-// prochain lot, la re-choisir est un geste de trois lignes (horloge, id, nom du
-// test), pas une refonte.
-const ANCHOR_CLOCK = '2026-09-23T06:00:00.000Z';
-const ANCHOR_ID = 'chevening_2027';
+// Horloge ré-ancrée à la re-vérification du 29/09/2026 : Schwarzman, qui
+// servait d'exemple, est désormais `closed` (fenêtre 2027-2028 fermée le
+// 09/09). Le principe ne change pas — jouer le CLI un jour où une clôture
+// entre dans l'horizon. Le 26/09/2026 à 06:00 UTC, l'heure du cron, Chevening
+// (clôture le 06/10 à 11:00 UTC) est à dix jours.
+const ACCIDENT_CLOCK = '2026-09-26T06:00:00.000Z';
 
 describe('validate-scholarship-catalog CLI — discipline de sortie', () => {
   let tmpDir: string;
@@ -63,7 +56,7 @@ describe('validate-scholarship-catalog CLI — discipline de sortie', () => {
         'scripts/validate-scholarship-catalog.ts',
         '--structure-only',
         '--now',
-        ANCHOR_CLOCK,
+        ACCIDENT_CLOCK,
         '--report',
         reportPath,
       ],
@@ -79,14 +72,14 @@ describe('validate-scholarship-catalog CLI — discipline de sortie', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it("l'ancre a bien quelque chose à annoncer — sinon ce test ne prouve rien", () => {
+  it("le 26/09 a bien quelque chose à annoncer — sinon ce test ne prouve rien", () => {
     const report = JSON.parse(reportRaw) as {
       closingSoon: Array<{ scholarshipId: string }>;
     };
     expect(report.closingSoon.length).toBeGreaterThanOrEqual(1);
     expect(
       report.closingSoon.map((entry) => entry.scholarshipId),
-    ).toContain(ANCHOR_ID);
+    ).toContain('chevening_2027');
   });
 
   it('le fichier --report est du JSON pur, annotations comprises dans la journée', () => {
@@ -105,6 +98,6 @@ describe('validate-scholarship-catalog CLI — discipline de sortie', () => {
     // Pas seulement « stdout est propre » : l'annotation doit continuer
     // d'EXISTER — la déplacer était le correctif, la perdre serait une
     // régression pire (plus d'alarme du tout).
-    expect(stderr).toContain(`::warning::${ANCHOR_ID}`);
+    expect(stderr).toContain('::warning::chevening_2027');
   });
 });
