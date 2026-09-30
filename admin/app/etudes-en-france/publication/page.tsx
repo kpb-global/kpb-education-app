@@ -157,6 +157,8 @@ export default function EefPublicationPage() {
 
   const refusedOf = (plan: PublicationPlan | UnpublicationPlan): RefusedProgram[] =>
     'programs' in plan ? plan.programs.refused : plan.refused;
+  const activeInvalidOf = (plan: PublicationPlan | UnpublicationPlan): RefusedProgram[] =>
+    'programs' in plan ? plan.programs.activeInvalid : [];
   const institutionRefusals = (plan: PublicationPlan | UnpublicationPlan) =>
     'programs' in plan ? plan.institution.refusals : plan.refusals;
 
@@ -360,6 +362,35 @@ export default function EefPublicationPage() {
                     {t('eefPub.refusedMore').replace(
                       '{n}',
                       String(refusedOf(selected.plan).length - REFUSED_SHOWN),
+                    )}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
+            {activeInvalidOf(selected.plan).length > 0 ? (
+              <div>
+                <strong>
+                  {t('eefPub.activeInvalidTitle').replace(
+                    '{n}',
+                    String(activeInvalidOf(selected.plan).length),
+                  )}
+                </strong>
+                <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                  {activeInvalidOf(selected.plan)
+                    .slice(0, REFUSED_SHOWN)
+                    .map((invalid) => (
+                      <li key={invalid.id}>
+                        {invalid.nameFr ?? invalid.id} —{' '}
+                        {invalid.reasons.map((code) => t(refusalMessageKey(code))).join(', ')}
+                      </li>
+                    ))}
+                </ul>
+                {activeInvalidOf(selected.plan).length > REFUSED_SHOWN ? (
+                  <p style={{ margin: '6px 0 0' }}>
+                    {t('eefPub.refusedMore').replace(
+                      '{n}',
+                      String(activeInvalidOf(selected.plan).length - REFUSED_SHOWN),
                     )}
                   </p>
                 ) : null}

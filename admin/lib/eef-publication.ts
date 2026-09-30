@@ -20,6 +20,7 @@
 export const INSTITUTION_REFUSALS = [
   'institution_not_from_import',
   'institution_source_missing',
+  'institution_has_invalid_active_program',
 ] as const;
 
 export const PROGRAM_REFUSALS = [
@@ -52,6 +53,12 @@ export interface PublicationPlan {
     toPublish: string[];
     alreadyActive: number;
     refused: RefusedProgram[];
+    /**
+     * Formations DÉJÀ actives sous un établissement en attente, qui ne passent
+     * pas les contrôles : activer l'établissement les rendrait visibles, donc il
+     * est refusé tant qu'elles ne sont pas corrigées ou retirées.
+     */
+    activeInvalid: RefusedProgram[];
     /**
      * Parmi les formations À PUBLIER, celles dont la source n'est pas la fiche de
      * la formation (portail Mon Master, jeu de données ouvert). Informatif.

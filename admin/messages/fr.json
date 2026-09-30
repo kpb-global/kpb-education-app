@@ -1075,6 +1075,7 @@
     "savedWarning": "{n} étudiant(s) perdront cette formation de leur liste (leur enregistrement est conservé).",
     "refusedTitle": "Formations refusées ({n}) — elles resteront en attente",
     "refusedMore": "… et {n} autre(s).",
+    "activeInvalidTitle": "Formations déjà actives à corriger ou retirer ({n}) — elles rendraient l'établissement invalide",
     "publishButton": "Publier {n} formation(s)",
     "unpublishButton": "Retirer {n} formation(s)",
     "close": "Fermer",
@@ -1093,6 +1094,7 @@
     "reason": {
       "institution_not_from_import": "Cet établissement ne vient pas de l'import : il ne se publie pas ici.",
       "institution_source_missing": "L'établissement n'a pas de source officielle en HTTPS.",
+      "institution_has_invalid_active_program": "Des formations déjà actives de cet établissement ne passent pas les contrôles : l'activer les rendrait visibles. Corrigez-les ou retirez-les d'abord.",
       "program_unknown": "formation inconnue",
       "program_not_from_import": "ne vient pas de l'import",
       "program_wrong_institution": "appartient à un autre établissement",

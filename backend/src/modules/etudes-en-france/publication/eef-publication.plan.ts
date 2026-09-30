@@ -53,7 +53,8 @@ export interface PublicationProgram {
 
 export type InstitutionRefusal =
   | 'institution_not_from_import'
-  | 'institution_source_missing';
+  | 'institution_source_missing'
+  | 'institution_has_invalid_active_program';
 
 export type ProgramRefusal =
   | 'program_unknown'
@@ -119,6 +120,14 @@ export interface PublicationPlan {
     readonly alreadyActive: number;
     readonly refused: readonly RefusedProgram[];
     /**
+     * Les formations DÉJÀ ACTIVES de l'établissement qui ne passeraient pas les
+     * contrôles de publication, quand ce plan activerait l'établissement. Elles
+     * sont hors de `toPublish` (rien à leur écrire) mais elles deviendraient
+     * visibles avec leur parent : tant qu'il en reste une, l'établissement est
+     * refusé (`institution_has_invalid_active_program`).
+     */
+    readonly activeInvalid: readonly RefusedProgram[];
+    /**
      * Parmi les formations à publier, celles dont la source n'est pas la fiche de
      * la formation. INFORMATIF : le plan ne les refuse pas (voir
      * `docs/eef-catalog-pipeline.md` § 2.8), il les montre avant la signature.
@@ -177,6 +186,17 @@ export function planEefPublication(input: {
    */
   readonly programs: readonly PublicationProgram[];
   /**
+   * TOUTES les formations déjà actives de l'établissement (celles de l'import ou
+   * saisies à la main sous lui), quelle que soit la liste demandée. Absent : les
+   * formations actives de `programs`.
+   *
+   * Pourquoi : une formation publiée par une route générique alors que son
+   * établissement est encore en attente est invisible… jusqu'à ce que CE plan
+   * active l'établissement. Elle devient alors visible de la recherche sans avoir
+   * passé un seul contrôle. Le plan les revalide donc quand il active le parent.
+   */
+  readonly activeSiblings?: readonly PublicationProgram[];
+  /**
    * Restreint la publication à ces formations. Absent : toutes les formations
    * encore inactives de l'établissement. Un identifiant inconnu est REFUSÉ et
    * nommé, jamais ignoré — sinon une faute de frappe se lirait « publié ».
@@ -190,6 +210,24 @@ export function planEefPublication(input: {
   }
   if (!isHttpsUrl(institution.sourceUrl)) {
     institutionRefusals.push('institution_source_missing');
+  }
+
+  // Activer l'établissement expose ses formations DÉJÀ actives : elles se
+  // revalident ici, sans entrer dans `toPublish`.
+  const activeInvalid: RefusedProgram[] = [];
+  if (!institution.isActive) {
+    const siblings =
+      input.activeSiblings ?? input.programs.filter((program) => program.isActive);
+    for (const program of siblings) {
+      const reasons = programRefusals(program, institution.id);
+      if (reasons.length > 0) {
+        activeInvalid.push({ id: program.id, nameFr: program.nameFr, reasons });
+      }
+    }
+    activeInvalid.sort((a, b) => a.id.localeCompare(b.id));
+    if (activeInvalid.length > 0) {
+      institutionRefusals.push('institution_has_invalid_active_program');
+    }
   }
 
   const byId = new Map(input.programs.map((program) => [program.id, program]));
@@ -261,6 +299,7 @@ export function planEefPublication(input: {
       toPublish,
       alreadyActive,
       refused,
+      activeInvalid,
       genericSource: {
         ministryPortal: toPublish.filter(
           (id) => sourceKinds.get(id) === 'ministry_portal',

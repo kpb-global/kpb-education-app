@@ -1075,6 +1075,7 @@
     "savedWarning": "{n} student(s) will lose this programme from their list (their saved entry is kept).",
     "refusedTitle": "Programmes refused ({n}) — they stay pending",
     "refusedMore": "… and {n} more.",
+    "activeInvalidTitle": "Already-active programs to fix or remove ({n}) — they would make the institution invalid",
     "publishButton": "Publish {n} programme(s)",
     "unpublishButton": "Take down {n} programme(s)",
     "close": "Close",
@@ -1093,6 +1094,7 @@
     "reason": {
       "institution_not_from_import": "This institution does not come from the import: it cannot be published here.",
       "institution_source_missing": "The institution has no official HTTPS source.",
+      "institution_has_invalid_active_program": "Some already-active programs of this institution fail the checks: activating it would make them visible. Fix or remove them first.",
       "program_unknown": "unknown programme",
       "program_not_from_import": "not from the import",
       "program_wrong_institution": "belongs to another institution",

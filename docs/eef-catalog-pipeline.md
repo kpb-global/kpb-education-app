@@ -43,9 +43,9 @@ données ouvertes MESR
   → eef-catalog.validator.ts           (portes strictes ; CI + avant import)
   → scripts/import-eef-catalog.ts      (--dry-run | --apply, jamais de défaut)
   → Institution / Program, isActive = false
-  → outil de publication en admin      ← le seul endroit où une ligne devient visible
-                                         (À CONSTRUIRE ; en attendant, l'API :
-                                         PATCH /admin/catalog/…/:id { isActive })
+  → « Publication EEF » en admin       ← le seul endroit où une ligne de l'import devient
+                                         visible (§ 5) ; PATCH/POST /admin/catalog/… refusent
+                                         d'en activer une (409)
   → file /verification en admin        ← ne liste que les lignes DÉJÀ publiées, à leur cadence (§ 2ter)
 ```
 
@@ -306,7 +306,7 @@ Ce qui tient la promesse maintenant :
 | `MatchesService` (recommandations) | `isActive: true` — et **aucune ligne EEF** (§ 2ter) |
 | `GET /etudes-en-france/search` et `/shortlist` | `isActive: true` **et établissement publié** (§ 2ter) |
 | `Institution.programIds` servi | privé des identifiants connus comme inactifs |
-| `PATCH /admin/catalog/programs/:id` et `/institutions/:id` | acceptent `isActive` — c'est le chemin de publication |
+| `PATCH /admin/catalog/programs/:id` et `/institutions/:id`, `POST /admin/catalog/programs` | acceptent `isActive` pour une fiche de l'équipe ; **refusent (409) d'ACTIVER une ligne de l'import** — elle se publie par « Publication EEF », qui vérifie et signe. Désactiver, ou modifier une ligne déjà publiée, reste permis |
 
 Deux points méritent d'être dits explicitement :
 
@@ -434,9 +434,9 @@ et les quatre catégories partagent une seule définition.
   routes publiques `/catalog/*`, qui les excluent : une ligne EEF PUBLIÉE ne s'y
   affiche plus, et une ligne en attente ne s'y est jamais affichée. Il n'existe
   donc aucun écran pour retrouver, corriger ou DÉPUBLIER une ligne de l'import ;
-  seuls la file `/verification` (plafonnée) ou un `PATCH` par identifiant y
-  mènent. L'outil de publication à construire doit lister ces lignes, publier
-  ET dépublier.
+  seule la file `/verification` (plafonnée) y mène — le `PATCH` par identifiant
+  ne peut plus ACTIVER une ligne de l'import (409), seulement la désactiver.
+  L'écran « Publication EEF » liste ces établissements, publie ET retire.
 - **Les cartes de l'espace n'ont pas le nom de l'établissement.** La recherche et
   la shortlist servent des formations dont l'`institutionId` renvoie à un
   établissement que `/catalog/institutions` ne sert plus. L'écran de l'espace
@@ -584,6 +584,20 @@ source est la fiche de la formation plutôt que la page d'accueil de
 l'établissement. Les deux préalables du § 4 (un propriétaire nommé de la file,
 la relecture métier de la procédure) restent des décisions humaines que le code
 ne remplace pas.
+
+Deux garde-fous tiennent cette promesse sous concurrence :
+
+- **Les formations déjà actives sont revalidées avant d'activer leur établissement.**
+  Activer l'établissement rend visibles ses formations déjà actives (la recherche
+  exige les deux). Elles passent donc par les mêmes contrôles que celles qu'on
+  publie ; l'une d'elles invalide refuse l'établissement
+  (`institution_has_invalid_active_program`, `plan.programs.activeInvalid`) et rien
+  n'est écrit.
+- **La transaction d'écriture est en `RepeatableRead`.** Le plan y est relu puis
+  écrit ; l'`UPDATE` ne teste que l'identifiant, l'établissement et l'état. Sous
+  l'isolation par défaut, une formation modifiée entre les deux (source vidée,
+  domaine changé) serait publiée et signée « vérifiée ». Sous `RepeatableRead`,
+  PostgreSQL refuse l'écriture (`P2034`), le service répond 409 et rien n'est écrit.
 
 Le drapeau du client (`KPB_EEF_ENABLED`) ne protège PAS l'API : la recherche est
 publique, donc dès qu'un établissement est publié ses formations sont servies à

@@ -38,12 +38,14 @@ const plan = (
   extra: {
     institution?: Partial<PublicationInstitution>;
     programIds?: string[];
+    activeSiblings?: PublicationProgram[];
   } = {},
 ) =>
   planEefPublication({
     institution: { ...INSTITUTION, ...extra.institution },
     programs,
     programIds: extra.programIds,
+    activeSiblings: extra.activeSiblings,
   });
 
 describe('planEefPublication', () => {
@@ -257,6 +259,77 @@ describe('planEefPublication — sources génériques', () => {
     });
 
     expect(result.programs.genericSource).toEqual({ ministryPortal: 0, ministryDataset: 0 });
+  });
+});
+
+describe('planEefPublication — formations DÉJÀ actives sous un établissement en attente', () => {
+  // Une formation publiée par une route générique alors que son établissement est
+  // encore en attente est invisible… jusqu'à ce que CE plan active l'établissement :
+  // elle devient alors visible de la recherche sans avoir passé un seul contrôle.
+  const activeValid = (n: number) => program(n, { isActive: true });
+  const activeInvalid = (n: number, over: Partial<PublicationProgram> = {}) =>
+    program(n, { isActive: true, sourceUrl: null, ...over });
+
+  it('publie normalement quand les formations déjà actives sont valides', () => {
+    const result = plan([activeValid(1), program(2)]);
+
+    expect(result.publishable).toBe(true);
+    expect(result.programs.activeInvalid).toEqual([]);
+    expect(result.programs.toPublish).toEqual(['eef-prog-0002']);
+  });
+
+  it('REFUSE d’activer l’établissement tant qu’une formation déjà active est invalide', () => {
+    const result = plan([activeInvalid(1), program(2)]);
+
+    expect(result.publishable).toBe(false);
+    expect(result.institution.willActivate).toBe(false);
+    expect(result.institution.refusals).toEqual(['institution_has_invalid_active_program']);
+    expect(result.programs.activeInvalid).toEqual([
+      { id: 'eef-prog-0001', nameFr: 'Formation 1', reasons: ['program_source_missing'] },
+    ]);
+    // Rien ne s'écrit : la valide n'est pas annoncée « à publier » sous un parent bloqué.
+    expect(result.programs.toPublish).toEqual([]);
+  });
+
+  it.each([
+    ['sans procédure', { procedureType: null }, 'program_procedure_missing'],
+    ['dans un domaine hors référentiel', { fieldId: 'zz' }, 'program_field_unknown'],
+    ['saisie à la main (identifiant hors import)', { id: 'manual-1' }, 'program_not_from_import'],
+  ] as const)('la formation déjà active %s bloque aussi', (_label, over, reason) => {
+    const result = plan([program(2)], {
+      activeSiblings: [activeValid(3), program(1, { isActive: true, ...over })],
+    });
+
+    expect(result.publishable).toBe(false);
+    expect(result.programs.activeInvalid.map((r) => r.reasons)).toEqual([[reason]]);
+  });
+
+  it('revalide aussi quand la publication est restreinte à une liste', () => {
+    // `programs` ne contient que la formation demandée ; les actives viennent à part.
+    const result = plan([program(2)], {
+      programIds: ['eef-prog-0002'],
+      activeSiblings: [activeInvalid(1)],
+    });
+
+    expect(result.publishable).toBe(false);
+    expect(result.institution.refusals).toContain('institution_has_invalid_active_program');
+  });
+
+  it('ne dit rien quand l’établissement est DÉJÀ publié : rien de nouveau n’est exposé', () => {
+    const result = plan([activeInvalid(1), program(2)], {
+      institution: { isActive: true },
+    });
+
+    expect(result.publishable).toBe(true);
+    expect(result.programs.activeInvalid).toEqual([]);
+    expect(result.institution.refusals).toEqual([]);
+  });
+
+  it('préfère la liste complète fournie à celle de `programs`', () => {
+    // `programs` ne montre aucune formation active, la liste complète en montre une invalide.
+    const result = plan([program(2)], { activeSiblings: [activeInvalid(9)] });
+
+    expect(result.programs.activeInvalid.map((r) => r.id)).toEqual(['eef-prog-0009']);
   });
 });
 

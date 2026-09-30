@@ -7,7 +7,7 @@ import {
   ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import type { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
 
 import {
   EEF_INSTITUTION_ID_PREFIX,
@@ -27,7 +27,28 @@ import {
 type Db = Pick<PrismaClient, 'institution' | 'program' | 'savedItem'>;
 
 const CHUNK = 2_000;
-const TRANSACTION = { timeout: 5 * 60_000, maxWait: 30_000 } as const;
+/**
+ * `RepeatableRead`, pas le `ReadCommitted` par défaut : le plan est relu DANS la
+ * transaction, puis les lignes sont écrites. Entre les deux, un autre administrateur
+ * peut vider la source d'une formation ou changer son domaine ; l'`UPDATE` ne teste
+ * que l'identifiant, l'établissement et l'état, donc la ligne devenue invalide serait
+ * publiée et signée « vérifiée ». Sous `RepeatableRead`, écrire une ligne modifiée
+ * depuis le début de la transaction échoue (P2034) au lieu de réussir en silence.
+ */
+const TRANSACTION = {
+  timeout: 5 * 60_000,
+  maxWait: 30_000,
+  isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead,
+} as const;
+
+/** Une écriture concurrente a fait échouer la transaction : rien n'a été écrit. */
+function isWriteConflict(error: unknown): boolean {
+  return (
+    typeof error === 'object'
+    && error !== null
+    && (error as { code?: unknown }).code === 'P2034'
+  );
+}
 
 function chunks<T>(values: readonly T[], size = CHUNK): T[][] {
   const out: T[][] = [];
@@ -71,11 +92,12 @@ export type UnpublishResult =
  *
  * ## Pourquoi un service dédié, alors que `PATCH …/programs/:id` existe
  *
- * Ce `PATCH` publie UNE ligne, sans tampon de vérification, sans contrôle de sa
- * source ni de sa procédure, et sans que quiconque sache que l'établissement qui
- * l'accompagne est publié ou non. Pour 84 établissements et 10 502 formations, il
- * n'y a pas de « publier tout » par cette voie : il y a 10 586 appels, dont chacun
- * peut oublier quelque chose. Ici :
+ * Ce `PATCH` publierait UNE ligne, sans tampon de vérification, sans contrôle de
+ * sa source ni de sa procédure, et sans que quiconque sache que l'établissement
+ * qui l'accompagne est publié ou non. Pour 84 établissements et 10 502 formations,
+ * il n'y aurait pas de « publier tout » par cette voie : 10 586 appels, dont chacun
+ * peut oublier quelque chose. `AdminCatalogService` REFUSE donc (409) d'activer une
+ * ligne de l'import : ce service est la seule porte. Ici :
  *
  *   • **par établissement** — l'unité qu'un relecteur peut réellement regarder ;
  *   • **simulation par défaut**, et un chiffre saisi pour écrire ;
@@ -85,7 +107,10 @@ export type UnpublishResult =
  *     fabriqué. Le badge « Vérifié » dit qui a regardé, et cette personne est celle
  *     qui a appuyé ;
  *   • **tout ou rien** : une formation qui n'est plus publiable au moment de
- *     l'écriture annule l'ensemble.
+ *     l'écriture annule l'ensemble — y compris quand elle change APRÈS la relecture
+ *     du plan, d'où l'isolation `RepeatableRead` (l'`UPDATE` ne teste que l'état) ;
+ *   • **les formations déjà actives sont revalidées** avant d'activer leur
+ *     établissement, puisque l'activer les rend visibles.
  *
  * Le retrait est l'exact inverse, et annonce combien d'étudiants perdent la
  * formation de leur liste.
@@ -189,7 +214,7 @@ export class EefPublicationService {
       verifiedByName: verifierName(options.verifier),
     } as const;
 
-    const applied = await this.prismaService.execute((db) =>
+    const applied = await this.inTransaction('publication', (db) =>
       db.$transaction(async (tx) => {
         // Le plan est RECALCULÉ ici : entre la simulation et l'écriture, une
         // formation a pu perdre sa source, ou être publiée par quelqu'un d'autre.
@@ -264,7 +289,7 @@ export class EefPublicationService {
     this.assertConfirmed(options.expectedPrograms, plan.toDeactivate.length);
     this.assertRemovable(plan);
 
-    const applied = await this.prismaService.execute((db) =>
+    const applied = await this.inTransaction('retrait', (db) =>
       db.$transaction(async (tx) => {
         const fresh = await this.planUnpublish(tx, institutionId, requested);
         this.assertConfirmed(options.expectedPrograms, fresh.toDeactivate.length);
@@ -308,6 +333,24 @@ export class EefPublicationService {
       institutionDeactivated: applied.plan.deactivateInstitution,
       programsDeactivated: applied.deactivated,
     };
+  }
+
+  /** Exécute une transaction d'écriture ; un conflit d'écriture devient un 409. */
+  private async inTransaction<T>(
+    what: 'publication' | 'retrait',
+    run: (db: PrismaClient) => Promise<T>,
+  ): Promise<T | null> {
+    try {
+      return await this.prismaService.execute(run);
+    } catch (error) {
+      if (isWriteConflict(error)) {
+        throw new ConflictException(
+          `Une formation a changé pendant la ${what} : rien n’a été écrit. `
+            + 'Relancez la simulation.',
+        );
+      }
+      throw error;
+    }
   }
 
   // ── lectures ──────────────────────────────────────────────────────────────
@@ -359,6 +402,26 @@ export class EefPublicationService {
     return out;
   }
 
+  private async loadActiveSiblings(
+    db: Db,
+    institutionId: string,
+  ): Promise<PublicationProgram[]> {
+    return db.program.findMany({
+      // Sans filtre de préfixe : une formation saisie à la main sous cet
+      // établissement est servie par la recherche au même titre que les autres.
+      where: { institutionId, isActive: true },
+      select: {
+        id: true,
+        institutionId: true,
+        nameFr: true,
+        isActive: true,
+        sourceUrl: true,
+        procedureType: true,
+        fieldId: true,
+      },
+    });
+  }
+
   private async planPublish(
     db: Db,
     institutionId: string,
@@ -366,7 +429,18 @@ export class EefPublicationService {
   ): Promise<PublicationPlan> {
     const institution = await this.loadInstitution(db, institutionId);
     const programs = await this.loadPrograms(db, institutionId, programIds);
-    return planEefPublication({ institution, programs, programIds });
+    // Les formations DÉJÀ actives du parent, quelle que soit la liste demandée :
+    // activer l'établissement les rend visibles (voir le plan). Lues seulement si
+    // l'établissement est encore en attente — c'est le seul cas où elles comptent.
+    const activeSiblings = institution.isActive
+      ? undefined
+      : await this.loadActiveSiblings(db, institutionId);
+    return planEefPublication({
+      institution,
+      programs,
+      programIds,
+      activeSiblings,
+    });
   }
 
   private async planUnpublish(

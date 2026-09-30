@@ -17,6 +17,7 @@
 
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -25,6 +26,10 @@ import {
 import { Cron } from '@nestjs/schedule';
 import { Prisma } from '@prisma/client';
 
+import {
+  EEF_INSTITUTION_ID_PREFIX,
+  EEF_PROGRAM_ID_PREFIX,
+} from '../../common/eef-provenance';
 import type { AdminSessionUser } from '../auth/auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -707,6 +712,51 @@ export class AdminCatalogService {
     );
   }
 
+  /**
+   * Les lignes de l'import « Études en France » ne se publient PAS par les routes
+   * génériques.
+   *
+   * Elles ont leur porte — `admin/etudes-en-france/publication` — qui vérifie la
+   * source, la procédure et le domaine, demande de confirmer le nombre et signe du
+   * nom de l'administrateur connecté. `content_manager` a accès à ces routes-ci et
+   * pas à celle-là : si `PATCH { isActive: true }` acceptait aussi une ligne de
+   * l'import, la porte gardée ne garderait rien.
+   *
+   * Une ligne est de l'import par son identifiant OU par son établissement
+   * (`eefProgramWhere`) : une formation saisie à la main sous une université de
+   * l'import est servie par la recherche au même titre que les autres.
+   *
+   * Ce qui reste permis : créer ou remettre EN ATTENTE, éditer une ligne déjà
+   * publiée, retirer.
+   */
+  private assertNotPublishingEef(input: {
+    readonly what: 'program' | 'institution';
+    readonly id?: string;
+    readonly institutionId: string | undefined;
+    readonly nextActive: boolean | undefined;
+    readonly before?: { institutionId: string; isActive: boolean } | null;
+  }) {
+    if (input.nextActive !== true) return;
+    const isEef = (id: string | undefined, institutionId: string | undefined) =>
+      input.what === 'institution'
+        ? (id ?? '').startsWith(EEF_INSTITUTION_ID_PREFIX)
+        : (id ?? '').startsWith(EEF_PROGRAM_ID_PREFIX)
+          || (institutionId ?? '').startsWith(EEF_INSTITUTION_ID_PREFIX);
+    const becomesEef = isEef(input.id, input.institutionId);
+    if (!becomesEef) return;
+    // Déjà publiée ET déjà de l'import : rien ne change, l'éditer reste permis.
+    const alreadyPublishedEef =
+      input.before != null
+      && input.before.isActive
+      && isEef(input.id, input.before.institutionId);
+    if (alreadyPublishedEef) return;
+    throw new ConflictException(
+      "Les lignes de l'import « Études en France » se publient par "
+        + "« Publication EEF » (admin/etudes-en-france/publication), qui vérifie "
+        + 'la source, la procédure et le domaine, et signe la publication.',
+    );
+  }
+
   async createProgram(input: Record<string, unknown>) {
     this.assertDb();
     const data: Prisma.ProgramCreateInput = {
@@ -739,6 +789,11 @@ export class AdminCatalogService {
       // attente.
       isActive: this.bool(input.isActive) ?? true,
     };
+    this.assertNotPublishingEef({
+      what: 'program',
+      institutionId: data.institutionId,
+      nextActive: data.isActive,
+    });
     const created = await this.prisma.execute((db) =>
       db.program.create({ data }),
     );
@@ -771,16 +826,28 @@ export class AdminCatalogService {
       applicationDeadline: this.pickDateOrNull(input, 'applicationDeadline'),
       teachingLanguages: this.pickStrArr(input, 'teachingLanguages'),
       campusOfferings: this.pickCampusOfferings(input, 'campusOfferings'),
-      // Le chemin de publication d'une ligne importée. Sans lui, une fiche
-      // créée `isActive: false` par l'import n'aurait aucun moyen de devenir
-      // visible : le drapeau serait une impasse, pas une file d'attente.
+      // Le chemin de publication d'une fiche créée `isActive: false` (partenaire,
+      // saisie à la main). Les lignes de l'import ont le leur : voir
+      // `assertNotPublishingEef`.
       isActive: this.bool(input.isActive),
     });
     // L'établissement peut changer : les DEUX listes doivent bouger, celle
     // qu'on quitte comme celle qu'on rejoint.
     const before = await this.prisma.execute((db) =>
-      db.program.findUnique({ where: { id }, select: { institutionId: true } }),
+      db.program.findUnique({
+        where: { id },
+        select: { institutionId: true, isActive: true },
+      }),
     );
+    if (before) {
+      this.assertNotPublishingEef({
+        what: 'program',
+        id,
+        institutionId: this.str(input.institutionId) ?? before.institutionId,
+        nextActive: this.bool(input.isActive) ?? before.isActive,
+        before,
+      });
+    }
     const updated = await this.runUpdate(
       () => this.prisma.execute((db) => db.program.update({ where: { id }, data })),
       'Program',
@@ -864,8 +931,15 @@ export class AdminCatalogService {
       intakePeriods: this.strArr(input.intakePeriods),
       programIds: this.strArr(input.programIds),
       isPartner: this.bool(input.isPartner),
-      // Même rôle que sur la formation : publier un établissement importé.
+      // Même rôle que sur la formation : publier une fiche créée en attente qui
+      // n'est pas de l'import (voir `assertNotPublishingEef`).
       isActive: this.bool(input.isActive),
+    });
+    this.assertNotPublishingEef({
+      what: 'institution',
+      id,
+      institutionId: id,
+      nextActive: this.bool(input.isActive),
     });
     return this.runUpdate(
       () =>

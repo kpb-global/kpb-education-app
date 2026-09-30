@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import {
@@ -809,11 +813,178 @@ describe('AdminCatalogService — Program match-scoring columns', () => {
     });
   });
 
+  // L'import « Études en France » se publie par UNE porte : l'écran « Publication
+  // EEF » (`admin/etudes-en-france/publication`), qui vérifie la source, la
+  // procédure et le domaine, demande de confirmer le nombre et signe du nom de
+  // l'administrateur connecté. Les routes génériques ci-dessous restent la
+  // porte des fiches qui ne sont PAS de l'import (partenaires, saisie à la main) ;
+  // si elles acceptaient aussi `isActive: true` sur une ligne de l'import, la
+  // porte gardée ne garderait rien — `content_manager` y a accès, pas à elle.
+  describe("l'import ne se publie pas par les routes génériques", () => {
+    function makeGuarded(
+      before: { institutionId: string; isActive: boolean } | null,
+    ) {
+      const programUpdates: Array<Record<string, unknown>> = [];
+      const programCreates: Array<Record<string, unknown>> = [];
+      const institutionUpdates: Array<Record<string, unknown>> = [];
+      const client = {
+        program: {
+          create: async ({ data }: { data: Record<string, unknown> }) => {
+            programCreates.push(data);
+            return { id: 'created', ...data };
+          },
+          update: async ({ where, data }: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
+            programUpdates.push(data);
+            return { id: where.id, ...data };
+          },
+          findUnique: async () => before,
+          findMany: async () => [],
+        },
+        institution: {
+          update: async ({ where, data }: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
+            institutionUpdates.push(data);
+            return { id: where.id, ...data };
+          },
+          updateMany: async () => ({ count: 1 }),
+        },
+      };
+      const prisma = {
+        isEnabled: true,
+        execute: async (fn: (c: typeof client) => unknown) => fn(client),
+      } as unknown as PrismaService;
+      return {
+        service: new AdminCatalogService(prisma),
+        programUpdates,
+        programCreates,
+        institutionUpdates,
+      };
+    }
+    const EEF_INST = 'eef-univ-0123456789abcdef';
+    const EEF_PROG = 'eef-prog-0123456789abcdef';
+
+    describe('établissement', () => {
+      it("refuse de publier un établissement de l'import", async () => {
+        const { service, institutionUpdates } = makeGuarded(null);
+        await expect(
+          service.updateInstitution(EEF_INST, { isActive: true }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(institutionUpdates).toEqual([]);
+      });
+
+      it('laisse retirer un établissement de l’import, ou l’éditer sans toucher au drapeau', async () => {
+        const { service, institutionUpdates } = makeGuarded(null);
+        await service.updateInstitution(EEF_INST, { isActive: false });
+        await service.updateInstitution(EEF_INST, { nameFr: 'Nouveau nom' });
+        expect(institutionUpdates).toHaveLength(2);
+        expect(institutionUpdates[0].isActive).toBe(false);
+        expect(Object.keys(institutionUpdates[1])).not.toContain('isActive');
+      });
+
+      it("publie toujours un établissement qui n'est pas de l'import", async () => {
+        const { service, institutionUpdates } = makeGuarded(null);
+        await service.updateInstitution('omnes-ece', { isActive: true });
+        expect(institutionUpdates[0].isActive).toBe(true);
+      });
+    });
+
+    describe('formation', () => {
+      it("refuse de publier une formation de l'import même rangée sous un autre établissement", async () => {
+        // Le préfixe de la formation suffit : un établissement réaffecté ne blanchit pas.
+        const { service, programUpdates } = makeGuarded({
+          institutionId: 'omnes-ece',
+          isActive: false,
+        });
+        await expect(
+          service.updateProgram(EEF_PROG, { isActive: true }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programUpdates).toEqual([]);
+      });
+
+      it("refuse de publier une formation de l'import", async () => {
+        const { service, programUpdates } = makeGuarded({
+          institutionId: EEF_INST,
+          isActive: false,
+        });
+        await expect(
+          service.updateProgram(EEF_PROG, { isActive: true }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programUpdates).toEqual([]);
+      });
+
+      it("refuse de publier une formation saisie à la main SOUS un établissement de l'import", async () => {
+        // Son identifiant n'a pas le préfixe, son parent l'a : c'est la définition
+        // de la provenance (`eefProgramWhere`), et la recherche la servirait.
+        const { service, programUpdates } = makeGuarded({
+          institutionId: EEF_INST,
+          isActive: false,
+        });
+        await expect(
+          service.updateProgram('manual-1', { isActive: true }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programUpdates).toEqual([]);
+      });
+
+      it("refuse de ranger une formation PUBLIÉE sous un établissement de l'import", async () => {
+        const { service, programUpdates } = makeGuarded({
+          institutionId: 'omnes-ece',
+          isActive: true,
+        });
+        await expect(
+          service.updateProgram('partner-1', { institutionId: EEF_INST }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programUpdates).toEqual([]);
+      });
+
+      it("laisse éditer, retirer ou renommer une formation de l'import déjà publiée", async () => {
+        const { service, programUpdates } = makeGuarded({
+          institutionId: EEF_INST,
+          isActive: true,
+        });
+        await service.updateProgram(EEF_PROG, { tuitionMinEur: 7025 });
+        await service.updateProgram(EEF_PROG, { isActive: false });
+        await service.updateProgram(EEF_PROG, { isActive: true }); // déjà publiée : rien ne change
+        expect(programUpdates).toHaveLength(3);
+      });
+
+      it("publie toujours une formation qui n'est pas de l'import", async () => {
+        const { service, programUpdates } = makeGuarded({
+          institutionId: 'omnes-ece',
+          isActive: false,
+        });
+        await service.updateProgram('partner-1', { isActive: true });
+        expect(programUpdates[0].isActive).toBe(true);
+      });
+
+      it("ne crée pas, publiée, une formation sous un établissement de l'import", async () => {
+        const { service, programCreates } = makeGuarded(null);
+        await expect(
+          service.createProgram({ ...required, institutionId: EEF_INST }),
+        ).rejects.toBeInstanceOf(ConflictException);
+        expect(programCreates).toEqual([]);
+      });
+
+      it("crée en attente une formation sous un établissement de l'import", async () => {
+        const { service, programCreates } = makeGuarded(null);
+        await service.createProgram({
+          ...required,
+          institutionId: EEF_INST,
+          isActive: false,
+        });
+        expect(programCreates[0].isActive).toBe(false);
+      });
+
+      it("crée publiée, comme avant, une formation d'un autre établissement", async () => {
+        const { service, programCreates } = makeGuarded(null);
+        await service.createProgram(required);
+        expect(programCreates[0].isActive).toBe(true);
+      });
+    });
+  });
+
   describe('publier une ligne importée', () => {
-    // L'import du catalogue « Études en France » crée ses lignes
-    // `isActive: false`. Sans ce chemin d'écriture, le drapeau serait une
-    // impasse et non une file d'attente : 10 247 formations créées, aucune
-    // publiable.
+    // Les fiches créées `isActive: false` qui ne sont PAS de l'import « Études en
+    // France » (partenaires, saisie à la main) se publient par ce chemin ; celles
+    // de l'import ont le leur (voir le bloc précédent).
     it('accepte isActive pour publier une formation en attente', async () => {
       const { service, updates } = makeService();
       await service.updateProgram('prog-1', { isActive: true });

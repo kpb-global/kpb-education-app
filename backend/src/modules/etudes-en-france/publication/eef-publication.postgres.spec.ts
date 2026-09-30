@@ -63,6 +63,9 @@ describePostgres('Publication EEF — intégration PostgreSQL', () => {
     p3: `${EEF_PROGRAM_ID_PREFIX}${sfx}-p3`,
     /// Sans procédure : refusée, doit rester inactive.
     pNoProcedure: `${EEF_PROGRAM_ID_PREFIX}${sfx}-noproc`,
+    /// Déjà active sous un établissement encore en attente (publiée par une route
+    /// générique, ou par SQL) : créée seulement par les tests qui en ont besoin.
+    pPre: `${EEF_PROGRAM_ID_PREFIX}${sfx}-pre`,
     otherP1: `${EEF_PROGRAM_ID_PREFIX}${sfx}-o1`,
     noSourceP1: `${EEF_PROGRAM_ID_PREFIX}${sfx}-n1`,
     partnerP1: `it-pub-partner-prog-${sfx}`,
@@ -73,6 +76,7 @@ describePostgres('Publication EEF — intégration PostgreSQL', () => {
     ids.p2,
     ids.p3,
     ids.pNoProcedure,
+    ids.pPre,
     ids.otherP1,
     ids.noSourceP1,
     ids.partnerP1,
@@ -244,7 +248,7 @@ describePostgres('Publication EEF — intégration PostgreSQL', () => {
           {
             AND: [
               { id: { startsWith: EEF_PROGRAM_ID_PREFIX } },
-              { OR: ['-p1', '-p2', '-p3', '-noproc', '-o1', '-n1'].map((s) => ({ id: { endsWith: s } })) },
+              { OR: ['-p1', '-p2', '-p3', '-noproc', '-pre', '-o1', '-n1'].map((s) => ({ id: { endsWith: s } })) },
             ],
           },
         ],
@@ -580,6 +584,90 @@ describePostgres('Publication EEF — intégration PostgreSQL', () => {
       expect(inst.isActive).toBe(false);
       const p1 = await prisma.program.findUniqueOrThrow({ where: { id: ids.p1 } });
       expect(p1.verifiedById).toBeNull();
+    });
+  });
+
+  describe('une écriture concurrente pendant la transaction', () => {
+    // Le plan est relu DANS la transaction, puis les lignes sont écrites. Entre les
+    // deux, un autre administrateur modifie une formation ; l'UPDATE ne teste que
+    // l'identifiant, l'établissement et l'état. Sous l'isolation par défaut, la
+    // ligne devenue invalide serait publiée et signée « vérifiée ».
+    it.each([
+      ['sa source vidée', { sourceUrl: null }],
+      ['son domaine sorti du référentiel', { fieldId: 'zz' }],
+    ])('annule tout quand une formation a %s pendant l’écriture', async (_label, change) => {
+      hooks.beforeFirstProgramUpdateMany = async () => {
+        await prisma.program.update({ where: { id: ids.p2 }, data: change });
+      };
+
+      await expect(
+        publish(ids.inst, { apply: true, expectedPrograms: 3 }),
+      ).rejects.toBeInstanceOf(ConflictException);
+
+      expect(await activeProgramIds()).toEqual([]);
+      const inst = await prisma.institution.findUniqueOrThrow({ where: { id: ids.inst } });
+      expect(inst.isActive).toBe(false);
+      const p1 = await prisma.program.findUniqueOrThrow({ where: { id: ids.p1 } });
+      expect(p1.verifiedById).toBeNull();
+    });
+
+    it('annule aussi un retrait quand une formation change pendant l’écriture', async () => {
+      await publish(ids.inst, { apply: true, expectedPrograms: 3 });
+      hooks.beforeFirstProgramUpdateMany = async () => {
+        await prisma.program.update({ where: { id: ids.p2 }, data: { nameFr: 'renommée' } });
+      };
+
+      await expect(
+        unpublish(ids.inst, { apply: true, expectedPrograms: 3 }),
+      ).rejects.toBeInstanceOf(ConflictException);
+
+      expect(await activeProgramIds()).toEqual([ids.p1, ids.p2, ids.p3].sort());
+    });
+  });
+
+  describe('formations déjà actives sous un établissement en attente', () => {
+    // Activer l'établissement les rend visibles : elles passent d'abord par les
+    // mêmes contrôles que les autres.
+    it('refuse d’activer l’établissement quand l’une est invalide, et n’écrit rien', async () => {
+      await prisma.program.create({
+        data: program(ids.pPre, ids.inst, { isActive: true, sourceUrl: null }),
+      });
+      const before = await snapshot();
+
+      const simulation = await publish(ids.inst);
+      expect(simulation.plan.publishable).toBe(false);
+      expect(simulation.plan.institution.refusals).toEqual(['institution_has_invalid_active_program']);
+      expect(simulation.plan.programs.activeInvalid.map((r) => r.id)).toEqual([ids.pPre]);
+
+      await expect(
+        publish(ids.inst, { apply: true, expectedPrograms: 0 }),
+      ).rejects.toBeInstanceOf(UnprocessableEntityException);
+      expect(await snapshot()).toEqual(before);
+      // … et la formation invalide n'est toujours pas servie.
+      expect(await searchIds()).toEqual([]);
+    });
+
+    it('refuse aussi quand la publication est restreinte à une liste', async () => {
+      await prisma.program.create({
+        data: program(ids.pPre, ids.inst, { isActive: true, procedureType: null }),
+      });
+
+      await expect(
+        // Le plan bloqué n'annonce rien à publier : la simulation dit 0.
+        publish(ids.inst, { apply: true, programIds: [ids.p1], expectedPrograms: 0 }),
+      ).rejects.toBeInstanceOf(UnprocessableEntityException);
+
+      const inst = await prisma.institution.findUniqueOrThrow({ where: { id: ids.inst } });
+      expect(inst.isActive).toBe(false);
+    });
+
+    it('publie quand elle est valide, et elle devient visible avec son parent', async () => {
+      await prisma.program.create({ data: program(ids.pPre, ids.inst, { isActive: true }) });
+
+      const result = await publish(ids.inst, { apply: true, expectedPrograms: 3 });
+
+      expect(result).toMatchObject({ institutionActivated: true, programsPublished: 3 });
+      expect(await searchIds()).toEqual([ids.p1, ids.p2, ids.p3, ids.pPre].sort());
     });
   });
 

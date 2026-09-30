@@ -328,6 +328,17 @@ déploiement est couplé** : voir la file `/verification` ci-dessous.
   part AVANT l'admin (un admin plus ancien n'a simplement pas l'écran). L'écran a
   été exercé dans un navigateur contre un faux serveur qui réutilise le vrai plan
   du backend (parcours complet, refus, retrait), pas contre une base de production.
+- **Publication de l'import : trois failles fermées après la revue automatique de la
+  PR.** (1) `PATCH`/`POST /admin/catalog/…` ne peuvent plus ACTIVER une ligne de
+  l'import (409) : la publication passe uniquement par « Publication EEF » ; les
+  autres usages de ces routes sont inchangés. (2) Activer un établissement
+  revalide ses formations déjà actives ; l'une invalide refuse l'établissement
+  (`institution_has_invalid_active_program`, `plan.programs.activeInvalid`) — un
+  motif de refus de plus, que l'écran affiche. (3) La transaction d'écriture est en
+  `RepeatableRead` : une modification concurrente annule la publication (409) au
+  lieu d'être publiée et signée. **Couplage admin :** un admin plus ancien
+  ne connaît pas le nouveau motif et l'afficherait en clé brute ; le backend part
+  AVANT l'admin, comme pour le reste du lot.
 - **Documentation des sources corrigée, deux dossiers de décision ouverts.** La SOP
   et le pipeline affirmaient « chaque ligne porte sa fiche officielle » : c'est faux
   pour 4 212 lignes sur 10 502 (portail Mon Master, jeu de données ouvert) —

@@ -744,9 +744,17 @@ Corps de `publish` et `unpublish` (tout est optionnel) :
   5 000 au plus). Sans lui : toutes les formations encore inactives de
   l'établissement — au retrait, toutes les formations publiées ET l'établissement.
   Avec lui, l'établissement reste publié au retrait.
-- Le plan est **recalculé dans la transaction d'écriture** ; une formation qui
-  n'est plus publiable, ou que quelqu'un d'autre a publiée entre-temps, annule
-  l'ensemble (409).
+- Le plan est **recalculé dans la transaction d'écriture**, qui s'exécute en
+  `RepeatableRead` ; une formation qui n'est plus publiable, ou que quelqu'un
+  d'autre a publiée ou modifiée entre-temps, annule l'ensemble (409, rien n'est
+  écrit).
+- **Les routes génériques ne publient pas l'import.** `PATCH /admin/catalog/programs/:id`,
+  `PATCH /admin/catalog/institutions/:id` et `POST /admin/catalog/programs` répondent
+  **409** quand elles ACTIVERAIENT une ligne de l'import (préfixe `eef-prog-` /
+  `eef-univ-`, ou formation sous un établissement de l'import) qui n'est pas déjà
+  publiée : sans cela, elles contourneraient la vérification de la source, de la
+  procédure et du domaine, et la signature du relecteur. Désactiver et modifier une
+  ligne déjà publiée restent permis ; les fiches de l'équipe ne sont pas concernées.
 
 Réponse d'une simulation de publication :
 
@@ -761,6 +769,7 @@ Réponse d'une simulation de publication :
       "toPublish": ["eef-prog-…"],
       "alreadyActive": 0,
       "refused": [{ "id": "…", "nameFr": "…", "reasons": ["program_procedure_missing"] }],
+      "activeInvalid": [],
       "genericSource": { "ministryPortal": 0, "ministryDataset": 0 }
     },
     "publishable": true,
@@ -771,7 +780,10 @@ Réponse d'une simulation de publication :
 
 Refus d'établissement : `institution_not_from_import` (une fiche partenaire n'est
 jamais publiable par cette voie), `institution_source_missing` (source absente ou
-non HTTPS). Refus de formation : `program_unknown`, `program_not_from_import`,
+non HTTPS), `institution_has_invalid_active_program` (au moins une formation
+DÉJÀ active sous cet établissement encore en attente ne passe pas les contrôles :
+l'activer la rendrait visible ; elle est listée dans `programs.activeInvalid`, avec
+ses motifs). Refus de formation : `program_unknown`, `program_not_from_import`,
 `program_wrong_institution`, `program_source_missing`,
 `program_procedure_missing`, `program_field_unknown`. Un établissement refusé
 annonce `toPublish: []`. Une écriture sans rien à publier répond 422 avec le plan.

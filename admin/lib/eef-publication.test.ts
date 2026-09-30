@@ -20,6 +20,7 @@ const plan = (over: Partial<PublicationPlan> = {}): PublicationPlan => ({
     toPublish: ['a', 'b', 'c'],
     alreadyActive: 0,
     refused: [],
+    activeInvalid: [],
     genericSource: { ministryPortal: 0, ministryDataset: 0 },
   },
   publishable: true,
@@ -89,6 +90,7 @@ describe('genericSourceCount', () => {
         toPublish: ['a', 'b', 'c'],
         alreadyActive: 0,
         refused: [],
+        activeInvalid: [],
         genericSource: { ministryPortal: 2, ministryDataset: 1 },
       },
     });

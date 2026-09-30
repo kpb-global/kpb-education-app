@@ -366,10 +366,13 @@ const DOORS: Readonly<Record<string, Door>> = {
       + 'les lignes de l’import, jamais le catalogue général. Sa portée est '
       + 'l’identifiant (préfixe de l’import) et l’établissement demandé, répétés '
       + 'dans le plan pur comme dans chaque écriture ; le plan est recalculé DANS la '
-      + 'transaction. Il ne sert rien à un étudiant.',
+      + 'transaction, en `RepeatableRead`. Il relit aussi les formations DÉJÀ '
+      + 'actives de l’établissement (sans filtre de préfixe : la recherche les '
+      + 'sert), car activer l’établissement les rend visibles. Il ne sert rien à '
+      + 'un étudiant.',
     scoped: {},
     unscoped: '*',
-    accesses: 10,
+    accesses: 11,
   },
   'modules/etudes-en-france/catalog/eef-pending-purge.ts': {
     reason:
