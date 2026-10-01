@@ -290,6 +290,32 @@ void main() {
       expect(find.text('Accès santé'), findsNothing);
     });
 
+    testWidgets(
+        'le filtre du cycle santé dit « Études de santé », pas « Accès santé » : '
+        'il compte aussi les diplômes paramédicaux, qui n\'ont pas le badge',
+        (tester) async {
+      stub((_) async => _page(
+            [
+              _program('a',
+                  name: "Certificat de capacité d'Orthophoniste",
+                  institution: _university(),
+                  procedureType: 'dap_blanche',
+                  cycle: 'sante',
+                  healthAccess: false),
+            ],
+            facets: <String, dynamic>{
+              'cycle': [
+                <String, dynamic>{'value': 'sante', 'count': 650},
+              ],
+            },
+          ));
+      await pump(tester);
+
+      expect(find.textContaining('Études de santé'), findsWidgets);
+      expect(find.text('Accès santé'), findsNothing);
+      expect(rawTranslationKeysOnScreen(tester), isEmpty);
+    });
+
     testWidgets('une procédure « hors procédure » est dite telle',
         (tester) async {
       stub((_) async => _page([

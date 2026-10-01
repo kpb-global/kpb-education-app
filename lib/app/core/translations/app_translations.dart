@@ -2047,7 +2047,10 @@ class AppTranslations extends Translations {
           'eef_catalog_value_cycle_licence3': 'Licence 3e année',
           'eef_catalog_value_cycle_but1': 'BUT 1re année',
           'eef_catalog_value_cycle_deust': 'DEUST',
-          'eef_catalog_value_cycle_sante': 'Accès santé',
+          // La famille « Études de santé » entière : PASS, L.AS ET diplômes
+          // paramédicaux. « Accès santé » est réservé au badge des seuls PASS / L.AS.
+          'eef_catalog_value_cycle_sante': 'Études de santé',
+          'eef_catalog_badge_health_access': 'Accès santé',
           'eef_catalog_value_cycle_ingenieur': 'Cycle ingénieur',
           'eef_catalog_value_cycle_master': 'Master',
           'eef_catalog_value_procedureType_dap_blanche': 'DAP dossier blanc',
@@ -5215,7 +5218,8 @@ class AppTranslations extends Translations {
           'eef_catalog_value_cycle_licence3': 'Bachelor, final year',
           'eef_catalog_value_cycle_but1': 'BUT, year 1',
           'eef_catalog_value_cycle_deust': 'DEUST',
-          'eef_catalog_value_cycle_sante': 'Health studies access',
+          'eef_catalog_value_cycle_sante': 'Health studies',
+          'eef_catalog_badge_health_access': 'Health studies access',
           'eef_catalog_value_cycle_ingenieur': 'Engineering programme',
           'eef_catalog_value_cycle_master': "Master's",
           'eef_catalog_value_procedureType_dap_blanche': 'DAP, white form',

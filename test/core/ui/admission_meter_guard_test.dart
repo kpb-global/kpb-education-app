@@ -1,4 +1,5 @@
-// MISS-02 — aucune jauge d'admission ne doit afficher un nombre CODÉ EN DUR.
+// MISS-02 — aucune jauge ni badge de compatibilité ne doit afficher une valeur
+// CODÉE EN DUR.
 //
 // La fiche établissement affichait « 85 % » en vert sur chaque établissement,
 // une valeur de maquette (`const score = 85; // Mock score for now`). À côté du
@@ -6,8 +7,11 @@
 // information trompeuse, que la fiche boutique s'interdit (aucune promesse
 // d'admission, aucun nombre non prouvé).
 //
-// Ce garde lit les sources : une jauge ou un badge de compatibilité doit être
-// alimenté par un calcul, jamais par un littéral.
+// Depuis #287, l'app n'affiche plus AUCUN pourcentage : `AdmissionMeter`,
+// `MatchBadge` et `MatchScoreBadge` sont supprimés, et le seul signal est un
+// palier « match profil » (`ProfileFitBadge`), calculé à partir du profil et
+// absent sans profil. Ce garde lit les sources : les anciens composants ne
+// reviennent pas, et le palier n'est jamais un littéral.
 
 import 'dart:io';
 
@@ -23,21 +27,31 @@ void main() {
   test('la garde lit bien les sources — sinon elle ne prouve rien', () {
     expect(files.length, greaterThan(100));
     expect(
-      files.any((f) => f.path.endsWith('admission_meter.dart')),
+      files.any((f) => f.path.endsWith('profile_fit_badge.dart')),
       isTrue,
     );
   });
 
-  test('aucun AdmissionMeter / MatchBadge ne reçoit un score littéral', () {
-    // `score: 85`, `score: 0.85`, ou `score: score` avec `const score = 85`.
+  test('les jauges à pourcentage ne reviennent pas', () {
+    final widget = RegExp(r'\b(AdmissionMeter|MatchBadge|MatchScoreBadge)\(');
+    final offenders = <String>[];
+    for (final file in files) {
+      if (widget.hasMatch(file.readAsStringSync())) offenders.add(file.path);
+    }
+    expect(offenders, isEmpty, reason: offenders.join('\n'));
+  });
+
+  test('aucun ProfileFitBadge ne reçoit un palier littéral', () {
+    // `ProfileFitBadge(fit: ProfileFit.strong)` afficherait « Très bon match »
+    // sur tout : la même faute que le « 85 % ». `ProfileFit.fromZone(…)` est un
+    // calcul, pas un littéral.
     final literal = RegExp(
-      r'(AdmissionMeter|MatchBadge)\(\s*score:\s*(?:const\s+)?\d',
+      r'ProfileFitBadge\(\s*fit:\s*(?:const\s+)?ProfileFit\.(?!fromZone\b)\w+\s*[,)]',
       multiLine: true,
     );
     final offenders = <String>[];
     for (final file in files) {
-      final text = file.readAsStringSync();
-      if (literal.hasMatch(text)) offenders.add(file.path);
+      if (literal.hasMatch(file.readAsStringSync())) offenders.add(file.path);
     }
     expect(offenders, isEmpty, reason: offenders.join('\n'));
   });
@@ -55,16 +69,26 @@ void main() {
   });
 
   // La contre-épreuve de la garde : sur l'ancien code, elle aurait mordu.
-  test('le motif attrape bien l\'ancienne écriture', () {
+  test('les motifs attrapent bien les anciennes écritures', () {
+    final widget = RegExp(r'\b(AdmissionMeter|MatchBadge|MatchScoreBadge)\(');
+    expect(widget.hasMatch('const AdmissionMeter(\n score: 85,'), isTrue);
+    expect(widget.hasMatch('MatchBadge(score: s)'), isTrue);
+    expect(widget.hasMatch('ProfileFitBadge(fit: fit)'), isFalse);
+
     final literal = RegExp(
-      r'(AdmissionMeter|MatchBadge)\(\s*score:\s*(?:const\s+)?\d',
+      r'ProfileFitBadge\(\s*fit:\s*(?:const\s+)?ProfileFit\.(?!fromZone\b)\w+\s*[,)]',
     );
-    expect(literal.hasMatch('const AdmissionMeter(\n score: 85,'), isTrue);
-    expect(literal.hasMatch('AdmissionMeter(score: 85)'), isTrue);
+    expect(literal.hasMatch('ProfileFitBadge(fit: ProfileFit.strong)'), isTrue);
     expect(
-      literal.hasMatch('AdmissionMeter(score: controller.institutionMatch(i))'),
+      literal.hasMatch('ProfileFitBadge(fit: ProfileFit.good, fontSize: 11)'),
+      isTrue,
+    );
+    expect(
+      literal.hasMatch('ProfileFitBadge(fit: ProfileFit.fromZone(match.zone))'),
       isFalse,
     );
+    expect(
+        literal.hasMatch('ProfileFitBadge(fit: fit!, fontSize: 13)'), isFalse);
     expect(
         RegExp(r'const\s+score\s*=\s*\d+\s*;')
             .hasMatch('const score = 85; // Mock score for now'),
