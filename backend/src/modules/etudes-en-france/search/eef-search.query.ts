@@ -32,6 +32,7 @@ import {
   EEF_CYCLES,
   EEF_PROCEDURE_TYPES,
 } from '../catalog/eef-catalog.types';
+import { healthAccessYearWhere } from '../catalog/eef-health-access';
 import { buildSearchTerms } from './eef-search.terms';
 
 export const EEF_SEARCH_DEFAULT_LIMIT = 20;
@@ -312,23 +313,36 @@ export function buildEefSearchWhere(
   //      lignes dont le texte normalisé est encore nul ou périmé. Il fait que la
   //      recherche ne trouve jamais MOINS qu'avant ;
   //   3. il désigne l'établissement, par son nom ou son sigle ;
-  //   4. il désigne un niveau (« licence », « master », « L2 ») — le cycle.
+  //   4. il désigne un niveau (« licence », « master », « L2 ») — le cycle ;
+  //   5. il désigne une 1re année d'accès santé (« médecine » → PASS ou L.AS).
   //
   // « master droit à rennes » se lit donc : niveau master ET droit ET Rennes. Un
   // `contains` sur la phrase entière ne trouverait rien.
+  //
+  // Un mot qui ne vaut que par ce qu'il désigne (« las ») saute 1 à 3 : cherché
+  // dans le texte, il trouverait « Arts plastiques ».
   for (const term of buildSearchTerms(params.terms)) {
-    const alternatives: Record<string, unknown>[] = [
-      { searchText: { contains: term.norm } },
-      { nameFr: { contains: term.raw, mode: 'insensitive' } },
-      { campusCity: { contains: term.raw, mode: 'insensitive' } },
-    ];
-    const institutionIds = options.termInstitutionIds?.get(term.norm);
-    if (institutionIds && institutionIds.length > 0) {
-      alternatives.push({ institutionId: { in: [...institutionIds] } });
+    const alternatives: Record<string, unknown>[] = [];
+    if (term.matchesText) {
+      alternatives.push(
+        { searchText: { contains: term.norm } },
+        { nameFr: { contains: term.raw, mode: 'insensitive' } },
+        { campusCity: { contains: term.raw, mode: 'insensitive' } },
+      );
+      const institutionIds = options.termInstitutionIds?.get(term.norm);
+      if (institutionIds && institutionIds.length > 0) {
+        alternatives.push({ institutionId: { in: [...institutionIds] } });
+      }
     }
     if (term.cycles.length > 0) {
       alternatives.push({ cycle: { in: [...term.cycles] } });
     }
+    if (term.healthAccess) {
+      alternatives.push(healthAccessYearWhere());
+    }
+    // Jamais vide : un mot qui ne se cherche pas dans le texte désigne toujours
+    // quelque chose (`EEF_DESIGNATION_ONLY_WORDS` ⊂ `EEF_HEALTH_ACCESS_WORDS`,
+    // vérifié par les tests). Un `OR: []` ne rendrait aucune ligne.
     and.push({ OR: alternatives });
   }
 

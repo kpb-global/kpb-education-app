@@ -70,9 +70,16 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
     chimie: `${EEF_PROGRAM_ID_PREFIX}${sfx}-chim`,
     /// Un PASS, dont l'intitulé porte « Santé » et « PASS ».
     pass: `${EEF_PROGRAM_ID_PREFIX}${sfx}-pass`,
+    /// Un diplôme paramédical de la famille « Études de santé » : pas un accès
+    /// aux études de médecine.
+    ortho: `${EEF_PROGRAM_ID_PREFIX}${sfx}-ortho`,
+    /// « plastiques » contient « las ».
+    plast: `${EEF_PROGRAM_ID_PREFIX}${sfx}-plast`,
   };
   const institutionIds = [ids.instA, ids.instB, ids.instPending, ids.instS];
-  const programIds = [ids.p1, ids.p2, ids.p3, ids.p4, ids.p5, ids.las, ids.chimie, ids.pass];
+  const programIds = [
+    ids.p1, ids.p2, ids.p3, ids.p4, ids.p5, ids.las, ids.chimie, ids.pass, ids.ortho, ids.plast,
+  ];
 
   const prismaService = {
     isEnabled: true,
@@ -259,6 +266,16 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
           procedureType: 'dap_blanche',
           searchText: programSearchText("L1 - Parcours d'Accès Spécifique Santé (PASS)", 'Tours'),
         }),
+        program(ids.ortho, ids.instS, "Certificat de capacité d'Orthophoniste", 'Tours', {
+          cycle: 'sante',
+          procedureType: 'dap_blanche',
+          searchText: programSearchText("Certificat de capacité d'Orthophoniste", 'Tours'),
+        }),
+        program(ids.plast, ids.instS, 'L1 - Arts plastiques', 'Tours', {
+          cycle: 'licence1',
+          procedureType: 'dap_blanche',
+          searchText: programSearchText('L1 - Arts plastiques', 'Tours'),
+        }),
       ],
     });
   });
@@ -356,19 +373,56 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
   describe('par les mots des études de santé', () => {
     // Aucun intitulé du catalogue ne contient « médecine » : on y entre par un PASS
     // ou une L.AS (« L1 - Chimie » en accès santé). Mesuré en production le
-    // 01/10/2026 : `q=medecine` rendait 0 résultat sur 650 formations de santé.
-    it('« médecine » trouve le PASS et la L.AS, pas la même licence sans accès santé', async () => {
+    // 01/10/2026 : `q=medecine` rendait 0 résultat, puis, mené au cycle `sante`
+    // entier, les diplômes paramédicaux en tête — aucune PASS ni L.AS dans les 50
+    // premiers résultats.
+    it('« médecine » trouve le PASS et la L.AS — ni la même licence sans accès santé, ni l’orthophonie', async () => {
       expect(await served(`${tokS} medecine`)).toEqual(sorted(ids.las, ids.pass));
       expect(await served(`${tokS} médecine`)).toEqual(sorted(ids.las, ids.pass));
       expect(await served(`${tokS} Médecine`)).toEqual(sorted(ids.las, ids.pass));
     });
 
-    it.each(['pharmacie', 'kine', 'maieutique', 'dentaire', 'pass', 'las', 'health'])(
-      '« %s » désigne l’accès santé',
+    it.each(['pharmacie', 'kine', 'maieutique', 'dentaire', 'las', 'L.AS', 'L AS'])(
+      '« %s » désigne l’accès santé, et lui seul',
       async (word) => {
         expect(await served(`${tokS} ${word}`)).toEqual(sorted(ids.las, ids.pass));
       },
     );
+
+    it('« las » ne trouve pas « Arts plastiques »', async () => {
+      expect(await served(`${tokS} las`)).not.toContain(ids.plast);
+      // Le mot « plastiques » le trouve toujours.
+      expect(await served(`${tokS} plastiques`)).toEqual([ids.plast]);
+    });
+
+    it('« PASS » trouve le PASS, pas la L.AS', async () => {
+      expect(await served(`${tokS} pass`)).toEqual([ids.pass]);
+    });
+
+    it.each(['santé', 'health'])('« %s » trouve toute la famille santé, orthophonie comprise', async (word) => {
+      expect(await served(`${tokS} ${word}`)).toEqual(sorted(ids.las, ids.pass, ids.ortho));
+    });
+
+    it('l’orthophonie se trouve par son nom', async () => {
+      expect(await served(`${tokS} orthophoniste`)).toEqual([ids.ortho]);
+    });
+
+    it('la carte dit « accès santé » pour le PASS et la L.AS, et pour eux seuls', async () => {
+      const result = await search.search({ q: tokS, limit: '50' });
+      const healthAccess = Object.fromEntries(
+        (result.items as Array<{ id: string; healthAccess: boolean }>).map((item) => [
+          item.id,
+          item.healthAccess,
+        ]),
+      );
+      expect(healthAccess).toEqual({
+        [ids.las]: true,
+        [ids.pass]: true,
+        [ids.chimie]: false,
+        [ids.ortho]: false,
+        [ids.plast]: false,
+      });
+    });
 
     it('« chimie » trouve les deux licences : le synonyme n’ôte rien au texte', async () => {
       expect(await served(`${tokS} chimie`)).toEqual(sorted(ids.las, ids.chimie));
@@ -379,7 +433,7 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
     });
 
     it('« licence » ne désigne pas l’accès santé', async () => {
-      expect(await served(`${tokS} licence`)).toEqual([ids.chimie]);
+      expect(await served(`${tokS} licence`)).toEqual(sorted(ids.chimie, ids.plast));
     });
 
     it('un mot sans rapport ne trouve toujours rien', async () => {

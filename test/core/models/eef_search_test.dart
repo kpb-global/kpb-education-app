@@ -91,7 +91,18 @@ void main() {
 
       expect(item.procedureType, isNull);
       expect(item.institution, isNull);
+      expect(item.healthAccess, isFalse);
       expect(item.program.name.fr, 'Licence Droit');
+    });
+
+    test('lit « accès santé » tel que le serveur le décide', () {
+      final yes = _item()..['healthAccess'] = true;
+      final no = _item()..['healthAccess'] = false;
+      // Une valeur mal typée ne vaut pas « oui ».
+      final odd = _item()..['healthAccess'] = 'true';
+      final items = EefSearchPage.fromJson(_page([yes, no, odd])).items;
+
+      expect(items.map((item) => item.healthAccess), [true, false, false]);
     });
 
     // Une carte sans établissement doit rester honnête : jamais un nom inventé.

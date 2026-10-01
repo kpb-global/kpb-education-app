@@ -108,6 +108,17 @@ describe('mapEefProgram', () => {
     }
   });
 
+  it('dit « accès santé » pour un PASS ou une L.AS, pas pour un diplôme paramédical', () => {
+    expect(mapEefProgram(program(), byId).healthAccess).toBe(false);
+    expect(mapEefProgram(program({ cycle: 'sante' }), byId).healthAccess).toBe(true);
+    expect(
+      mapEefProgram(
+        program({ cycle: 'sante', nameFr: "Certificat de capacité d'Orthophoniste" }),
+        byId,
+      ).healthAccess,
+    ).toBe(false);
+  });
+
   it('sert un établissement nul plutôt que de planter quand il manque', () => {
     expect(mapEefProgram(program(), new Map()).institution).toBeNull();
   });

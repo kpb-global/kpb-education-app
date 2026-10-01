@@ -88,6 +88,7 @@ class EefProgram {
     required this.program,
     this.procedureType,
     this.cycle,
+    this.healthAccess = false,
     this.selectivity,
     this.campusCity,
     this.institution,
@@ -100,6 +101,12 @@ class EefProgram {
   /// plutôt que de lui inventer un libellé.
   final String? procedureType;
   final String? cycle;
+
+  /// Un PASS ou une L.AS — une 1re année d'accès aux études de médecine,
+  /// maïeutique, odontologie, pharmacie ou kinésithérapie. Décidé par le
+  /// serveur, pas déduit du cycle : la famille `sante` compte aussi des diplômes
+  /// paramédicaux qui n'en sont pas. Absent (serveur plus ancien) : faux.
+  final bool healthAccess;
   final String? selectivity;
   final String? campusCity;
   final EefInstitutionSummary? institution;
@@ -110,6 +117,7 @@ class EefProgram {
         program: ProgramModel.fromJson(json),
         procedureType: _text(json['procedureType']),
         cycle: _text(json['cycle']),
+        healthAccess: json['healthAccess'] == true,
         selectivity: _text(json['selectivity']),
         campusCity: _text(json['campusCity']),
         institution: EefInstitutionSummary.fromJson(json['institution']),

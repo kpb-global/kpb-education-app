@@ -527,9 +527,10 @@ class _ProgramCard extends StatelessWidget {
     final level = program.level.resolve(locale);
     // Une 1re année d'accès santé (PASS ou L.AS) s'intitule souvent « L1 - Droit »
     // ou « L1 - Chimie » : sans ce badge, une recherche « médecine » montrerait des
-    // licences de droit sans dire pourquoi. Le serveur range ces formations dans
-    // le cycle `sante`, et la recherche y mène les mots de la santé.
-    final healthAccess = item.cycle == 'sante';
+    // licences de droit sans dire pourquoi. C'est le serveur qui le décide : le
+    // cycle `sante` compte aussi des diplômes paramédicaux (orthophoniste…), dont
+    // l'intitulé se suffit et qui ne sont pas un accès aux études de médecine.
+    final healthAccess = item.healthAccess;
 
     return KpbCard(
       child: Column(
