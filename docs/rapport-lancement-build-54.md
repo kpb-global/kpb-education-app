@@ -1,10 +1,13 @@
 # Rapport — Études en France, build 54 : ce qui est fait, ce qui reste
 
-> Établi le 01/10/2026 sur la branche `claude/campus-france-space-98orw9`
-> (derniers commits : `ac54037`). **Aucune PR n'est ouverte et rien n'est fusionné** :
-> tout est commité et poussé sur la branche, en attendant ton feu vert.
-> Rien n'est déployé, rien n'est soumis aux stores, aucun établissement n'est publié,
-> `KPB_EEF_ENABLED` n'est posé nulle part.
+> Mis à jour le 01/10/2026 (soir) sur la branche `claude/campus-france-space-98orw9`.
+> **Fait depuis la première version de ce rapport** : la build 54 est fusionnée (#296) ;
+> le backend est déployé ; le catalogue (84 établissements, 10 502 formations) est
+> **importé, inactif** (#297, #298) ; l'audit de production est passé (voir §5 bis) ;
+> l'outil de **publication déléguée** est écrit et répété sur une copie complète
+> (`docs/eef-publication-deleguee.md`).
+> **Pas encore fait** : cet outil n'est ni fusionné ni déployé, **rien n'est publié**,
+> rien n'est soumis aux stores, `KPB_EEF_ENABLED` n'est posé nulle part, `eefSpace` est faux.
 
 ## 1. Où on en est, en trois phrases
 
@@ -96,6 +99,26 @@ Google Play), `docs/runbook-ouverture-espace-reel.md`, `docs/device-qa-build54.m
 | Admin web | 142 verts |
 | Mutations | chaque garde ajoutée a été cassée volontairement : le test correspondant devient rouge (échappement `ILIKE`, variantes d'accents, retour en haut, bandeau muet, lecture en échec, porte de l'espace…) |
 | Relectures indépendantes (2 agents, lecture seule) | **aucun défaut bloquant** ; une quinzaine de défauts réels (filtre d'exclusion qui ignorait une faute de frappe, `ILIKE` et jokers, liste non remontée, docs fausses…) **tous corrigés** dans `ac54037` |
+
+## 5 bis. Audit final du catalogue (01/10/2026, base de production, lecture seule)
+
+| Contrôle | Résultat |
+|---|---|
+| Intégrité des 84 établissements (`db-info.sql` §12) | source HTTPS, site HTTPS, nom, ville, UAI, pays : **0 manque** ; 0 code UAI en double ; 0 établissement sans formation ; 44 sans logo (assumé : pas de marque sous copyright) |
+| Intégrité des 10 502 formations | source HTTPS, procédure, cycle, domaine d01–d12, nom, établissement parent, pays : **0 manque, 0 orpheline** ; **10 502 passent le plan de publication** |
+| Catalogue général (autres espaces) | **69 établissements, 634 formations**, inchangés |
+| Sites des 84 universités | **76 répondent** ; 2 bloquent les robots (403) ; 6 non vérifiables depuis mon poste (certificat mal servi par le site, ou coupure) — pas de preuve qu'ils soient morts |
+| Pages-sources des formations (2 150 pages d'établissement, 1 559 adresses, deux passages) | **1 034 répondent ; 341 sont mortes (404/410/renvoi à l'accueil) = 473 formations, toutes des masters du jeu « Trouver mon master » de 2021, dans 63 établissements ; 184 incertaines** (deux passages complets ont donné 470 puis 473 : quelques pages sont instables) |
+| Fiches Parcoursup (4 140), Mon Master (1 078), jeu du ministère (3 134) | non contrôlées une à une (portails) ; échantillons : 40 fiches Parcoursup sur 40 répondent, et une relecture indépendante en a trouvé une générique sur 380 |
+| Titres identiques | 669 groupes (2 323 lignes) portent le même intitulé, le même cycle et la même ville, **avec des fiches Parcoursup distinctes** (codes différents) : ce ne sont pas des doublons de données, mais l'étudiant verra des cartes qui se ressemblent |
+
+**Conséquence :** la publication déléguée publie **10 029 formations** et laisse **473 en
+attente** (page-source morte). Aucune ne disparaît : elles restent importées, inactives.
+
+**À savoir avant d'ouvrir l'espace :** la recherche publique (`/etudes-en-france/search`) est lisible sans
+session dès la publication, même si aucune build n'affiche encore le catalogue. Et une règle de
+procédure fausse ne se corrige pas en masse après publication avec les outils actuels (pas de
+`eef:reconcile`) : voir `docs/eef-publication-deleguee.md` § « Retour arrière ».
 
 ## 6. Points d'attention connus
 

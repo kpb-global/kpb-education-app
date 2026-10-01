@@ -106,4 +106,62 @@ SELECT 'colonne Program.searchText absente : deployer le backend (migration) d a
 WHERE NOT EXISTS (SELECT 1 FROM information_schema.columns
                   WHERE table_name = 'Program' AND column_name = 'searchText');
 
+\echo ''
+\echo '=== 12. Audit de publication : integrite des lignes de l import (aucune donnee nominative) ==='
+\echo '    Etablissements : tout doit etre a 0 SAUF sans_logo (information : un logo absent est'
+\echo '    assume, on n affiche pas une marque sous copyright pour combler le trou).'
+SELECT COUNT(*)                                                                     AS etablissements,
+       COUNT(*) FILTER (WHERE i."isActive")                                         AS deja_publies,
+       COUNT(*) FILTER (WHERE i."sourceUrl" IS NULL OR i."sourceUrl" !~ '^https://') AS sans_source_https,
+       COUNT(*) FILTER (WHERE i."websiteUrl" IS NULL OR i."websiteUrl" !~ '^https://') AS sans_site_https,
+       COUNT(*) FILTER (WHERE btrim(i."nameFr") = '' OR btrim(i."nameEn") = '')      AS sans_nom,
+       COUNT(*) FILTER (WHERE btrim(i."locationFr") = '')                            AS sans_ville,
+       COUNT(*) FILTER (WHERE i."uaiCode" IS NULL)                                   AS sans_uai,
+       COUNT(*) FILTER (WHERE NOT EXISTS (SELECT 1 FROM "Country" c WHERE c."id" = i."countryId")) AS pays_inexistant,
+       COUNT(*) FILTER (WHERE NOT EXISTS (SELECT 1 FROM "Program" p WHERE p."institutionId" = i."id")) AS sans_formation,
+       COUNT(*) FILTER (WHERE i."logoUrl" IS NULL)                                   AS sans_logo
+FROM "Institution" i
+WHERE i."id" LIKE 'eef-univ-%';
+
+SELECT COUNT(*) AS codes_uai_en_double
+FROM (SELECT "uaiCode" FROM "Institution"
+      WHERE "id" LIKE 'eef-univ-%' AND "uaiCode" IS NOT NULL
+      GROUP BY 1 HAVING COUNT(*) > 1) d;
+
+\echo ''
+\echo '    Formations : tout doit etre a 0 SAUF formations et deja_publiees. publiables_par_le_plan'
+\echo '    reprend les trois controles du plan de publication (source https, procedure, domaine).'
+SELECT COUNT(*)                                                                      AS formations,
+       COUNT(*) FILTER (WHERE p."isActive")                                          AS deja_publiees,
+       COUNT(*) FILTER (WHERE p."sourceUrl" IS NULL OR p."sourceUrl" !~ '^https://')  AS sans_source_https,
+       COUNT(*) FILTER (WHERE p."procedureType" IS NULL OR btrim(p."procedureType") = '') AS sans_procedure,
+       COUNT(*) FILTER (WHERE p."procedureType" IS NOT NULL
+                          AND p."procedureType" NOT IN ('dap_blanche','dap_jaune','eef','parcoursup','hors_eef')) AS procedure_inconnue,
+       COUNT(*) FILTER (WHERE p."cycle" IS NULL)                                     AS sans_cycle,
+       COUNT(*) FILTER (WHERE NOT EXISTS (SELECT 1 FROM "Field" f WHERE f."id" = p."fieldId")) AS domaine_hors_referentiel,
+       COUNT(*) FILTER (WHERE btrim(p."nameFr") = '' OR btrim(p."nameEn") = '')       AS sans_nom,
+       COUNT(*) FILTER (WHERE NOT EXISTS (SELECT 1 FROM "Institution" i WHERE i."id" = p."institutionId")) AS orphelines,
+       COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM "Institution" i
+                                      WHERE i."id" = p."institutionId" AND i."id" NOT LIKE 'eef-univ-%')) AS parent_hors_import,
+       COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM "Institution" i
+                                      WHERE i."id" = p."institutionId" AND i."countryId" <> p."countryId")) AS pays_different_du_parent,
+       COUNT(*) FILTER (WHERE p."sourceUrl" ~ '^https://'
+                          AND p."procedureType" IS NOT NULL AND btrim(p."procedureType") <> ''
+                          AND EXISTS (SELECT 1 FROM "Field" f WHERE f."id" = p."fieldId")) AS publiables_par_le_plan
+FROM "Program" p
+WHERE p."id" LIKE 'eef-prog-%';
+
+\echo ''
+\echo '    Le catalogue general (les autres espaces) : ces totaux ne doivent PAS bouger apres une'
+\echo '    publication Etudes en France (avant le 01/10/2026 : 69 etablissements, 634 formations).'
+SELECT (SELECT COUNT(*) FROM "Institution" WHERE "isActive" AND "id" NOT LIKE 'eef-univ-%') AS etablissements_hors_import_actifs,
+       (SELECT COUNT(*) FROM "Program"     WHERE "isActive" AND "id" NOT LIKE 'eef-prog-%') AS formations_hors_import_actives;
+
+\echo ''
+\echo '    Comptes pouvant signer une publication (nombres seulement) : au moins 1 attendu.'
+SELECT "role", COUNT(*) AS comptes_actifs
+FROM "AdminUser"
+WHERE "isActive" AND "role" IN ('admin', 'super_admin')
+GROUP BY 1 ORDER BY 1;
+
 COMMIT;

@@ -857,6 +857,59 @@ case "$ACTION" in
     fi
     ;;
 
+  eef-publish)
+    # Publie l'import « Études en France » (établissements, puis formations) POUR
+    # LE COMPTE d'un administrateur, par le même service que l'écran admin. Voir
+    # `eef-delegated-publication.ts` : même plan, même transaction par
+    # établissement, même « tout ou rien ». Ce que l'outil ajoute : une simulation
+    # complète d'abord, un total à ressaisir pour écrire, les formations dont la
+    # page-source a disparu laissées en attente, et un tampon qui dit « publication
+    # déléguée » plutôt que d'attribuer une relecture une à une.
+    #
+    # Rend le catalogue lisible par l'API publique (`/etudes-en-france/search` n'exige
+    # aucune session), mais aucune build ne l'affiche tant que `features.eefSpace` est
+    # faux (action `eef-space-on`) : publier n'ouvre pas l'espace.
+    #
+    # Les valeurs libres sont REVALIDÉES ici : le workflow les a déjà bornées, mais
+    # ce script ne fait confiance à aucune variable d'environnement qu'il reçoit.
+    check_shape() { # nom valeur motif
+      if [ -n "$2" ] && ! [[ "$2" =~ $3 ]]; then
+        echo "::error::$1 n'a pas la forme attendue — refus."
+        exit 1
+      fi
+    }
+    check_shape EEF_VERIFIER_EMAIL "${EEF_VERIFIER_EMAIL:-}" '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+    check_shape EEF_EXPECTED_PROGRAMS "${EEF_EXPECTED_PROGRAMS:-}" '^[0-9]{1,6}$'
+    check_shape EEF_INSTITUTION_ID "${EEF_INSTITUTION_ID:-}" '^eef-univ-[A-Za-z0-9-]{1,60}$'
+    check_shape EEF_ACTOR "${EEF_ACTOR:-}" '^[A-Za-z0-9][A-Za-z0-9-]{0,38}(\[bot\])?$'
+    check_shape EEF_EXCLUDE_PROCEDURE "${EEF_EXCLUDE_PROCEDURE:-}" '^(aucune|hors_eef|dap_jaune|parcoursup)$'
+    publish_args=()
+    case "${EEF_EXCLUDE_PROCEDURE:-aucune}" in
+      aucune) ;;
+      *) publish_args+=(--exclude-procedure "$EEF_EXCLUDE_PROCEDURE") ;;
+    esac
+    [ -z "${EEF_VERIFIER_EMAIL:-}" ] || publish_args+=(--verifier-email "$EEF_VERIFIER_EMAIL")
+    [ -z "${EEF_INSTITUTION_ID:-}" ] || publish_args+=(--institution "$EEF_INSTITUTION_ID")
+    [ -z "${EEF_ACTOR:-}" ] || publish_args+=(--actor "$EEF_ACTOR")
+    # On n'écrit que sur un « false » explicite : toute autre valeur (« True », vide)
+    # reste en simulation, parce que l'erreur de frappe doit tomber du côté sûr.
+    if [ "$DRY_RUN" != "false" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run eef:publish -- --dry-run ${publish_args[@]+"${publish_args[@]}"}
+    else
+      if [ -z "${EEF_EXPECTED_PROGRAMS:-}" ]; then
+        echo "::error::expected_programs est obligatoire pour écrire : relancer la simulation, puis saisir le « TOTAL publiable » qu'elle annonce."
+        exit 1
+      fi
+      if ! docker compose exec -T api test -f dist/common/eef-provenance.js; then
+        echo "::error::Le backend déployé ne porte pas la frontière de l'import « Études en France » (dist/common/eef-provenance.js absent) : publier exposerait ces lignes sans que le catalogue général les écarte."
+        exit 1
+      fi
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run eef:publish -- --apply --expect-programs "$EEF_EXPECTED_PROGRAMS" ${publish_args[@]+"${publish_args[@]}"}
+    fi
+    ;;
+
   reviews-purge-orphans)
     # Supprime les avis conseillers ORPHELINS : sans auteur, dossier disparu ou
     # jamais renseigné. Ne touche ni un avis signé ni un avis sans auteur dont le
