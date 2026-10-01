@@ -13,6 +13,7 @@ import type { Program } from '@prisma/client';
 
 import { mapProgram } from '../../catalog/catalog.mapper';
 import { commonsRasterDisplayUrl } from './eef-catalog.admission';
+import { isHealthAccessYear } from './eef-health-access';
 import type { PublishedInstitution } from './eef-published-institutions';
 
 type Localized = { fr: string; en: string };
@@ -49,6 +50,11 @@ export function mapEefProgram(
     ...mapProgram(row),
     procedureType: row.procedureType,
     cycle: row.cycle,
+    // Un PASS ou une L.AS : la carte l'annonce (« Accès santé »), parce qu'une
+    // L.AS s'intitule « L1 - Droit » et qu'une recherche « médecine » la montre.
+    // Calculé ici, et non par l'app sur le cycle : le cycle `sante` compte aussi
+    // 61 diplômes paramédicaux qui n'en sont pas.
+    healthAccess: isHealthAccessYear(row),
     selectivity: row.selectivity,
     campusCity: row.campusCity,
     formationCode: row.formationCode,

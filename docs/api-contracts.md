@@ -302,6 +302,7 @@ connaît que la première forme continue de tout lire) :
 | Champ | Sens |
 |---|---|
 | `procedureType`, `cycle`, `selectivity` | la procédure (DAP blanche, Études en France…), le cycle exact, la sélectivité publiée |
+| `healthAccess` | `true` pour une 1re année d'accès santé — PASS ou L.AS (`eef-health-access.ts`). **Pas** `cycle === 'sante'` : ce cycle compte aussi 61 diplômes paramédicaux (orthophoniste, ergothérapeute…) qui n'en sont pas. L'app y accroche le badge « Accès santé » |
 | `campusCity`, `formationCode` | où se déroule la formation, son code officiel |
 | `recommendedBachelors`, `admissionModes` | licences conseillées à l'entrée et modalités de candidature, telles que l'établissement les publie |
 | `institution` | l'établissement, en résumé : `id`, `name`, `acronym`, `location`, `institutionType`, `websiteUrl`, `logoUrl` (servi à la largeur standard de Wikimedia), `logoSourceUrl`, `logoLicence` |
@@ -339,7 +340,15 @@ survenue entre les deux ferait coexister un résultat vide d'un instant et un
   le sigle entier compte. Seuls les établissements **publiés** sont candidats : un
   établissement en attente n'est trouvable par personne.
 - **Par niveau.** `licence` → L1, L2, L3, licence pro ; `bachelor` → les mêmes et
-  BUT ; `l1`/`l2`/`l3`, `master` (`m1`, `m2`), `but`, `deust`, `ingenieur`.
+  BUT ; `l1`/`l2`/`l3`, `master` (`m1`, `m2`), `but`, `deust`, `ingenieur` ;
+  `sante`/`health` → toute la famille « Études de santé » (PASS, L.AS et diplômes
+  paramédicaux).
+- **Par l'accès aux études médicales.** `medecine`, `pharmacie`, `kine`,
+  `maieutique`, `odontologie`, `dentaire`, `las` (« L.AS », « L AS »), `paces`,
+  `mmopk`… → une 1re année **PASS ou L.AS seulement** — pas les diplômes
+  paramédicaux, qu'on trouve par leur nom. `las` ne se cherche pas dans le texte
+  (il est dans « plastiques ») ; `pass` se cherche dans le texte (il est dans
+  l'intitulé des PASS, et seulement là).
 - **Les mots vides** (`de`, `la`, `et`…) sont ignorés, sauf s'il n'y a rien
   d'autre. Un mot composé (« paris-saclay », « l'économie ») est découpé en ses
   mots.

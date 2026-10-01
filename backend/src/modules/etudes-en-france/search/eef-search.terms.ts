@@ -30,6 +30,12 @@ export interface SearchTerm {
   /// Les cycles que ce mot désigne (« licence » → L1, L2, L3, licence pro).
   /// Vide pour un mot qui ne désigne pas un niveau.
   readonly cycles: readonly string[];
+  /// Vrai si le mot désigne une 1re année d'accès santé — PASS ou L.AS
+  /// (`isHealthAccessYear`).
+  readonly healthAccess: boolean;
+  /// Faux pour un mot qui ne vaut QUE par ce qu'il désigne : il n'est cherché
+  /// ni dans le texte de la formation, ni dans le nom des établissements.
+  readonly matchesText: boolean;
 }
 
 /// Les mots qui ne discriminent rien. « licence de droit » et « licence droit »
@@ -47,8 +53,7 @@ export const EEF_SEARCH_MAX_EXPANDED_TERMS = 10;
 
 const LICENCE = ['licence1', 'licence2', 'licence3', 'licence_pro'] as const;
 
-/// Les mots de niveau (et d'accès aux études de santé) que les étudiants tapent,
-/// et les cycles qu'ils désignent.
+/// Les mots de niveau que les étudiants tapent, et les cycles qu'ils désignent.
 /// Table FERMÉE, sur les clés normalisées : un mot absent n'est pas un niveau.
 /// Les cycles sont ceux de `EEF_CYCLES` — le validateur de la recherche et la
 /// shortlist parlent du même vocabulaire.
@@ -69,37 +74,38 @@ export const EEF_LEVEL_SYNONYMS: Readonly<Record<string, readonly string[]>> = {
   deust: ['deust'],
   ingenieur: ['ingenieur'],
   ingenieurs: ['ingenieur'],
-  // ── Les études de santé ─────────────────────────────────────────────────────
-  // Aucun intitulé du catalogue ne contient « médecine », « pharmacie » ni
-  // « kiné » : on entre en médecine, maïeutique, odontologie, pharmacie ou
-  // kinésithérapie (MMOPK) par une 1re année « accès santé » — un PASS ou une
-  // L.AS, qui s'intitule « L1 - Droit » ou « L1 - Chimie ». Mesuré le 01/10/2026
-  // en production : `q=medecine` rendait 0 résultat sur 650 formations de santé
-  // publiées. Ces mots désignent donc le cycle `sante`, comme « master » désigne
-  // le cycle `master`. La carte de formation affiche « Accès santé » : une L.AS
-  // « L1 - Droit » n'y apparaît pas sans explication.
-  //
-  // Pas de « sage » ni de « femme » seuls (sage-femme se découpe en deux mots) :
-  // « femme » désignerait aussi « Études sur le genre ». Pas de « medical » :
-  // aucun intitulé ne le porte, et le mot évoque autant l'imagerie que le soin.
-  medecine: ['sante'],
-  medecin: ['sante'],
-  medicine: ['sante'],
+  // « Santé » désigne toute la famille « Études de santé » : les PASS et L.AS
+  // comme les diplômes paramédicaux (orthophoniste, ergothérapeute…).
   sante: ['sante'],
   health: ['sante'],
-  pass: ['sante'],
-  las: ['sante'],
-  paces: ['sante'],
-  mmopk: ['sante'],
-  pharmacie: ['sante'],
-  pharmacy: ['sante'],
-  odontologie: ['sante'],
-  dentaire: ['sante'],
-  dentiste: ['sante'],
-  maieutique: ['sante'],
-  kine: ['sante'],
-  kinesitherapie: ['sante'],
 };
+
+/// Les mots des études médicales — médecine, maïeutique, odontologie, pharmacie,
+/// kinésithérapie (MMOPK). Ils désignent une 1re année d'accès santé, PASS ou
+/// L.AS, et ELLE SEULE (`eef-health-access.ts`).
+///
+/// Aucun intitulé du catalogue ne contient « médecine », « pharmacie » ni
+/// « kiné » : on y entre par un PASS ou une L.AS, qui s'intitule « L1 - Droit »
+/// ou « L1 - Chimie ». Mesuré en production le 01/10/2026 : `q=medecine` rendait
+/// 0 résultat. Mené ensuite au cycle `sante` entier, il rendait les 61 diplômes
+/// paramédicaux EN TÊTE (tri par intitulé), avant toute PASS ou L.AS.
+///
+/// Pas de « pass » : le mot est dans l'intitulé des 205 PASS (« Parcours d'Accès
+/// Spécifique Santé (PASS) »), le texte suffit, et l'étudiant qui le tape veut
+/// un PASS, pas une L.AS. Pas de « sage » ni de « femme » seuls (sage-femme se
+/// découpe en deux mots) : « femme » viserait aussi « Études sur le genre ». Pas
+/// de « medical » : aucun intitulé ne le porte, et le mot évoque autant
+/// l'imagerie que le soin.
+export const EEF_HEALTH_ACCESS_WORDS: ReadonlySet<string> = new Set([
+  'medecine', 'medecin', 'medicine', 'las', 'paces', 'mmopk', 'pharmacie',
+  'pharmacy', 'odontologie', 'dentaire', 'dentiste', 'maieutique', 'kine',
+  'kinesitherapie',
+]);
+
+/// Les mots qui ne valent QUE par ce qu'ils désignent. « las » cherché dans le
+/// texte trouve « Arts plastiques » (32 formations publiées) : il n'y est donc
+/// pas cherché.
+export const EEF_DESIGNATION_ONLY_WORDS: ReadonlySet<string> = new Set(['las']);
 
 /**
  * Les mots de recherche exploitables, à partir de ce qu'a tapé l'étudiant.
@@ -141,6 +147,8 @@ export function buildSearchTerms(rawTerms: readonly string[]): SearchTerm[] {
         raw: words.length === 1 ? token : word,
         norm: word,
         cycles: EEF_LEVEL_SYNONYMS[word] ?? [],
+        healthAccess: EEF_HEALTH_ACCESS_WORDS.has(word),
+        matchesText: !EEF_DESIGNATION_ONLY_WORDS.has(word),
       });
     }
   }

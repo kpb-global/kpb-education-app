@@ -1,4 +1,6 @@
 import {
+  EEF_DESIGNATION_ONLY_WORDS,
+  EEF_HEALTH_ACCESS_WORDS,
   EEF_LEVEL_SYNONYMS,
   EEF_SEARCH_MAX_EXPANDED_TERMS,
   buildSearchTerms,
@@ -6,6 +8,7 @@ import {
   resolveTermInstitutions,
 } from './eef-search.terms';
 import { EEF_CYCLES } from '../catalog/eef-catalog.types';
+import { normalizeSearchText } from '../catalog/eef-search-text';
 
 const inst = (
   id: string,
@@ -29,7 +32,13 @@ const ids = (raw: string) =>
 describe('buildSearchTerms', () => {
   it('normalise, et garde le mot tel que tapé quand il est simple', () => {
     const [term] = buildSearchTerms(['Génie']);
-    expect(term).toEqual({ raw: 'Génie', norm: 'genie', cycles: [] });
+    expect(term).toEqual({
+      raw: 'Génie',
+      norm: 'genie',
+      cycles: [],
+      healthAccess: false,
+      matchesText: true,
+    });
   });
 
   it('découpe un composé en ses mots, et retire les mots vides', () => {
@@ -74,12 +83,58 @@ describe('buildSearchTerms', () => {
 });
 
 describe('les mots des études de santé', () => {
+  const only = (word: string) => {
+    const terms = buildSearchTerms([word]);
+    expect(terms).toHaveLength(1);
+    return terms[0];
+  };
+
   it.each([
-    'médecine', 'Médecine', 'MEDECINE', 'médecin', 'medicine', 'santé', 'health',
-    'PASS', 'L.AS', 'LAS', 'PACES', 'MMOPK', 'pharmacie', 'pharmacy', 'odontologie',
-    'dentaire', 'dentiste', 'maïeutique', 'kiné', 'kinésithérapie',
-  ])('« %s » désigne le cycle santé', (word) => {
-    expect(buildSearchTerms([word]).flatMap((term) => term.cycles)).toEqual(['sante']);
+    'médecine', 'Médecine', 'MEDECINE', 'médecin', 'medicine', 'L.AS', 'LAS',
+    'PACES', 'MMOPK', 'pharmacie', 'pharmacy', 'odontologie', 'dentaire',
+    'dentiste', 'maïeutique', 'kiné', 'kinésithérapie',
+  ])('« %s » désigne une 1re année d’accès santé — et pas tout le cycle', (word) => {
+    const term = only(word);
+    expect(term.healthAccess).toBe(true);
+    // Le cycle `sante` entier mettrait les 61 diplômes paramédicaux en tête.
+    expect(term.cycles).toEqual([]);
+  });
+
+  it.each(['santé', 'health'])('« %s » désigne toute la famille santé', (word) => {
+    const term = only(word);
+    expect(term.cycles).toEqual(['sante']);
+    expect(term.healthAccess).toBe(false);
+  });
+
+  it('« PASS » se cherche par le texte : il est dans l’intitulé des PASS, pas des L.AS', () => {
+    const term = only('PASS');
+    expect(term).toMatchObject({ norm: 'pass', cycles: [], healthAccess: false, matchesText: true });
+  });
+
+  it('« las » n’est pas cherché dans le texte : il est dans « plastiques »', () => {
+    expect(only('L.AS').matchesText).toBe(false);
+    expect(only('las').matchesText).toBe(false);
+    expect(only('médecine').matchesText).toBe(true);
+  });
+
+  it('un mot qui ne se cherche pas dans le texte désigne toujours quelque chose', () => {
+    // Sinon sa clause serait `OR: []`, qui ne rend aucune ligne.
+    for (const word of EEF_DESIGNATION_ONLY_WORDS) {
+      const term = only(word);
+      expect({ word, designates: term.healthAccess || term.cycles.length > 0 }).toEqual({
+        word,
+        designates: true,
+      });
+    }
+  });
+
+  it('les tables sont sur les clés normalisées, et ne se chevauchent pas', () => {
+    for (const word of [...EEF_HEALTH_ACCESS_WORDS, ...EEF_DESIGNATION_ONLY_WORDS]) {
+      expect(normalizeSearchText(word)).toBe(word);
+    }
+    for (const word of EEF_HEALTH_ACCESS_WORDS) {
+      expect({ word, alsoALevel: word in EEF_LEVEL_SYNONYMS }).toEqual({ word, alsoALevel: false });
+    }
   });
 
   it('« L.AS » et « L AS » sont recollés en un seul mot', () => {
@@ -92,11 +147,13 @@ describe('les mots des études de santé', () => {
   });
 
   it('« sage-femme » ne désigne rien : « femme » seul viserait les études sur le genre', () => {
-    expect(buildSearchTerms(['sage-femme']).flatMap((term) => term.cycles)).toEqual([]);
+    const terms = buildSearchTerms(['sage-femme']);
+    expect(terms.flatMap((term) => term.cycles)).toEqual([]);
+    expect(terms.some((term) => term.healthAccess)).toBe(false);
   });
 
   it('« médical » n’est pas un synonyme : aucun intitulé ne le porte, et il ne dit pas « soin »', () => {
-    expect(buildSearchTerms(['médical'])[0].cycles).toEqual([]);
+    expect(only('médical')).toMatchObject({ cycles: [], healthAccess: false });
   });
 });
 

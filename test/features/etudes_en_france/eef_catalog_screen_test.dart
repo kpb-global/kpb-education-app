@@ -44,6 +44,7 @@ Map<String, dynamic> _program(
   Object? procedureType = 'eef',
   Object? campusCity = 'Lyon',
   String cycle = 'licence3',
+  bool? healthAccess,
 }) =>
     <String, dynamic>{
       'id': id,
@@ -64,6 +65,7 @@ Map<String, dynamic> _program(
       'requirementsEn': <String>[],
       'procedureType': procedureType,
       'cycle': cycle,
+      if (healthAccess != null) 'healthAccess': healthAccess,
       'campusCity': campusCity,
       'institution': institution,
     };
@@ -250,18 +252,42 @@ void main() {
                 name: 'L1 - Chimie',
                 institution: _university(),
                 procedureType: 'dap_blanche',
-                cycle: 'sante'),
+                cycle: 'sante',
+                healthAccess: true),
             _program('b',
                 name: 'L1 - Chimie',
                 institution: _university(),
                 procedureType: 'dap_blanche',
-                cycle: 'licence1'),
+                cycle: 'licence1',
+                healthAccess: false),
           ]));
       final report = await pump(tester);
 
       expect(find.text('Accès santé'), findsOneWidget);
       expect(rawTranslationKeysOnScreen(tester), isEmpty);
       expect(report.overflows, isEmpty);
+    });
+
+    testWidgets(
+        'un diplôme paramédical de la famille santé ne dit pas « Accès santé » : '
+        'c\'est le serveur qui décide, pas le cycle', (tester) async {
+      stub((_) async => _page([
+            _program('a',
+                name: "Certificat de capacité d'Orthophoniste",
+                institution: _university(),
+                procedureType: 'dap_blanche',
+                cycle: 'sante',
+                healthAccess: false),
+            // Un serveur plus ancien n'envoie pas le champ : pas de badge.
+            _program('b',
+                name: 'L1 - Chimie',
+                institution: _university(),
+                procedureType: 'dap_blanche',
+                cycle: 'sante'),
+          ]));
+      await pump(tester);
+
+      expect(find.text('Accès santé'), findsNothing);
     });
 
     testWidgets('une procédure « hors procédure » est dite telle',
