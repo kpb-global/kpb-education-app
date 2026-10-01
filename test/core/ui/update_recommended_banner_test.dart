@@ -169,6 +169,25 @@ void main() {
     }
   });
 
+  // Un bouton qui ne fait rien est indiscernable d'une app plantée : quand le
+  // lancement échoue (aucune activité pour le lien, ici le plugin absent), le
+  // bandeau le DIT.
+  testWidgets('un lien de store qui ne s\'ouvre pas le dit', (tester) async {
+    await _serve(api);
+    await _pump(tester);
+
+    await tester.tap(find.text('Mettre à jour'));
+    // L'appel de plateforme se résout hors de l'horloge simulée.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.textContaining('pas pu ouvrir cette page'), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+  });
+
   testWidgets('se ferme, et ne revient pas pour la même version recommandée',
       (tester) async {
     await _serve(api);

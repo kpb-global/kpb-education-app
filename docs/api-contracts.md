@@ -1010,7 +1010,21 @@ l'import encore en attente (voir plus bas).
 Purpose:
 - let operations teams add service offers, destination coverage, articles, forum categories, and topic tags from the dashboard
 
-### Audiences « Études en France » (LIV-24)
+## Admin notifications
+
+- `GET /admin/notifications/templates`
+- `POST /admin/notifications/templates`
+- `PATCH /admin/notifications/templates/:id`
+- `GET /admin/notifications/campaigns`
+- `POST /admin/notifications/campaigns`
+- `POST /admin/notifications/campaigns/preview`
+- `GET /admin/notifications/campaigns/:id/deliveries`
+
+Purpose:
+- manage grouped or specific campaigns across push, in-app, and email channels
+- attach critical campaign events to case timelines when needed
+
+## Audiences de campagne « Études en France » (LIV-24)
 
 Deux audiences de campagne s'ajoutent à `all_students`, `country`, etc. :
 
@@ -1028,26 +1042,36 @@ dossiers ne sont pas traités. Le jeton peut figurer dans la liste à côté d'a
 pays.
 
 La comparaison est **insensible à la casse** (`countryOfResidence` est un texte
-saisi : « Niger », « NIGER », parfois un code) et **exacte** — « Niger » n'exclut
-pas le « Nigeria ». Prouvé contre un vrai Postgres
+saisi : « Niger », « NIGER », parfois un code), **sans jokers** (`%` et `_` sont
+échappés : exclure « Mal_ » n'exclut pas « Mali ») et couvre **les écritures d'un
+même pays** (avec ou sans accents, apostrophe droite ou typographique — comme
+l'app, qui replie accents et apostrophes avant de comparer). Elle est **exacte** :
+« Niger » n'exclut pas le « Nigeria ». Prouvé contre un vrai Postgres
 (`campaign-audience.postgres.spec.ts`), pas seulement par des doubles.
+
+**Un filtre présent mais mal formé vaut « personne ».** Sont refusés — `400` à la
+création, `filterInvalid` et zéro destinataire à l'aperçu et à l'envoi : une clé de
+filtre inconnue (`exceptCountry`), `exceptCountries: null`, une entrée qui n'est pas
+du texte, une entrée en `snake_case` autre que `eef_suspended` (un jeton mal écrit,
+ex. `eef_suspendd`, serait sinon lu comme un nom de pays que personne ne porte, et
+l'envoi partirait vers TOUS les étudiants, Niger compris), et le jeton
+`eef_suspended` quand `KPB_EEF_SUSPENDED_COUNTRIES` est vide.
+
+**L'aperçu** (`POST /admin/notifications/campaigns/preview`) renvoie en plus, pour
+ces deux audiences, `excludedCountries` (les pays réellement lus) et
+`excludedRecipients` (le nombre de comptes retirés). Un `0` là où le Niger a des
+comptes est une faute de frappe, pas une réussite.
+
+**Limite assumée :** un compte dont le pays est **vide** (profil non complété) ne
+peut pas être exclu — on ne sait pas qu'il est au Niger — et reçoit l'annonce.
+
+**Consentement :** `eef_interest` vise ceux qui ont déclaré leur intérêt. Si une
+annonce d'ouverture automatisée est couverte par le texte `eef-consent-v1` reste
+une question juridique ouverte (`docs/eef-consent-v1.md`, question 4).
 
 **Piège connu, inchangé :** l'audience `country` filtre sur le pays de
 **résidence** (`countryOfResidence`), pas sur le pays visé. `country: france`
 toucherait les résidents de France, pas les candidats à la France.
-
-## Admin notifications
-
-- `GET /admin/notifications/templates`
-- `POST /admin/notifications/templates`
-- `PATCH /admin/notifications/templates/:id`
-- `GET /admin/notifications/campaigns`
-- `POST /admin/notifications/campaigns`
-- `GET /admin/notifications/campaigns/:id/deliveries`
-
-Purpose:
-- manage grouped or specific campaigns across push, in-app, and email channels
-- attach critical campaign events to case timelines when needed
 
 ## Admin users and reporting
 

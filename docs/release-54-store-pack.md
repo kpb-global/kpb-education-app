@@ -5,13 +5,14 @@
 > addendum aux « Notes for Review » Apple, phrases de non-affiliation pour la
 > fiche Google Play, et la décision XC-03. Il complète
 > `docs/store-listing-copy.md` (textes de fiche, encore titré « build 49 » et dont
-> le §3 « interdits durs » est **périmé** : les trois outils IA sont actifs depuis
+> le §3 « interdits durs » est **périmé** : les quatre outils IA (CV, lettres, entretien, relecture) sont actifs depuis
 > la 52, `aiToolsEnabled` vaut `true` par défaut) et `docs/CONSOLE_ANSWERS.md`
 > (réponses aux formulaires de confidentialité). En cas de contradiction avec
 > `store-listing-copy.md` §3, **ce fichier et `CONSOLE_ANSWERS.md` font foi.**
 >
-> **Règle qui gouverne tout le reste** (`store-listing-copy.md`, ligne 8) : *toute
-> fonctionnalité vantée doit être atteignable le jour de l'approbation.* Les textes
+> **Règle qui gouverne tout le reste** (`store-listing-copy.md`, en-tête
+> « Règle appliquée à chaque phrase ») : *toute fonctionnalité vantée doit être
+> atteignable le jour de l'approbation.* Les textes
 > ci-dessous sont donc écrits pour **l'état réel de la 54 à l'approbation**, qui
 > dépend de la décision du §1.
 
@@ -25,9 +26,9 @@ possibles à l'approbation :
 
 | | **A. Espace éteint** (`eefSpace=false`) — **recommandé** | **B. Espace allumé** (`eefSpace=true`) |
 |---|---|---|
-| Ce que voit un utilisateur de la 54 | La **même vitrine** que la 53 (déclaration d'intérêt gratuite), plus les correctifs du §2 | Le hub : catalogue, CV/lettres/entretien, profil |
+| Ce que voit un utilisateur de la 54 | La **vitrine de la 53** (déclaration d'intérêt gratuite) — avec en plus ses liens vers les sources officielles et le sélecteur de domaines dans la déclaration — plus les correctifs du §2 | Le hub : catalogue, CV/lettres/entretien, profil |
 | Ce que voit le relecteur Apple | La vitrine — **et il doit être prévenu** que l'espace réel s'active à distance (guideline 2.3.1) | Le hub, avec le catalogue — **à condition qu'il ne soit pas vide** (guideline 2.1, contenu provisoire) |
-| Condition | Aucune | **Un établissement publié** (XC-02) et le backend `95440db`+ déployé |
+| Condition | Aucune | **Un établissement publié** (XC-02) et le backend de cette build déployé AVANT la soumission (préflight en `requires-new`) |
 | Risque | Fonction activée après la revue : il faut la déclarer (§3) | Un relecteur qui tombe sur « Le catalogue arrive » ; les premiers utilisateurs voient l'espace avec le seul pilote |
 
 **Recommandation : A.** Au 01/10/2026 le lancement est « vitrine + notifications »
@@ -136,7 +137,7 @@ This version contains a section that helps students prepare an application to Fr
 
 Data: the programme catalogue is derived from the French Ministry of Higher Education's open data (Parcoursup, Trouver mon master, main diplomas), published under the Licence Ouverte 2.0, and attributed in the app. Institution logos come from Wikimedia Commons (their licence is shown next to the logo).
 
-NOT AFFILIATED WITH ANY GOVERNMENT. KPB Education is a private guidance service. It is not affiliated with Campus France, the French government or any French administration, and does not process applications. Official applications are submitted on the official Études en France platform, which the app links to (https://www.campusfrance.org/fr). Dates and country suspensions shown in the app come from official sources, linked next to each statement.
+NOT AFFILIATED WITH ANY GOVERNMENT. KPB Education is a private guidance service. It is not affiliated with Campus France, the French government or any French administration, and does not process applications. Official applications are submitted through the official channels (the Études en France platform or the pre-admission procedure, depending on the programme), which the app links to (https://www.campusfrance.org/fr). Dates and country suspensions shown in the app come from official sources, linked next to each statement.
 
 No account is required to see the catalogue. A student account is required to declare interest; parents and partner accounts see a message that the space is reserved for students.
 ```
@@ -145,7 +146,9 @@ No account is required to see the catalogue. A student account is required to de
 > time of review the flag is ON and the reviewer sees the space directly. »
 
 **Compte de démonstration** : inchangé (`store-listing-copy.md` §7.1). Prévoir un
-compte **étudiant** (le hub n'est pas montré à un parent).
+compte **étudiant** (le hub n'est pas montré à un parent) et **dire aux relecteurs que la
+déclaration d'intérêt de ce compte ne doit pas être rappelée** (ajouter une phrase en ce
+sens aux notes, et exclure ce compte de toute liste d'appel).
 
 ---
 
@@ -159,12 +162,12 @@ gouvernementale**. À ajouter à la fin des descriptions longues FR et EN
 
 **FR**
 ```
-KPB Education est un service privé d'accompagnement. Il n'est affilié ni à Campus France, ni à l'État français, ni à aucune administration, et ne représente aucune entité gouvernementale. Les candidatures se déposent sur la plateforme officielle Études en France : https://www.campusfrance.org/fr — les dates et suspensions affichées dans l'app renvoient à leur source officielle.
+KPB Education est un service privé d'accompagnement. Il n'est affilié ni à Campus France, ni à l'État français, ni à aucune administration, et ne représente aucune entité gouvernementale. Les candidatures se déposent auprès des services officiels, selon la procédure de chaque formation (plateforme Études en France, demande d'admission préalable) : https://www.campusfrance.org/fr — les dates et suspensions affichées dans l'app renvoient à leur source officielle.
 ```
 
 **EN**
 ```
-KPB Education is a private guidance service. It is not affiliated with Campus France, the French government or any administration, and does not represent any government entity. Applications are submitted on the official Études en France platform: https://www.campusfrance.org/fr — dates and suspensions shown in the app link to their official source.
+KPB Education is a private guidance service. It is not affiliated with Campus France, the French government or any administration, and does not represent any government entity. Applications are submitted through the official channels, depending on each programme (Études en France platform, pre-admission request): https://www.campusfrance.org/fr — dates and suspensions shown in the app link to their official source.
 ```
 
 Puis, dans **Play Console → App content → Government apps** : déclarer que l'app

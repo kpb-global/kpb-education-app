@@ -15,6 +15,7 @@ import 'package:karatou/app/core/config/app_config.dart';
 import 'package:karatou/app/core/data/eef_calendar.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/core/services/remote_feature_flags.dart';
+import 'package:karatou/app/core/translations/app_translations.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_home_screen.dart';
 
 import '../../support/raw_key_guard.dart';
@@ -147,8 +148,11 @@ void main() {
       stubInterest(null);
       await pump(tester);
 
+      // Elle ne dit PAS que toute candidature passe par la plateforme Études en
+      // France : le catalogue compte des formations en DAP blanche ou jaune et
+      // hors procédure.
       expect(
-        find.textContaining('plateforme officielle Études en France'),
+        find.textContaining('selon la procédure indiquée sur chaque formation'),
         findsOneWidget,
       );
       // L'enseigne du titre ne nomme pas l'agence (eef_naming_test).
@@ -156,14 +160,28 @@ void main() {
           findsOneWidget);
     });
 
-    testWidgets('la promesse du catalogue ne cite plus ce qui n\'existe pas',
-        (tester) async {
-      stubInterest(null);
-      await pump(tester);
-
-      expect(find.textContaining('BTS'), findsNothing);
-      expect(find.textContaining('commerce'), findsNothing);
-      expect(find.textContaining('budget'), findsNothing);
+    // Le texte qui portait « BTS », « écoles de commerce » et « budget » est
+    // celui de la VITRINE (`eef_pillar_catalog_body`) — ce qui part en production.
+    // On lit donc les VALEURS des textes qui décrivent le catalogue, en FR et EN,
+    // au lieu de chercher ces mots sur un écran qui ne les a jamais affichés.
+    test('la promesse du catalogue ne cite plus ce qui n\'existe pas', () {
+      final keys = AppTranslations().keys;
+      final forbidden = RegExp(
+        r'BTS|commerce|business|budget|écoles? d.ingénieurs|engineering schools',
+        caseSensitive: false,
+      );
+      for (final locale in ['fr', 'en']) {
+        for (final key in [
+          'eef_pillar_catalog_body',
+          'eef_hub_formations_body',
+          'eef_catalog_title',
+        ]) {
+          final text = keys[locale]![key]!;
+          expect(forbidden.hasMatch(text), isFalse,
+              reason:
+                  '$key ($locale) promet ce que le catalogue n\'a pas : $text');
+        }
+      }
     });
   });
 
@@ -372,6 +390,43 @@ void main() {
       expect(find.text('Compléter mon profil'), findsNothing);
       // Et aucun appel : un invité n'a pas de session, l'appel reviendrait en 401.
       verifyNever(() => api.getEefInterest());
+    });
+  });
+
+  // Le consentement promet un retrait « depuis cet écran », et le hub est
+  // l'endroit où il est tenu : une lecture en échec ne doit pas faire croire à
+  // « pas déclaré » (CTA « Compléter mon profil », « Me retirer » caché).
+  group('lecture de la déclaration en échec', () {
+    testWidgets(
+        'dit l\'incertitude, propose de réessayer, n\'invite pas à déclarer',
+        (tester) async {
+      when(() => api.getEefInterest()).thenThrow(StateError('hors ligne'));
+      await pump(tester);
+      await scrollDown(tester);
+
+      expect(
+          find.textContaining('Impossible de lire ton profil'), findsOneWidget);
+      expect(find.text('Réessayer'), findsOneWidget);
+      expect(find.text('Compléter mon profil'), findsNothing);
+    });
+
+    testWidgets('« Réessayer » relit, et retrouve la déclaration',
+        (tester) async {
+      var online = false;
+      when(() => api.getEefInterest()).thenAnswer((_) async {
+        if (!online) throw StateError('hors ligne');
+        return _declaredBody;
+      });
+      await pump(tester);
+      await scrollDown(tester);
+      expect(find.text('Réessayer'), findsOneWidget);
+
+      online = true;
+      await tester.tap(find.text('Réessayer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Me retirer de la liste'), findsOneWidget);
+      expect(find.text('Réessayer'), findsNothing);
     });
   });
 

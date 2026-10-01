@@ -92,8 +92,7 @@ abstract final class AnalyticsEventName {
   /// bord exactement comme « personne ne cherche ».
   /// L'espace réel (le hub) : `eef_space_viewed` donne la portée et la porte
   /// d'entrée ; `eef_hub_tile_opened` dit CE QUE les étudiants y viennent faire
-  /// (`tile` = catalogue, cv, lettres, entretien, échéances, éligibilité,
-  /// conseiller, profil) — la seule mesure de ce que l'espace vaut avant la 55.
+  /// (`tile` = catalogue, cv, lettres, entretien, conseiller, profil) — la seule mesure de ce que l'espace vaut avant la 55.
   static const eefSpaceViewed = 'eef_space_viewed';
   static const eefHubTileOpened = 'eef_hub_tile_opened';
   static const eefCatalogViewed = 'eef_catalog_viewed';

@@ -54,14 +54,26 @@ bouton « Valider » :
    déclaré : soit on découple (profil de sélection sans consentement commercial,
    case de rappel séparée, `eef-consent-v2`), soit on assume le couplage et on le
    dit à l'écran.
-2. **« depuis cet écran ».** Le texte promet un retrait « depuis cet écran ». En
-   build 54 le retrait est dans le hub (écran derrière la feuille), pas dans la
-   feuille elle-même. À faire valider ; si c'est jugé insuffisant, le remède est
-   un lien « Me retirer » dans la feuille de modification, sans changer la
-   version.
+2. **« depuis cet écran ».** Le texte promet un retrait « depuis cet écran ». Le
+   retrait est dans l'écran DERRIÈRE la feuille de consentement — la vitrine
+   (« Me retirer de la liste », état de lancement) ou le hub (« Mon profil Études en
+   France », espace ouvert) —, pas dans la feuille elle-même. À faire valider ; si
+   c'est jugé insuffisant, le remède est un lien « Me retirer » dans la feuille,
+   sans changer la version.
 3. **Phrase sur Campus France dans le héros du hub** (`eef_hub_hero_body`) :
-   « …plateforme officielle Études en France, gérée par Campus France. » À faire
-   valider (EEF-UX-04).
+   « …auprès des services officiels, selon la procédure indiquée sur chaque
+   formation (plateforme Études en France gérée par Campus France, demande
+   d'admission préalable…). » À faire valider (EEF-UX-04). Elle ne dit plus que
+   TOUTES les candidatures passent par la plateforme Études en France : le
+   catalogue compte ~3 100 formations en DAP blanche, 29 en DAP jaune et 80 hors
+   procédure.
+4. **Une annonce d'ouverture est-elle couverte par le consentement ?** Le texte v1
+   dit « un conseiller KPB te contacte au sujet de cet espace ». La vitrine, elle,
+   promet « on te préviendra dès l'ouverture » (`eef_cta_body`) — un texte que le
+   test d'empreinte ne fige pas. Un push ou un e-mail automatisé de type « l'espace
+   est ouvert » à l'audience `eef_interest` est-il couvert ? À trancher AVANT le
+   premier envoi à cette audience. Alternative sans risque : n'envoyer qu'aux
+   étudiants par `all_students_except_countries` (message d'information général).
 
 ## Export
 

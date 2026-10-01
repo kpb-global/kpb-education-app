@@ -1900,8 +1900,10 @@ class AppTranslations extends Translations {
           'eef_hub_hero_body':
               'Trouve les formations qui te correspondent, puis prépare ton '
                   'dossier : CV, lettres de motivation, entretien. La '
-                  'candidature elle-même se dépose sur la plateforme officielle '
-                  'Études en France, gérée par Campus France.',
+                  'candidature elle-même se dépose auprès des services '
+                  'officiels, selon la procédure indiquée sur chaque formation '
+                  '(plateforme Études en France gérée par Campus France, '
+                  'demande d\'admission préalable…).',
           'eef_hub_formations_title': 'Trouver ma formation',
           'eef_hub_formations_body':
               'Les universités publiques et quelques établissements publics : '
@@ -1924,6 +1926,9 @@ class AppTranslations extends Translations {
                   'à un conseiller KPB.',
           // ── Mon profil Études en France ───────────────────────────────────
           'eef_profile_title': 'Mon profil Études en France',
+          'eef_profile_read_failed':
+              'Impossible de lire ton profil pour le moment. Si tu avais déjà '
+                  'répondu, ta réponse est toujours enregistrée.',
           'eef_profile_empty_body':
               'Dis-nous ton niveau et tes domaines : un conseiller KPB pourra '
                   'te rappeler avec les bonnes informations.',
@@ -1963,10 +1968,10 @@ class AppTranslations extends Translations {
           'eef_catalog_sources_row': 'Sources des données et mentions',
           'eef_catalog_sources_title': 'À propos des données',
           'eef_catalog_attribution':
-              'Données : @producer (@sources). Licence @licence. '
-                  'Actualisées le @date.',
+              'Données : @producer (@sources). Licence : @licence. '
+                  'Récupérées le @date.',
           'eef_catalog_attribution_bare':
-              'Données : @producer. Licence @licence. Actualisées le @date.',
+              'Données : @producer. Licence : @licence. Récupérées le @date.',
           'eef_catalog_licence_link': 'Voir la licence',
           'eef_catalog_error_network_title': 'Pas de connexion',
           'eef_catalog_error_server_title': 'Catalogue indisponible',
@@ -5003,8 +5008,9 @@ class AppTranslations extends Translations {
           'eef_hub_hero_body':
               'Find the programmes that suit you, then prepare your file: CV, '
                   'motivation letters, interview. The application itself is '
-                  'submitted on the official Études en France platform, run by '
-                  'Campus France.',
+                  'submitted through the official services, following the '
+                  'procedure shown on each programme (the Études en France '
+                  'platform run by Campus France, pre-admission request…).',
           'eef_hub_formations_title': 'Find my programme',
           'eef_hub_formations_body':
               'Public universities and a few public institutions: search by '
@@ -5027,6 +5033,9 @@ class AppTranslations extends Translations {
                   'advisor.',
           // ── My Études en France profile ───────────────────────────────────
           'eef_profile_title': 'My Études en France profile',
+          'eef_profile_read_failed':
+              'We could not read your profile right now. If you already '
+                  'answered, your answer is still saved.',
           'eef_profile_empty_body':
               'Tell us your level and your fields: a KPB advisor will be able '
                   'to call you back with the right information.',
@@ -5065,10 +5074,10 @@ class AppTranslations extends Translations {
           'eef_catalog_sources_row': 'Data sources and notices',
           'eef_catalog_sources_title': 'About the data',
           'eef_catalog_attribution':
-              'Data: @producer (@sources). @licence licence. '
-                  'Updated on @date.',
+              'Data: @producer (@sources). Licence: @licence. '
+                  'Retrieved on @date.',
           'eef_catalog_attribution_bare':
-              'Data: @producer. @licence licence. Updated on @date.',
+              'Data: @producer. Licence: @licence. Retrieved on @date.',
           'eef_catalog_licence_link': 'See the licence',
           'eef_catalog_error_network_title': 'No connection',
           'eef_catalog_error_server_title': 'Catalogue unavailable',

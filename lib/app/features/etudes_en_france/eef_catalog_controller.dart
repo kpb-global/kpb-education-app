@@ -103,6 +103,12 @@ class EefCatalogController extends ChangeNotifier {
 
   EefCatalogPhase _phase = EefCatalogPhase.initial;
   EefCatalogFailure? _failure;
+
+  /// Incrémenté à chaque NOUVELLE recherche (première page), jamais au
+  /// défilement. L'écran s'en sert pour remonter en haut de la liste : sans cela,
+  /// un filtre posé après avoir défilé laissait l'étudiant en bas d'une liste
+  /// plus courte, sans le compteur ni le premier résultat à l'écran.
+  int _searchGeneration = 0;
   String _query = '';
   final Map<String, Set<String>> _selected = <String, Set<String>>{};
 
@@ -123,6 +129,7 @@ class EefCatalogController extends ChangeNotifier {
   List<String> _facetsTruncated = <String>[];
 
   EefCatalogPhase get phase => _phase;
+  int get searchGeneration => _searchGeneration;
   EefCatalogFailure? get failure => _failure;
   String get query => _query;
   List<EefProgram> get items => List.unmodifiable(_items);
@@ -231,7 +238,10 @@ class EefCatalogController extends ChangeNotifier {
     _failure = null;
     // Une nouvelle recherche repart de zéro, y compris de l'échec de page
     // suivante de la précédente.
-    if (!append) _loadMoreFailed = false;
+    if (!append) {
+      _loadMoreFailed = false;
+      _searchGeneration += 1;
+    }
     notifyListeners();
 
     try {

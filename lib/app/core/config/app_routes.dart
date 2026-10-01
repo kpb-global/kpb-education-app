@@ -299,7 +299,11 @@ class AppRoutes {
     ),
     GetPage(
       name: etudesEnFranceCatalog,
-      page: () => const EefCatalogScreen(),
+      // Le hub passe `'hub'` en argument ; un lien profond ou une notification
+      // n'en passent aucun — la mesure peut ainsi dire quelle porte amène du monde.
+      page: () => EefCatalogScreen(
+        source: Get.arguments is String ? Get.arguments as String : 'deep_link',
+      ),
     ),
     GetPage(name: saved, page: () => const SavedScreen()),
     GetPage(name: deadlines, page: () => const DeadlineCalendarScreen()),

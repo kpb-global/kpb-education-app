@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 import {
@@ -39,6 +39,30 @@ describe('Contrat d’audience des campagnes', () => {
       (a) => !AUDIENCE_TYPES.includes(a),
     );
     expect(orphans).toEqual([]);
+  });
+
+  // L'admin web garde sa propre copie de la liste : sans ce test, une audience
+  // ajoutée au backend (ici `eef_interest`) n'était offerte nulle part dans le
+  // formulaire, et le commentaire de la copie affirmait pourtant l'accord.
+  it('l’admin web offre exactement les mêmes audiences, avec les mêmes filtres', () => {
+    const adminPath = join(
+      __dirname,
+      '../../../../admin/app/notifications/page.tsx',
+    );
+    expect(existsSync(adminPath)).toBe(true);
+    const source = readFileSync(adminPath, 'utf8');
+    const block = source.slice(
+      source.indexOf('const AUDIENCE_REQUIRED_FILTER'),
+      source.indexOf('const AUDIENCE_TYPES'),
+    );
+    const adminEntries: Record<string, string | null> = {};
+    for (const match of block.matchAll(
+      /^\s{2}([a-z_]+): (null|'[A-Za-z]+'),/gm,
+    )) {
+      adminEntries[match[1]] =
+        match[2] === 'null' ? null : match[2].slice(1, -1);
+    }
+    expect(adminEntries).toEqual({ ...AUDIENCE_REQUIRED_FILTER });
   });
 
   it('la liste n’est pas vide (le test lit bien quelque chose)', () => {

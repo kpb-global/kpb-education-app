@@ -4,8 +4,11 @@
 // Le catalogue dérive de jeux de données du ministère de l'Enseignement
 // supérieur (Parcoursup, Trouver mon master, principaux diplômes préparés),
 // publiés sous Licence Ouverte 2.0. Cette licence autorise la réutilisation
-// commerciale À CONDITION de citer la source et la date de dernière mise à
-// jour (docs/eef-catalog-pipeline.md). `/config/app` la sert à l'app, qui la
+// commerciale avec la mention de la source (docs/eef-catalog-pipeline.md :
+// « simple mention de la source ») ; son usage courant y ajoute la date de
+// dernière mise à jour de l'information. L'app affiche donc la date sous la forme
+// honnête « récupérées le » : c'est la date de NOTRE copie, pas celle de chaque
+// jeu (un millésime 2021 reste de 2021). `/config/app` la sert à l'app, qui la
 // pose en pied de l'écran catalogue : une mention écrite dans le binaire
 // vieillit avec lui, alors qu'un catalogue se réimporte.
 //

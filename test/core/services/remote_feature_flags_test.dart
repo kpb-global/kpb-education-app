@@ -6,6 +6,7 @@
 // ici plutôt que déduites de la lecture.
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -282,10 +283,16 @@ void main() {
           });
       await flags.refresh(api);
 
-      // Seul l'un des deux est ouvrable. Lequel `storeUrl` rend dépend de la
-      // plateforme du test : on vérifie la règle, pas la plateforme.
-      final served = flags.storeUrl;
-      expect(served == null || served.startsWith('https://'), isTrue);
+      // Seul l'iOS est ouvrable : on le prouve plateforme par plateforme, au
+      // lieu d'une assertion qui passerait aussi quand le lien est perdu.
+      try {
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+        expect(flags.storeUrl, 'https://apps.apple.com/app/id1128659292');
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        expect(flags.storeUrl, isNull);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
 
     test('un refresh qui échoue garde la dernière valeur connue', () async {
@@ -405,6 +412,25 @@ void main() {
         flags.eefCampaign.suspensionSourceFor('Mali'),
         'https://ml.exemple.test/',
       );
+    });
+
+    // Ce sont des sources OFFICIELLES : un `http://` ne doit pas atteindre un
+    // bouton parce qu'un serveur plus ancien ou mal configuré l'aurait laissé
+    // passer. (Les liens de store, eux, gardent leur règle propre.)
+    test('http:// n\'est pas une source officielle', () async {
+      when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+            'eefCampaign': <String, dynamic>{
+              'suspendedCountries': <String>['Niger'],
+              'platformUrl': 'http://www.campusfrance.org/fr',
+              'suspendedSources': <Map<String, String>>[
+                {'country': 'Niger', 'url': 'http://ne.exemple.test/'},
+              ],
+            },
+          });
+      await flags.refresh(api);
+
+      expect(flags.eefCampaign.platformUrl, isNull);
+      expect(flags.eefCampaign.suspensionSourceFor('Niger'), isNull);
     });
 
     test('un serveur plus ancien (sans ces clés) n\'affiche aucun lien',

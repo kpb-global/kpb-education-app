@@ -380,6 +380,35 @@ describe('AppConfigController', () => {
       ]);
     });
 
+    // Le code que l'exploitation écrit à côté du nom (`Niger,NE`) : un profil
+    // saisi « NE » doit voir la source, pas la suspension seule.
+    it('sert aussi la source pour le code « NE »', () => {
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES = 'Niger,NE';
+
+      const { eefCampaign } = new AppConfigController().getAppConfig();
+
+      expect(eefCampaign.suspendedSources).toEqual([
+        {
+          country: 'Niger',
+          url: 'https://ne.diplomatie.gouv.fr/informations-visas',
+        },
+        {
+          country: 'NE',
+          url: 'https://ne.diplomatie.gouv.fr/informations-visas',
+        },
+      ]);
+    });
+
+    // Une `Map` et pas un objet : ces noms existent sur tout objet JS.
+    it.each(['__proto__', 'constructor', 'toString', 'hasOwnProperty'])(
+      'un pays nommé « %s » ne lit pas la chaîne de prototypes',
+      (name) => {
+        process.env.KPB_EEF_SUSPENDED_COUNTRIES = name;
+        const { eefCampaign } = new AppConfigController().getAppConfig();
+        expect(eefCampaign.suspendedSources).toEqual([]);
+      },
+    );
+
     it('ne sert une source que pour un pays réellement suspendu', () => {
       // La source du Niger ne doit pas voyager quand personne n'est suspendu :
       // un lien « voici pourquoi » sans suspension serait une accusation sans objet.
@@ -462,5 +491,32 @@ describe('AppConfigController', () => {
     expect(config.features.successLab).toBe(false);
     expect(config.features.aiDiagnostic).toBe(false);
     expect(config.features.outcomeEvidence).toBe(false);
+  });
+
+  // Les liens de store alimentent un écran qu'on ne peut pas fermer : une
+  // valeur d'exploitation mal écrite ne doit pas le verrouiller sur un lien mort.
+  describe('liens de store', () => {
+    it.each([
+      'javascript:alert(1)',
+      'http://play.example/app',
+      'play.example/app',
+      'https://user:pass@play.example/app',
+      'pas une url',
+    ])('« %s » retombe sur la fiche publiée', (written) => {
+      process.env.KPB_ANDROID_STORE_URL = written;
+      process.env.KPB_IOS_STORE_URL = written;
+
+      const config = new AppConfigController().getAppConfig();
+
+      expect(config.androidStoreUrl).toContain('id=com.karatou.android');
+      expect(config.iosStoreUrl).toContain('id1128659292');
+    });
+
+    it('une valeur https bien formée est servie (espaces retirés)', () => {
+      process.env.KPB_ANDROID_STORE_URL = ' https://play.example/app ';
+      expect(new AppConfigController().getAppConfig().androidStoreUrl).toBe(
+        'https://play.example/app',
+      );
+    });
   });
 });

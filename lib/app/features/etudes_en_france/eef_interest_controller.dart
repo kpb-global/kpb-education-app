@@ -57,8 +57,16 @@ class EefInterestController extends ChangeNotifier {
   EefInterestPhase _phase = EefInterestPhase.initial;
   EefInterest _interest = EefInterest.notDeclared;
   EefInterestFailure? _failure;
+  bool _readFailed = false;
 
   EefInterestPhase get phase => _phase;
+
+  /// La dernière LECTURE de la déclaration a échoué : l'état « pas déclaré » est
+  /// alors un repli, pas un fait. Le hub l'utilise pour ne pas proposer
+  /// « Compléter mon profil » — et cacher « Me retirer » — à quelqu'un dont la
+  /// déclaration existe peut-être : le consentement promet un retrait « depuis cet
+  /// écran ».
+  bool get readFailed => _readFailed;
   EefInterest get interest => _interest;
   EefInterestFailure? get failure => _failure;
 
@@ -81,8 +89,10 @@ class EefInterestController extends ChangeNotifier {
     try {
       final raw = await _apiClient.getEefInterest();
       _interest = EefInterest.fromJson(raw);
+      _readFailed = false;
     } catch (_) {
       _interest = EefInterest.notDeclared;
+      _readFailed = true;
     }
 
     _failure = null;

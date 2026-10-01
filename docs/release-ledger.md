@@ -62,8 +62,9 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
   **Elle part avec l'espace réel ÉTEINT.** Tout ce que la 54 ajoute pour
   « Études en France » est derrière `features.eefSpace`, une clé que seul le
-  serveur allume : à l'approbation, un utilisateur de la 54 voit la même vitrine
-  que celui de la 53. L'ouverture est une opération serveur séparée
+  serveur allume : à l'approbation, un utilisateur de la 54 voit la vitrine de la
+  53 (avec en plus ses liens vers les sources officielles et un sélecteur de
+  domaines dans la déclaration). L'ouverture est une opération serveur séparée
   (`docs/runbook-ouverture-espace-reel.md`), sans nouvelle soumission.
 
 ### Ce que 54 embarque
@@ -140,13 +141,21 @@ erreur : c'est la définition de `tolerates-old`. Le préflight se lance donc av
 29/09 et est un ancêtre de la release ; relire `GET /api/health/version` avant de
 lancer le préflight : un déploiement de `main` depuis a pu le faire avancer).
 
-⚠️ **Mais l'OUVERTURE de l'espace exige le backend récent** (`95440db` ou plus) :
-`PATCH /etudes-en-france/interest`, `catalogPublished`, la recherche par
-`searchText`, la migration `20260930120000_eef_search_text_and_acronym` et
-l'import indexé. L'ordre — déploiement backend `scope=full`, `eef-import`,
+⚠️ **Mais l'OUVERTURE de l'espace exige le backend de cette build** — le commit de
+fusion de la branche, **pas `95440db`** (qui porte la recherche et le `PATCH`
+mais ni la mention de paternité `eefCatalog`, ni les liens officiels, ni les
+audiences de campagne) : `PATCH /etudes-en-france/interest`, `catalogPublished`,
+la recherche par `searchText`, la migration
+`20260930120000_eef_search_text_and_acronym`, l'import indexé, `eefCatalog`,
+`platformUrl`, `suspendedSources`. Si l'espace doit être allumé À L'APPROBATION
+(état B du pack de soumission), ce backend doit être en ligne AVANT la soumission
+et le préflight se lance en `requires-new` : le catalogue ne doit jamais s'afficher
+sans sa mention. L'ordre — déploiement backend `scope=full`, `eef-import`,
 publication du pilote, **puis** `eef-space-on` — est dans
 `docs/runbook-ouverture-espace-reel.md`. `eef-space-on` refuse d'écrire tant
-qu'aucune formation n'est publiée.
+qu'aucune formation n'est publiée **ou** que le conteneur ne porte pas ce backend
+(`eef-catalog-attribution.js`), et le workflow vérifie après coup que
+`/config/app` sert `eefCatalog` et `platformUrl`.
 
 ### Ce qui reste à faire par un humain avant la soumission
 

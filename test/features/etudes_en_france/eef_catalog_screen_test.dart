@@ -7,6 +7,8 @@
 // la liste, que la carte nomme l'université, et que les mentions obligatoires
 // sont atteignables.
 
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +21,9 @@ import 'package:karatou/app/core/data/eef_calendar.dart';
 import 'package:karatou/app/core/models/eef_catalog_attribution.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/core/services/remote_feature_flags.dart';
+import 'package:karatou/app/core/translations/app_translations.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_catalog_screen.dart';
+import 'package:karatou/app/features/etudes_en_france/eef_data_notice.dart';
 
 import '../../support/raw_key_guard.dart';
 import '../../support/screen_harness.dart';
@@ -510,16 +514,131 @@ void main() {
     });
   });
 
-  // Mutation de contrôle : si le champ de recherche perdait son contrôleur, ou si
-  // `catalogPublished` était ignoré, un test ci-dessus doit casser.
+  // ── Défauts trouvés par la relecture indépendante ─────────────────────────
+
+  group('nouvelle recherche', () {
+    List<Map<String, dynamic>> many(int n) =>
+        [for (var i = 0; i < n; i++) _program('p$i', name: 'Formation $i')];
+
+    testWidgets('remonte la liste en haut après un filtre posé en bas',
+        (tester) async {
+      stub((invocation) async {
+        final cycles = invocation.namedArguments[#cycles] as List<String>;
+        return cycles.isEmpty
+            ? _page(many(12), total: 12, facets: <String, dynamic>{
+                'cycle': [
+                  {'value': 'master', 'count': 8},
+                ],
+              })
+            : _page(many(3), total: 3, facets: <String, dynamic>{
+                'cycle': [
+                  {'value': 'master', 'count': 3},
+                ],
+              });
+      });
+      await pump(tester);
+
+      // On défile jusqu'en bas…
+      await tester.drag(find.byType(ListView).last, const Offset(0, -2000));
+      await tester.pumpAndSettle();
+      final scrollable = tester.state<ScrollableState>(
+        find.descendant(
+          of: find.byType(ListView).last,
+          matching: find.byType(Scrollable),
+        ),
+      );
+      expect(scrollable.position.pixels, greaterThan(0));
+
+      // …puis on pose un filtre : la liste redevient courte.
+      await tester.tap(find.textContaining('Master'));
+      await settleBounded(tester);
+
+      expect(scrollable.position.pixels, 0,
+          reason: 'le compteur et le premier résultat doivent être visibles');
+      expect(find.text('3 formation(s)'), findsOneWidget);
+    });
+
+    testWidgets('montre un chargement pendant une recherche AFFINÉE',
+        (tester) async {
+      final gate = Completer<void>();
+      var first = true;
+      stub((invocation) async {
+        if (first) {
+          first = false;
+          return _page(many(2), total: 2, facets: <String, dynamic>{
+            'cycle': [
+              {'value': 'master', 'count': 2},
+            ],
+          });
+        }
+        await gate.future;
+        return _page(many(1), total: 1);
+      });
+      await pump(tester);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+
+      await tester.tap(find.textContaining('Master'));
+      await tester.pump();
+
+      // L'ancienne liste est encore là, et on VOIT que la réponse est en route.
+      expect(find.text('Formation 0'), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+
+      gate.complete();
+      await settleBounded(tester);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+    });
+  });
+
+  group('mention de paternité', () {
+    const attribution = {
+      'producer': "Ministère de l'Enseignement supérieur et de la Recherche",
+      'licence': 'Licence Ouverte 2.0',
+      'updatedAt': '2026-09-21',
+      'sources': ['Parcoursup', 'Trouver mon master'],
+    };
+
+    // « Licence Licence Ouverte 2.0 » : le gabarit répétait le mot que la valeur
+    // servie porte déjà. Le test cherchait un fragment et ne le voyait pas.
+    test('la phrase exacte, sans mot répété (FR)', () {
+      Get.addTranslations(AppTranslations().keys);
+      Get.locale = const Locale('fr');
+      expect(
+        EefDataNotice.attributionText(
+            EefCatalogAttribution.fromJson(attribution)),
+        "Données : Ministère de l'Enseignement supérieur et de la Recherche "
+        '(Parcoursup, Trouver mon master). Licence : Licence Ouverte 2.0. '
+        'Récupérées le 21 septembre 2026.',
+      );
+    });
+
+    test('la phrase exacte, sans mot répété (EN)', () {
+      Get.addTranslations(AppTranslations().keys);
+      Get.locale = const Locale('en');
+      expect(
+        EefDataNotice.attributionText(
+            EefCatalogAttribution.fromJson(attribution)),
+        "Data: Ministère de l'Enseignement supérieur et de la Recherche "
+        '(Parcoursup, Trouver mon master). Licence: Licence Ouverte 2.0. '
+        'Retrieved on 21 September 2026.',
+      );
+    });
+  });
+
+  // Les clés que ces écrans lisent existent dans les DEUX langues. (`key.tr`
+  // rend la clé quand elle manque : l'ancien test `isNotEmpty` ne pouvait pas
+  // échouer.)
   test('le vocabulaire testé existe dans les deux langues', () {
+    final keys = AppTranslations().keys;
     for (final key in [
       'eef_catalog_unpublished_title',
       'eef_catalog_more_failed',
       'eef_catalog_sources_row',
       'eef_catalog_attribution',
+      'eef_catalog_attribution_bare',
     ]) {
-      expect(key.tr, isNotEmpty);
+      expect(keys['fr']![key], isNotNull, reason: '$key manque en fr');
+      expect(keys['en']![key], isNotNull, reason: '$key manque en en');
     }
   });
 }

@@ -47,6 +47,11 @@ describePostgres('Audiences EEF — intégration PostgreSQL', () => {
     senegalPlain: { country: 'Sénégal', type: 'student', declared: false },
     nigeria: { country: 'Nigeria', type: 'student', declared: true },
     parentDeclarant: { country: 'Sénégal', type: 'parent', declared: false },
+    ciTypo: { country: 'Côte d\u2019Ivoire', type: 'student', declared: true },
+    ciPlain: { country: "Cote d'Ivoire", type: 'student', declared: false },
+    mali: { country: 'Mali', type: 'student', declared: false },
+    // Profil non complété : pays vide. Voir `countryExclusion` (limite assumée).
+    noCountry: { country: '', type: 'student', declared: true },
   } as const;
 
   async function recipientsOf(
@@ -111,6 +116,8 @@ describePostgres('Audiences EEF — intégration PostgreSQL', () => {
           'nigerDeclarant',
           'nigerUpperDeclarant',
           'nigeria',
+          'ciTypo',
+          'noCountry',
         ),
       );
     });
@@ -118,7 +125,7 @@ describePostgres('Audiences EEF — intégration PostgreSQL', () => {
     it('exclut les pays suspendus, quelle que soit la casse', async () => {
       expect(
         await recipientsOf('eef_interest', { exceptCountries: ['Niger'] }),
-      ).toEqual(ids('senegalDeclarant', 'nigeria'));
+      ).toEqual(ids('senegalDeclarant', 'nigeria', 'ciTypo', 'noCountry'));
     });
 
     // Le piège du préfixe : « Niger » est un préfixe de « Nigeria », et une
@@ -138,7 +145,7 @@ describePostgres('Audiences EEF — intégration PostgreSQL', () => {
           await recipientsOf('eef_interest', {
             exceptCountries: ['eef_suspended'],
           }),
-        ).toEqual(ids('senegalDeclarant', 'nigeria'));
+        ).toEqual(ids('senegalDeclarant', 'nigeria', 'ciTypo', 'noCountry'));
       } finally {
         if (previous === undefined) {
           delete process.env.KPB_EEF_SUSPENDED_COUNTRIES;
@@ -155,7 +162,17 @@ describePostgres('Audiences EEF — intégration PostgreSQL', () => {
         await recipientsOf('all_students_except_countries', {
           exceptCountries: ['Niger'],
         }),
-      ).toEqual(ids('senegalDeclarant', 'senegalPlain', 'nigeria'));
+      ).toEqual(
+        ids(
+          'senegalDeclarant',
+          'senegalPlain',
+          'nigeria',
+          'ciTypo',
+          'ciPlain',
+          'mali',
+          'noCountry',
+        ),
+      );
     });
 
     it('accepte plusieurs pays', async () => {
@@ -163,7 +180,16 @@ describePostgres('Audiences EEF — intégration PostgreSQL', () => {
         await recipientsOf('all_students_except_countries', {
           exceptCountries: ['Niger', 'Nigeria'],
         }),
-      ).toEqual(ids('senegalDeclarant', 'senegalPlain'));
+      ).toEqual(
+        ids(
+          'senegalDeclarant',
+          'senegalPlain',
+          'ciTypo',
+          'ciPlain',
+          'mali',
+          'noCountry',
+        ),
+      );
     });
 
     // Une exclusion illisible est « personne », jamais « tous les étudiants ».
@@ -176,6 +202,50 @@ describePostgres('Audiences EEF — intégration PostgreSQL', () => {
       expect(await recipientsOf('all_students_except_countries', {})).toEqual(
         [],
       );
+    });
+  });
+
+  // ── Ce que la relecture a trouvé en sondant ce même Postgres ─────────────
+  describe("jokers SQL et écritures d'un même pays", () => {
+    // `equals` + `insensitive` devient `ILIKE`, et Prisma n'échappe pas les
+    // jokers : « Mal_ » excluait « Mali », « % » excluait tout le monde.
+    it('« _ » est une lettre, pas un joker', async () => {
+      const got = await recipientsOf('all_students_except_countries', {
+        exceptCountries: ['Mal_'],
+      });
+      expect(got).toContain(id('mali'));
+    });
+
+    it("« % » n'exclut personne", async () => {
+      const everyone = await recipientsOf('all_students_except_countries', {
+        exceptCountries: ["Pays qui n'existe pas"],
+      });
+      const got = await recipientsOf('all_students_except_countries', {
+        exceptCountries: ['%'],
+      });
+      expect(got).toEqual(everyone);
+      expect(got.length).toBeGreaterThan(0);
+    });
+
+    // L'app replie accents et apostrophes avant de comparer ; la base doit
+    // exclure les mêmes écritures, sinon un pays suspendu écrit autrement reçoit
+    // l'annonce.
+    it("exclut toutes les écritures de « Côte d'Ivoire »", async () => {
+      const got = await recipientsOf('all_students_except_countries', {
+        exceptCountries: ["Côte d'Ivoire"],
+      });
+      expect(got).not.toContain(id('ciTypo'));
+      expect(got).not.toContain(id('ciPlain'));
+      expect(got).toContain(id('mali'));
+    });
+
+    // Limite ASSUMÉE et documentée : on ne peut pas exclure un pays qu'on ne
+    // connaît pas. Un profil non complété reçoit l'annonce.
+    it("un compte sans pays renseigné n'est jamais exclu", async () => {
+      const got = await recipientsOf('eef_interest', {
+        exceptCountries: ['Niger', 'Sénégal', 'Nigeria'],
+      });
+      expect(got).toContain(id('noCountry'));
     });
   });
 });

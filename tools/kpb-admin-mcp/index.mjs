@@ -425,7 +425,30 @@ server.registerTool(
       filters: d.filters,
     });
     if (preview.filterMissing) problems.push(`L'audience ${d.audienceType} exige son filtre.`);
+    // Un filtre PRÉSENT mais mal formé (jeton d'exclusion mal écrit…) : le backend
+    // le dit, et refuse l'envoi. Le répéter ici évite un brouillon « envoyable ».
+    if (preview.filterInvalid) problems.push(`Filtre inutilisable : ${preview.filterInvalid}.`);
     if (preview.recipients === 0) problems.push('Audience vide : 0 destinataire.');
+
+    // ── Études en France ────────────────────────────────────────────────
+    // `/etudes-en-france/catalogue` n'existe que dans les builds 2.3.0 (54) et
+    // suivantes ET quand l'espace est ouvert : sur une build 49 à 53 le tap
+    // atterrit sur l'accueil. On cible `/etudes-en-france`, qui arbitre
+    // vitrine / hub / « bientôt » selon le drapeau serveur.
+    if (d.route.startsWith('/etudes-en-france/')) {
+      problems.push("Cible /etudes-en-france, jamais un sous-écran : /etudes-en-france/catalogue n'existe que dans les builds 54+ et espace ouvert (build 49 à 53 : l'élève atterrit sur l'accueil).");
+    }
+    // Une annonce vers l'espace envoyée sans exclure les pays suspendus part vers
+    // des élèves dont l'État dit que les dossiers ne sont pas traités.
+    if (
+      d.route.startsWith('/etudes-en-france') &&
+      ['all_students', 'all_users', 'eef_interest', 'country_of_residence', 'study_level'].includes(d.audienceType)
+    ) {
+      warnings.push('Cette annonce vise Études en France sans exclure les pays suspendus : préférer all_students_except_countries ou eef_interest avec {"exceptCountries":["eef_suspended"]}.');
+    }
+    if (preview.excludedCountries) {
+      warnings.push(`Exclusion lue : ${preview.excludedCountries.join(', ')} → ${preview.excludedRecipients} compte(s) retiré(s). Vérifier que ce nombre n'est pas 0.`);
+    }
 
     const draftId = `d_${randomBytes(4).toString('hex')}`;
     const draft = { ...d, draftId, broadcast, preview, createdAt: new Date().toISOString() };

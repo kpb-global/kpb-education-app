@@ -30,8 +30,8 @@ Cocher, noter l'appareil et l'heure. Un ✗ s'écrit avec ce qu'on a vu.
 | A11 | Réception réelle d'une notification | Reçue sur l'appareil (APNs production / FCM) | ☐ | ☐ |
 | A12 | Conditions / Confidentialité | « Dernière mise à jour : septembre 2026 » ; plus de « espace communautaire » dans la liste des services | ☐ | ☐ |
 | A13 | Mise à jour **forcée** (porte de version) | Avec `KPB_MIN_APP_VERSION` temporairement au-dessus : l'écran bloquant s'affiche, **avec un bouton conseiller** ; revenir à `0.0.0` après | ☐ | ☐ |
-| A14 | Bandeau **doux** de mise à jour | Avec `recommended-version-set` (une valeur > installée) : bandeau fermable sur l'accueil, lien du store ; fermé, il ne revient pas dans la session | ☐ | ☐ |
-| A15 | En-têtes de version | Dans les journaux du serveur : `X-KPB-App-Version: 2.3.0`, `X-KPB-App-Build: 54` sur les requêtes de la 54 | ☐ | — |
+| A14 | Bandeau **doux** de mise à jour | Il n'apparaît que si `recommendedVersion` > version installée : sur la 54, il faut donc une **PR** qui met `RECOMMENDED_APP_VERSION` à une version supérieure (`2.3.1` par exemple) dans `vps-ops.sh`, puis l'action `recommended-version-set` ; remettre la constante à vide ensuite. Attendu : bandeau fermable sur l'accueil, lien du store ; fermé, il ne revient pas dans la session. *Aucun effet sur les builds 49 à 53.* | ☐ | ☐ |
+| A15 | En-têtes de version | **Non vérifiable aujourd'hui côté serveur** : aucun code backend ne lit ni ne journalise `X-KPB-App-Version` / `X-KPB-App-Build`, et le proxy n'est pas dans le dépôt. Les en-têtes sont posés par l'app (testés en unitaire) ; pour les voir, un proxy de débogage (Charles / mitmproxy) sur l'appareil. Les lire côté serveur est un chantier de la 55. | ☐ | — |
 | A16 | Texte agrandi (réglages d'accessibilité au maximum) | Vitrine, catalogue, hub : rien de coupé, rien qui déborde | ☐ | ☐ |
 | A17 | Hors ligne | Avion : l'accueil reste utilisable ; le catalogue dit « Pas de connexion », pas « aucune formation » | ☐ | ☐ |
 | A18 | Signalement IA | Un signalement depuis le **coach**, un depuis l'**orientation**, avec leurs références de dossier (preuve exigée par le contrat §5) | ☐ | ☐ |
@@ -49,10 +49,14 @@ appareil **sans l'allumer pour tout le monde** :
    lui, répond `eefSpace: false` — **la valeur servie prime sur le repli**, donc
    pour un appareil connecté à la prod il faut en plus une des deux voies
    suivantes).
-2. **Voie 1 — backend local** : démarrer le backend en local avec
-   `KPB_EEF_SPACE_ENABLED=true`, un catalogue importé et un établissement publié
-   (`npm run eef:import` puis la publication admin), et lancer l'app avec
-   `--dart-define=KPB_API_BASE_URL=http://<ip-du-poste>:4000/api`.
+2. **Voie 1 — backend local, derrière un tunnel HTTPS** : démarrer le backend en
+   local avec `KPB_EEF_SPACE_ENABLED=true`, un catalogue importé et un
+   établissement publié (`npm run eef:import` puis la publication admin), l'exposer
+   en **HTTPS** (`cloudflared tunnel --url http://localhost:4000` ou `ngrok http
+   4000`) et lancer l'app avec
+   `--dart-define=KPB_API_BASE_URL=https://<tunnel>/api`. **Le HTTP simple ne
+   marche pas sur un appareil physique** : iOS (`NSAllowsArbitraryLoads=false`, sans
+   exception) et Android (trafic non chiffré non autorisé) le bloquent.
 3. **Voie 2 — prod, un instant** : `vps-ops` → `eef-space-on` (voir
    `docs/runbook-ouverture-espace-reel.md` ; exige un établissement publié). À ne
    faire qu'avec l'accord du propriétaire : c'est l'ouverture elle-même.

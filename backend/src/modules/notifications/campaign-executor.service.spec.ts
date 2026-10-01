@@ -318,6 +318,29 @@ describe('CampaignExecutorService', () => {
       }
     });
 
+    // Le défaut de la relecture : une exclusion non vide qui ne désigne personne
+    // (jeton mal écrit) était ignorée et l'envoi partait vers tous.
+    it.each([
+      ['all_students_except_countries', { exceptCountries: ['eef_suspendd'] }],
+      ['eef_interest', { exceptCountries: ['eef_suspendd'] }],
+      ['eef_interest', { exceptCountry: ['Niger'] }],
+      ['eef_interest', { exceptCountries: null }],
+    ])(
+      '%s avec un filtre mal formé %j → personne, aucune requête',
+      async (audienceType, filters) => {
+        const h = makeService({
+          channels: ['push'],
+          template: TEMPLATE,
+          audienceType,
+          filters: filters as Record<string, unknown>,
+        });
+        await h.service.execute('c1');
+
+        expect(h.deliveries()).toEqual([]);
+        expect(h.profileQueries()).toEqual([]);
+      },
+    );
+
     it('eef_interest vise les étudiants qui ont une déclaration', async () => {
       const h = makeService({
         channels: ['push'],

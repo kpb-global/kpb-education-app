@@ -125,10 +125,15 @@ class EefCampaignWindow {
 
   /// Une adresse que l'app peut réellement ouvrir, ou `null`. Même règle que
   /// partout ailleurs : un bouton qui ne peut pas marcher n'est pas affiché.
+  ///
+  /// **https SEULEMENT.** Ces liens sont des sources officielles : le serveur
+  /// n'en sert jamais d'autres, et un `http://` ne doit pas atteindre un bouton
+  /// parce qu'un serveur plus ancien (ou mal configuré) l'aurait laissé passer.
   static String? _parseWebUrl(Object? value) {
     if (value is! String) return null;
     final trimmed = value.trim();
-    return isOpenableWebUrl(trimmed) ? trimmed : null;
+    if (!isOpenableWebUrl(trimmed)) return null;
+    return Uri.parse(trimmed).scheme.toLowerCase() == 'https' ? trimmed : null;
   }
 
   /// `[{country, url}]` → `{pays normalisé: url}`. Une entrée illisible est

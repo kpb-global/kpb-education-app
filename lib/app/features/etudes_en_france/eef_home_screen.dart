@@ -77,7 +77,7 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
 
   void _openCatalog() {
     _track('catalogue');
-    Get.toNamed(AppRoutes.etudesEnFranceCatalog);
+    Get.toNamed(AppRoutes.etudesEnFranceCatalog, arguments: 'hub');
   }
 
   /// Les trois outils passent par `openAiToolIfConsented`, qui gère déjà
@@ -535,6 +535,34 @@ class _ProfileBlock extends StatelessWidget {
               variant: KpbButtonVariant.tertiary,
               fullWidth: true,
               onTap: controller.busy ? null : onWithdraw,
+            ),
+          ],
+        ),
+      );
+    }
+
+    // La lecture a échoué : on ne SAIT pas si l'étudiant a déclaré. Proposer
+    // « Compléter mon profil » le ferait redéclarer (et masquerait « Me retirer »,
+    // seul endroit où le retrait est tenu) ; on le dit et on propose de réessayer.
+    if (controller.readFailed) {
+      return KpbCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('eef_profile_title'.tr, style: KpbTextStyles.titleSm),
+            const SizedBox(height: KpbSpacing.xs),
+            Text(
+              'eef_profile_read_failed'.tr,
+              style:
+                  KpbTextStyles.bodySm.copyWith(color: context.kpb.textMuted),
+            ),
+            const SizedBox(height: KpbSpacing.md),
+            KpbButton(
+              label: 'eef_sheet_retry'.tr,
+              variant: KpbButtonVariant.secondary,
+              fullWidth: true,
+              loading: controller.phase == EefInterestPhase.loading,
+              onTap: controller.load,
             ),
           ],
         ),

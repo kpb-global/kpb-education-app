@@ -100,8 +100,10 @@ function campaignDay(value: string | undefined): string | null {
  *
  * Ces liens sont servis par une variable d'exploitation, donc écrits à la main
  * par quelqu'un pressé. `javascript:` ou `http:` ne doivent jamais atteindre un
- * bouton « ouvrir » — et une faute de frappe doit faire taire le lien, pas
- * l'envoyer vers un hôte que personne n'a voulu.
+ * bouton « ouvrir ». **Ce que ce filtre NE garantit PAS :** qu'un hôte `https`
+ * syntaxiquement valide soit le bon — une faute de frappe dans le nom de domaine
+ * passe. C'est la relecture de la variable (et le `curl /config/app` du runbook)
+ * qui l'attrape, pas ce code.
  */
 function httpsUrl(value: string | undefined): string | null {
   const raw = value?.trim();
@@ -139,9 +141,14 @@ const OFFICIAL_PLATFORM_URL = 'https://www.campusfrance.org/fr';
  * suspension annoncée sans sa source est une affirmation que l'étudiant ne peut
  * pas vérifier. `KPB_EEF_SUSPENDED_SOURCES` complète ou remplace ces entrées.
  */
-const KNOWN_SUSPENSION_SOURCES: Readonly<Record<string, string>> = {
-  niger: 'https://ne.diplomatie.gouv.fr/informations-visas',
-};
+const KNOWN_SUSPENSION_SOURCES: ReadonlyMap<string, string> = new Map([
+  ['niger', 'https://ne.diplomatie.gouv.fr/informations-visas'],
+  // Le code que l'exploitation écrit à côté du nom (`Niger,NE`) : sans cet alias,
+  // un profil saisi « NE » verrait la suspension SANS son lien. Une `Map` et non
+  // un objet : `KNOWN_SUSPENSION_SOURCES['__proto__']` lisait la chaîne de
+  // prototypes.
+  ['ne', 'https://ne.diplomatie.gouv.fr/informations-visas'],
+]);
 
 /**
  * `Pays|https://…;Autre pays|https://…`.
@@ -149,6 +156,11 @@ const KNOWN_SUSPENSION_SOURCES: Readonly<Record<string, string>> = {
  * `;` sépare les entrées et `|` le pays de son lien, parce que ni l'un ni
  * l'autre n'apparaît dans une URL de page ordinaire — une virgule le ferait
  * (`?a=1,2`), et le `=` d'un format clé=valeur aussi.
+ *
+ * **Limite :** une URL qui contient elle-même un `;` (paramètre de chemin du type
+ * `;jsessionid=…`) est COUPÉE à ce point et servie tronquée, sans erreur. Les
+ * pages de sources officielles n'en portent pas ; si l'une en portait un, il
+ * faudrait changer de format (JSON) et non l'échapper.
  */
 function suspensionSourceOverrides(
   value: string | undefined,
@@ -173,7 +185,7 @@ function suspendedSources(
   const out: { country: string; url: string }[] = [];
   for (const country of suspended) {
     const key = countryKey(country);
-    const url = custom.get(key) ?? KNOWN_SUSPENSION_SOURCES[key];
+    const url = custom.get(key) ?? KNOWN_SUSPENSION_SOURCES.get(key);
     if (url) out.push({ country, url });
   }
   return out;
@@ -268,11 +280,14 @@ export class AppConfigController {
       recommendedVersion: recommendedVersion(
         process.env.KPB_RECOMMENDED_APP_VERSION,
       ),
+      // Validés comme toute URL servie à un bouton « ouvrir » : une valeur
+      // d'exploitation mal écrite retombe sur la fiche publiée, au lieu de
+      // verrouiller l'écran de mise à jour sur un lien mort.
       androidStoreUrl:
-        process.env.KPB_ANDROID_STORE_URL?.trim() ||
+        httpsUrl(process.env.KPB_ANDROID_STORE_URL) ||
         PUBLISHED_ANDROID_STORE_URL,
       iosStoreUrl:
-        process.env.KPB_IOS_STORE_URL?.trim() || PUBLISHED_IOS_STORE_URL,
+        httpsUrl(process.env.KPB_IOS_STORE_URL) || PUBLISHED_IOS_STORE_URL,
       features: {
         competitionReadiness,
         successLab,

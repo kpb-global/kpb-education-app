@@ -76,6 +76,19 @@ class _UpdateRecommendedBannerState extends State<UpdateRecommendedBanner> {
     });
   }
 
+  /// Un lien qui ne s'ouvre pas doit le DIRE : un bouton muet est indiscernable
+  /// d'une app plantée (voir `kpbOpenExternalUrl`, `EefOfficialLink`).
+  Future<void> _open(String url) async {
+    if (await kpbOpenExternalUrlString(url)) return;
+    Get.snackbar(
+      'update_recommended_title'.tr,
+      'external_link_failed_body'.tr,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 4),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_resolved) return const SizedBox.shrink();
@@ -139,7 +152,7 @@ class _UpdateRecommendedBannerState extends State<UpdateRecommendedBanner> {
                         ),
                         const SizedBox(height: KpbSpacing.xs),
                         TextButton(
-                          onPressed: () => kpbOpenExternalUrlString(storeUrl),
+                          onPressed: () => _open(storeUrl!),
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
                             minimumSize: const Size(48, 44),

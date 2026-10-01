@@ -3,7 +3,10 @@ import type { NotificationCampaign } from '@prisma/client';
 import { NotificationCampaignStatus } from '../../common/enums/notification-campaign-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  audienceFilterInvalid,
   audienceFilterMissing,
+  countryVariants,
+  escapeLike,
   resolveExcludedCountries,
 } from './campaign-audience';
 import { CampaignMailService } from './campaign-mail.service';
@@ -20,15 +23,27 @@ interface ResolvedTemplate {
  * « Le pays de résidence n'est AUCUN de ceux-ci », insensible à la casse.
  *
  * `countryOfResidence` est un texte saisi (« Niger », « niger », parfois un
- * code) : une égalité stricte aurait laissé passer « NIGER ». La colonne est
- * non nulle (`String` au schéma), donc `NOT` ne retire pas par erreur les
- * comptes sans pays — le piège habituel de `NOT` sur une colonne nullable.
+ * code) : une égalité stricte aurait laissé passer « NIGER ». La colonne est non
+ * nulle (`String` au schéma), donc `NOT` ne retire pas par erreur les comptes
+ * sans pays — le piège habituel de `NOT` sur une colonne nullable.
+ *
+ * **Limite assumée :** un compte dont le pays est vide (`''`, profil non
+ * complété) n'est exclu de rien — on ne peut pas savoir qu'il est au Niger. Il
+ * reçoit donc l'annonce. C'est le cas des comptes qui n'ont pas fini leur profil.
+ *
+ * Les jokers `%` et `_` sont ÉCHAPPÉS : `ILIKE` les interprète, et Prisma ne le
+ * fait pas pour nous.
  */
 export function countryExclusion(countries: readonly string[]) {
   return {
-    OR: countries.map((country) => ({
-      countryOfResidence: { equals: country, mode: 'insensitive' as const },
-    })),
+    OR: countries
+      .flatMap((country) => countryVariants(country))
+      .map((variant) => ({
+        countryOfResidence: {
+          equals: escapeLike(variant),
+          mode: 'insensitive' as const,
+        },
+      })),
   };
 }
 
@@ -310,6 +325,17 @@ export class CampaignExecutorService {
       this.logger.error(
         `Audience "${audienceType}" is missing its required filter — resolving ` +
           'to 0 recipient instead of falling through to every account.',
+      );
+      return [];
+    }
+
+    // Un filtre PRÉSENT mais mal formé (jeton mal écrit, clé inconnue…) vaut
+    // « personne », comme un filtre absent : voir [audienceFilterInvalid].
+    const invalid = audienceFilterInvalid(audienceType, filters);
+    if (invalid) {
+      this.logger.error(
+        `Audience "${audienceType}" has an unusable filter (${invalid}) — ` +
+          'resolving to 0 recipient instead of ignoring the exclusion.',
       );
       return [];
     }

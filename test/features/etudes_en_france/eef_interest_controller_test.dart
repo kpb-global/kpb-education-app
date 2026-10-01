@@ -252,6 +252,29 @@ void main() {
       expect(controller.phase, EefInterestPhase.ready);
       expect(controller.failure, isNull);
     });
+
+    // …mais l'écran DOIT pouvoir le savoir : « pas déclaré » est alors un repli,
+    // pas un fait (le hub n'invite pas à redéclarer et ne cache pas « Me retirer »).
+    test(
+        'un échec de lecture est signalé par readFailed, jusqu\'à la relecture',
+        () async {
+      when(api.getEefInterest).thenThrow(_dio(status: 500));
+      await controller.load();
+      expect(controller.readFailed, isTrue);
+
+      when(api.getEefInterest).thenAnswer((_) async => _declaredBody);
+      await controller.load();
+      expect(controller.readFailed, isFalse);
+      expect(controller.declared, isTrue);
+    });
+
+    test('une lecture réussie « pas déclaré » n\'est pas un échec', () async {
+      when(api.getEefInterest)
+          .thenAnswer((_) async => <String, dynamic>{'declared': false});
+      await controller.load();
+      expect(controller.readFailed, isFalse);
+      expect(controller.declared, isFalse);
+    });
   });
 
   group('classifyFailure', () {

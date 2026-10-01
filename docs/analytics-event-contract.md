@@ -90,8 +90,8 @@ steady points at the feed itself, not at the content.
 | `eef_interest_declared` | `wants_premium`, `field_count`, `current_level` | LA question posée par la vitrine : y a-t-il une demande, et pour le payant ? |
 | `eef_interest_failed` | `reason` (`network`/`unauthorized`/`server`) | Un envoi qui échoue |
 | `eef_space_viewed` | `source` (`home_card`/`tools_drawer`/`student_tools`/`deep_link`/`direct`) | L'espace réel (hub) vu, et par quelle porte (build 54) |
-| `eef_hub_tile_opened` | `tile` (`catalogue`/`cv`/`lettres`/`entretien`/`echeances`/`eligibilite`/`conseiller`/`profil`) | Ce que les étudiants viennent FAIRE dans l'espace |
-| `eef_catalog_viewed` | `source` (`hub`/`deep_link`) | Le catalogue ouvert |
+| `eef_hub_tile_opened` | `tile` (`catalogue`/`cv`/`lettres`/`entretien`/`conseiller`/`profil`) | Ce que les étudiants viennent FAIRE dans l'espace |
+| `eef_catalog_viewed` | `source` (`hub` quand l'étudiant vient du hub, `deep_link` sinon — lien profond ou notification) | Le catalogue ouvert, et par quelle porte |
 | `eef_catalog_searched` | `has_query` (`1`/`0`), `filter_count`, `result_count`, `catalog_published` (`1`/`0`) | Une recherche aboutie. **Jamais le texte tapé** : une requête libre peut contenir un nom, une ville, un établissement |
 | `eef_catalog_failed` | `reason` (`network`/`server`) | Le catalogue n'a pas pu répondre |
 
@@ -133,7 +133,7 @@ tout produit payant existant.
 > CSV, mais ces écrans ne l'envoient jamais. La build 54 ajoute le sélecteur
 > (domaines d01–d12, préremplis depuis le profil) : à partir d'elle seulement,
 > `field_count` segmente. Ne pas comparer la distribution avant/après sans
-> filtrer sur la version de l'app (`X-KPB-App-Version`). Écrit ici parce que c'est
+> filtrer sur la version de l'app (la dimension de version de l'application que Firebase Analytics et PostHog renseignent d'eux-mêmes ; `X-KPB-App-Version` n'est pas lu côté serveur). Écrit ici parce que c'est
 > le document qu'on ouvre pour interpréter l'entonnoir, et qu'un zéro constant
 > se lit autrement comme « personne ne choisit de filière ».
 >

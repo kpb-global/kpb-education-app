@@ -18,7 +18,8 @@ name: VPS ops (feature flag / catalogue)
 # distant pour quiconque peut cliquer sur « Run workflow ».
 #
 # Les seules clés que les branches `eef-*` écrivent dans le `.env` sont les
-# `KPB_EEF_*` (vitrine, espace, fenêtre de campagne), aux valeurs écrites dans
+# `KPB_EEF_*` (vitrine, espace, fenêtre de campagne) et `KPB_RECOMMENDED_APP_VERSION`
+# (bandeau doux de mise à jour, jamais `KPB_MIN_APP_VERSION`), aux valeurs écrites dans
 # `.github/scripts/vps-ops.sh` : en changer une passe par une PR. Le fichier est sauvegardé avant écriture, et la clé
 # est REMPLACÉE si elle existe déjà plutôt qu'ajoutée en double — un `.env` avec
 # deux fois la même clé prend la dernière, ce qui rend le fichier illisible pour
@@ -178,7 +179,7 @@ jobs:
           # La preuve ne vient pas du serveur qu'on vient de toucher : elle vient
           # de ce que l'app lira réellement.
           curl -fsS "${HEALTH_URL}/api/config/app" \
-            | python3 -c 'import json,sys; d=json.load(sys.stdin); print("features:", json.dumps(d.get("features"), ensure_ascii=False)); print("eefCampaign:", json.dumps(d.get("eefCampaign"), ensure_ascii=False))'
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print("features:", json.dumps(d.get("features"), ensure_ascii=False)); print("eefCampaign:", json.dumps(d.get("eefCampaign"), ensure_ascii=False)); print("minVersion:", d.get("minVersion"), "| recommendedVersion:", d.get("recommendedVersion")); print("eefCatalog:", json.dumps(d.get("eefCatalog"), ensure_ascii=False))'
 
       # L'ouverture ou la fermeture de l'espace se PROUVE depuis l'extérieur, pas
       # par le code de sortie du script : ce que l'app lira, c'est `/config/app`.
@@ -193,11 +194,17 @@ jobs:
           set -euo pipefail
           curl -fsS "${HEALTH_URL}/api/config/app" | python3 -c '
           import json, os, sys
-          features = json.load(sys.stdin).get("features") or {}
+          d = json.load(sys.stdin)
+          features = d.get("features") or {}
           want = os.environ["WANT_OPEN"] == "true"
           assert "eefSpace" in features, "features.eefSpace absent : ancienne image en production"
           got = features["eefSpace"]
           assert got is want, "features.eefSpace=%r, attendu %r" % (got, want)
           assert features.get("eef") is False, "features.eef est vrai : la vitrine des builds 49 a 53 a disparu"
+          if want:
+              # Ce que l'espace de la 54 affiche doit etre servi : sans la mention
+              # de paternite du catalogue, l'ouverture est incomplete.
+              assert d.get("eefCatalog"), "eefCatalog absent : le backend ne porte pas la build 54 cote serveur"
+              assert (d.get("eefCampaign") or {}).get("platformUrl"), "eefCampaign.platformUrl absent : aucun lien vers la plateforme officielle"
           print("eefSpace =", features["eefSpace"], "| eef =", features["eef"], "| eefTeaser =", features.get("eefTeaser"))
           '

@@ -66,6 +66,7 @@ class _EefCatalogViewState extends State<_EefCatalogView> {
   late final EefCatalogController _controller;
   final ScrollController _scroll = ScrollController();
   final TextEditingController _queryField = TextEditingController();
+  int _seenGeneration = 0;
 
   @override
   void initState() {
@@ -93,6 +94,11 @@ class _EefCatalogViewState extends State<_EefCatalogView> {
         text: _controller.query,
         selection: TextSelection.collapsed(offset: _controller.query.length),
       );
+    }
+    // Une nouvelle recherche remonte la liste en haut.
+    if (_controller.searchGeneration != _seenGeneration) {
+      _seenGeneration = _controller.searchGeneration;
+      if (_scroll.hasClients) _scroll.jumpTo(0);
     }
     setState(() {});
   }
@@ -123,6 +129,12 @@ class _EefCatalogViewState extends State<_EefCatalogView> {
         children: [
           _SearchField(controller: _controller, field: _queryField),
           _FacetBar(controller: _controller),
+          // Une recherche AFFINÉE garde l'ancienne liste à l'écran le temps de la
+          // réponse : sans signe de chargement, l'étudiant lit des résultats
+          // périmés alors que sa puce est déjà cochée.
+          if (_controller.phase == EefCatalogPhase.loading &&
+              _controller.items.isNotEmpty)
+            const LinearProgressIndicator(minHeight: 2),
           const _SuspensionBanner(),
           Expanded(child: _Results(controller: _controller, scroll: _scroll)),
           const SafeArea(top: false, child: EefSourcesRow()),

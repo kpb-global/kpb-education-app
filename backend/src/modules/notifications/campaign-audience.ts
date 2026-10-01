@@ -111,3 +111,112 @@ export function resolveExcludedCountries(
   }
   return [...out];
 }
+
+/** Les audiences qui acceptent (ou exigent) `exceptCountries`. */
+const EXCEPT_COUNTRIES_AUDIENCES = new Set([
+  'eef_interest',
+  'all_students_except_countries',
+]);
+
+/** Un jeton, pas un nom de pays : snake_case, au moins un `_`, aucun espace. */
+const TOKEN_LIKE = /^[a-z0-9]+(?:_[a-z0-9]+)+$/i;
+
+/**
+ * Le filtre est-il MAL FORMÉ — c'est-à-dire présent mais incapable de faire ce
+ * qu'il annonce ? Rend la raison, ou `null` s'il est exploitable.
+ *
+ * ## Pourquoi cette garde en plus de [audienceFilterMissing]
+ *
+ * `audienceFilterMissing` attrape l'exclusion ABSENTE ou VIDE. Elle laisse passer
+ * le pire cas pour ces deux audiences : une exclusion NON VIDE qui ne désigne
+ * personne. `["eef_suspendd"]` (faute de frappe sur le jeton) était lu comme un
+ * nom de pays qu'aucun compte ne porte : l'envoi partait vers TOUS les étudiants,
+ * Niger compris, avec un aperçu qui affichait simplement un nombre plus grand.
+ * C'est exactement l'accident que l'exclusion existe pour empêcher — et il est
+ * silencieux.
+ *
+ * Sont donc refusés, pour ces deux audiences seulement :
+ *  - une clé de filtre inconnue (`exceptCountry`, `except`…) ;
+ *  - `exceptCountries: null`, ni absent ni valeur ;
+ *  - une entrée qui n'est pas du texte ;
+ *  - une entrée en snake_case autre que le jeton connu (un nom de pays n'a pas de
+ *    `_` collé : c'est un jeton mal écrit) ;
+ *  - le jeton `eef_suspended` quand `KPB_EEF_SUSPENDED_COUNTRIES` est vide : il
+ *    n'exclurait personne, et l'exploitant croirait le contraire.
+ */
+export function audienceFilterInvalid(
+  audienceType: string,
+  filters: Record<string, unknown>,
+  env: NodeJS.ProcessEnv = process.env,
+): string | null {
+  if (!EXCEPT_COUNTRIES_AUDIENCES.has(audienceType)) return null;
+
+  for (const key of Object.keys(filters)) {
+    if (key !== 'exceptCountries') {
+      return `filtre inconnu « ${key} » pour l'audience « ${audienceType} » (seul « exceptCountries » existe)`;
+    }
+  }
+  if (!('exceptCountries' in filters)) return null;
+
+  const value = filters['exceptCountries'];
+  if (value === null || value === undefined) {
+    return '« exceptCountries » est présent mais vide de sens (null)';
+  }
+  const entries: unknown[] = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(',')
+      : [value];
+
+  let usesToken = false;
+  for (const entry of entries) {
+    if (typeof entry !== 'string') {
+      return '« exceptCountries » ne contient que du texte';
+    }
+    const trimmed = entry.trim();
+    if (!trimmed) continue;
+    if (trimmed.toLowerCase() === EEF_SUSPENDED_COUNTRIES_TOKEN) {
+      usesToken = true;
+      continue;
+    }
+    if (TOKEN_LIKE.test(trimmed)) {
+      return `« ${trimmed} » ressemble à un jeton mais n'en est pas un (le seul jeton connu est « ${EEF_SUSPENDED_COUNTRIES_TOKEN} »)`;
+    }
+  }
+  if (
+    usesToken &&
+    resolveExcludedCountries([EEF_SUSPENDED_COUNTRIES_TOKEN], env).length === 0
+  ) {
+    return `le jeton « ${EEF_SUSPENDED_COUNTRIES_TOKEN} » est vide : KPB_EEF_SUSPENDED_COUNTRIES ne désigne aucun pays, l'exclusion n'exclurait personne`;
+  }
+  return null;
+}
+
+const withoutAccents = (value: string) =>
+  value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+/**
+ * Les écritures d'un même pays que la base peut porter : tel quel, sans accents,
+ * apostrophe droite ou typographique. L'app, elle, replie les accents et les
+ * apostrophes avant de comparer (`EefCampaignWindow.normalizeCountry`) ; sans
+ * ces variantes, exclure « Côte d'Ivoire » laisserait passer « Côte d’Ivoire ».
+ */
+export function countryVariants(country: string): string[] {
+  const base = country.replace(/\s+/g, ' ').trim();
+  const out = new Set<string>();
+  for (const candidate of [base, withoutAccents(base)]) {
+    out.add(candidate);
+    out.add(candidate.replace(/\u2019/g, "'"));
+    out.add(candidate.replace(/'/g, '\u2019'));
+  }
+  return [...out].filter(Boolean);
+}
+
+/**
+ * Échappe un texte pour `ILIKE` : `%`, `_` et `\` sont des JOKERS en SQL.
+ * Prisma passe `equals` + `mode: 'insensitive'` à `ILIKE` sans les échapper :
+ * exclure « Mal_ » excluait « Mali », et exclure « % » excluait tout le monde.
+ */
+export function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}

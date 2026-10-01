@@ -11,6 +11,7 @@
 //    `documentUploadEnabled` (« fourni ✓ » coché avant l'appel réseau).
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -450,7 +451,7 @@ void main() {
   });
 
   group('ce qui est mesuré', () {
-    test('une recherche donne des comptes — jamais le texte tapé', () async {
+    test('une recherche donne des comptes et des drapeaux', () async {
       stub((_) async => _body(ids: ['a', 'b'], total: 12));
 
       await controller.search('prénom nom ville secrète');
@@ -460,11 +461,58 @@ void main() {
       expect(event['hasQuery'], isTrue);
       expect(event['resultCount'], 12);
       expect(event['filterCount'], 0);
-      // Aucune valeur ne contient ce que l'étudiant a tapé.
+      expect(event['catalogPublished'], isTrue);
+    });
+
+    // L'interface `EefCatalogAnalytics` n'a aucun paramètre de texte : un test
+    // d'exécution ne peut pas prouver l'ABSENCE d'un champ. Ce qui protège le
+    // texte tapé est donc lu dans les SOURCES — le contrôleur ne passe à la
+    // mesure que « y a-t-il une requête », et le service n'envoie que des comptes.
+    test('SOURCES : le texte tapé ne part jamais dans la mesure', () {
+      final controllerSource = File(
+        'lib/app/features/etudes_en_france/eef_catalog_controller.dart',
+      ).readAsStringSync();
+      final call = RegExp(r'_analytics\.searched\(([\s\S]*?)\);')
+          .firstMatch(controllerSource);
+      expect(call, isNotNull, reason: 'l\'appel à la mesure a disparu');
+      final args = call!.group(1)!;
+      expect(args, contains('hasQuery: _query.trim().isNotEmpty'));
       expect(
-        event.values.map((v) => '$v').join(' '),
-        isNot(contains('secrète')),
+        args.replaceAll('_query.trim().isNotEmpty', ''),
+        isNot(contains('_query')),
+        reason: 'le texte tapé ne doit pas atteindre la mesure',
       );
+
+      final serviceSource = File('lib/app/core/services/analytics_service.dart')
+          .readAsStringSync();
+      final start = serviceSource.indexOf('Future<void> logEefCatalogSearched');
+      final body = serviceSource.substring(
+        start,
+        serviceSource.indexOf('Future<void> logEefCatalogFailed'),
+      );
+      expect(body, isNot(contains('searchTerm')));
+      expect(body.replaceAll('hasQuery', ''), isNot(contains('query')));
+      // Les booléens partent en 1/0 : FirebaseAnalytics n'accepte que String/num.
+      expect(body, contains('hasQuery ? 1 : 0'));
+      expect(body, contains('catalogPublished ? 1 : 0'));
+    });
+
+    test('searchGeneration avance à chaque recherche, pas au défilement',
+        () async {
+      stub((invocation) async {
+        final cursor = invocation.namedArguments[#cursor] as String?;
+        return cursor == null
+            ? _body(ids: ['a'], total: 2, hasMore: true, nextCursor: 'c1')
+            : _body(ids: ['b'], total: 2);
+      });
+
+      expect(controller.searchGeneration, 0);
+      await controller.refresh();
+      expect(controller.searchGeneration, 1);
+      await controller.loadMore();
+      expect(controller.searchGeneration, 1);
+      await controller.refresh();
+      expect(controller.searchGeneration, 2);
     });
 
     test('compte les filtres posés, pas leur contenu', () async {
