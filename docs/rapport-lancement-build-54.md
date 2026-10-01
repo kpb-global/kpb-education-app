@@ -1,13 +1,20 @@
 # Rapport — Études en France, build 54 : ce qui est fait, ce qui reste
 
-> Mis à jour le 01/10/2026 (soir) sur la branche `claude/campus-france-space-98orw9`.
-> **Fait depuis la première version de ce rapport** : la build 54 est fusionnée (#296) ;
-> le backend est déployé ; le catalogue (84 établissements, 10 502 formations) est
-> **importé, inactif** (#297, #298) ; l'audit de production est passé (voir §5 bis) ;
-> l'outil de **publication déléguée** est écrit et répété sur une copie complète
-> (`docs/eef-publication-deleguee.md`).
-> **Pas encore fait** : cet outil n'est ni fusionné ni déployé, **rien n'est publié**,
-> rien n'est soumis aux stores, `KPB_EEF_ENABLED` n'est posé nulle part, `eefSpace` est faux.
+> Mis à jour le 01/10/2026 à 21 h 30 (production vérifiée).
+>
+> **Le catalogue Études en France est publié.** 10 029 formations dans 84 établissements,
+> par l'action `eef-publish` (#299, déployée en `660fd454a17b`) : essai sur l'UTT (5 formations)
+> à 21 h 24, puis le reste (10 024) à 21 h 25, 0 échec. Tampon « Aminou Laouali (publication
+> déléguée) », une trace d'audit par établissement. 473 formations restent **en attente**
+> (page-source morte, toutes des masters « Trouver mon master » 2021). Catalogue des autres
+> espaces **inchangé** (69 / 634), mesuré avant et après par le workflow.
+>
+> **L'espace reste fermé** : `eefSpace=false`, `eef=false`, `eefTeaser=true`. Aucune build ne
+> montre ce catalogue ; l'API publique `/etudes-en-france/search` le sert (10 029 résultats,
+> 0,7 à 1,2 s par requête). Rien n'est soumis aux stores, aucune notification n'est partie.
+>
+> **Prêt, pas encore fusionné** : les cartes d'aide « C'est flou ? » vers WhatsApp (hub et
+> catalogue), sur la branche — voir §7.
 
 ## 1. Où on en est, en trois phrases
 
@@ -159,3 +166,18 @@ procédure fausse ne se corrige pas en masse après publication avec les outils 
     `docker-compose.yml`, `.env.example`, contrat analytique). Si l'un part avant la 54, relancer
     les tests Flutter après la fusion de `main` (le test `config_env_relay_test` lit
     `docker-compose.yml` et `.env.example`).
+
+## 7. Prochaines étapes après la publication du 01/10 (ordre recommandé)
+
+| # | Quoi | Qui | Pourquoi |
+|---|---|---|---|
+| 1 | **Faire trancher les 7 questions de procédure** (`docs/eef-dossier-relecture-procedures.md`) par une personne qui connaît Campus France | humain | Les lignes sont désormais publiées et tamponnées : une règle fausse ne se corrige plus en masse (`eef:reconcile` n'existe pas). Retirer un établissement reste possible. |
+| 2 | **Construire `eef:reconcile`** (réaligner les lignes publiées sur le catalogue régénéré, simulation d'abord) | code | Sans lui, la réponse au point 1 ne peut pas atteindre la production. |
+| 3 | **Fusionner les cartes d'aide WhatsApp** (PR à ouvrir), puis les inclure dans la build | code + toi | Elles ne s'affichent que dans l'espace réel : sans effet tant que `eefSpace` est faux. |
+| 4 | **Synonymes de recherche** : « médecine », « santé » → PASS / L.AS / cycle `sante` | code | Mesuré le 01/10 : `q=medecine` rend 0 résultat, alors que 650 formations de santé sont publiées sous « L1 - Sciences de la vie ». |
+| 5 | **Test sur appareil** (Xcode) de la 54 pointée sur la production, puis soumission | toi | `docs/device-qa-build54.md`, A et B (B-aide pour les cartes). |
+| 6 | **Ouvrir l'espace** : `eef-space-on` (simulation, puis application) — seulement 54 en vente et adoptée, et point 1 tranché | toi + moi | `docs/runbook-ouverture-espace-reel.md`. Retour arrière : `eef-space-off`. |
+| 7 | **Annonce** (audience `eef_interest` / `all_students_except_countries` + `eef_suspended`, route `/etudes-en-france`) | toi | Après le point 6 seulement : sinon la notification mène à la vitrine. |
+| 8 | **Session admin qui expire au bout d'une heure** sans renouvellement (le 401 de la page Rapports) | code | Défaut préexistant de l'admin, sans lien avec la publication. |
+| 9 | Refaire `eef:check-sources` **toutes les deux semaines** et republier ce qui revient | code / ops | Le rapport a 14 jours de validité ; 184 adresses sont « incertaines ». |
+
