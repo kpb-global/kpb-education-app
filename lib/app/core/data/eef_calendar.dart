@@ -75,6 +75,16 @@ abstract final class EefCalendar {
   static bool isSuspendedFor(String? country) =>
       window.isSuspendedForCountry(country);
 
+  /// La plateforme officielle servie, ou `null` (serveur plus ancien, adresse
+  /// illisible) — l'écran n'affiche alors aucun lien.
+  static String? get platformUrl => window.platformUrl;
+
+  /// La page officielle qui justifie la suspension dans [country], ou `null`.
+  /// `null` aussi quand le pays n'est pas suspendu : la source d'une suspension
+  /// ne voyage pas vers quelqu'un qui n'est pas concerné.
+  static String? suspensionSourceFor(String? country) =>
+      window.suspensionSourceFor(country);
+
   /// Où en est la campagne.
   ///
   /// Une fenêtre incohérente (clôture avant ouverture) est traitée comme

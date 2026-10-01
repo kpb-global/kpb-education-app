@@ -33,6 +33,7 @@ void main() {
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
+    AppConfig.eefSpaceEnabledOverride = null;
     Get.locale = const Locale('fr');
   });
 
@@ -41,6 +42,7 @@ void main() {
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
+    AppConfig.eefSpaceEnabledOverride = null;
     Get.reset();
   });
 

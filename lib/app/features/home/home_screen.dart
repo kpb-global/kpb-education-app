@@ -7,6 +7,7 @@ import '../../core/navigation/shell_tabs.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/models/app_models.dart';
 import '../../core/ui/kpb_components.dart';
+import '../../core/ui/components/update_recommended_banner.dart';
 import '../../core/ui/skeleton.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/whatsapp_utils.dart';
@@ -186,6 +187,12 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // ── 0. Invitation douce à mettre à jour ─────
+                        // Self-hiding: rien tant que le serveur ne recommande
+                        // pas de version plus récente, et fermable. Le levier
+                        // dur (`minVersion`) reste l'affaire d'AppVersionGate.
+                        const UpdateRecommendedBanner(),
+
                         // ── 1. Hero ─────────────────────────────────
                         StaggeredSlide(
                           index: 0,

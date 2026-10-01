@@ -142,6 +142,14 @@ const _nonProcessorSuffixes = <String>[
   // donnée d'un étudiant — l'app ne les appelle jamais.
   'enseignementsup-recherche.gouv.fr',
   'monmaster.gouv.fr',
+  // Liens OFFICIELS que `/config/app` fait afficher à l'étudiant (XC-05) : la
+  // page de l'ambassade qui justifie une suspension de pays, et la licence qui
+  // régit le catalogue (CAT-M03). Ce sont des adresses que l'étudiant OUVRE pour
+  // vérifier ce que l'app affirme — l'app ne les appelle jamais, aucune donnée
+  // d'étudiant ne leur est envoyée. Elles vivent côté serveur (servies, pas
+  // compilées), mais le test lit aussi `backend/src`.
+  'diplomatie.gouv.fr',
+  'etalab.gouv.fr',
   'aucegypt.edu',
   'auf.org',
   'campuschina.org',

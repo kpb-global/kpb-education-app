@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 import {
@@ -41,6 +41,30 @@ describe('Contrat d’audience des campagnes', () => {
     expect(orphans).toEqual([]);
   });
 
+  // L'admin web garde sa propre copie de la liste : sans ce test, une audience
+  // ajoutée au backend (ici `eef_interest`) n'était offerte nulle part dans le
+  // formulaire, et le commentaire de la copie affirmait pourtant l'accord.
+  it('l’admin web offre exactement les mêmes audiences, avec les mêmes filtres', () => {
+    const adminPath = join(
+      __dirname,
+      '../../../../admin/app/notifications/page.tsx',
+    );
+    expect(existsSync(adminPath)).toBe(true);
+    const source = readFileSync(adminPath, 'utf8');
+    const block = source.slice(
+      source.indexOf('const AUDIENCE_REQUIRED_FILTER'),
+      source.indexOf('const AUDIENCE_TYPES'),
+    );
+    const adminEntries: Record<string, string | null> = {};
+    for (const match of block.matchAll(
+      /^\s{2}([a-z_]+): (null|'[A-Za-z]+'),/gm,
+    )) {
+      adminEntries[match[1]] =
+        match[2] === 'null' ? null : match[2].slice(1, -1);
+    }
+    expect(adminEntries).toEqual({ ...AUDIENCE_REQUIRED_FILTER });
+  });
+
   it('la liste n’est pas vide (le test lit bien quelque chose)', () => {
     expect(AUDIENCE_TYPES.length).toBeGreaterThan(4);
   });
@@ -50,11 +74,40 @@ describe('Contrat d’audience des campagnes', () => {
   // Seules les audiences dont le NOM annonce une diffusion peuvent se passer
   // de filtre. Toute autre doit en exiger un : `where: undefined` en Prisma ne
   // veut pas dire « personne » mais « tous les comptes ».
-  it('seules all_users et all_students peuvent se passer de filtre', () => {
+  //
+  // `eef_interest` est la troisième : son nom dit QUI elle vise (les déclarants),
+  // et son ensemble est borné par la table `EefInterest` — elle ne peut pas
+  // retomber sur « tous les comptes », puisque la requête part de cette table.
+  it('seules all_users, all_students et eef_interest peuvent se passer de filtre', () => {
     const unfiltered = AUDIENCE_TYPES.filter(
       (a) => AUDIENCE_REQUIRED_FILTER[a] === null,
     );
-    expect(unfiltered.sort()).toEqual(['all_students', 'all_users']);
+    expect(unfiltered.sort()).toEqual([
+      'all_students',
+      'all_users',
+      'eef_interest',
+    ]);
+  });
+
+  // « Tous les étudiants SAUF… » sans l'exception est « tous les étudiants » :
+  // la diffusion que ce nom prétend éviter. Le filtre est donc exigé.
+  it('all_students_except_countries exige son exclusion', () => {
+    expect(AUDIENCE_REQUIRED_FILTER['all_students_except_countries']).toBe(
+      'exceptCountries',
+    );
+    expect(audienceFilterMissing('all_students_except_countries', {})).toBe(
+      true,
+    );
+    expect(
+      audienceFilterMissing('all_students_except_countries', {
+        exceptCountries: [],
+      }),
+    ).toBe(true);
+    expect(
+      audienceFilterMissing('all_students_except_countries', {
+        exceptCountries: ['Niger'],
+      }),
+    ).toBe(false);
   });
 
   describe('audienceFilterMissing', () => {

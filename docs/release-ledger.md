@@ -43,57 +43,126 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   couplage `requires-new` satisfait et vérifié par le préflight de release.
   La 52 ne repart pas.
 
+- `53` — **`2.2.0 (53)`, livrée aux deux stores : la 2.2.0 est EN VENTE sur
+  l'App Store depuis le 13/09/2026** (vérifié le 29/09/2026 : la page de la fiche
+  affiche « 2.2.0 », mise en ligne le 13/09/2026). Rigoureusement le même code
+  applicatif que la 52 : sa raison d'être était la version marketing, qui seule
+  permet à `isVersionBelow` de distinguer une build d'une autre. Le détail de sa
+  construction et de sa vérification est dans l'historique git de ce fichier. La
+  53 ne repart pas, et le train « 2.2.0 » est fermé : App Store Connect refuse
+  toute build dont la version marketing n'est pas supérieure à 2.2.0.
+
 ## Courant
 
-- `53` — **`2.2.0 (53)`. Rigoureusement le même code applicatif que la 52.**
+- `54` — **`2.3.0 (54)`. La build « ouverture sûre » de l'espace Études en
+  France.** Le dépôt livrait `2.2.0+53` ; la 53 est en vente depuis le 13/09/2026,
+  donc App Store Connect refuse toute build dont la version marketing n'est pas
+  **strictement supérieure** à 2.2.0 (ITMS-90062). D'où `2.3.0`, et non `2.2.1` :
+  c'est une build de fonctionnalités, pas un correctif.
 
-  Entre `b6d8d769cc71` (la 52) et cette build, un seul fichier applicatif a
-  changé, et il est côté SERVEUR : `health.controller.ts`, qui expose
-  `push: { configured }`. Rien dans `lib/`, rien dans `ios/`, rien dans
-  `android/`. La 53 n'est donc pas une nouvelle version du produit — c'est la
-  52 sous un autre numéro de version marketing.
+  **Elle part avec l'espace réel ÉTEINT.** Tout ce que la 54 ajoute pour
+  « Études en France » est derrière `features.eefSpace`, une clé que seul le
+  serveur allume : à l'approbation, un utilisateur de la 54 voit la vitrine de la
+  53 (avec en plus ses liens vers les sources officielles et un sélecteur de
+  domaines dans la déclaration). L'ouverture est une opération serveur séparée
+  (`docs/runbook-ouverture-espace-reel.md`), sans nouvelle soumission.
 
-  **Pourquoi la construire alors.** Parce que `AppVersionGate` compare la
-  version MARKETING au `minVersion` du serveur et que `isVersionBelow` coupe
-  la chaîne au `+` : le numéro de build est ignoré. Les 48, 49, 50 et 52
-  s'appelant toutes « 2.1.0 », aucune valeur de `KPB_MIN_APP_VERSION` ne
-  pouvait en distinguer une seule. Soumettre la 52 en 2.1.0 aurait donc coûté
-  une revue de plus pour obtenir, plus tard, une porte de mise à jour qui
-  fonctionne. La 53 fait les deux en une soumission.
+### Ce que 54 embarque
 
-  **Ce que « même code » NE dispense PAS de faire.** Une première rédaction de
-  cette entrée affirmait que la vérification sur appareil de la 52 restait
-  valable pour la 53. C'était faux, et dangereusement : elle disait à un
-  opérateur de sauter un contrôle que le dépôt rend obligatoire
-  (`docs/phase1-stability-smoke-checklist.md` — « every release candidate »,
-  sur un appareil physique de chaque plateforme — et la checklist du contrat de
-  soumission, qui exige le smoke sur la build SOUMISE).
+**1. Le hub de l'espace « Études en France » (derrière `eefSpace`).**
+- Hub : héros (où se dépose la candidature, suspension qui remplace la date, lien
+  vers la plateforme officielle), catalogue, CV / lettres / entretien (même masque
+  `aiToolsEnabled` que la boîte à outils), conseiller WhatsApp. Plus aucun module
+  « en préparation ».
+- Catalogue (serveur, #280 puis cette build) : recherche par nom d'université,
+  sigle, ville, sans accents ; filtres Niveau et Procédure ; carte qui nomme
+  l'université, la ville et la procédure (DAP blanche / jaune, Études en France,
+  Parcoursup, hors procédure) ; « le catalogue arrive » distinct de « ta
+  recherche est trop étroite » ; une page suivante en panne garde la liste ;
+  « Tout effacer » vide aussi le champ ; la barre de facettes n'a plus de hauteur
+  fixe.
+- Mentions : paternité de la Licence Ouverte 2.0 (producteur, licence, date de
+  mise à jour **servis** par `/config/app`), non-affiliation avec lien vers la
+  plateforme officielle, mise en garde de suspension avec sa source.
+- Profil « Mon profil Études en France » : niveaux + domaines d01–d12 (préremplis
+  depuis le profil par une table fermée), **Modifier par `PATCH`** (ni
+  consentement redemandé, ni intérêt Premium effacé), **Me retirer** — la promesse
+  « depuis cet écran » du texte de consentement est tenue. Texte
+  `eef-consent-v1` **inchangé**, archivé dans `docs/eef-consent-v1.md`.
+- Parents et partenaires arrivés par lien : « un espace pour les étudiants » (pas
+  un 403 traduit en « reconnecte-toi »). Invité : catalogue public, invitation à
+  créer un compte pour le profil.
+- Mesure : `eef_space_viewed`, `eef_hub_tile_opened`, `eef_catalog_viewed`,
+  `eef_catalog_searched`, `eef_catalog_failed` — des comptes, **jamais le texte
+  tapé** (`docs/analytics-event-contract.md`).
 
-  Trois raisons, dont la deuxième est la raison d'être de cette build :
+**2. Le socle qui rend les builds suivantes pilotables.**
+- **En-têtes `X-KPB-App-Version` / `X-KPB-App-Build`** sur chaque requête (CAT-03) :
+  avant, le serveur ne pouvait pas distinguer une 53 d'une 54. Ils ne cassent
+  jamais une requête (lecture mémorisée, échec = pas d'en-tête).
+- **Bandeau doux « une mise à jour est disponible »** piloté par
+  `recommendedVersion` (XC-09), fermable, masqué sans lien de store. C'est le
+  levier des passages 54 → 55 → forum sans relever `minVersion` (qui bloque l'app).
+  `vps-ops` → `recommended-version-set`.
+- **Liens officiels servis** (XC-05) : `eefCampaign.platformUrl`,
+  `suspendedSources` (https seulement, sans identifiants) ; `eefCatalog`
+  (attribution, gardée contre `manifest.json` par un spec).
 
-  - **la 53 est un artefact NEUF**, reconstruit et re-signé. Une source
-    identique ne rend pas deux archives identiques : empaquetage, signature,
-    profil, installation et premier démarrage peuvent échouer indépendamment
-    du code ;
-  - **le comportement de la porte de mise à jour DIFFÈRE** à l'exécution —
-    `isVersionBelow` compare « 2.2.0 » au lieu de « 2.1.0 ». C'est précisément
-    ce qu'on est venu chercher, donc c'est précisément ce qu'il faut voir
-    tourner ;
-  - un artefact non installé n'a jamais été vu par personne.
+**3. Embarqué depuis la 53 (déjà sur `main`).** Lien profond `/parcours/<slug>` du
+push « récit de la semaine » (#284) ; étiquettes OneSignal normalisées (#286) ;
+email manquant qui bloquait la synchro du profil (#291) ; logos Wikimedia Commons
+avec crédit de licence (#281, 330 px — MISS-01) ; client de recherche serveur
+(#280).
 
-  Ce que « même code » dispense de faire, en revanche : re-parcourir les neuf
-  points de la revue du build 49 fonction par fonction. Ils ont été vérifiés
-  sur la 52 et aucun code applicatif n'a bougé depuis.
+**4. Conformité.**
+- MISS-02 : la jauge « 85 % » **codée en dur** disparaît de la fiche
+  établissement, avec un garde qui interdit tout score littéral.
+- FOR-M05 : « Un espace communautaire » retiré des CGU (web et app) tant que le
+  forum n'est pas livré. LIV-28 : « Dernière mise à jour : septembre 2026 »
+  (politique et CGU, web et app).
+- Wikimedia déclaré comme destinataire dans les réponses de console
+  (`CONSOLE_ANSWERS.md` §5).
 
-  Reste, comme pour la 52, le seul contrôle que le dépôt ne peut pas rendre :
-  la réception effective d'une notification, qui seule prouve l'environnement
-  APNs de l'artefact livré.
+**Ce que la 54 ne contient PAS** (et qu'aucun texte de fiche ne doit vanter) : la
+fiche formation, l'onglet Universités, la sélection en trois étages, la checklist,
+le projet d'études, les favoris synchronisés (build 55) ; le forum (build dédiée) ;
+tout logo visible (aucun établissement actif n'en a) ; un catalogue non vide
+(rien n'est publié au 01/10).
 
-  **Couplage backend : `tolerates-old`.** Aucune route nouvelle, aucun champ
-  nouveau envoyé par l'app. `push.configured` est une LECTURE que l'app ne
-  fait pas ; le déploiement qui l'a livrée est déjà en production
-  (`0ec1c1e42b6d`). La 53 tourne indifféremment contre ce backend ou contre
-  le précédent.
+### Couplage backend de la 54 : `tolerates-old`
+
+La 54 ne **dépend** d'aucun backend récent pour fonctionner : chaque appel neuf est
+soit derrière `eefSpace` (que seul un backend récent peut allumer), soit tolérant à
+une clé absente (`recommendedVersion`, `eefCatalog`, `platformUrl`,
+`suspendedSources`, `catalogPublished` — lue « publié » quand elle manque). Un
+backend en retard se traduit par **moins de choses affichées**, jamais par une
+erreur : c'est la définition de `tolerates-old`. Le préflight se lance donc avec
+`backend_coupling=tolerates-old` (`113cc55` tournait en production à l'audit du
+29/09 et est un ancêtre de la release ; relire `GET /api/health/version` avant de
+lancer le préflight : un déploiement de `main` depuis a pu le faire avancer).
+
+⚠️ **Mais l'OUVERTURE de l'espace exige le backend de cette build** — le commit de
+fusion de la branche, **pas `95440db`** (qui porte la recherche et le `PATCH`
+mais ni la mention de paternité `eefCatalog`, ni les liens officiels, ni les
+audiences de campagne) : `PATCH /etudes-en-france/interest`, `catalogPublished`,
+la recherche par `searchText`, la migration
+`20260930120000_eef_search_text_and_acronym`, l'import indexé, `eefCatalog`,
+`platformUrl`, `suspendedSources`. Si l'espace doit être allumé À L'APPROBATION
+(état B du pack de soumission), ce backend doit être en ligne AVANT la soumission
+et le préflight se lance en `requires-new` : le catalogue ne doit jamais s'afficher
+sans sa mention. L'ordre — déploiement backend `scope=full`, `eef-import`,
+publication du pilote, **puis** `eef-space-on` — est dans
+`docs/runbook-ouverture-espace-reel.md`. `eef-space-on` refuse d'écrire tant
+qu'aucune formation n'est publiée **ou** que le conteneur ne porte pas ce backend
+(`eef-catalog-attribution.js`), et le workflow vérifie après coup que
+`/config/app` sert `eefCatalog` et `platformUrl`.
+
+### Ce qui reste à faire par un humain avant la soumission
+
+Voir `docs/release-54-store-pack.md` (notes de version, notes de revue, décision
+XC-03), `docs/device-qa-build54.md` (QA appareil, budget de performance),
+`docs/CONSOLE_ANSWERS.md` §0quater (déclarations de console) et
+`docs/eef-consent-v1.md` (questions juridiques ouvertes).
 
 ### Ce que 52 embarque
 

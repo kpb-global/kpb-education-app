@@ -52,6 +52,8 @@ Donc : pas de push « bourse du jour », pas de push « complète ton profil ».
 ### 3. Mises en avant, de temps en temps
 Bourses par thème (santé, ingénierie, Canada…), vidéos, témoignages et parcours inspirants, Études en France, salon, alumni. Au plus une par semaine, et seulement s'il reste de la place sous le plafond.
 - Routes utiles : `/scholarships`, `/etudes-en-france`, `/alumni`, `/salon`, `/orientation`, `/eligibility`, `/deadlines`.
+- **Études en France** : cible `/etudes-en-france` (vitrine ou hub selon le drapeau serveur) et **jamais** `/etudes-en-france/catalogue` tant que l'espace n'est pas ouvert : le catalogue n'existe que dans les builds **2.3.0 (54) et suivantes**, et sur une build 49 à 53 ce lien tombe sur l'accueil. Ne jamais promettre « le catalogue » dans un texte tant que `features.eefSpace` est faux (`kpb_session` ou `/config/app`).
+- Audiences Études en France : `eef_interest` (les étudiants qui ont déclaré leur intérêt et accepté d'être rappelés) et `all_students_except_countries` (filtre `exceptCountries`, **exigé**). Pour une annonce du type « la campagne est ouverte », **exclure les pays suspendus** : `{"exceptCountries": ["eef_suspended"]}` — le jeton suit la liste de l'exploitation, la même que celle que l'app affiche. `country` filtre sur le pays de **résidence**, pas sur le pays visé.
 - Pour un parcours ou une vidéo : `/parcours/<slug>` (le `slug` vient de `kpb_list_parcours`) ouvre le récit ou la vidéo. Un slug inconnu retombe sur la bibliothèque Parcours. Cette route n'existe que dans les builds qui contiennent la PR #284 : sur un build plus ancien, l'élève atterrit sur l'accueil. Tant que ce build n'est pas en production, signale-le dans le récapitulatif.
 
 ### 4. Bilan

@@ -470,6 +470,18 @@ EEF_CAMPAIGN_OPENS_AT="2026-10-01"
 EEF_CAMPAIGN_CLOSES_AT=""
 EEF_CAMPAIGN_SUSPENDED="Niger,NE"
 
+# La version RECOMMANDÉE (bandeau doux « une mise à jour est disponible »). Écrite
+# ici, relue en PR : l'action n'accepte aucune valeur libre.
+#
+# **VIDE par défaut, et c'est voulu.** Le bandeau n'existe que dans les builds
+# 2.3.0 (54) et suivantes ; il compare la version installée à celle-ci. Poser
+# « 2.3.0 » ne ferait donc rien : la 54 est déjà à 2.3.0, et les builds 49 à 53
+# ne lisent pas cette clé. Le levier sert aux passages SUIVANTS (54 → 55 → forum) :
+# la veille de chaque build, mettre ici sa version — par PR — et seulement quand
+# elle est DISPONIBLE sur les deux stores, sinon le bandeau envoie vers un store
+# qui n'a encore rien. Vide = aucun bandeau (et l'action RETIRE la clé du .env).
+RECOMMENDED_APP_VERSION=""
+
 # Nombre de formations de l'import que la recherche SERVIRAIT : active, sous un
 # établissement actif, du périmètre de l'import (même définition que
 # `eefProgramWhere` côté serveur). Zéro = un espace qui s'ouvrirait VIDE.
@@ -483,6 +495,9 @@ eef_visible_programs() {
 show_state() {
   echo "── Drapeaux EEF dans le .env ──"
   grep -E '^KPB_EEF' .env || echo "(aucune variable KPB_EEF posée)"
+  echo
+  echo "── Portes de version dans le .env (jamais de valeur libre ici) ──"
+  grep -E '^KPB_(MIN|RECOMMENDED)_APP_VERSION=' .env || echo "(aucune : minVersion 0.0.0, aucun bandeau)"
   echo
   show_push_state
   show_llm_state
@@ -538,6 +553,15 @@ case "$ACTION" in
     case "$visible" in
       ''|*[!0-9]*) echo "::error::décompte des formations publiées illisible (« ${visible:-<vide>} ») — ne pas ouvrir à l'aveugle"; exit 1 ;;
     esac
+    # Le backend doit porter CE que l'espace de la 54 lit : la mention de paternité
+    # du catalogue (`eefCatalog`), les liens officiels, la mise à jour de profil.
+    # Sans lui, l'action « réussit » (elle ne vérifiait que `eefSpace`) et la
+    # 54 s'ouvre sur un catalogue SANS la mention exigée par la Licence Ouverte.
+    # Même contrôle que `eef-import` : le fichier compilé dans le conteneur.
+    if ! docker compose exec -T api test -f dist/modules/etudes-en-france/catalog/eef-catalog-attribution.js; then
+      echo "::error::Le backend déployé ne porte pas la build 54 côté serveur (eef-catalog-attribution.js absent) : l'espace s'ouvrirait sans la mention de paternité du catalogue. Déployer le backend (scope=full) d'abord."
+      exit 1
+    fi
     echo "formations de l'import que la recherche servirait : ${visible}"
     if [ "$visible" -eq 0 ]; then
       echo "::error::aucune formation de l'import n'est publiée : l'espace s'ouvrirait VIDE. Publier d'abord un établissement relu (admin → « Publication EEF »)."
@@ -580,6 +604,30 @@ case "$ACTION" in
     set_env_key KPB_EEF_CAMPAIGN_CLOSES_AT "$EEF_CAMPAIGN_CLOSES_AT"
     set_env_key KPB_EEF_SUSPENDED_COUNTRIES "$EEF_CAMPAIGN_SUSPENDED"
     echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
+    recreate_api_same_image
+    ;;
+
+  recommended-version-set)
+    # Pose (ou, si la constante est vide, RETIRE) la version recommandée. Ne
+    # touche ni à la vitrine, ni à l'espace, ni à KPB_MIN_APP_VERSION : inviter à
+    # mettre à jour et bloquer l'app sont deux décisions distinctes.
+    require_relay KPB_RECOMMENDED_APP_VERSION
+    if [ -n "$RECOMMENDED_APP_VERSION" ] && ! printf '%s' "$RECOMMENDED_APP_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+      echo "::error::RECOMMENDED_APP_VERSION doit être « x.y.z » (reçu « ${RECOMMENDED_APP_VERSION} ») — le serveur l'ignorerait."
+      exit 1
+    fi
+    echo "── Version recommandée à poser (relue en PR) ──"
+    echo "KPB_RECOMMENDED_APP_VERSION=${RECOMMENDED_APP_VERSION}"
+    if grep -qE '^KPB_MIN_APP_VERSION=' .env; then
+      echo "(KPB_MIN_APP_VERSION n'est pas modifiée par cette action.)"
+    fi
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION : rien n'est écrit. Décocher « dry_run » pour appliquer. ──"
+      exit 0
+    fi
+    cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+    set_env_key KPB_RECOMMENDED_APP_VERSION "$RECOMMENDED_APP_VERSION"
+    echo "── .env après écriture ──"; grep -E '^KPB_RECOMMENDED_APP_VERSION' .env
     recreate_api_same_image
     ;;
 

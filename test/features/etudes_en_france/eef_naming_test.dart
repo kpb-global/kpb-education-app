@@ -147,6 +147,7 @@ void main() {
           File('lib/app/core/config/app_config.dart').readAsStringSync();
       expect(config, contains("'KPB_EEF_TEASER_ENABLED'"));
       expect(config, contains("'KPB_EEF_ENABLED'"));
+      expect(config, contains("'KPB_EEF_SPACE_ENABLED'"));
     });
   });
 }

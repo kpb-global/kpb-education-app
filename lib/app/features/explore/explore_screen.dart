@@ -1472,7 +1472,6 @@ class _InstitutionDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const score = 85; // Mock score for now
     final logoUrl = commonsRasterDisplayUrl(institution.logoUrl);
     final showLogoCredit = logoRequiresAttribution(institution.logoLicence) &&
         isOpenableWebUrl(institution.logoSourceUrl);
@@ -1582,14 +1581,15 @@ class _InstitutionDetailSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: KpbSpacing.lg),
 
-                  // Admission Meter
-                  const AdmissionMeter(
-                    score: score,
-                    size: 80,
-                    strokeWidth: 8,
-                  ),
-                  const SizedBox(height: KpbSpacing.lg),
-
+                  // Pas de jauge d'admission ici. Elle affichait « 85 % » en vert sur
+                  // CHAQUE établissement, une valeur codée en dur : à côté du logo
+                  // d'une université réelle, elle se lit comme une chance
+                  // d'admission, ce que la fiche boutique s'interdit (aucune
+                  // promesse d'admission, aucun nombre non prouvé). Les cartes de
+                  // liste gardent leur jauge parce qu'elle y est CALCULÉE à partir
+                  // du profil (`institutionMatch`) ; ici, rien ne la calcule.
+                  // `test/core/ui/admission_meter_guard_test.dart` l'empêche de
+                  // revenir en dur.
                   // Overview
                   KpbCard(
                     child: Column(

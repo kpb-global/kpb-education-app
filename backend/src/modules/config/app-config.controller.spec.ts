@@ -9,10 +9,8 @@ describe('AppConfigController', () => {
       process.env.KPB_COMPETITION_READINESS_ENABLED,
     KPB_SUCCESS_LAB_ENABLED: process.env.KPB_SUCCESS_LAB_ENABLED,
     KPB_AI_DIAGNOSTIC_ENABLED: process.env.KPB_AI_DIAGNOSTIC_ENABLED,
-    KPB_AI_DIAGNOSTIC_KILL_SWITCH:
-      process.env.KPB_AI_DIAGNOSTIC_KILL_SWITCH,
-    KPB_OUTCOME_EVIDENCE_ENABLED:
-      process.env.KPB_OUTCOME_EVIDENCE_ENABLED,
+    KPB_AI_DIAGNOSTIC_KILL_SWITCH: process.env.KPB_AI_DIAGNOSTIC_KILL_SWITCH,
+    KPB_OUTCOME_EVIDENCE_ENABLED: process.env.KPB_OUTCOME_EVIDENCE_ENABLED,
     KPB_IMPACT_PUBLIC_STATS_ENABLED:
       process.env.KPB_IMPACT_PUBLIC_STATS_ENABLED,
     KPB_SUCCESS_LAB_PILOT_COUNTRIES:
@@ -26,6 +24,9 @@ describe('AppConfigController', () => {
     KPB_EEF_CAMPAIGN_OPENS_AT: process.env.KPB_EEF_CAMPAIGN_OPENS_AT,
     KPB_EEF_CAMPAIGN_CLOSES_AT: process.env.KPB_EEF_CAMPAIGN_CLOSES_AT,
     KPB_EEF_SUSPENDED_COUNTRIES: process.env.KPB_EEF_SUSPENDED_COUNTRIES,
+    KPB_EEF_PLATFORM_URL: process.env.KPB_EEF_PLATFORM_URL,
+    KPB_EEF_SUSPENDED_SOURCES: process.env.KPB_EEF_SUSPENDED_SOURCES,
+    KPB_RECOMMENDED_APP_VERSION: process.env.KPB_RECOMMENDED_APP_VERSION,
   };
 
   beforeEach(() => {
@@ -72,7 +73,10 @@ describe('AppConfigController', () => {
       opensAt: null,
       closesAt: null,
       suspendedCountries: [],
+      platformUrl: 'https://www.campusfrance.org/fr',
+      suspendedSources: [],
     });
+    expect(config.recommendedVersion).toBeNull();
     expect(config.successLabRollout).toEqual({
       countryCodes: [],
       percent: 0,
@@ -142,12 +146,14 @@ describe('AppConfigController', () => {
   // `eefSpace` ouvre l'espace réel pour la seule build 54. Il ne peut PAS
   // passer par `eef`, que les builds 49 à 53 lisent aussi : pour elles, `eef`
   // retire la vitrine et affiche un espace vide.
-  describe('eefSpace — l\'ouverture de l\'espace pour la seule build 54', () => {
+  describe("eefSpace — l'ouverture de l'espace pour la seule build 54", () => {
     it('est fermé par défaut', () => {
-      expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(false);
+      expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(
+        false,
+      );
     });
 
-    it('s\'ouvre SANS toucher à la vitrine ni à `eef` que lisent les builds ≤ 53', () => {
+    it("s'ouvre SANS toucher à la vitrine ni à `eef` que lisent les builds ≤ 53", () => {
       process.env.KPB_EEF_TEASER_ENABLED = 'true';
       process.env.KPB_EEF_SPACE_ENABLED = 'true';
 
@@ -159,16 +165,20 @@ describe('AppConfigController', () => {
       expect(features.eef).toBe(false);
     });
 
-    it('ne s\'ouvre pas sur une autre valeur que « true »', () => {
+    it("ne s'ouvre pas sur une autre valeur que « true »", () => {
       for (const value of ['1', 'yes', 'on', 'false', '', 'TRUEISH']) {
         process.env.KPB_EEF_SPACE_ENABLED = value;
-        expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(false);
+        expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(
+          false,
+        );
       }
       process.env.KPB_EEF_SPACE_ENABLED = ' TRUE ';
-      expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(true);
+      expect(new AppConfigController().getAppConfig().features.eefSpace).toBe(
+        true,
+      );
     });
 
-    it('l\'ancien commutateur `eef` ouvre aussi l\'espace de la 54', () => {
+    it("l'ancien commutateur `eef` ouvre aussi l'espace de la 54", () => {
       process.env.KPB_EEF_ENABLED = 'true';
 
       const { features } = new AppConfigController().getAppConfig();
@@ -177,7 +187,7 @@ describe('AppConfigController', () => {
       expect(features.eefSpace).toBe(true);
     });
 
-    it('éteindre `eefSpace` ne rallume ni ne retire rien d\'autre', () => {
+    it("éteindre `eefSpace` ne rallume ni ne retire rien d'autre", () => {
       process.env.KPB_EEF_TEASER_ENABLED = 'true';
       process.env.KPB_EEF_SPACE_ENABLED = 'false';
 
@@ -235,7 +245,7 @@ describe('AppConfigController', () => {
   // laisse reprojeter dans le fuseau du lecteur, et « le 1er octobre » devient
   // « le 30 septembre » pour une partie du public — ou pour la totalité, selon
   // ce que l'exploitation a tapé.
-  describe('la fenêtre de campagne est servie en jours d\'horloge murale', () => {
+  describe("la fenêtre de campagne est servie en jours d'horloge murale", () => {
     // LE test. Ces quatre écritures désignent des instants différents et le
     // MÊME jour administratif ; le fil doit porter « 2026-10-01 » pour les
     // quatre. La troisième est le cas de production : l'heure de Paris, réflexe
@@ -294,6 +304,181 @@ describe('AppConfigController', () => {
     });
   });
 
+  // ── XC-09 — la version RECOMMANDÉE, par opposition à la version minimale ──
+  describe('recommendedVersion', () => {
+    it("est absente tant que l'exploitation n'en pose pas", () => {
+      expect(
+        new AppConfigController().getAppConfig().recommendedVersion,
+      ).toBeNull();
+    });
+
+    it('sert la version posée, sans toucher à minVersion', () => {
+      process.env.KPB_RECOMMENDED_APP_VERSION = ' 2.3.0 ';
+
+      const config = new AppConfigController().getAppConfig();
+
+      expect(config.recommendedVersion).toBe('2.3.0');
+      // Le bandeau doux ne doit jamais bloquer : l'écran bloquant a sa propre
+      // clé, qui reste à son défaut.
+      expect(config.minVersion).toBe('0.0.0');
+    });
+
+    // Une valeur illisible vaut « pas de bandeau », jamais « bandeau pour tous ».
+    it.each(['latest', '2.3', '2.3.0+54', 'v2.3.0', '2.3.0-beta', '', '  '])(
+      '« %s » ne produit aucune invitation',
+      (written) => {
+        process.env.KPB_RECOMMENDED_APP_VERSION = written;
+        expect(
+          new AppConfigController().getAppConfig().recommendedVersion,
+        ).toBeNull();
+      },
+    );
+  });
+
+  // ── XC-05 — les sources officielles de ce que l'app affirme ──
+  describe('liens officiels de la campagne', () => {
+    it('sert la plateforme officielle par défaut', () => {
+      expect(
+        new AppConfigController().getAppConfig().eefCampaign.platformUrl,
+      ).toBe('https://www.campusfrance.org/fr');
+    });
+
+    it("sert la plateforme désignée par l'exploitation", () => {
+      process.env.KPB_EEF_PLATFORM_URL =
+        'https://www.etudes-en-france.example/fr';
+      expect(
+        new AppConfigController().getAppConfig().eefCampaign.platformUrl,
+      ).toBe('https://www.etudes-en-france.example/fr');
+    });
+
+    // Ces valeurs sont écrites à la main : aucune ne doit atteindre un bouton
+    // « ouvrir », et une faute de frappe retombe sur le lien vérifié.
+    it.each([
+      'javascript:alert(1)',
+      'http://www.campusfrance.org/fr',
+      'ftp://exemple.test',
+      'https://user:pass@exemple.test/',
+      'campusfrance.org',
+      'pas une url',
+    ])('« %s » est refusée et retombe sur le repli', (written) => {
+      process.env.KPB_EEF_PLATFORM_URL = written;
+      expect(
+        new AppConfigController().getAppConfig().eefCampaign.platformUrl,
+      ).toBe('https://www.campusfrance.org/fr');
+    });
+
+    it('sert la source officielle du Niger sans rien configurer', () => {
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES = 'Niger';
+
+      const { eefCampaign } = new AppConfigController().getAppConfig();
+
+      expect(eefCampaign.suspendedSources).toEqual([
+        {
+          country: 'Niger',
+          url: 'https://ne.diplomatie.gouv.fr/informations-visas',
+        },
+      ]);
+    });
+
+    // Le code que l'exploitation écrit à côté du nom (`Niger,NE`) : un profil
+    // saisi « NE » doit voir la source, pas la suspension seule.
+    it('sert aussi la source pour le code « NE »', () => {
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES = 'Niger,NE';
+
+      const { eefCampaign } = new AppConfigController().getAppConfig();
+
+      expect(eefCampaign.suspendedSources).toEqual([
+        {
+          country: 'Niger',
+          url: 'https://ne.diplomatie.gouv.fr/informations-visas',
+        },
+        {
+          country: 'NE',
+          url: 'https://ne.diplomatie.gouv.fr/informations-visas',
+        },
+      ]);
+    });
+
+    // Une `Map` et pas un objet : ces noms existent sur tout objet JS.
+    it.each(['__proto__', 'constructor', 'toString', 'hasOwnProperty'])(
+      'un pays nommé « %s » ne lit pas la chaîne de prototypes',
+      (name) => {
+        process.env.KPB_EEF_SUSPENDED_COUNTRIES = name;
+        const { eefCampaign } = new AppConfigController().getAppConfig();
+        expect(eefCampaign.suspendedSources).toEqual([]);
+      },
+    );
+
+    it('ne sert une source que pour un pays réellement suspendu', () => {
+      // La source du Niger ne doit pas voyager quand personne n'est suspendu :
+      // un lien « voici pourquoi » sans suspension serait une accusation sans objet.
+      expect(
+        new AppConfigController().getAppConfig().eefCampaign.suspendedSources,
+      ).toEqual([]);
+
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES = 'Mali';
+      expect(
+        new AppConfigController().getAppConfig().eefCampaign.suspendedSources,
+      ).toEqual([]);
+    });
+
+    it('reconnaît le pays quels que soient la casse et les accents', () => {
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES = 'NIGER';
+      expect(
+        new AppConfigController().getAppConfig().eefCampaign.suspendedSources,
+      ).toHaveLength(1);
+    });
+
+    it("prend la source écrite par l'exploitation avant la source connue", () => {
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES = "Niger,Côte d'Ivoire";
+      process.env.KPB_EEF_SUSPENDED_SOURCES =
+        'Niger|https://ne.exemple.test/a?x=1,2;cote d\u2019ivoire|https://ci.exemple.test/b';
+
+      const { eefCampaign } = new AppConfigController().getAppConfig();
+
+      expect(eefCampaign.suspendedSources).toEqual([
+        { country: 'Niger', url: 'https://ne.exemple.test/a?x=1,2' },
+        { country: "Côte d'Ivoire", url: 'https://ci.exemple.test/b' },
+      ]);
+    });
+
+    it('ignore une entrée de source illisible ou non https, sans perdre les autres', () => {
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES = 'Niger,Mali';
+      process.env.KPB_EEF_SUSPENDED_SOURCES =
+        'Niger|javascript:alert(1);sans-separateur;Mali|https://ml.exemple.test/';
+
+      const { eefCampaign } = new AppConfigController().getAppConfig();
+
+      expect(eefCampaign.suspendedSources).toEqual([
+        {
+          country: 'Niger',
+          url: 'https://ne.diplomatie.gouv.fr/informations-visas',
+        },
+        { country: 'Mali', url: 'https://ml.exemple.test/' },
+      ]);
+    });
+  });
+
+  // ── CAT-M03 — la mention de paternité exigée par la Licence Ouverte 2.0 ──
+  describe('eefCatalog', () => {
+    it('sert la mention de source et la date de mise à jour', () => {
+      const { eefCatalog } = new AppConfigController().getAppConfig();
+
+      expect(eefCatalog.producer).toContain('Enseignement supérieur');
+      expect(eefCatalog.licence).toBe('Licence Ouverte 2.0');
+      expect(eefCatalog.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(eefCatalog.sources.length).toBeGreaterThan(0);
+    });
+
+    it("est servie même quand l'espace est fermé", () => {
+      // La mention ne dépend d'aucun drapeau : le pied de l'écran la lit dès
+      // qu'il existe, et l'ouverture ne doit pas dépendre d'une variable de plus.
+      const config = new AppConfigController().getAppConfig();
+      expect(config.features.eefSpace).toBe(false);
+      expect(config.eefCatalog).toBeDefined();
+    });
+  });
+
   it('cannot expose a child capability while the parent gate is disabled', () => {
     process.env.KPB_COMPETITION_READINESS_ENABLED = 'false';
     process.env.KPB_SUCCESS_LAB_ENABLED = 'true';
@@ -306,5 +491,32 @@ describe('AppConfigController', () => {
     expect(config.features.successLab).toBe(false);
     expect(config.features.aiDiagnostic).toBe(false);
     expect(config.features.outcomeEvidence).toBe(false);
+  });
+
+  // Les liens de store alimentent un écran qu'on ne peut pas fermer : une
+  // valeur d'exploitation mal écrite ne doit pas le verrouiller sur un lien mort.
+  describe('liens de store', () => {
+    it.each([
+      'javascript:alert(1)',
+      'http://play.example/app',
+      'play.example/app',
+      'https://user:pass@play.example/app',
+      'pas une url',
+    ])('« %s » retombe sur la fiche publiée', (written) => {
+      process.env.KPB_ANDROID_STORE_URL = written;
+      process.env.KPB_IOS_STORE_URL = written;
+
+      const config = new AppConfigController().getAppConfig();
+
+      expect(config.androidStoreUrl).toContain('id=com.karatou.android');
+      expect(config.iosStoreUrl).toContain('id1128659292');
+    });
+
+    it('une valeur https bien formée est servie (espaces retirés)', () => {
+      process.env.KPB_ANDROID_STORE_URL = ' https://play.example/app ';
+      expect(new AppConfigController().getAppConfig().androidStoreUrl).toBe(
+        'https://play.example/app',
+      );
+    });
   });
 });

@@ -34,8 +34,9 @@ import {
  * n'aurait pas dû en suggérer.
  *
  * Reste alignée sur `CreateNotificationCampaignDto.audienceType` et sur les
- * branches de `CampaignExecutorService.resolveRecipients`, dont l'accord est
- * vérifié par `campaign-audience-contract.spec.ts`.
+ * branches de `CampaignExecutorService.resolveRecipients`. L'accord avec cette
+ * copie-ci est vérifié par `campaign-audience-contract.spec.ts` (il lit ce
+ * fichier) : une audience ajoutée au backend et oubliée ici fait rougir la CI.
  */
 const AUDIENCE_REQUIRED_FILTER: Record<string, string | null> = {
   // Diffusions assumées : leur nom dit qu'elles visent tout le monde.
@@ -53,7 +54,21 @@ const AUDIENCE_REQUIRED_FILTER: Record<string, string | null> = {
   case_status: 'status',
   account_type: 'accountType',
   study_level: 'levels',
+  // Études en France (build 54). `eef_interest` vise les étudiants qui ont
+  // déclaré leur intérêt : son ensemble est borné par la table, pas par un filtre.
+  // Les DEUX acceptent `exceptCountries` ; `all_students_except_countries`
+  // l'EXIGE (sans exclusion, ce serait « tous les étudiants »). Le jeton
+  // `eef_suspended` désigne les pays suspendus servis à l'app.
+  eef_interest: null,
+  all_students_except_countries: 'exceptCountries',
   single_user: 'userId',
+};
+
+/** Ce que dit le menu pour une audience sans filtre exigé. */
+const UNFILTERED_LABEL: Record<string, string> = {
+  all_users: ' — tout le monde',
+  all_students: ' — tout le monde',
+  eef_interest: ' — déclarants Études en France (filtre facultatif « exceptCountries »)',
 };
 
 const AUDIENCE_TYPES = Object.keys(AUDIENCE_REQUIRED_FILTER);
@@ -542,7 +557,7 @@ export default function NotificationsPage() {
                         {value}
                         {AUDIENCE_REQUIRED_FILTER[value]
                           ? ` — exige « ${AUDIENCE_REQUIRED_FILTER[value]} »`
-                          : ' — tout le monde'}
+                          : (UNFILTERED_LABEL[value] ?? '')}
                       </option>
                     ))}
                   </Select>

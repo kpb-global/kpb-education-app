@@ -12,6 +12,8 @@ import { CasesService } from '../cases/cases.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AUDIENCE_REQUIRED_FILTER,
+  audienceFilterInvalid,
+  resolveExcludedCountries,
   audienceFilterMissing,
 } from './campaign-audience';
 import { CampaignExecutorService } from './campaign-executor.service';
@@ -207,6 +209,17 @@ export class NotificationsService {
       );
     }
 
+    // Un filtre PRÉSENT mais mal formé (jeton d'exclusion mal écrit, clé inconnue)
+    // est refusé de la même façon : envoyer « la campagne est ouverte » à un pays
+    // suspendu parce que `eef_suspendd` n'excluait personne est l'accident que
+    // l'exclusion existe pour empêcher.
+    const filterInvalid = audienceFilterInvalid(audienceType, filterFilters);
+    if (filterInvalid) {
+      throw new BadRequestException(
+        `Le filtre de l'audience « ${audienceType} » est inutilisable : ${filterInvalid}.`,
+      );
+    }
+
     const contentChannels = channels.filter((c) => c === 'push' || c === 'email');
     if (contentChannels.length > 0 && !templateId) {
       throw new BadRequestException(
@@ -295,16 +308,50 @@ export class NotificationsService {
     const audienceType = input.audienceType ?? 'all_students';
     const filters = input.filters ?? {};
     const filterMissing = audienceFilterMissing(audienceType, filters);
-    const recipients = filterMissing
-      ? []
-      : await this.campaignExecutor.resolveRecipients(audienceType, filters);
+    const filterInvalid = audienceFilterInvalid(audienceType, filters);
+    const recipients =
+      filterMissing || filterInvalid
+        ? []
+        : await this.campaignExecutor.resolveRecipients(audienceType, filters);
     const fr = recipients.filter((r) => r.preferredLanguage !== 'en').length;
+
+    // Ce que l'exclusion RETIRE, dit en clair : un aperçu qui n'affichait qu'un
+    // nombre laissait croire à une exclusion efficace alors qu'elle pouvait ne
+    // rien retirer (faute de frappe sur un nom de pays). Les pays lus et le
+    // nombre de comptes retirés se vérifient d'un coup d'œil.
+    let exclusion: { countries: string[]; removed: number } | undefined;
+    if (
+      !filterMissing &&
+      !filterInvalid &&
+      (audienceType === 'eef_interest' ||
+        audienceType === 'all_students_except_countries')
+    ) {
+      const countries = resolveExcludedCountries(filters['exceptCountries']);
+      if (countries.length > 0) {
+        const baseType =
+          audienceType === 'eef_interest' ? 'eef_interest' : 'all_students';
+        const base = await this.campaignExecutor.resolveRecipients(baseType, {});
+        exclusion = {
+          countries,
+          removed: Math.max(0, base.length - recipients.length),
+        };
+      }
+    }
+
     return {
       audienceType,
       filters,
       filterMissing,
+      // La raison, ou `null` : voir `audienceFilterInvalid`.
+      filterInvalid,
       recipients: recipients.length,
       byLanguage: { fr, en: recipients.length - fr },
+      ...(exclusion
+        ? {
+            excludedCountries: exclusion.countries,
+            excludedRecipients: exclusion.removed,
+          }
+        : {}),
     };
   }
 

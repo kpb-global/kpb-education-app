@@ -208,6 +208,25 @@ function broadcastsNear(state, at) {
   return state.sends.filter((s) => countsAsBroadcast(s) && Math.abs(deliveredAt(s) - at) < 7 * DAY).length;
 }
 
+// Même lecture que le backend (`resolveExcludedCountries`) : tableau ou liste
+// séparée par des virgules, casse et espaces ignorés.
+function excludesSuspendedCountries(filters) {
+  const raw = filters?.exceptCountries;
+  const entries = Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split(',') : [];
+  return entries.some((e) => typeof e === 'string' && e.trim().toLowerCase() === 'eef_suspended');
+}
+
+// L'audience peut-elle atteindre des élèves d'un pays suspendu ? Une audience qui
+// exclut le jeton `eef_suspended` ne le peut pas : l'avertir serait contredire
+// l'aperçu qui confirme l'exclusion. `country_of_residence` et `country` ciblent
+// un pays choisi à dessein : ils ne sont pas un envoi large qui oublie l'exclusion.
+function reachesSuspendedCountries(d) {
+  if (!['all_students', 'all_users', 'eef_interest', 'all_students_except_countries', 'study_level'].includes(d.audienceType)) {
+    return false;
+  }
+  return !excludesSuspendedCountries(d.filters);
+}
+
 function guardrailProblems(d, state) {
   const problems = [];
   if (!routeIsNavigable(d.route)) {
@@ -375,7 +394,7 @@ server.registerTool(
 
 const audienceSchema = {
   audienceType: z
-    .enum(['all_students', 'all_users', 'country', 'country_of_residence', 'study_level', 'account_type', 'single_user', 'case_status'])
+    .enum(['all_students', 'all_users', 'country', 'country_of_residence', 'study_level', 'account_type', 'single_user', 'case_status', 'eef_interest', 'all_students_except_countries'])
     .default('all_students'),
   filters: z.record(z.unknown()).default({}),
 };
@@ -385,7 +404,7 @@ server.registerTool(
   {
     description:
       "Combien d'élèves une audience toucherait (total + répartition FR/EN), sans rien envoyer. " +
-      'Filtres : country→{countryId}, country_of_residence→{countryCode}, study_level→{levels:[...]}, account_type→{accountType}, single_user→{userId}.',
+      'Filtres : country→{countryId}, country_of_residence→{countryCode}, study_level→{levels:[...]}, account_type→{accountType}, single_user→{userId}, all_students_except_countries→{exceptCountries:[...] | "eef_suspended"} (EXIGÉ), eef_interest→{} ou {exceptCountries:[...]} (déclarants Études en France ; "eef_suspended" = les pays suspendus servis par /config/app). ATTENTION : `country` filtre sur le pays de RÉSIDENCE, pas sur le pays visé.',
     inputSchema: audienceSchema,
   },
   tool(async (a) => ok(await api('POST', '/admin/notifications/campaigns/preview', a))),
@@ -425,7 +444,27 @@ server.registerTool(
       filters: d.filters,
     });
     if (preview.filterMissing) problems.push(`L'audience ${d.audienceType} exige son filtre.`);
+    // Un filtre PRÉSENT mais mal formé (jeton d'exclusion mal écrit…) : le backend
+    // le dit, et refuse l'envoi. Le répéter ici évite un brouillon « envoyable ».
+    if (preview.filterInvalid) problems.push(`Filtre inutilisable : ${preview.filterInvalid}.`);
     if (preview.recipients === 0) problems.push('Audience vide : 0 destinataire.');
+
+    // ── Études en France ────────────────────────────────────────────────
+    // `/etudes-en-france/catalogue` n'existe que dans les builds 2.3.0 (54) et
+    // suivantes ET quand l'espace est ouvert : sur une build 49 à 53 le tap
+    // atterrit sur l'accueil. On cible `/etudes-en-france`, qui arbitre
+    // vitrine / hub / « bientôt » selon le drapeau serveur.
+    if (d.route.startsWith('/etudes-en-france/')) {
+      problems.push("Cible /etudes-en-france, jamais un sous-écran : /etudes-en-france/catalogue n'existe que dans les builds 54+ et espace ouvert (build 49 à 53 : l'élève atterrit sur l'accueil).");
+    }
+    // Une annonce vers l'espace envoyée sans exclure les pays suspendus part vers
+    // des élèves dont l'État dit que les dossiers ne sont pas traités.
+    if (d.route.startsWith('/etudes-en-france') && reachesSuspendedCountries(d)) {
+      warnings.push('Cette annonce vise Études en France sans exclure les pays suspendus : préférer all_students_except_countries ou eef_interest avec {"exceptCountries":["eef_suspended"]}.');
+    }
+    if (preview.excludedCountries) {
+      warnings.push(`Exclusion lue : ${preview.excludedCountries.join(', ')} → ${preview.excludedRecipients} compte(s) retiré(s). Vérifier que ce nombre n'est pas 0.`);
+    }
 
     const draftId = `d_${randomBytes(4).toString('hex')}`;
     const draft = { ...d, draftId, broadcast, preview, createdAt: new Date().toISOString() };

@@ -746,6 +746,43 @@ vivait dans la couture : les tests mobiles décodaient la valeur d'exploitation
 directement, contournant la normalisation serveur, et un test backend figeait
 cette normalisation comme contrat.
 
+### Ce que `GET /config/app` sert d'autre que des drapeaux (build 54)
+
+Route publique, sans authentification. Quatre ajouts, tous **absents sur un
+serveur plus ancien** — le client les traite comme « rien à afficher », jamais
+comme une valeur de repli :
+
+| Clé | Forme | Variable d'environnement | Sens |
+|---|---|---|---|
+| `recommendedVersion` | `"2.3.0"` ou `null` | `KPB_RECOMMENDED_APP_VERSION` | En dessous, l'app affiche un bandeau **qu'on ferme**. À ne pas confondre avec `minVersion`, qui bloque l'app derrière un écran sans sortie. Une valeur qui n'est pas `x.y.z` vaut `null` : « pas de bandeau », jamais « bandeau pour tous ». |
+| `eefCampaign.platformUrl` | URL https | `KPB_EEF_PLATFORM_URL` | La plateforme officielle, affichée sous la date et dans la mention de non-affiliation. Repli serveur vérifié : `https://www.campusfrance.org/fr`. |
+| `eefCampaign.suspendedSources` | `[{country, url}]` | `KPB_EEF_SUSPENDED_SOURCES` (`Pays\|https://…;Autre\|https://…`) | La page officielle qui justifie la suspension d'un pays. **Un élément par pays de `suspendedCountries` seulement** : la source d'une suspension ne voyage pas sans suspension. Connue sans configuration : le Niger (`ne.diplomatie.gouv.fr/informations-visas`). |
+| `eefCatalog` | `{producer, producerUrl, licence, licenceUrl, sources[], updatedAt, catalogVersion}` | — (constante) | La mention de paternité de la Licence Ouverte 2.0, posée en pied de l'écran catalogue. `updatedAt` est un **jour nu** `AAAA-MM-JJ`. |
+
+**Toute URL servie est `https`, sans identifiants**, sinon elle est écartée :
+ces valeurs sont écrites à la main, et `javascript:` ne doit jamais atteindre un
+bouton « ouvrir ». Côté client, une adresse non ouvrable masque le lien au lieu
+de l'afficher mort.
+
+**`eefCatalog` est une constante TypeScript** (`eef-catalog-attribution.ts`), pas
+une lecture de `manifest.json` : le manifeste vit dans `src/` et n'est pas copié
+dans `dist/`, donc le lire au démarrage marcherait en test et échouerait en
+production, en silence. Le risque devient qu'elle oublie un réimport, et
+`eef-catalog-attribution.spec.ts` le couvre : il compare la constante au
+manifeste (version, jour de récupération, familles de jeux citées, licence) et
+**échoue au premier réimport qui ne la met pas à jour**.
+
+#### En-têtes de version de l'app
+
+Depuis la build 54, chaque requête de l'app porte `X-KPB-App-Version`
+(`2.3.0`) et `X-KPB-App-Build` (`54`). Avant, le serveur ne pouvait pas
+distinguer une 53 d'une 54 : toute décision « par version » — montrer des lignes
+aux seules builds qui savent les afficher, mesurer qui a mis à jour — était
+impossible. La version d'une application publiée est la même pour tous ses
+utilisateurs : ce n'est ni un identifiant ni une donnée de profil. Un en-tête
+absent (build antérieure, plugin indisponible) ne doit jamais faire échouer une
+requête.
+
 ### Le consentement, sur le fil
 
 `POST /etudes-en-france/interest` exige deux champs, et les refuse absents :
@@ -980,11 +1017,61 @@ Purpose:
 - `PATCH /admin/notifications/templates/:id`
 - `GET /admin/notifications/campaigns`
 - `POST /admin/notifications/campaigns`
+- `POST /admin/notifications/campaigns/preview`
 - `GET /admin/notifications/campaigns/:id/deliveries`
 
 Purpose:
 - manage grouped or specific campaigns across push, in-app, and email channels
 - attach critical campaign events to case timelines when needed
+
+## Audiences de campagne « Études en France » (LIV-24)
+
+Deux audiences de campagne s'ajoutent à `all_students`, `country`, etc. :
+
+| Audience | Filtre | Qui |
+|---|---|---|
+| `eef_interest` | aucun exigé ; `exceptCountries` optionnel | Les étudiants qui ont une ligne `EefInterest` — donc qui ont déclaré leur intérêt **et** accepté d'être rappelés (un retrait supprime la ligne). L'ensemble est borné par la table : elle ne peut pas retomber sur « tout le monde ». |
+| `all_students_except_countries` | `exceptCountries` **exigé** | Tous les étudiants sauf les pays donnés. Une exclusion absente, vide ou illisible donne **zéro** destinataire — jamais « tous les étudiants », la diffusion que ce nom prétend éviter. |
+
+`exceptCountries` accepte une liste, une chaîne séparée par des virgules, ou le
+jeton **`eef_suspended`**, qui désigne les pays de `KPB_EEF_SUSPENDED_COUNTRIES` —
+**la même liste que celle que `/config/app` sert à l'app.** Écrire `["Niger","NE"]`
+à la main dans chaque campagne, c'est oublier un pays le jour où la liste change :
+« la campagne est ouverte » partirait vers un pays dont l'État dit que les
+dossiers ne sont pas traités. Le jeton peut figurer dans la liste à côté d'autres
+pays.
+
+La comparaison est **insensible à la casse** (`countryOfResidence` est un texte
+saisi : « Niger », « NIGER », parfois un code), **sans jokers** (`%` et `_` sont
+échappés : exclure « Mal_ » n'exclut pas « Mali ») et couvre **les écritures d'un
+même pays** (avec ou sans accents, apostrophe droite ou typographique — comme
+l'app, qui replie accents et apostrophes avant de comparer). Elle est **exacte** :
+« Niger » n'exclut pas le « Nigeria ». Prouvé contre un vrai Postgres
+(`campaign-audience.postgres.spec.ts`), pas seulement par des doubles.
+
+**Un filtre présent mais mal formé vaut « personne ».** Sont refusés — `400` à la
+création, `filterInvalid` et zéro destinataire à l'aperçu et à l'envoi : une clé de
+filtre inconnue (`exceptCountry`), `exceptCountries: null`, une entrée qui n'est pas
+du texte, une entrée en `snake_case` autre que `eef_suspended` (un jeton mal écrit,
+ex. `eef_suspendd`, serait sinon lu comme un nom de pays que personne ne porte, et
+l'envoi partirait vers TOUS les étudiants, Niger compris), et le jeton
+`eef_suspended` quand `KPB_EEF_SUSPENDED_COUNTRIES` est vide.
+
+**L'aperçu** (`POST /admin/notifications/campaigns/preview`) renvoie en plus, pour
+ces deux audiences, `excludedCountries` (les pays réellement lus) et
+`excludedRecipients` (le nombre de comptes retirés). Un `0` là où le Niger a des
+comptes est une faute de frappe, pas une réussite.
+
+**Limite assumée :** un compte dont le pays est **vide** (profil non complété) ne
+peut pas être exclu — on ne sait pas qu'il est au Niger — et reçoit l'annonce.
+
+**Consentement :** `eef_interest` vise ceux qui ont déclaré leur intérêt. Si une
+annonce d'ouverture automatisée est couverte par le texte `eef-consent-v1` reste
+une question juridique ouverte (`docs/eef-consent-v1.md`, question 4).
+
+**Piège connu, inchangé :** l'audience `country` filtre sur le pays de
+**résidence** (`countryOfResidence`), pas sur le pays visé. `country: france`
+toucherait les résidents de France, pas les candidats à la France.
 
 ## Admin users and reporting
 

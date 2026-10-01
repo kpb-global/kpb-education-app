@@ -14,6 +14,7 @@ import '../controllers/app_controller.dart';
 import '../data/catalog_source.dart';
 import '../models/app_models.dart';
 import '../navigation/app_boot_screen.dart';
+import 'app_version_headers.dart';
 
 class AppApiClient {
   AppApiClient({Dio? dio})
@@ -36,6 +37,7 @@ class AppApiClient {
                 },
               ),
             ) {
+    _dio.interceptors.add(AppVersionHeadersInterceptor());
     _dio.interceptors.add(_AuthInterceptor(_dio));
   }
 
@@ -234,6 +236,34 @@ class AppApiClient {
           'targetLevel': targetLevel,
         if (fieldIds.isNotEmpty) 'fieldIds': fieldIds,
         'wantsPremium': wantsPremium,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
+  /// Met à jour les NIVEAUX et les DOMAINES d'une déclaration existante — rien
+  /// d'autre (`PATCH /etudes-en-france/interest`).
+  ///
+  /// Ne touche ni au consentement, ni à la version du texte accepté, ni à
+  /// l'intérêt Premium : `POST` est un remplacement complet qui réécrit tout cela
+  /// et fabriquerait un consentement au rappel que l'étudiant n'a pas redonné.
+  ///
+  /// Trois états par champ, comme côté serveur : `null` = inchangé, chaîne ou
+  /// liste vide = effacé, valeur = remplacée.
+  ///
+  /// Pas de `try`/`catch` : l'appelant DOIT voir l'échec, pour la même raison que
+  /// [declareEefInterest].
+  Future<Map<String, dynamic>> updateEefProfile({
+    String? currentLevel,
+    String? targetLevel,
+    List<String>? fieldIds,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/etudes-en-france/interest',
+      data: <String, dynamic>{
+        if (currentLevel != null) 'currentLevel': currentLevel,
+        if (targetLevel != null) 'targetLevel': targetLevel,
+        if (fieldIds != null) 'fieldIds': fieldIds,
       },
     );
     return response.data ?? <String, dynamic>{};

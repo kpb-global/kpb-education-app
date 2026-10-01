@@ -6,6 +6,7 @@ import '../../core/models/app_models.dart';
 import '../../core/services/remote_feature_flags.dart';
 import '../../core/ui/components/coming_soon_screen.dart';
 import 'eef_home_screen.dart';
+import 'eef_students_only_screen.dart';
 import 'eef_teaser_screen.dart';
 
 /// LE point d'entrée unique de l'espace « Études en France ».
@@ -22,11 +23,12 @@ import 'eef_teaser_screen.dart';
 ///
 /// ## L'ordre des cas
 ///
-/// L'espace réel PRIME sur la vitrine. Le serveur garantit déjà qu'ils ne sont
-/// jamais servis tous les deux (`eef` retire `eefTeaser`), mais l'ordre est
-/// écrit ici aussi : un repli de compilation ou un backend plus ancien pourrait
-/// rendre les deux vrais, et il vaut mieux montrer l'espace ouvert qu'un
-/// « bientôt » devant un espace vivant.
+/// L'espace réel PRIME sur la vitrine. Il s'ouvre par `eefSpace`, la clé que le
+/// serveur pose pour la seule build 54 : elle ne retire pas la vitrine des
+/// builds plus anciennes, donc le serveur PEUT servir `eefSpace` et `eefTeaser`
+/// ensemble, et c'est ici que l'ordre se décide. L'ancien commutateur `eef`
+/// ouvre l'espace aussi. Il vaut mieux montrer l'espace ouvert qu'un « bientôt »
+/// devant un espace vivant.
 ///
 /// ## Le troisième cas
 ///
@@ -48,7 +50,7 @@ class EefEntry extends StatelessWidget {
   /// choix éditorial, casser un lien profond est un cul-de-sac.
   static bool get isVisible {
     final flags = RemoteFeatureFlags.instance;
-    if (!flags.eefEnabled && !flags.eefTeaserEnabled) return false;
+    if (!flags.eefSpaceEnabled && !flags.eefTeaserEnabled) return false;
 
     // ── Comptes étudiants SEULEMENT ──────────────────────────────────────
     //
@@ -65,13 +67,17 @@ class EefEntry extends StatelessWidget {
     //
     // Le compte non résolu (`profile == null`) passe : c'est l'invité, que la
     // vitrine accueille exprès avec un bouton « créer mon compte ».
+    return !_isNonStudentAccount;
+  }
+
+  /// Le compte courant est-il un compte RÉSOLU qui n'est pas étudiant (parent,
+  /// partenaire) ? L'invité n'a pas de profil et n'en fait pas partie : la
+  /// vitrine l'accueille exprès, avec un bouton « créer mon compte ».
+  static bool get _isNonStudentAccount {
     final profile = Get.isRegistered<AppController>()
         ? Get.find<AppController>().profile
         : null;
-    if (profile != null && profile.accountType != AccountType.student) {
-      return false;
-    }
-    return true;
+    return profile != null && profile.accountType != AccountType.student;
   }
 
   @override
@@ -85,7 +91,14 @@ class EefEntry extends StatelessWidget {
       valueListenable: RemoteFeatureFlags.instance.flagsVersion,
       builder: (context, _, __) {
         final flags = RemoteFeatureFlags.instance;
-        if (flags.eefEnabled) return const EefHomeScreen();
+        final open = flags.eefSpaceEnabled || flags.eefTeaserEnabled;
+
+        // Un parent arrivé par un lien partagé : `isVisible` ne masque que les
+        // ENTRÉES, la route, elle, répond à tout le monde. Sans ce cas, il verrait
+        // le hub, taperait, et recevrait un 403 traduit en « reconnecte-toi ».
+        if (open && _isNonStudentAccount) return const EefStudentsOnlyScreen();
+
+        if (flags.eefSpaceEnabled) return EefHomeScreen(source: source);
         if (flags.eefTeaserEnabled) return EefTeaserScreen(source: source);
         return const ComingSoonScreen();
       },

@@ -345,6 +345,91 @@ class AnalyticsService {
     }
   }
 
+  /// L'espace réel (le hub) a été vu. [source] dit par quelle porte.
+  Future<void> logEefSpaceViewed(String source) async {
+    final params = <String, Object>{AnalyticsParamKey.source: source};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefSpaceViewed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefSpaceViewed, params);
+    } catch (e, s) {
+      _logError('logEefSpaceViewed', e, s);
+    }
+  }
+
+  /// Une tuile du hub a été ouverte. [tile] est un identifiant fermé écrit dans
+  /// le code, jamais un texte saisi.
+  Future<void> logEefHubTileOpened(String tile) async {
+    final params = <String, Object>{AnalyticsParamKey.tile: tile};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefHubTileOpened,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefHubTileOpened, params);
+    } catch (e, s) {
+      _logError('logEefHubTileOpened', e, s);
+    }
+  }
+
+  /// Le catalogue a été ouvert. [source] dit par quelle porte.
+  Future<void> logEefCatalogViewed(String source) async {
+    final params = <String, Object>{AnalyticsParamKey.source: source};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefCatalogViewed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefCatalogViewed, params);
+    } catch (e, s) {
+      _logError('logEefCatalogViewed', e, s);
+    }
+  }
+
+  /// Une recherche du catalogue a abouti. Des comptes et des drapeaux, JAMAIS le
+  /// texte tapé (voir [AnalyticsEventName.eefCatalogSearched]).
+  Future<void> logEefCatalogSearched({
+    required bool hasQuery,
+    required int filterCount,
+    required int resultCount,
+    required bool catalogPublished,
+  }) async {
+    // `? 1 : 0` et non le booléen brut : `FirebaseAnalytics.logEvent` n'accepte
+    // que String ou num, et lève sinon — l'exception serait attrapée plus bas et
+    // l'événement entier disparaîtrait (voir `logEefInterestDeclared`).
+    final params = <String, Object>{
+      AnalyticsParamKey.hasQuery: hasQuery ? 1 : 0,
+      AnalyticsParamKey.filterCount: filterCount,
+      AnalyticsParamKey.resultCount: resultCount,
+      AnalyticsParamKey.catalogPublished: catalogPublished ? 1 : 0,
+    };
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefCatalogSearched,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefCatalogSearched, params);
+    } catch (e, s) {
+      _logError('logEefCatalogSearched', e, s);
+    }
+  }
+
+  /// Le catalogue n'a pas pu répondre. [reason] : `network` ou `server`.
+  Future<void> logEefCatalogFailed(String reason) async {
+    final params = <String, Object>{AnalyticsParamKey.reason: reason};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefCatalogFailed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefCatalogFailed, params);
+    } catch (e, s) {
+      _logError('logEefCatalogFailed', e, s);
+    }
+  }
+
   /// Un étudiant a déclaré son intérêt — et dit s'il l'était pour le payant.
   ///
   /// `fieldCount` et non la liste des filières : un compte suffit à segmenter,

@@ -28,12 +28,14 @@ void main() {
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
+    AppConfig.eefSpaceEnabledOverride = null;
   });
 
   tearDown(() {
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
+    AppConfig.eefSpaceEnabledOverride = null;
     Get.reset();
   });
 

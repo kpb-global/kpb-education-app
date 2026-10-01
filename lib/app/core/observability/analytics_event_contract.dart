@@ -82,6 +82,23 @@ abstract final class AnalyticsEventName {
   static const eefInterestDeclared = 'eef_interest_declared';
   static const eefInterestFailed = 'eef_interest_failed';
 
+  /// Catalogue de l'espace. `eef_catalog_searched` dit si les étudiants
+  /// trouvent quelque chose (`result_count`) et si le catalogue est publié
+  /// (`catalog_published`) — sans JAMAIS le texte tapé : une requête libre peut
+  /// contenir un nom, une ville, un établissement, donc des données de profil.
+  ///
+  /// `eef_catalog_failed` suit la logique de `eef_interest_failed` : sans lui,
+  /// une panne du catalogue le jour du lancement se lit dans les tableaux de
+  /// bord exactement comme « personne ne cherche ».
+  /// L'espace réel (le hub) : `eef_space_viewed` donne la portée et la porte
+  /// d'entrée ; `eef_hub_tile_opened` dit CE QUE les étudiants y viennent faire
+  /// (`tile` = catalogue, cv, lettres, entretien, conseiller, profil) — la seule mesure de ce que l'espace vaut avant la 55.
+  static const eefSpaceViewed = 'eef_space_viewed';
+  static const eefHubTileOpened = 'eef_hub_tile_opened';
+  static const eefCatalogViewed = 'eef_catalog_viewed';
+  static const eefCatalogSearched = 'eef_catalog_searched';
+  static const eefCatalogFailed = 'eef_catalog_failed';
+
   /// Liste d'attente Karatou Premium. `premium_waitlist_joined` est la seule
   /// mesure directe de la demande pour le Pass — celle qui dira s'il vaut la
   /// peine d'être construit, et pour combien d'étudiants.
@@ -153,6 +170,13 @@ abstract final class AnalyticsParamKey {
   static const currentLevel = 'current_level';
   static const fieldCount = 'field_count';
   static const wantsPremium = 'wants_premium';
+
+  /// Catalogue de l'espace : des COMPTES et des drapeaux, jamais le texte tapé.
+  static const tile = 'tile';
+  static const hasQuery = 'has_query';
+  static const filterCount = 'filter_count';
+  static const resultCount = 'result_count';
+  static const catalogPublished = 'catalog_published';
 
   /// Onboarding funnel + auth attribution (KPB-158).
   static const step = 'step';

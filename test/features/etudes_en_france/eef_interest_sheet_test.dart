@@ -36,6 +36,12 @@ Future<EefInterestController> _pumpSheet(
   final controller = EefInterestController(apiClient: api);
   addTearDown(controller.dispose);
 
+  // Un vrai téléphone, pas les 800×600 du binding : la feuille porte désormais
+  // douze puces de domaine, donc elle défile — et un bouton hors écran ne reçoit
+  // pas le tap d'un test.
+  await tester.binding.setSurfaceSize(const Size(393, 852));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+
   Get.addTranslations(AppTranslations().keys);
   Get.locale = const Locale('fr');
   Get.fallbackLocale = const Locale('fr');
@@ -65,6 +71,14 @@ Future<EefInterestController> _pumpSheet(
   await tester.tap(find.text('ouvrir'));
   await tester.pumpAndSettle();
   return controller;
+}
+
+/// Fait défiler la feuille jusqu'au libellé, puis le touche.
+Future<void> _tapVisible(WidgetTester tester, String label) async {
+  await tester.ensureVisible(find.text(label));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(label));
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -97,8 +111,7 @@ void main() {
     final controller =
         await _pumpSheet(tester, api, onClosed: (r) => closedWith = r);
 
-    await tester.tap(find.text('eef_sheet_confirm'.tr));
-    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'eef_sheet_confirm'.tr);
 
     // La feuille est TOUJOURS là.
     expect(find.text('eef_sheet_title'.tr), findsOneWidget);
@@ -131,8 +144,7 @@ void main() {
     final controller =
         await _pumpSheet(tester, api, onClosed: (r) => closedWith = r);
 
-    await tester.tap(find.text('eef_sheet_confirm'.tr));
-    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'eef_sheet_confirm'.tr);
 
     expect(closedWith, isTrue);
     expect(find.text('eef_sheet_title'.tr), findsNothing);
@@ -148,8 +160,7 @@ void main() {
     bool? closedWith;
     await _pumpSheet(tester, api, onClosed: (r) => closedWith = r);
 
-    await tester.tap(find.text('eef_sheet_confirm'.tr));
-    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'eef_sheet_confirm'.tr);
 
     expect(closedWith, isNull);
     expect(find.text('eef_error_server'.tr), findsOneWidget);
@@ -175,8 +186,7 @@ void main() {
     final controller =
         await _pumpSheet(tester, api, onClosed: (r) => closedWith = r);
 
-    await tester.tap(find.text('eef_sheet_cancel'.tr));
-    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'eef_sheet_cancel'.tr);
 
     expect(closedWith, isFalse);
     expect(controller.declared, isFalse);

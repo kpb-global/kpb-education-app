@@ -691,7 +691,8 @@ class AppTranslations extends Translations {
               '9. Analytique produit & enregistrement de session',
           'privacy_s10_title': '10. Modifications',
           'privacy_transfers_title': 'Transferts hors de votre pays',
-          'last_updated_august_2026': 'Dernière mise à jour : août 2026',
+          'last_updated_september_2026':
+              'Dernière mise à jour : septembre 2026',
           // L'éditeur. « KPB Education » est un SERVICE, pas une personne
           // morale : le responsable du traitement est KPB Global L.L.C-FZ, et
           // la politique doit le dire, sinon l'utilisateur consent au profit
@@ -1881,6 +1882,8 @@ class AppTranslations extends Translations {
           // Suspension : elle REMPLACE la date d'ouverture. Le texte ne promet
           // pas de débloquer une situation diplomatique — il dit ce qui est, et
           // propose la seule chose utile, parler à quelqu'un.
+          'eef_official_platform_link': 'Voir la plateforme officielle',
+          'eef_official_suspension_link': 'Voir la source officielle',
           'eef_suspended_notice':
               'Dans ton pays, le traitement des dossiers Études en France est '
                   'actuellement suspendu par les autorités françaises. '
@@ -1888,8 +1891,63 @@ class AppTranslations extends Translations {
                   'Parles-en à un conseiller KPB : d\'autres destinations '
                   'restent ouvertes.',
           'eef_pillars_heading': 'Ce que tu pourras faire',
+          // ── Hub de l'espace (build 54) ────────────────────────────────────
+          // L'agence n'est nommée que dans les CORPS de texte, jamais dans un
+          // titre (eef_naming_test). Le corps du héros dit où se dépose la
+          // candidature — texte à valider par le juridique.
+          'eef_hub_hero_title':
+              'Prépare ta candidature aux universités françaises',
+          'eef_hub_hero_body':
+              'Trouve les formations qui te correspondent, puis prépare ton '
+                  'dossier : CV, lettres de motivation, entretien. La '
+                  'candidature elle-même se dépose auprès des services '
+                  'officiels, selon la procédure indiquée sur chaque formation '
+                  '(plateforme Études en France gérée par Campus France, '
+                  'demande d\'admission préalable…).',
+          'eef_hub_formations_title': 'Trouver ma formation',
+          'eef_hub_formations_body':
+              'Les universités publiques et quelques établissements publics : '
+                  'cherche par nom, ville, niveau et procédure d\'admission.',
+          'eef_hub_tools_heading': 'Préparer mon dossier',
+          'eef_hub_advisor_title': 'Parler à un conseiller',
+          'eef_hub_advisor_body':
+              'Une question sur ta candidature ? Un conseiller KPB te répond '
+                  'sur WhatsApp.',
+          'eef_hub_whatsapp_prefill':
+              'Bonjour, j\'ai une question sur ma candidature aux universités '
+                  'françaises (Études en France).',
+          'eef_hub_guest_body':
+              'Crée ton compte pour enregistrer ton profil et demander à être '
+                  'rappelé par un conseiller.',
+          'eef_students_only_title': 'Un espace pour les étudiants',
+          'eef_students_only_body':
+              'Cet espace prépare la candidature d\'un étudiant et utilise son '
+                  'profil. Connecte-toi avec le compte de l\'étudiant, ou parle '
+                  'à un conseiller KPB.',
+          // ── Mon profil Études en France ───────────────────────────────────
+          'eef_profile_title': 'Mon profil Études en France',
+          'eef_profile_read_failed':
+              'Impossible de lire ton profil pour le moment. Si tu avais déjà '
+                  'répondu, ta réponse est toujours enregistrée.',
+          'eef_profile_empty_body':
+              'Dis-nous ton niveau et tes domaines : un conseiller KPB pourra '
+                  'te rappeler avec les bonnes informations.',
+          'eef_profile_declare_cta': 'Compléter mon profil',
+          'eef_profile_level_line': 'Niveau actuel : @level',
+          'eef_profile_target_line': 'Niveau visé : @level',
+          'eef_profile_fields_line': 'Domaines : @fields',
+          'eef_profile_no_fields': 'Aucun domaine choisi',
+          'eef_profile_recorded_body':
+              'Un conseiller KPB peut te rappeler au sujet de cet espace. Tu '
+                  'peux te retirer à tout moment.',
+          'eef_profile_edit_cta': 'Modifier mon profil',
+          'eef_profile_edit_title': 'Modifier mon profil',
+          'eef_profile_edit_body':
+              'Tu modifies seulement ton niveau et tes domaines. Ton accord '
+                  'pour être rappelé ne change pas.',
+          'eef_field_domains': 'Tes domaines (plusieurs choix possibles)',
           // ── Catalogue « Études en France » (Phase 1) ──────────────────
-          'eef_catalog_title': 'Catalogue des universités',
+          'eef_catalog_title': 'Formations',
           'eef_catalog_open': 'Ouvrir le catalogue',
           'eef_catalog_search_hint': 'Formation, ville…',
           'eef_catalog_facet_cycle': 'Niveau',
@@ -1900,6 +1958,21 @@ class AppTranslations extends Translations {
               'Le serveur a bien répondu : c\'est la recherche qui est trop '
                   'étroite. Retire un filtre ou élargis les mots-clés.',
           'eef_catalog_empty_action': 'Tout effacer',
+          'eef_catalog_unpublished_title': 'Le catalogue arrive',
+          'eef_catalog_unpublished_body':
+              'Les universités sont ajoutées une par une, après vérification '
+                  'de leurs fiches. Reviens bientôt, ou demande à un conseiller '
+                  'KPB.',
+          'eef_catalog_more_failed': 'Impossible de charger la suite.',
+          'eef_catalog_more_retry': 'Réessayer',
+          'eef_catalog_sources_row': 'Sources des données et mentions',
+          'eef_catalog_sources_title': 'À propos des données',
+          'eef_catalog_attribution':
+              'Données : @producer (@sources). Licence : @licence. '
+                  'Récupérées le @date.',
+          'eef_catalog_attribution_bare':
+              'Données : @producer. Licence : @licence. Récupérées le @date.',
+          'eef_catalog_licence_link': 'Voir la licence',
           'eef_catalog_error_network_title': 'Pas de connexion',
           'eef_catalog_error_server_title': 'Catalogue indisponible',
           'eef_catalog_error_body':
@@ -1920,9 +1993,9 @@ class AppTranslations extends Translations {
           'eef_catalog_value_procedureType_hors_eef': 'Hors procédure',
           'eef_pillar_catalog_title': 'Un catalogue dense',
           'eef_pillar_catalog_body':
-              'Universités publiques, écoles d\'ingénieurs, BUT, BTS, écoles de '
-                  'commerce : chercher par ville, filière, niveau, budget et '
-                  'procédure.',
+              'Les universités publiques et quelques établissements publics : '
+                  'licences, BUT, masters, cycles ingénieur. Cherche par nom, '
+                  'ville, niveau et procédure d\'admission.',
           'eef_pillar_shortlist_title': 'Les formations faites pour toi',
           'eef_pillar_shortlist_body':
               'Une sélection classée en trois étages — ambition, cible, '
@@ -2743,6 +2816,12 @@ class AppTranslations extends Translations {
           'community_hub_alumni': 'Mentors',
           'community_hub_salon': 'Salons',
           'community_hub_parcours': 'Parcours',
+          // ── Mise à jour recommandée (bandeau doux, jamais bloquant) ──
+          'update_recommended_title': 'Une mise à jour est disponible',
+          'update_recommended_body':
+              'Une nouvelle version de KPB Education est disponible. Mets-la à jour pour profiter des dernières nouveautés.',
+          'update_recommended_cta': 'Mettre à jour',
+          'update_recommended_dismiss': 'Plus tard',
           // ── Mise à jour obligatoire ──
           'force_update_title': 'Mise à jour requise',
           'force_update_body':
@@ -3848,7 +3927,7 @@ class AppTranslations extends Translations {
           'privacy_s9_title': '9. Product analytics & session recording',
           'privacy_s10_title': '10. Changes',
           'privacy_transfers_title': 'Transfers outside your country',
-          'last_updated_august_2026': 'Last updated: August 2026',
+          'last_updated_september_2026': 'Last updated: September 2026',
           'privacy_s1_body':
               'KPB Education (hereafter "we", "our", "KPB") is a service of KPB Global L.L.C-FZ, a free-zone limited liability company registered with the Meydan Free Zone (Meydan City Corporation, Emirate of Dubai) under licence no. 2537631.01. KPB Global L.L.C-FZ is the controller of personal data collected through the KPB Education mobile app.\n\n'
                   'Registered office: Meydan Grandstand, 6th floor, Meydan Road, Nad Al Sheba, Dubai, United Arab Emirates\n'
@@ -4915,14 +4994,67 @@ class AppTranslations extends Translations {
           'eef_deadline_varies_notice':
               'Closing dates vary by country and by procedure. We will confirm '
                   'yours inside the space.',
+          'eef_official_platform_link': 'Open the official platform',
+          'eef_official_suspension_link': 'See the official source',
           'eef_suspended_notice':
               'In your country, processing of Études en France applications is '
                   'currently suspended by the French authorities. The platform '
                   'opening does not change that. Talk to a KPB counsellor: '
                   'other destinations remain open.',
           'eef_pillars_heading': 'What you will be able to do',
+          // ── Space hub (build 54) ──────────────────────────────────────────
+          'eef_hub_hero_title':
+              'Prepare your application to French universities',
+          'eef_hub_hero_body':
+              'Find the programmes that suit you, then prepare your file: CV, '
+                  'motivation letters, interview. The application itself is '
+                  'submitted through the official services, following the '
+                  'procedure shown on each programme (the Études en France '
+                  'platform run by Campus France, pre-admission request…).',
+          'eef_hub_formations_title': 'Find my programme',
+          'eef_hub_formations_body':
+              'Public universities and a few public institutions: search by '
+                  'name, city, level and admission procedure.',
+          'eef_hub_tools_heading': 'Prepare my file',
+          'eef_hub_advisor_title': 'Talk to an advisor',
+          'eef_hub_advisor_body':
+              'A question about your application? A KPB advisor answers you on '
+                  'WhatsApp.',
+          'eef_hub_whatsapp_prefill':
+              'Hello, I have a question about my application to French '
+                  'universities (Études en France).',
+          'eef_hub_guest_body':
+              'Create your account to save your profile and ask to be called '
+                  'back by an advisor.',
+          'eef_students_only_title': 'A space for students',
+          'eef_students_only_body':
+              'This space prepares a student\'s application and uses their '
+                  'profile. Sign in with the student\'s account, or talk to a KPB '
+                  'advisor.',
+          // ── My Études en France profile ───────────────────────────────────
+          'eef_profile_title': 'My Études en France profile',
+          'eef_profile_read_failed':
+              'We could not read your profile right now. If you already '
+                  'answered, your answer is still saved.',
+          'eef_profile_empty_body':
+              'Tell us your level and your fields: a KPB advisor will be able '
+                  'to call you back with the right information.',
+          'eef_profile_declare_cta': 'Complete my profile',
+          'eef_profile_level_line': 'Current level: @level',
+          'eef_profile_target_line': 'Target level: @level',
+          'eef_profile_fields_line': 'Fields: @fields',
+          'eef_profile_no_fields': 'No field chosen',
+          'eef_profile_recorded_body':
+              'A KPB advisor may call you back about this space. You can '
+                  'withdraw at any time.',
+          'eef_profile_edit_cta': 'Edit my profile',
+          'eef_profile_edit_title': 'Edit my profile',
+          'eef_profile_edit_body':
+              'You are only changing your level and your fields. Your consent '
+                  'to be called back does not change.',
+          'eef_field_domains': 'Your fields (several choices possible)',
           // ── "Études en France" catalogue (Phase 1) ────────────────────
-          'eef_catalog_title': 'University catalogue',
+          'eef_catalog_title': 'Programmes',
           'eef_catalog_open': 'Open the catalogue',
           'eef_catalog_search_hint': 'Programme, city…',
           'eef_catalog_facet_cycle': 'Level',
@@ -4933,6 +5065,20 @@ class AppTranslations extends Translations {
               'The server did answer: it is the search that is too narrow. '
                   'Remove a filter or widen your keywords.',
           'eef_catalog_empty_action': 'Clear all',
+          'eef_catalog_unpublished_title': 'The catalogue is on its way',
+          'eef_catalog_unpublished_body':
+              'Universities are added one by one, after their listings are '
+                  'checked. Come back soon, or ask a KPB counsellor.',
+          'eef_catalog_more_failed': "Couldn't load more.",
+          'eef_catalog_more_retry': 'Retry',
+          'eef_catalog_sources_row': 'Data sources and notices',
+          'eef_catalog_sources_title': 'About the data',
+          'eef_catalog_attribution':
+              'Data: @producer (@sources). Licence: @licence. '
+                  'Retrieved on @date.',
+          'eef_catalog_attribution_bare':
+              'Data: @producer. Licence: @licence. Retrieved on @date.',
+          'eef_catalog_licence_link': 'See the licence',
           'eef_catalog_error_network_title': 'No connection',
           'eef_catalog_error_server_title': 'Catalogue unavailable',
           'eef_catalog_error_body':
@@ -4953,8 +5099,9 @@ class AppTranslations extends Translations {
           'eef_catalog_value_procedureType_hors_eef': 'Outside the procedure',
           'eef_pillar_catalog_title': 'A dense catalogue',
           'eef_pillar_catalog_body':
-              'Public universities, engineering schools, BUT, BTS, business '
-                  'schools: search by city, field, level, budget and procedure.',
+              'Public universities and a few public institutions: bachelor\'s, '
+                  'BUT, master\'s, engineering cycles. Search by name, city, '
+                  'level and admission procedure.',
           'eef_pillar_shortlist_title': 'The programmes that fit you',
           'eef_pillar_shortlist_body':
               'A shortlist ranked in three tiers — reach, target, safety — with '
@@ -5737,6 +5884,11 @@ class AppTranslations extends Translations {
           'community_hub_salon': 'Fairs',
           'community_hub_parcours': 'Journeys',
           // ── Force update ──
+          'update_recommended_title': 'An update is available',
+          'update_recommended_body':
+              'A new version of KPB Education is available. Update to get the latest improvements.',
+          'update_recommended_cta': 'Update now',
+          'update_recommended_dismiss': 'Later',
           'force_update_title': 'Update required',
           'force_update_body':
               'This version of the app is no longer supported. Update it to keep using KPB Education.',

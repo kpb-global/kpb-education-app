@@ -209,6 +209,11 @@ void main() {
   // la même version publiée. Le faire dériver par inadvertance créerait une
   // entrée distincte sur les stores, d'où ce cliquet.
   //
+  // Passé à 2.3.0 pour la build 54, délibérément : la 2.2.0 est en vente sur
+  // l'App Store depuis le 13/09/2026, et App Store Connect refuse le
+  // téléversement d'une build dont la version marketing n'est pas supérieure à
+  // la dernière approuvée (ITMS-90062).
+  //
   // Passé à 2.2.0 le 03/09/2026, délibérément : `AppVersionGate` compare la
   // version MARKETING au `minVersion` du serveur et `isVersionBelow` ignore le
   // numéro de build (il coupe au `+`). Tant que toutes les builds s'appelaient
@@ -217,8 +222,8 @@ void main() {
   //
   // Le NUMÉRO de build, lui, n'est pas épinglé ici : `build_number_test.dart`
   // le confronte au registre de release, qui en est la source.
-  test('the shipping marketing version stays 2.2.0', () {
-    expect(_shippingVersion().name, '2.2.0');
+  test('the shipping marketing version stays 2.3.0', () {
+    expect(_shippingVersion().name, '2.3.0');
   });
 
   // Revue du build 49 : la mesure d'audience est passée d'OPT-IN à ACTIVE PAR

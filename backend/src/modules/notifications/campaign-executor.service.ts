@@ -2,7 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { NotificationCampaign } from '@prisma/client';
 import { NotificationCampaignStatus } from '../../common/enums/notification-campaign-status.enum';
 import { PrismaService } from '../prisma/prisma.service';
-import { audienceFilterMissing } from './campaign-audience';
+import {
+  audienceFilterInvalid,
+  audienceFilterMissing,
+  countryVariants,
+  escapeLike,
+  resolveExcludedCountries,
+} from './campaign-audience';
 import { CampaignMailService } from './campaign-mail.service';
 import { OneSignalSenderService } from './onesignal-sender.service';
 
@@ -11,6 +17,34 @@ interface ResolvedTemplate {
   titleEn: string;
   bodyFr: string;
   bodyEn: string;
+}
+
+/**
+ * « Le pays de résidence n'est AUCUN de ceux-ci », insensible à la casse.
+ *
+ * `countryOfResidence` est un texte saisi (« Niger », « niger », parfois un
+ * code) : une égalité stricte aurait laissé passer « NIGER ». La colonne est non
+ * nulle (`String` au schéma), donc `NOT` ne retire pas par erreur les comptes
+ * sans pays — le piège habituel de `NOT` sur une colonne nullable.
+ *
+ * **Limite assumée :** un compte dont le pays est vide (`''`, profil non
+ * complété) n'est exclu de rien — on ne peut pas savoir qu'il est au Niger. Il
+ * reçoit donc l'annonce. C'est le cas des comptes qui n'ont pas fini leur profil.
+ *
+ * Les jokers `%` et `_` sont ÉCHAPPÉS : `ILIKE` les interprète, et Prisma ne le
+ * fait pas pour nous.
+ */
+export function countryExclusion(countries: readonly string[]) {
+  return {
+    OR: countries
+      .flatMap((country) => countryVariants(country))
+      .map((variant) => ({
+        countryOfResidence: {
+          equals: escapeLike(variant),
+          mode: 'insensitive' as const,
+        },
+      })),
+  };
 }
 
 @Injectable()
@@ -182,7 +216,9 @@ export class CampaignExecutorService {
       if (this.mailService.isEnabled) {
         for (const user of recipients) {
           const subject =
-            user.preferredLanguage === 'en' ? template.titleEn : template.titleFr;
+            user.preferredLanguage === 'en'
+              ? template.titleEn
+              : template.titleFr;
           const text =
             user.preferredLanguage === 'en' ? template.bodyEn : template.bodyFr;
           const ok = user.email
@@ -293,6 +329,17 @@ export class CampaignExecutorService {
       return [];
     }
 
+    // Un filtre PRÉSENT mais mal formé (jeton mal écrit, clé inconnue…) vaut
+    // « personne », comme un filtre absent : voir [audienceFilterInvalid].
+    const invalid = audienceFilterInvalid(audienceType, filters);
+    if (invalid) {
+      this.logger.error(
+        `Audience "${audienceType}" has an unusable filter (${invalid}) — ` +
+          'resolving to 0 recipient instead of ignoring the exclusion.',
+      );
+      return [];
+    }
+
     return (
       (await this.prismaService.execute((prisma) => {
         switch (audienceType) {
@@ -310,6 +357,57 @@ export class CampaignExecutorService {
           case 'all_students': {
             return prisma.userProfile.findMany({
               where: { accountType: 'student' },
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                preferredLanguage: true,
+              },
+            });
+          }
+          // ── Les déclarants « Études en France » ───────────────────────
+          //
+          // Qui a déclaré son intérêt ET accepté d'être rappelé (la ligne n'existe
+          // que sur consentement ; un retrait la supprime). Comptes étudiants
+          // seulement : la table ne peut pas porter d'autres comptes, mais le
+          // filtre est écrit ici plutôt que supposé.
+          //
+          // `exceptCountries` retire les pays suspendus : « la campagne est
+          // ouverte » n'est pas une bonne nouvelle pour un pays dont l'État dit
+          // que les dossiers ne sont pas traités.
+          case 'eef_interest': {
+            const excluded = resolveExcludedCountries(
+              filters['exceptCountries'],
+            );
+            return prisma.userProfile.findMany({
+              where: {
+                accountType: 'student',
+                eefInterest: { isNot: null },
+                ...(excluded.length > 0
+                  ? { NOT: countryExclusion(excluded) }
+                  : {}),
+              },
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                preferredLanguage: true,
+              },
+            });
+          }
+          // Tous les étudiants, sauf des pays donnés. Le filtre est exigé en
+          // amont (`audienceFilterMissing`) ; la garde ci-dessous est la seconde
+          // ligne : une valeur illisible vaut zéro destinataire, jamais « tous ».
+          case 'all_students_except_countries': {
+            const excluded = resolveExcludedCountries(
+              filters['exceptCountries'],
+            );
+            if (excluded.length === 0) return Promise.resolve([]);
+            return prisma.userProfile.findMany({
+              where: {
+                accountType: 'student',
+                NOT: countryExclusion(excluded),
+              },
               select: {
                 id: true,
                 fullName: true,
