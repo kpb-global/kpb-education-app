@@ -113,7 +113,7 @@ restent en base ; rien n'est perdu.
 
 | Quand | Quoi |
 |---|---|
-| J+1 | `eef_space_viewed`, `eef_hub_tile_opened`, `eef_catalog_searched` (PostHog / Firebase) ; **`eef_catalog_failed` doit rester ≈ 0** (sinon une panne se lit « personne ne cherche »). Voir `docs/analytics-event-contract.md`. |
+| J+1 | `eef_space_viewed`, `eef_hub_tile_opened`, `eef_catalog_searched`, `eef_help_card_shown` / `eef_help_cta_tapped` (taux de clic par `help_step`) (PostHog / Firebase) ; **`eef_catalog_failed` doit rester ≈ 0** (sinon une panne se lit « personne ne cherche »). Voir `docs/analytics-event-contract.md`. |
 | J+1 | Admin → liste d'intérêt : les déclarations arrivent. `consentVersion = eef-consent-v1` se lit dans l'**export CSV** (`export.csv`), pas dans la liste. |
 | J+7 | Ratio recherches sans résultat (`result_count = 0`) : croiser avec `catalog_published`. Beaucoup de `0` avec `catalog_published = 1` ⇒ le catalogue publié est trop étroit pour la demande : publier d'autres établissements. |
 | Semaine 2 | Décider de la build 55 (fiche formation, sélection, checklist, projet d'études) sur ces chiffres. |

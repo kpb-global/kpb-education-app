@@ -66,7 +66,7 @@ Puis, sur le hub :
 | # | À vérifier | Attendu |
 |---|---|---|
 | B1 | Héros | « Prépare ta candidature aux universités françaises » ; le corps dit où se dépose la candidature ; date ou mise en garde selon le pays |
-| B2 | Tuiles | Formations, CV, Lettres, Entretien, Conseiller : **chacune ouvre un écran qui marche** ; aucune mention « en préparation » |
+| B2 | Tuiles | Formations, CV, Lettres, Entretien : **chacune ouvre un écran qui marche** ; aucune mention « en préparation ». Le conseiller n'est plus une tuile : c'est la carte d'aide (§B-aide) |
 | B3 | Catalogue | Recherche par nom d'université / sigle / ville (sans accents) ; filtres Niveau et Procédure avec compteurs ; chaque carte nomme l'université, la ville, la procédure |
 | B4 | Cas vide | Recherche sans résultat → « Aucune formation ne correspond » + « Tout effacer » **qui vide aussi le champ** |
 | B5 | Catalogue non publié | (base sans publication) « Le catalogue arrive », **sans** « Tout effacer » |
@@ -75,6 +75,32 @@ Puis, sur le hub :
 | B8 | Profil | « Mon profil Études en France » : Compléter → déclaré ; Modifier (domaines) **ne redemande pas le consentement** ; Me retirer fonctionne |
 | B9 | Outils IA | CV / lettres / entretien : invité → mur de conversion ; étudiant sans consentement IA → dialogue de consentement |
 | B10 | Logos (recette seulement) | Dans la fiche d'un établissement qui en a un : logo **et** crédit de licence ; un logo SVG qui ne charge pas ne casse pas la fiche (MISS-01) |
+
+## B-aide. Cartes d'aide « C'est flou ? » (même build que le §B)
+
+« À chaque étape où c'est flou, on pose une question » : une carte (ou une ligne)
+qui ouvre WhatsApp vers le conseiller, avec un message **prérempli qui dit à quelle
+étape on en est**. Elles vivent dans le hub et le catalogue, donc derrière
+`features.eefSpace` : mêmes conditions de recette que le §B. Aucune de ces cartes ne
+promet d'admission, de visa ni de prix — la mention sous la carte le dit.
+
+Pour chaque ✗ : noter l'écran, la langue, le pays du compte.
+
+| # | À vérifier | Attendu |
+|---|---|---|
+| Aide-1 | Hub, compte **hors Niger** | Trois emplacements, dans cet ordre : une ligne « Procédure, dates, dépôt : c'est flou ? » sous le héros ; **une** carte « C'est flou ? Tu veux de l'aide ? » sous « Trouver ma formation » ; une ligne « Tu ne sais pas quels documents préparer ? » sous les outils (absente si les outils IA sont masqués). L'ancienne tuile « Parler à un conseiller » **n'existe plus**. |
+| Aide-2 | Bouton de la carte du hub | « Démarrer l'étude de mon dossier sur WhatsApp » → WhatsApp s'ouvre sur la ligne du conseiller (`AppConfig.whatsappNumber`) avec : *« Bonjour KPB Education, je suis dans l'espace Études en France de l'app (étape : accueil de l'espace). Pour passer à l'étape supérieure, j'aimerais démarrer l'étude de mon dossier. »* **Rien d'autre** : ni nom, ni e-mail, ni téléphone, ni pays. Le message n'est pas envoyé tout seul. |
+| Aide-3 | Les deux lignes | « Demander de l'aide sur WhatsApp » → même message, avec « (étape : procédure, dates et dépôt) » puis « (étape : documents à fournir) ». |
+| Aide-4 | Langue **anglaise** | « Unclear? Want some help? », « Start my file review on WhatsApp » ; le message prérempli est en anglais (« Hello KPB Education, I am in the Études en France space… »). |
+| Aide-5 | Catalogue, sous les résultats | Recherche assez étroite pour que la liste soit entière → carte « Tu hésites sur ta formation ? » sous la dernière formation, **avant** les mentions de données. Liste longue, encore paginée : **pas** de carte tant qu'il reste des pages. |
+| Aide-6 | Catalogue, aucun résultat / non publié | « Aucune formation ne correspond » → « Tout effacer » **et** la carte « Tu ne trouves pas ta formation ? » ; « Le catalogue arrive » → la carte « Tu ne veux pas attendre ? » (sans « Tout effacer »). |
+| Aide-7 | Catalogue, procédure | Filtre « Parcoursup », « DAP dossier jaune » ou « Hors procédure » → une ligne « Pas sûr(e) de la procédure pour ces formations ? » sous le compteur ; filtre « Études en France » ou « DAP dossier blanc » → **pas** de ligne. |
+| Aide-8 | Compte du **Niger** | Hub : **aucune** ligne ; **une** carte « Besoin d'y voir plus clair ? » au bouton « Parler à un conseiller des autres options ». **Nulle part** dans l'espace un texte « démarrer l'étude de ton dossier ». Le message prérempli dit que la procédure est suspendue « dans mon pays » (sans le nommer) et demande les autres options. Même libellé neutre dans le catalogue (vide, non publié, sous les résultats). |
+| Aide-9 | **Pas de double carte** | Sur chaque écran (hub ; catalogue : liste, vide, non publié) il y a **au plus une carte pleine** à la fois — la phrase « Un accompagnement n'est pas une garantie… » n'apparaît qu'une fois. Seule la ligne de procédure du catalogue peut s'y ajouter. |
+| Aide-10 | Aucune impasse | Sans WhatsApp installé : le toast « Impossible d'ouvrir WhatsApp… » s'affiche (jamais un bouton muet). |
+| Aide-11 | Texte agrandi (×1,3, petit Android) | Le libellé du bouton passe à la ligne, **jamais coupé par « … »** ; rien ne déborde, y compris sous le bandeau de suspension. |
+| Aide-12 | Analytique (DebugView / proxy) | Un tap → `eef_help_cta_tapped` (`help_step`, `surface`, `variant`) puis `whatsapp_handoff` (`source` = `eef_help_<étape>`) ; `eef_help_card_shown` une fois par étape et par visite ; **aucune autre propriété**. |
+| Aide-13 | Écrans inchangés | Compte parent (« Un espace pour les étudiants ») et vitrine : **pas** de carte d'aide (le bouton conseiller de l'écran étudiants-seulement existait déjà). |
 
 ## C. Budget de performance (LIV-38)
 

@@ -92,12 +92,29 @@ abstract final class AnalyticsEventName {
   /// bord exactement comme « personne ne cherche ».
   /// L'espace réel (le hub) : `eef_space_viewed` donne la portée et la porte
   /// d'entrée ; `eef_hub_tile_opened` dit CE QUE les étudiants y viennent faire
-  /// (`tile` = catalogue, cv, lettres, entretien, conseiller, profil) — la seule mesure de ce que l'espace vaut avant la 55.
+  /// (`tile` = catalogue, cv, lettres, entretien, profil) — la seule mesure de ce que l'espace vaut avant la 55.
+  /// La tuile `conseiller` a disparu avec la tuile : la carte d'aide l'a
+  /// remplacée, et se mesure par `eef_help_cta_tapped` (`help_step` = `hub`).
   static const eefSpaceViewed = 'eef_space_viewed';
   static const eefHubTileOpened = 'eef_hub_tile_opened';
   static const eefCatalogViewed = 'eef_catalog_viewed';
   static const eefCatalogSearched = 'eef_catalog_searched';
   static const eefCatalogFailed = 'eef_catalog_failed';
+
+  /// La carte d'aide de l'espace (« c'est flou ? tu veux de l'aide ? »).
+  /// `eef_help_card_shown` donne la portée de chaque emplacement
+  /// (`help_step`, `surface`, `variant`) ; `eef_help_cta_tapped` dit lequel
+  /// convertit. Le rapport des deux, par `help_step`, est le taux de clic de
+  /// l'emplacement — la seule façon de savoir où l'incitation marche et où elle
+  /// n'est que du bruit. Le tap part AVANT l'ouverture de WhatsApp ;
+  /// `whatsapp_handoff` (`source` = `eef_help_<étape>`) dit ensuite si
+  /// l'ouverture a réussi.
+  ///
+  /// Ni l'un ni l'autre ne porte de donnée personnelle : trois identifiants
+  /// fermés écrits dans le code. Le pays n'y figure pas — pas même un drapeau
+  /// « suspendu », qui le désignerait presque.
+  static const eefHelpCardShown = 'eef_help_card_shown';
+  static const eefHelpCtaTapped = 'eef_help_cta_tapped';
 
   /// Liste d'attente Karatou Premium. `premium_waitlist_joined` est la seule
   /// mesure directe de la demande pour le Pass — celle qui dira s'il vaut la
@@ -177,6 +194,16 @@ abstract final class AnalyticsParamKey {
   static const filterCount = 'filter_count';
   static const resultCount = 'result_count';
   static const catalogPublished = 'catalog_published';
+
+  /// Carte d'aide de l'espace : l'emplacement (`hub`, `procedure`,
+  /// `catalog_empty`…), l'écran porteur (`hub` ou `catalog`) et la forme
+  /// (`card` ou `compact`). Des identifiants fermés, jamais un texte saisi.
+  /// `help_step` et non `step` : cette dernière est un entier (1-based) pour
+  /// l'onboarding, et on ne mélange pas deux types sous une même clé de
+  /// tableau de bord.
+  static const helpStep = 'help_step';
+  static const surface = 'surface';
+  static const variant = 'variant';
 
   /// Onboarding funnel + auth attribution (KPB-158).
   static const step = 'step';

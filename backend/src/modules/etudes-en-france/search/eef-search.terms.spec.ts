@@ -73,6 +73,33 @@ describe('buildSearchTerms', () => {
   });
 });
 
+describe('les mots des études de santé', () => {
+  it.each([
+    'médecine', 'Médecine', 'MEDECINE', 'médecin', 'medicine', 'santé', 'health',
+    'PASS', 'L.AS', 'LAS', 'PACES', 'MMOPK', 'pharmacie', 'pharmacy', 'odontologie',
+    'dentaire', 'dentiste', 'maïeutique', 'kiné', 'kinésithérapie',
+  ])('« %s » désigne le cycle santé', (word) => {
+    expect(buildSearchTerms([word]).flatMap((term) => term.cycles)).toEqual(['sante']);
+  });
+
+  it('« L.AS » et « L AS » sont recollés en un seul mot', () => {
+    expect(buildSearchTerms(['L.AS']).map((term) => term.norm)).toEqual(['las']);
+    expect(buildSearchTerms(['L', 'AS']).map((term) => term.norm)).toEqual(['las']);
+    expect(buildSearchTerms(['L', 'AS', 'chimie']).map((term) => term.norm)).toEqual(['las', 'chimie']);
+    // Un « l » qui n'est pas suivi de « as » reste un mot vide comme avant.
+    expect(buildSearchTerms(['l', 'économie']).map((term) => term.norm)).toEqual(['economie']);
+    expect(buildSearchTerms(['L AS']).map((term) => term.norm)).toEqual(['las']);
+  });
+
+  it('« sage-femme » ne désigne rien : « femme » seul viserait les études sur le genre', () => {
+    expect(buildSearchTerms(['sage-femme']).flatMap((term) => term.cycles)).toEqual([]);
+  });
+
+  it('« médical » n’est pas un synonyme : aucun intitulé ne le porte, et il ne dit pas « soin »', () => {
+    expect(buildSearchTerms(['médical'])[0].cycles).toEqual([]);
+  });
+});
+
 describe('EEF_LEVEL_SYNONYMS', () => {
   it('ne désigne que des cycles qui existent', () => {
     const known = new Set<string>(EEF_CYCLES);

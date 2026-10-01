@@ -11,6 +11,7 @@ import '../../core/services/remote_feature_flags.dart';
 import '../../core/ui/kpb_components.dart';
 import 'eef_catalog_controller.dart';
 import 'eef_data_notice.dart';
+import 'eef_help_card.dart';
 import 'eef_official_links.dart';
 
 /// Le catalogue « Études en France », cherché SUR LE SERVEUR.
@@ -300,7 +301,10 @@ class _Results extends StatelessWidget {
 
   /// Un état plein écran (vide, pas publié) reste dans une liste : la mention
   /// des données et la non-affiliation doivent rester atteignables partout.
-  Widget _stateWithNotice(Widget state) {
+  ///
+  /// [help] est la carte d'aide de l'état, posée entre l'état et les mentions :
+  /// c'est le moment où l'étudiant n'a plus rien à faire seul.
+  Widget _stateWithNotice(Widget state, {EefHelpStep? help}) {
     return ListView(
       controller: scroll,
       padding: const EdgeInsets.fromLTRB(
@@ -309,9 +313,29 @@ class _Results extends StatelessWidget {
         KpbSpacing.pagePad,
         KpbSpacing.xl,
       ),
-      children: [state, const EefDataNotice()],
+      children: [
+        state,
+        if (help != null) ...[
+          EefHelpCard(step: help),
+          const SizedBox(height: KpbSpacing.md),
+        ],
+        const EefDataNotice(),
+      ],
     );
   }
+
+  /// L'étudiant filtre-t-il sur une procédure qu'on confond (dossier jaune,
+  /// Parcoursup, hors procédure) — ou une carte affichée a-t-elle une procédure
+  /// que l'app ne sait pas nommer ?
+  ///
+  /// C'est le moment, et le seul, où la ligne d'aide de la procédure se montre
+  /// au-dessus des résultats : partout ailleurs elle serait un bandeau
+  /// permanent, que personne ne lit plus au bout de deux jours.
+  bool get _showProcedureHelp =>
+      controller
+          .selectedValues(kEefFacetProcedure)
+          .any(eefProcedureIsConfusing) ||
+      controller.items.any((item) => !eefProcedureIsKnown(item.procedureType));
 
   @override
   Widget build(BuildContext context) {
@@ -340,6 +364,9 @@ class _Results extends StatelessWidget {
           title: 'eef_catalog_unpublished_title'.tr,
           subtitle: 'eef_catalog_unpublished_body'.tr,
         ),
+        // Le texte ci-dessus renvoie à « un conseiller KPB » sans en donner le
+        // moyen : la carte le donne.
+        help: EefHelpStep.catalogUnpublished,
       );
     }
 
@@ -354,10 +381,19 @@ class _Results extends StatelessWidget {
           actionLabel: 'eef_catalog_empty_action'.tr,
           onAction: controller.clearFilters,
         ),
+        help: EefHelpStep.catalogEmpty,
       );
     }
 
     final items = controller.items;
+    final showProcedureHelp = _showProcedureHelp;
+    // La carte « sous les résultats » n'existe que quand la liste est ENTIÈRE :
+    // tant qu'il reste des pages, le défilement la repousse à chaque chargement,
+    // et elle n'apparaîtrait qu'une demi-seconde sous les yeux de l'étudiant.
+    final showResultsHelp = !controller.hasMore;
+    // En-tête + cartes + pied (état de la page suivante) + [carte d'aide] +
+    // mentions.
+    final helpIndex = showResultsHelp ? items.length + 2 : -1;
     return ListView.separated(
       controller: scroll,
       padding: const EdgeInsets.fromLTRB(
@@ -366,18 +402,24 @@ class _Results extends StatelessWidget {
         KpbSpacing.pagePad,
         KpbSpacing.xl,
       ),
-      // En-tête + cartes + pied (état de la page suivante) + mentions.
-      itemCount: items.length + 3,
+      itemCount: items.length + (showResultsHelp ? 4 : 3),
       separatorBuilder: (_, __) => const SizedBox(height: KpbSpacing.sm),
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
             padding: const EdgeInsets.only(bottom: KpbSpacing.xs),
-            child: Text(
-              'eef_catalog_result_count'
-                  .trParams({'count': '${controller.total}'}),
-              style:
-                  KpbTextStyles.caption.copyWith(color: context.kpb.textMuted),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'eef_catalog_result_count'
+                      .trParams({'count': '${controller.total}'}),
+                  style: KpbTextStyles.caption
+                      .copyWith(color: context.kpb.textMuted),
+                ),
+                if (showProcedureHelp)
+                  const EefHelpCard(step: EefHelpStep.catalogProcedure),
+              ],
             ),
           );
         }
@@ -386,6 +428,9 @@ class _Results extends StatelessWidget {
         }
         if (index == items.length + 1) {
           return _ListFooter(controller: controller);
+        }
+        if (index == helpIndex) {
+          return const EefHelpCard(step: EefHelpStep.catalogResults);
         }
         return const Padding(
           padding: EdgeInsets.only(top: KpbSpacing.md),
@@ -480,6 +525,11 @@ class _ProgramCard extends StatelessWidget {
 
     final procedure = _procedureLabel();
     final level = program.level.resolve(locale);
+    // Une 1re année d'accès santé (PASS ou L.AS) s'intitule souvent « L1 - Droit »
+    // ou « L1 - Chimie » : sans ce badge, une recherche « médecine » montrerait des
+    // licences de droit sans dire pourquoi. Le serveur range ces formations dans
+    // le cycle `sante`, et la recherche y mène les mots de la santé.
+    final healthAccess = item.cycle == 'sante';
 
     return KpbCard(
       child: Column(
@@ -523,6 +573,12 @@ class _ProgramCard extends StatelessWidget {
                   color: item.procedureType == 'hors_eef'
                       ? KpbColors.warning
                       : KpbColors.blue,
+                ),
+              if (healthAccess)
+                KpbBadge(
+                  label: 'eef_catalog_value_cycle_sante'.tr,
+                  small: true,
+                  color: KpbColors.success,
                 ),
               if (level.isNotEmpty)
                 Text(

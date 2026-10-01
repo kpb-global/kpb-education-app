@@ -416,6 +416,70 @@ class AnalyticsService {
     }
   }
 
+  /// Les propriétés des deux événements de la carte d'aide, en un seul endroit.
+  ///
+  /// Trois identifiants fermés écrits dans le code — l'étape (`hub`,
+  /// `catalog_empty`…), l'écran porteur (`hub`/`catalog`) et la forme
+  /// (`card`/`compact`). Exposée pour qu'un test lise la liste EXACTE des clés :
+  /// une propriété ajoutée plus tard (un pays, un nom) fait rougir le test au
+  /// lieu de partir en production.
+  @visibleForTesting
+  static Map<String, Object> eefHelpParams({
+    required String step,
+    required String surface,
+    required String variant,
+  }) =>
+      <String, Object>{
+        AnalyticsParamKey.helpStep: step,
+        AnalyticsParamKey.surface: surface,
+        AnalyticsParamKey.variant: variant,
+      };
+
+  /// La carte d'aide a été montée (une fois par instance).
+  Future<void> logEefHelpCardShown({
+    required String step,
+    required String surface,
+    required String variant,
+  }) async {
+    final params = eefHelpParams(
+      step: step,
+      surface: surface,
+      variant: variant,
+    );
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefHelpCardShown,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefHelpCardShown, params);
+    } catch (e, s) {
+      _logError('logEefHelpCardShown', e, s);
+    }
+  }
+
+  /// Un étudiant a tapé le bouton ou le lien de la carte d'aide. Part AVANT
+  /// l'ouverture de WhatsApp : `whatsapp_handoff` dit ensuite si elle a réussi.
+  Future<void> logEefHelpCtaTapped({
+    required String step,
+    required String surface,
+    required String variant,
+  }) async {
+    final params = eefHelpParams(
+      step: step,
+      surface: surface,
+      variant: variant,
+    );
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefHelpCtaTapped,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefHelpCtaTapped, params);
+    } catch (e, s) {
+      _logError('logEefHelpCtaTapped', e, s);
+    }
+  }
+
   /// Le catalogue n'a pas pu répondre. [reason] : `network` ou `server`.
   Future<void> logEefCatalogFailed(String reason) async {
     final params = <String, Object>{AnalyticsParamKey.reason: reason};

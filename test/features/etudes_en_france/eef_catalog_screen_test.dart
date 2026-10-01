@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 
 import 'package:karatou/app/core/config/app_config.dart';
 import 'package:karatou/app/core/data/eef_calendar.dart';
@@ -24,7 +25,9 @@ import 'package:karatou/app/core/services/remote_feature_flags.dart';
 import 'package:karatou/app/core/translations/app_translations.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_catalog_screen.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_data_notice.dart';
+import 'package:karatou/app/features/etudes_en_france/eef_help_card.dart';
 
+import '../../support/eef_help_fakes.dart';
 import '../../support/raw_key_guard.dart';
 import '../../support/screen_harness.dart';
 import '../../widget_test_helpers.dart';
@@ -40,6 +43,7 @@ Map<String, dynamic> _program(
   Object? institution,
   Object? procedureType = 'eef',
   Object? campusCity = 'Lyon',
+  String cycle = 'licence3',
 }) =>
     <String, dynamic>{
       'id': id,
@@ -59,7 +63,7 @@ Map<String, dynamic> _program(
       'requirementsFr': <String>[],
       'requirementsEn': <String>[],
       'procedureType': procedureType,
-      'cycle': 'licence3',
+      'cycle': cycle,
       'campusCity': campusCity,
       'institution': institution,
     };
@@ -95,10 +99,22 @@ Map<String, dynamic> _page(
       if (catalogPublished != null) 'catalogPublished': catalogPublished,
     };
 
+/// Un écran assez haut pour construire TOUTE la liste paresseuse d'un coup : les
+/// tests de la carte d'aide cherchent des cartes, pas la position du pli.
+const _tall = KpbViewport(
+  id: 'tall',
+  name: 'Écran haut 393×2600',
+  size: Size(393, 2600),
+  padding: EdgeInsets.zero,
+);
+
 void main() {
   setUpAll(initializeDateFormatting);
 
   late MockApiClient api;
+  late RecordingUrlLauncher launcher;
+  late UrlLauncherPlatform previousLauncher;
+  late RecordingHelpAnalytics helpAnalytics;
 
   void stub(Future<Map<String, dynamic>> Function(Invocation) answer) {
     when(() => api.searchEefCatalog(
@@ -116,6 +132,11 @@ void main() {
 
   setUp(() {
     api = MockApiClient();
+    previousLauncher = UrlLauncherPlatform.instance;
+    launcher = RecordingUrlLauncher();
+    UrlLauncherPlatform.instance = launcher;
+    helpAnalytics = RecordingHelpAnalytics();
+    EefHelpCard.analytics = helpAnalytics;
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
@@ -124,6 +145,8 @@ void main() {
   });
 
   tearDown(() {
+    UrlLauncherPlatform.instance = previousLauncher;
+    EefHelpCard.resetForTest();
     EefCalendar.resetForTest();
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefSpaceEnabledOverride = null;
@@ -217,6 +240,28 @@ void main() {
       expect(rawTranslationKeysOnScreen(tester), isEmpty);
       expect(report.overflows, isEmpty);
       expect(find.textContaining('nouvelle_voie'), findsNothing);
+    });
+
+    testWidgets(
+        'une 1re année d\'accès santé dit « Accès santé » — une L.AS « L1 - Chimie » '
+        'trouvée par « médecine » doit dire pourquoi', (tester) async {
+      stub((_) async => _page([
+            _program('a',
+                name: 'L1 - Chimie',
+                institution: _university(),
+                procedureType: 'dap_blanche',
+                cycle: 'sante'),
+            _program('b',
+                name: 'L1 - Chimie',
+                institution: _university(),
+                procedureType: 'dap_blanche',
+                cycle: 'licence1'),
+          ]));
+      final report = await pump(tester);
+
+      expect(find.text('Accès santé'), findsOneWidget);
+      expect(rawTranslationKeysOnScreen(tester), isEmpty);
+      expect(report.overflows, isEmpty);
     });
 
     testWidgets('une procédure « hors procédure » est dite telle',
@@ -455,6 +500,338 @@ void main() {
     });
   });
 
+  // « Tu ne trouves pas ta formation ? » — la carte d'aide du catalogue. Au plus
+  // UNE carte pleine par écran ; la ligne de procédure n'apparaît que quand
+  // l'étudiant filtre sur une procédure qu'on confond.
+  group('aide à chaque étape floue', () {
+    const listQuestion = 'Tu hésites sur ta formation ?';
+    const listCta = "Démarrer l'étude de mon dossier sur WhatsApp";
+    const emptyQuestion = 'Tu ne trouves pas ta formation ?';
+    const unpublishedQuestion = 'Tu ne veux pas attendre ?';
+    const procedureQuestion =
+        'Pas sûr(e) de la procédure pour ces formations ?';
+    const askForHelp = "Demander de l'aide sur WhatsApp";
+    const neutralCta = 'Parler à un conseiller des autres options';
+    final openAFile = RegExp(
+      r'dossier|d[ée]marrer|campus\s*france',
+      caseSensitive: false,
+    );
+
+    void serveSuspension() {
+      EefCalendar.windowSource = () => const EefCampaignWindow(
+            suspendedCountries: ['Niger'],
+            suspendedSources: {
+              'niger': 'https://ne.diplomatie.gouv.fr/informations-visas',
+            },
+          );
+    }
+
+    /// Les facettes d'une procédure qu'on confond (Parcoursup) et d'une qui
+    /// ne l'est pas (Études en France).
+    Map<String, dynamic> procedureFacets() => <String, dynamic>{
+          'procedureType': [
+            {'value': 'parcoursup', 'count': 3},
+            {'value': 'eef', 'count': 9},
+          ],
+        };
+
+    String helpTexts(WidgetTester tester) => tester
+        .widgetList<Text>(find.descendant(
+          of: find.byType(EefHelpCard),
+          matching: find.byType(Text),
+        ))
+        .map((t) => t.data ?? '')
+        .join(' | ');
+
+    int fineprints(WidgetTester tester) =>
+        find.text('eef_help_fineprint'.tr).evaluate().length;
+
+    group('sous les résultats', () {
+      testWidgets('une carte, quand la liste est ENTIÈRE', (tester) async {
+        stub((_) async => _page([_program('a'), _program('b')]));
+        await pump(tester);
+        await scrollToEnd(tester);
+
+        expect(find.text(listQuestion), findsOneWidget);
+        expect(find.text(listCta), findsOneWidget);
+        expect(fineprints(tester), 1);
+        // Avant les mentions obligatoires, qui restent atteignables.
+        expect(find.text('eef_affiliation_notice'.tr), findsOneWidget);
+        expect(rawTranslationKeysOnScreen(tester), isEmpty);
+      });
+
+      testWidgets(
+          'le tap ouvre WhatsApp avec l\'étape « choix de ma formation »',
+          (tester) async {
+        stub((_) async => _page([_program('a')]));
+        await pump(tester);
+        await scrollToEnd(tester);
+
+        await tester.tap(find.text(listCta));
+        await tester.pumpAndSettle();
+
+        expect(launcher.launched, hasLength(1));
+        expect(Uri.parse(launcher.launched.single).host, 'wa.me');
+        expect(launcher.lastText, frHelpPrefill('choix de ma formation'));
+        expect(helpAnalytics.tappedCalls,
+            [const RecordedHelpEvent('catalog_results', 'catalog', 'card')]);
+      });
+
+      // Tant qu'il reste des pages, le défilement la repousserait à chaque
+      // chargement : elle n'apparaîtrait qu'une demi-seconde.
+      testWidgets('PAS tant qu\'il reste des pages à charger', (tester) async {
+        final secondPage = Completer<Map<String, dynamic>>();
+        stub((invocation) async {
+          final cursor = invocation.namedArguments[#cursor] as String?;
+          if (cursor == null) {
+            return _page(
+              [for (var i = 0; i < 12; i++) _program('p$i', name: 'F $i')],
+              total: 14,
+              hasMore: true,
+              nextCursor: 'c1',
+            );
+          }
+          return secondPage.future;
+        });
+        await pump(tester);
+
+        // Pas `scrollToEnd` : la page suivante charge, et son indicateur tourne
+        // sans fin — `pumpAndSettle` ne converge pas. On défile à la main.
+        await tester.drag(find.byType(ListView).last, const Offset(0, -6000));
+        for (var i = 0; i < 5; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+        expect(find.byType(CircularProgressIndicator), findsOneWidget,
+            reason: 'la page suivante est bien en cours de chargement');
+        expect(find.text(listQuestion), findsNothing,
+            reason: 'la liste n\'est pas entière : la page suivante charge');
+        expect(helpAnalytics.shownCalls, isEmpty);
+
+        secondPage.complete(_page(
+          [_program('p12', name: 'F 12'), _program('p13', name: 'F 13')],
+          total: 14,
+        ));
+        await settleBounded(tester);
+        await scrollToEnd(tester);
+
+        expect(find.text(listQuestion), findsOneWidget);
+        expect(fineprints(tester), 1);
+      });
+
+      testWidgets('un échec de page suivante ne la montre pas non plus',
+          (tester) async {
+        stub((invocation) async {
+          final cursor = invocation.namedArguments[#cursor] as String?;
+          if (cursor == null) {
+            return _page(
+              [for (var i = 0; i < 12; i++) _program('p$i', name: 'F $i')],
+              total: 14,
+              hasMore: true,
+              nextCursor: 'c1',
+            );
+          }
+          throw _dio(DioExceptionType.connectionError);
+        });
+        await pump(tester);
+        await scrollToEnd(tester);
+
+        expect(find.text('Impossible de charger la suite.'), findsOneWidget);
+        expect(find.text(listQuestion), findsNothing);
+      });
+    });
+
+    group('aucun résultat', () {
+      testWidgets('« Tu ne trouves pas ta formation ? » — une carte, pas deux',
+          (tester) async {
+        stub((_) async => _page([], catalogPublished: true));
+        await pump(tester);
+
+        expect(find.text('Aucune formation ne correspond'), findsOneWidget);
+        expect(find.text(emptyQuestion), findsOneWidget);
+        expect(
+            find.text('Un conseiller KPB peut chercher avec toi, à partir '
+                'de ton profil et de ton projet.'),
+            findsOneWidget);
+        expect(fineprints(tester), 1);
+        // Le geste de la recherche reste là, et distinct de l'aide.
+        expect(find.text('Tout effacer'), findsOneWidget);
+        // Ni la carte de « sous les résultats », ni celle du catalogue vide.
+        expect(find.text(listQuestion), findsNothing);
+        expect(find.text(unpublishedQuestion), findsNothing);
+        expect(find.byType(EefHelpCard), findsOneWidget);
+      });
+
+      testWidgets('le tap nomme l\'étape « recherche sans résultat »',
+          (tester) async {
+        stub((_) async => _page([], catalogPublished: true));
+        await pump(tester);
+
+        await tester.tap(find.text(askForHelp));
+        await tester.pumpAndSettle();
+
+        expect(launcher.lastText,
+            frHelpPrefill('recherche de formation sans résultat'));
+        expect(helpAnalytics.shownCalls,
+            [const RecordedHelpEvent('catalog_empty', 'catalog', 'card')]);
+      });
+    });
+
+    group('catalogue non publié', () {
+      testWidgets(
+          'le texte renvoie à un conseiller : la carte en donne le moyen',
+          (tester) async {
+        stub((_) async => _page([], catalogPublished: false));
+        await pump(tester);
+
+        expect(find.text('Le catalogue arrive'), findsOneWidget);
+        expect(find.text(unpublishedQuestion), findsOneWidget);
+        expect(fineprints(tester), 1);
+        // Ce n'est pas une recherche trop étroite.
+        expect(find.text(emptyQuestion), findsNothing);
+        expect(find.text('Tout effacer'), findsNothing);
+
+        await tester.tap(find.text(askForHelp));
+        await tester.pumpAndSettle();
+        expect(launcher.lastText,
+            frHelpPrefill('catalogue pas encore disponible'));
+      });
+    });
+
+    group('procédure qu\'on confond', () {
+      testWidgets(
+          'filtrer sur Parcoursup montre la ligne ; Études en France non',
+          (tester) async {
+        stub((_) async => _page([_program('a')], facets: procedureFacets()));
+        await pump(tester);
+        // Aucun filtre : pas de ligne permanente.
+        expect(find.text(procedureQuestion), findsNothing);
+
+        await tester.tap(find.text('Parcoursup · 3'));
+        await settleBounded(tester);
+        expect(find.text(procedureQuestion), findsOneWidget);
+        expect(find.text(askForHelp), findsOneWidget);
+
+        // On retire Parcoursup et on prend la procédure qu'on ne confond pas.
+        await tester.tap(find.text('Parcoursup · 3'));
+        await settleBounded(tester);
+        await tester.tap(find.text('Études en France · 9'));
+        await settleBounded(tester);
+        expect(find.text(procedureQuestion), findsNothing);
+      });
+
+      testWidgets(
+          'le tap sur la ligne nomme l\'étape « procédure d\'une formation »',
+          (tester) async {
+        stub((_) async => _page([_program('a')], facets: procedureFacets()));
+        await pump(tester);
+        await tester.tap(find.text('Parcoursup · 3'));
+        await settleBounded(tester);
+
+        await tester.tap(find.text(askForHelp));
+        await tester.pumpAndSettle();
+
+        expect(launcher.lastText, frHelpPrefill("procédure d'une formation"));
+        expect(helpAnalytics.tappedCalls, [
+          const RecordedHelpEvent('catalog_procedure', 'catalog', 'compact')
+        ]);
+      });
+
+      testWidgets('une procédure INCONNUE sur une carte déclenche la ligne',
+          (tester) async {
+        stub((_) async => _page([
+              _program('a', procedureType: 'nouvelle_voie'),
+            ]));
+        await pump(tester);
+
+        expect(find.text(procedureQuestion), findsOneWidget);
+      });
+
+      testWidgets('des procédures toutes connues et non confondues : rien',
+          (tester) async {
+        stub((_) async => _page([
+              _program('a', procedureType: 'eef'),
+              _program('b', procedureType: 'dap_blanche'),
+            ]));
+        await pump(tester);
+
+        // Pas de ligne permanente : elle ne sert que là où l'on confond.
+        expect(find.text(procedureQuestion), findsNothing);
+      });
+    });
+
+    testWidgets(
+        'au plus UNE carte pleine, même avec la ligne de procédure et la liste '
+        'entière', (tester) async {
+      stub((_) async => _page([_program('a')], facets: procedureFacets()));
+      // Un écran assez haut pour que TOUT soit construit et visible d'un coup :
+      // c'est le pire cas pour « au plus une carte ».
+      await pump(tester, viewport: _tall);
+      await tester.tap(find.text('Parcoursup · 3'));
+      await settleBounded(tester);
+
+      // La ligne de procédure (compacte) + la carte du bas (pleine).
+      expect(find.byType(EefHelpCard), findsNWidgets(2));
+      expect(find.text(procedureQuestion), findsOneWidget);
+      expect(find.text(listQuestion), findsOneWidget);
+      expect(fineprints(tester), 1,
+          reason: 'une seule carte pleine (donc une seule mention)');
+      expect(helpAnalytics.shownSteps,
+          containsAll(['catalog_procedure', 'catalog_results']));
+    });
+
+    group('pays suspendu (Niger)', () {
+      testWidgets('aucun résultat : libellé neutre, message neutre',
+          (tester) async {
+        serveSuspension();
+        stub((_) async => _page([], catalogPublished: true));
+        // Le bandeau de suspension pousse la carte sous le pli : écran haut.
+        await pump(tester, country: 'Niger', viewport: _tall);
+
+        expect(find.text(neutralCta), findsOneWidget);
+        expect(find.text(emptyQuestion), findsNothing);
+        expect(find.text(askForHelp), findsNothing);
+        final texts = helpTexts(tester);
+        expect(openAFile.hasMatch(texts), isFalse, reason: texts);
+
+        await tester.tap(find.text(neutralCta));
+        await tester.pumpAndSettle();
+        expect(launcher.lastText,
+            frSuspendedHelpPrefill('recherche de formation sans résultat'));
+        expect(openAFile.hasMatch(launcher.lastText), isFalse);
+      });
+
+      testWidgets('catalogue non publié : neutre aussi', (tester) async {
+        serveSuspension();
+        stub((_) async => _page([], catalogPublished: false));
+        await pump(tester, country: 'Niger', viewport: _tall);
+
+        expect(find.text(neutralCta), findsOneWidget);
+        expect(find.text(unpublishedQuestion), findsNothing);
+      });
+
+      testWidgets(
+          'liste : la ligne de procédure disparaît, la carte du bas est neutre',
+          (tester) async {
+        serveSuspension();
+        stub((_) async => _page([_program('a')], facets: procedureFacets()));
+        await pump(tester, country: 'Niger');
+        await tester.tap(find.text('Parcoursup · 3'));
+        await settleBounded(tester);
+        await scrollToEnd(tester);
+
+        expect(find.text(procedureQuestion), findsNothing);
+        expect(find.text(listQuestion), findsNothing);
+        expect(find.text(listCta), findsNothing);
+        expect(find.text(neutralCta), findsOneWidget);
+        expect(fineprints(tester), 1);
+        final texts = helpTexts(tester);
+        expect(openAFile.hasMatch(texts), isFalse, reason: texts);
+        // Une carte invisible n'est pas « vue ».
+        expect(helpAnalytics.shownSteps, ['catalog_results']);
+      });
+    });
+  });
+
   group('géométrie', () {
     for (final viewport in kpbPhoneViewports) {
       for (final scale in kpbTextScales) {
@@ -512,6 +889,77 @@ void main() {
       expect(report.overflows, isEmpty, reason: report.toString());
       expect(truncatedTexts(tester), isEmpty);
     });
+
+    // Les cartes d'aide EN SITUATION : le test de la carte seule ne dit rien du
+    // retrait de la liste ni du bandeau de suspension. L'écran est assez haut
+    // pour que la carte soit construite — sous le pli, elle ne serait pas mesurée.
+    for (final scale in kpbTextScales) {
+      for (final country in ['Sénégal', 'Niger']) {
+        testWidgets('cartes d\'aide en situation, 360 ×$scale — $country',
+            (tester) async {
+          EefCalendar.windowSource = () => const EefCampaignWindow(
+                suspendedCountries: ['Niger'],
+                suspendedSources: {
+                  'niger': 'https://ne.diplomatie.gouv.fr/informations-visas',
+                },
+              );
+          const tall360 = KpbViewport(
+            id: 'tall360',
+            name: 'Écran haut 360×2600',
+            size: Size(360, 2600),
+            padding: EdgeInsets.zero,
+          );
+
+          // Aucun résultat.
+          stub((_) async => _page([], catalogPublished: true));
+          var report = await pump(
+            tester,
+            country: country,
+            viewport: tall360,
+            textScale: scale,
+          );
+          expect(find.byType(EefHelpCard), findsOneWidget);
+          expect(report.overflows, isEmpty, reason: report.toString());
+          expect(report.otherErrors, isEmpty, reason: report.toString());
+          expect(truncatedTexts(tester), isEmpty);
+          expect(rawTranslationKeysOnScreen(tester), isEmpty);
+
+          // Pas publié.
+          stub((_) async => _page([], catalogPublished: false));
+          report = await pump(
+            tester,
+            country: country,
+            viewport: tall360,
+            textScale: scale,
+          );
+          expect(find.byType(EefHelpCard), findsOneWidget);
+          expect(report.overflows, isEmpty, reason: report.toString());
+          expect(truncatedTexts(tester), isEmpty);
+
+          // Liste entière, procédure filtrée : la ligne ET la carte du bas.
+          stub((_) async => _page(
+                [_program('a', institution: _university())],
+                facets: <String, dynamic>{
+                  'procedureType': [
+                    {'value': 'parcoursup', 'count': 3},
+                  ],
+                },
+              ));
+          report = await pump(
+            tester,
+            country: country,
+            viewport: tall360,
+            textScale: scale,
+          );
+          await tester.tap(find.text('Parcoursup · 3'));
+          await settleBounded(tester);
+          expect(find.byType(EefHelpCard), findsWidgets);
+          expect(report.overflows, isEmpty, reason: report.toString());
+          expect(truncatedTexts(tester), isEmpty);
+          expect(rawTranslationKeysOnScreen(tester), isEmpty);
+        });
+      }
+    }
   });
 
   // ── Défauts trouvés par la relecture indépendante ─────────────────────────

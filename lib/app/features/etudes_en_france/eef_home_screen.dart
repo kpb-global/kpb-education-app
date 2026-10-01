@@ -8,11 +8,11 @@ import '../../core/data/eef_calendar.dart';
 import '../../core/navigation/app_boot_screen.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/ui/kpb_components.dart';
-import '../../core/utils/whatsapp_utils.dart';
 import '../ai_advisor/ai_consent.dart';
 import '../tools/cv_generator_screen.dart';
 import '../tools/interview_simulator_screen.dart';
 import '../tools/motivation_letters_screen.dart';
+import 'eef_help_card.dart';
 import 'eef_interest_controller.dart';
 import 'eef_interest_sheet.dart';
 import 'eef_official_links.dart';
@@ -89,15 +89,6 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
     openAiToolIfConsented(context, page);
   }
 
-  void _talkToAdvisor() {
-    _track('conseiller');
-    openWhatsAppOrToast(
-      prefill: kpbWhatsAppPrefill(custom: 'eef_hub_whatsapp_prefill'.tr),
-      source: 'eef_home',
-      contextType: 'eef_hub',
-    );
-  }
-
   Future<void> _declare() async {
     _track('profil');
     await showEefInterestSheet(context, controller: _interest);
@@ -170,6 +161,10 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
           ),
           children: [
             _Hero(country: country),
+            // Où et quand la candidature se dépose : elle se dépose auprès des
+            // services officiels, pas ici. Une ligne, qui s'efface d'elle-même
+            // pour un pays suspendu.
+            const EefHelpCard(step: EefHelpStep.procedure),
             const SizedBox(height: KpbSpacing.lg),
             _HubTile(
               icon: Icons.travel_explore_rounded,
@@ -179,6 +174,13 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
               emphasized: true,
               onTap: _openCatalog,
             ),
+            // LA carte d'aide : le seul endroit du hub où l'incitation prend
+            // toute la place. Elle REMPLACE l'ancienne tuile « Parler à un
+            // conseiller », qui menait au même WhatsApp : deux invitations vers
+            // la même conversation, c'est une de trop. Elle suit « Trouver ma
+            // formation » parce que c'est l'étape où l'on hésite.
+            const SizedBox(height: KpbSpacing.lg),
+            const EefHelpCard(step: EefHelpStep.hub),
             // Les trois outils IA suivent le même masque que la boîte à outils
             // (`AppConfig.aiToolsEnabled`) : deux portes, une règle.
             if (AppConfig.aiToolsEnabled) ...[
@@ -214,6 +216,9 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
                   () => const InterviewSimulatorScreen(),
                 ),
               ),
+              // Les pièces du dossier : la section n'existe que si les outils
+              // sont démasqués, le lien d'aide aussi.
+              const EefHelpCard(step: EefHelpStep.documents),
             ],
             const SizedBox(height: KpbSpacing.lg),
             _ProfileBlock(
@@ -223,14 +228,6 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
               onEdit: _edit,
               onWithdraw: _confirmWithdraw,
               onSignUp: _convertGuest,
-            ),
-            const SizedBox(height: KpbSpacing.lg),
-            _HubTile(
-              icon: Icons.support_agent_rounded,
-              color: KpbColors.actionPrimary,
-              title: 'eef_hub_advisor_title'.tr,
-              subtitle: 'eef_hub_advisor_body'.tr,
-              onTap: _talkToAdvisor,
             ),
             const SizedBox(height: KpbSpacing.lg),
             const EefAffiliationNotice(),

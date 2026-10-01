@@ -50,6 +50,9 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
   /// Un mot entier, alphanumérique, propre à cette exécution.
   const tok = `zz${sfx}`;
   const acr = `acr${sfx}`;
+  /// Le jeton de l'établissement « santé », distinct de `tok` : ses formations ne
+  /// doivent pas entrer dans les listes exactes que les autres blocs attendent.
+  const tokS = `yy${sfx}`;
 
   const ids = {
     instA: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-a`,
@@ -60,9 +63,16 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
     p3: `${EEF_PROGRAM_ID_PREFIX}${sfx}-p3`,
     p4: `${EEF_PROGRAM_ID_PREFIX}${sfx}-p4`,
     p5: `${EEF_PROGRAM_ID_PREFIX}${sfx}-p5`,
+    instS: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-s`,
+    /// Une L.AS : « L1 - Chimie » en accès santé. Son intitulé ne dit rien de la santé.
+    las: `${EEF_PROGRAM_ID_PREFIX}${sfx}-las`,
+    /// La même « L1 - Chimie », sans accès santé.
+    chimie: `${EEF_PROGRAM_ID_PREFIX}${sfx}-chim`,
+    /// Un PASS, dont l'intitulé porte « Santé » et « PASS ».
+    pass: `${EEF_PROGRAM_ID_PREFIX}${sfx}-pass`,
   };
-  const institutionIds = [ids.instA, ids.instB, ids.instPending];
-  const programIds = [ids.p1, ids.p2, ids.p3, ids.p4, ids.p5];
+  const institutionIds = [ids.instA, ids.instB, ids.instPending, ids.instS];
+  const programIds = [ids.p1, ids.p2, ids.p3, ids.p4, ids.p5, ids.las, ids.chimie, ids.pass];
 
   const prismaService = {
     isEnabled: true,
@@ -204,6 +214,10 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
           nameFr: `Université Pending ${tok}p`,
           isActive: false,
         }),
+        institution(ids.instS, {
+          nameFr: `Université Gamma ${tokS}`,
+          isActive: true,
+        }),
       ],
     });
 
@@ -229,6 +243,21 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
         program(ids.p5, ids.instPending, 'L1 - Droit', 'Rennes', {
           cycle: 'licence1',
           searchText: programSearchText('L1 - Droit', 'Rennes'),
+        }),
+        program(ids.las, ids.instS, 'L1 - Chimie', 'Tours', {
+          cycle: 'sante',
+          procedureType: 'dap_blanche',
+          searchText: programSearchText('L1 - Chimie', 'Tours'),
+        }),
+        program(ids.chimie, ids.instS, 'L1 - Chimie', 'Tours', {
+          cycle: 'licence1',
+          procedureType: 'dap_blanche',
+          searchText: programSearchText('L1 - Chimie', 'Tours'),
+        }),
+        program(ids.pass, ids.instS, "L1 - Parcours d'Accès Spécifique Santé (PASS)", 'Tours', {
+          cycle: 'sante',
+          procedureType: 'dap_blanche',
+          searchText: programSearchText("L1 - Parcours d'Accès Spécifique Santé (PASS)", 'Tours'),
         }),
       ],
     });
@@ -321,6 +350,40 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
       expect(await served(`${tok} licence de droit`)).toEqual(
         await served(`${tok} licence droit`),
       );
+    });
+  });
+
+  describe('par les mots des études de santé', () => {
+    // Aucun intitulé du catalogue ne contient « médecine » : on y entre par un PASS
+    // ou une L.AS (« L1 - Chimie » en accès santé). Mesuré en production le
+    // 01/10/2026 : `q=medecine` rendait 0 résultat sur 650 formations de santé.
+    it('« médecine » trouve le PASS et la L.AS, pas la même licence sans accès santé', async () => {
+      expect(await served(`${tokS} medecine`)).toEqual(sorted(ids.las, ids.pass));
+      expect(await served(`${tokS} médecine`)).toEqual(sorted(ids.las, ids.pass));
+      expect(await served(`${tokS} Médecine`)).toEqual(sorted(ids.las, ids.pass));
+    });
+
+    it.each(['pharmacie', 'kine', 'maieutique', 'dentaire', 'pass', 'las', 'health'])(
+      '« %s » désigne l’accès santé',
+      async (word) => {
+        expect(await served(`${tokS} ${word}`)).toEqual(sorted(ids.las, ids.pass));
+      },
+    );
+
+    it('« chimie » trouve les deux licences : le synonyme n’ôte rien au texte', async () => {
+      expect(await served(`${tokS} chimie`)).toEqual(sorted(ids.las, ids.chimie));
+    });
+
+    it('« médecine chimie » trouve la seule L.AS de chimie : chaque mot resserre', async () => {
+      expect(await served(`${tokS} medecine chimie`)).toEqual([ids.las]);
+    });
+
+    it('« licence » ne désigne pas l’accès santé', async () => {
+      expect(await served(`${tokS} licence`)).toEqual([ids.chimie]);
+    });
+
+    it('un mot sans rapport ne trouve toujours rien', async () => {
+      expect(await served(`${tokS} droit`)).toEqual([]);
     });
   });
 

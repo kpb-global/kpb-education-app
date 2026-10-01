@@ -92,9 +92,21 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 - Parents et partenaires arrivés par lien : « un espace pour les étudiants » (pas
   un 403 traduit en « reconnecte-toi »). Invité : catalogue public, invitation à
   créer un compte pour le profil.
+- Aide à chaque étape floue (`EefHelpCard`) : une carte « C'est flou ? Tu veux de
+  l'aide ? » dans le hub (elle **remplace** la tuile « Parler à un conseiller »),
+  deux lignes (procédure/dates/dépôt sous le héros, documents sous les outils) et,
+  dans le catalogue, sous les résultats, dans « aucun résultat », dans « le
+  catalogue arrive » et — au-dessus des résultats — quand on filtre sur une
+  procédure qu'on confond (dossier jaune, Parcoursup, hors procédure). Le bouton
+  ouvre WhatsApp (`openWhatsAppOrToast`, le chemin commun) avec un message
+  prérempli FR/EN qui **nomme l'étape et ne contient aucune donnée personnelle**.
+  Pays suspendu (Niger) : jeu de textes **neutre** (« autres options »), jamais
+  « démarre l'étude de ton dossier ». Aucune promesse d'admission ni de visa,
+  aucun prix.
 - Mesure : `eef_space_viewed`, `eef_hub_tile_opened`, `eef_catalog_viewed`,
-  `eef_catalog_searched`, `eef_catalog_failed` — des comptes, **jamais le texte
-  tapé** (`docs/analytics-event-contract.md`).
+  `eef_catalog_searched`, `eef_catalog_failed`, `eef_help_card_shown`,
+  `eef_help_cta_tapped` — des comptes et des identifiants fermés, **jamais le
+  texte tapé** (`docs/analytics-event-contract.md`).
 
 **2. Le socle qui rend les builds suivantes pilotables.**
 - **En-têtes `X-KPB-App-Version` / `X-KPB-App-Build`** sur chaque requête (CAT-03) :
