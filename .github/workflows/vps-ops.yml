@@ -12,10 +12,14 @@ name: VPS ops (feature flag / catalogue)
 # ── CE QUE CE WORKFLOW N'EST PAS ────────────────────────────────────────────
 #
 # Ce n'est PAS un exécuteur de commandes. Il n'accepte aucune commande, aucun
-# nom de variable, aucune valeur libre. `action` est une liste fermée
-# d'opérations écrites ici, en clair, relisibles en revue. Un workflow qui prendrait
-# une commande en entrée aurait transformé un secret de déploiement en shell
-# distant pour quiconque peut cliquer sur « Run workflow ».
+# nom de variable. `action` est une liste fermée d'opérations écrites ici, en clair,
+# relisibles en revue. Un workflow qui prendrait une commande en entrée aurait
+# transformé un secret de déploiement en shell distant pour quiconque peut cliquer
+# sur « Run workflow ».
+#
+# Les seules valeurs libres sont les trois d'`eef-publish` (une adresse, un entier,
+# un identifiant d'établissement), bornées par une expression régulière sur la valeur
+# entière avant d'atteindre le serveur, puis une seconde fois par le script.
 #
 # Les seules clés que les branches `eef-*` écrivent dans le `.env` sont les
 # `KPB_EEF_*` (vitrine, espace, fenêtre de campagne) et `KPB_RECOMMENDED_APP_VERSION`
@@ -74,12 +78,35 @@ on:
           - backfill-seed-institutions
           - eef-import
           - eef-purge-pending
+          - eef-publish
           - reviews-purge-orphans
       dry_run:
-        description: 'Simuler seulement (eef-space-on, eef-campaign-set, recommended-version-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, reviews-purge-orphans). Décocher pour appliquer.'
+        description: 'Simuler seulement (eef-space-on, eef-campaign-set, recommended-version-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, eef-publish, reviews-purge-orphans). Décocher pour appliquer.'
         type: boolean
         required: false
         default: true
+      # ── Réservés à `eef-publish` ────────────────────────────────────────────
+      # Ce ne sont PAS des commandes : trois valeurs bornées par une expression
+      # régulière AVANT d'atteindre le VPS (voir « Exécuter l'opération »), et
+      # relues par le script, qui les valide une seconde fois. L'e-mail ne désigne
+      # pas qui exécute : il désigne un compte administrateur EXISTANT, actif,
+      # `admin` ou `super_admin`, que le script retrouve en base — et la personne qui
+      # a cliqué (`github.actor`) est inscrite à côté, dans le tampon et l'audit.
+      verifier_email:
+        description: 'eef-publish : e-mail du compte administrateur qui signe la publication (vide = l’unique super_admin actif).'
+        type: string
+        required: false
+        default: ''
+      expected_programs:
+        description: 'eef-publish, application seulement : le total « TOTAL publiable » annoncé par la simulation. Un autre nombre, et rien n’est écrit.'
+        type: string
+        required: false
+        default: ''
+      institution_id:
+        description: 'eef-publish : limiter à UN établissement (eef-univ-…), pour un essai. Vide = tous.'
+        type: string
+        required: false
+        default: ''
 
 # Groupe PARTAGÉ avec `deploy.yml` (`deploy-vps`), pas un groupe à nous.
 #
@@ -163,12 +190,47 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run }}
           EXPECTED_ONESIGNAL_APP_ID: ${{ steps.onesignal.outputs.app_id }}
           EXPECTED_LLM_PROVIDER: ${{ steps.llm.outputs.declared }}
+          EEF_VERIFIER_EMAIL: ${{ inputs.verifier_email }}
+          EEF_EXPECTED_PROGRAMS: ${{ inputs.expected_programs }}
+          EEF_INSTITUTION_ID: ${{ inputs.institution_id }}
+          EEF_ACTOR: ${{ github.actor }}
         run: |
           set -euo pipefail
+          # Les valeurs libres d'`eef-publish` sont bornées ICI, avant de composer la
+          # ligne de commande envoyée au VPS : une adresse, un entier, un identifiant
+          # d'établissement, un nom d'utilisateur GitHub. Rien d'autre ne passe.
+          # `[[ =~ ]]` teste la valeur ENTIÈRE : `grep` ne teste que ses lignes, et une
+          # valeur « adresse valide + retour à la ligne + commande » l'aurait franchi.
+          bounded() { # nom valeur motif
+            if [ -n "$2" ] && ! [[ "$2" =~ $3 ]]; then
+              echo "::error::$1 n'a pas la forme attendue — refus avant d'atteindre le serveur."
+              exit 1
+            fi
+          }
+          bounded verifier_email "$EEF_VERIFIER_EMAIL" '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+          bounded expected_programs "$EEF_EXPECTED_PROGRAMS" '^[0-9]{1,6}$'
+          bounded institution_id "$EEF_INSTITUTION_ID" '^eef-univ-[A-Za-z0-9-]{1,60}$'
+          bounded github.actor "$EEF_ACTOR" '^[A-Za-z0-9][A-Za-z0-9-]{0,38}(\[bot\])?$'
           scp -i ~/.ssh/deploy_key -o BatchMode=yes \
             .github/scripts/vps-ops.sh "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/vps-ops.sh"
           ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
-            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' EXPECTED_ONESIGNAL_APP_ID='${EXPECTED_ONESIGNAL_APP_ID}' EXPECTED_LLM_PROVIDER='${EXPECTED_LLM_PROVIDER}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
+            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' EXPECTED_ONESIGNAL_APP_ID='${EXPECTED_ONESIGNAL_APP_ID}' EXPECTED_LLM_PROVIDER='${EXPECTED_LLM_PROVIDER}' EEF_VERIFIER_EMAIL='${EEF_VERIFIER_EMAIL}' EEF_EXPECTED_PROGRAMS='${EEF_EXPECTED_PROGRAMS}' EEF_INSTITUTION_ID='${EEF_INSTITUTION_ID}' EEF_ACTOR='${EEF_ACTOR}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
+
+      # Ce que l'app lira vraiment, depuis l'extérieur : la recherche « Études en
+      # France » reflète la publication, et le catalogue GÉNÉRAL (celui des autres
+      # espaces) n'a pas bougé d'une ligne — c'est la promesse « ces formations
+      # n'apparaissent que dans l'espace Études en France ».
+      - name: Prouver l'isolation (catalogue général inchangé, recherche Études en France)
+        if: ${{ always() && inputs.action == 'eef-publish' }}
+        env:
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+        run: |
+          set -euo pipefail
+          for path in "catalog/institutions" "catalog/programs" "etudes-en-france/search?limit=1"; do
+            printf '%-34s ' "$path"
+            curl -fsS "${HEALTH_URL}/api/${path}" \
+              | python3 -c 'import json,sys; d=json.load(sys.stdin); print({k: d.get(k) for k in ("total","catalogPublished") if k in d})'
+          done
 
       - name: Vérifier depuis l'extérieur ce que le serveur annonce vraiment
         if: ${{ always() && inputs.action != 'publish-catalog' }}

@@ -40,6 +40,8 @@
     "eef:backfill:search": "ts-node --transpile-only scripts/backfill-eef-search-text.ts --apply",
     "eef:backfill": "ts-node --transpile-only scripts/backfill-eef-enrichment.ts",
     "eef:purge-pending": "ts-node --transpile-only scripts/purge-eef-pending.ts",
+    "eef:publish": "ts-node --transpile-only scripts/publish-eef-catalog.ts",
+    "eef:check-sources": "ts-node --transpile-only scripts/check-eef-source-pages.ts",
     "scholarships:validate:structure": "ts-node scripts/validate-scholarship-catalog.ts --structure-only",
     "scholarships:validate:merge-gate": "ts-node scripts/validate-scholarship-catalog.ts --structure-only --ignore-clock",
     "verify:scholarships": "ts-node scripts/validate-scholarship-catalog.ts",
