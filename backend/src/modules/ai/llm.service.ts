@@ -18,6 +18,7 @@ type ProviderConfig = {
 type ProviderChatResponse = {
   id?: string;
   choices?: Array<{
+    finish_reason?: string | null;
     message?: { content?: string; refusal?: string | null };
     delta?: { content?: string };
   }>;
@@ -134,6 +135,25 @@ export class LlmService {
       : {};
   }
 
+  /**
+   * deepseek-v4-flash is a hybrid model: some OpenRouter endpoints serve it in
+   * thinking mode unless told otherwise. Measured on prod (26/09/2026, letter
+   * personalisation, 15 requests): on the Relace and OpenInference endpoints
+   * the model spent the WHOLE 1500-token budget on hidden reasoning
+   * (`finish_reason: length`, no JSON) or hit the 18 s abort — 9 requests out
+   * of 15 silently came back as the untouched template, some after 36–49 s.
+   * With `reasoning.enabled: false`, 9/9 runs stopped normally with 0
+   * reasoning tokens. `LLM_REASONING_ENABLED=true` restores the provider
+   * default if a future model needs it.
+   */
+  private reasoningPolicy(name: LlmProviderName): Record<string, unknown> {
+    if (name !== 'openrouter') return {};
+    if (process.env.LLM_REASONING_ENABLED?.trim().toLowerCase() === 'true') {
+      return {};
+    }
+    return { reasoning: { enabled: false } };
+  }
+
   /// Per-request upper bound so a stalled provider connection can never hang
   /// the SSE response (or a JSON call) indefinitely. Configurable via env.
   private get timeoutMs(): number {
@@ -148,9 +168,10 @@ export class LlmService {
   private async fetchWithTimeout(
     url: string,
     init: RequestInit,
+    timeoutMs: number = this.timeoutMs,
   ): Promise<Response> {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       return await fetch(url, { ...init, signal: controller.signal });
     } finally {
@@ -163,6 +184,10 @@ export class LlmService {
     user: string;
     maxTokens?: number;
     fallback: T;
+    /// Per-attempt provider timeout for long generations (the env default
+    /// fits short answers). Up to two attempts run, so the caller's HTTP
+    /// client must wait at least twice this long.
+    timeoutMs?: number;
   }): Promise<{ data: T; model: string }> {
     const config = this.provider;
     if (!config) {
@@ -175,6 +200,7 @@ export class LlmService {
       temperature: 0.4,
       response_format: { type: 'json_object' },
       ...this.routingPolicy(config.name),
+      ...this.reasoningPolicy(config.name),
       messages: [
         {
           role: 'system',
@@ -195,7 +221,7 @@ export class LlmService {
             authorization: `Bearer ${config.apiKey}`,
           },
           body,
-        });
+        }, params.timeoutMs);
 
         if (!response.ok) {
           // Drain the provider response but never log it: error bodies can
@@ -209,6 +235,15 @@ export class LlmService {
         }
 
         const payload = (await response.json()) as ProviderChatResponse;
+        if (payload.choices?.[0]?.finish_reason === 'length') {
+          // Truncated at max_tokens: the JSON is incomplete (or was never
+          // started, when the budget went to reasoning). This used to degrade
+          // to the fallback without a trace.
+          this.logger.warn(
+            `${config.name} response truncated at max_tokens (attempt ${attempt + 1}, completion_tokens=${payload.usage?.completion_tokens ?? '?'}).`,
+          );
+          return { data: params.fallback, model: 'local-fallback' };
+        }
         const text = payload.choices?.[0]?.message?.content ?? '';
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {

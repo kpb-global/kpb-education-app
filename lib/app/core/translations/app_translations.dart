@@ -1031,6 +1031,8 @@ class AppTranslations extends Translations {
               'Erreur IA — vérifiez votre connexion',
           'tools_ai_error_unavailable':
               'Le service IA est momentanément indisponible. Réessaie dans un instant.',
+          'tools_ai_error_slow':
+              'La génération prend plus de temps que prévu. Réessaie dans un instant.',
           'tools_ai_error_rate_limited':
               'Trop de demandes d\'affilée. Réessaie dans une minute.',
           'tools_ai_error_signin_required':
@@ -4295,6 +4297,8 @@ class AppTranslations extends Translations {
           'tools_ai_error_check_connection': 'AI error — check your connection',
           'tools_ai_error_unavailable':
               'The AI service is temporarily unavailable. Please try again shortly.',
+          'tools_ai_error_slow':
+              'Generation is taking longer than expected. Please try again shortly.',
           'tools_ai_error_rate_limited':
               'Too many requests. Try again in a minute.',
           'tools_ai_error_signin_required':

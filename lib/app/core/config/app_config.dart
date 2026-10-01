@@ -38,6 +38,18 @@ class AppConfig {
     defaultValue: 15,
   );
 
+  /// Receive timeout for AI generation calls (`/tools/*`, `/document-review`,
+  /// `/orientation/submit`, Success Lab diagnostic). [requestTimeoutInSeconds]
+  /// fits ordinary calls; generations do not. Measured on prod (26/09/2026):
+  /// a FR+EN letter takes 5–19 s per provider attempt, and the backend may
+  /// make two attempts (40 s each for letters) before answering. At 15 s the
+  /// app gave up on requests the server was still completing successfully and
+  /// told the student to check their connection.
+  static const aiRequestTimeoutInSeconds = int.fromEnvironment(
+    'KPB_AI_REQUEST_TIMEOUT',
+    defaultValue: 90,
+  );
+
   /// Main KPB WhatsApp line (E.164 digits, with or without leading +).
   /// Defaults to the KPB advisor line so the "Discuter avec un conseiller" CTAs
   /// reach a real person even when no --dart-define is passed; override per

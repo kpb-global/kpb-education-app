@@ -47,8 +47,12 @@ String aiErrorMessage(Object error) {
     case DioExceptionType.connectionError:
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.sendTimeout:
-    case DioExceptionType.receiveTimeout:
       return fallback.tr;
+    // The request reached the server and the wait is for the GENERATION:
+    // blaming the student's connection was false (measured 26/09/2026 — the
+    // API answered, the model was slow).
+    case DioExceptionType.receiveTimeout:
+      return trOr('tools_ai_error_slow');
     default:
       break;
   }

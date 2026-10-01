@@ -189,7 +189,7 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
       // `https://api.kpbeducation.cloud/apitools/cv-summary`, i.e. a 404 on
       // every single tap. The coach chat never hit this because it calls
       // '/coach/…' with the slash.
-      final result = await _ctrl.apiClient.post('/tools/cv-summary', {
+      final result = await _ctrl.apiClient.postAi('/tools/cv-summary', {
         'name': _nameCtrl.text.trim(),
         'studyLevel': _levelCtrl.text.trim(),
         'fieldOfStudy': _fieldCtrl.text.trim(),
