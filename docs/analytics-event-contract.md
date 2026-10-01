@@ -63,6 +63,19 @@ Single source of truth for **custom event names** and **parameter keys** is [`li
 
 Funnel steps: `sign_up` → `onboarding_step_viewed` (step 1) → … → `onboarding_step_viewed` (step N) → `onboarding_completed`. The drop between consecutive `step` values localizes where onboarding leaks; split by `account_type` to compare student / parent / partner. `onboarding_skipped` (by `step`) shows where users bail via Skip, and `auth_failed` split by `method` shows whether email OTP or Google loses people **before** signup — the evidence that gates the deferred phone-OTP decision (KPB-158 → KPB-172 review).
 
+## Catalog detail views
+
+| Event | Parameters | Purpose |
+|-------|------------|---------|
+| `view_item` (GA4 built-in) | `item_id`, `item_category` (`program` / `country` / `institution` / `scholarship`); for `program` also `item_name` (French catalog name, stable across locales), `country_id` (normalized ISO-3), `institution_id` | A detail fiche was opened — **which** program / country / scholarship, which a screen view alone never says. Fired once per opening (in `initState`), not per rebuild. Ranks the catalog by interest to decide what content to produce. |
+
+> A program id that no longer resolves still emits `view_item` (without
+> `item_name`): a broken deep link stays visible instead of vanishing.
+>
+> `logViewInstitution` exists but has **no call site** yet — there is no
+> institution detail screen; school interest is read through `institution_id`
+> on program views.
+
 ## Engagement & retention (KPB-162 / KPB-164 / KPB-165 / KPB-169)
 
 | Event | Parameters | Purpose |

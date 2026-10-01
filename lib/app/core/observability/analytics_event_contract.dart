@@ -115,6 +115,12 @@ abstract final class AnalyticsEventName {
   static const premiumWaitlistJoined = 'premium_waitlist_joined';
   static const premiumWaitlistFailed = 'premium_waitlist_failed';
 
+  /// Catalog detail views (GA4 built-in name, mirrored to PostHog):
+  /// `item_category` is `program` | `country` | `institution` | `scholarship`.
+  /// Screen views alone say *that* a fiche was opened, never *which* one — this
+  /// event is what ranks programs and countries by interest.
+  static const viewItem = 'view_item';
+
   /// Sync / catalog observability (paired with [AnalyticsService] helpers).
   static const syncFullComplete = 'sync_full_complete';
   static const syncConflictResolved = 'sync_conflict_resolved';
@@ -132,6 +138,13 @@ abstract final class AnalyticsParamKey {
   static const caseType = 'case_type';
   static const caseId = 'case_id';
   static const theme = 'theme';
+
+  /// Catalog detail views (`view_item`). `item_name` is the French catalog
+  /// name, stable across display locales.
+  static const itemCategory = 'item_category';
+  static const itemName = 'item_name';
+  static const countryId = 'country_id';
+  static const institutionId = 'institution_id';
 
   /// WhatsApp hand-off attribution.
   static const source = 'source';

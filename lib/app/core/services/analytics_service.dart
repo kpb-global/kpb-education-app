@@ -21,6 +21,13 @@ Future<void> _applyFirebaseAnalyticsConsent(bool enabled) =>
 Future<void> _applyPosthogConsent(bool enabled) =>
     enabled ? Posthog().enable() : Posthog().disable();
 
+/// Sends one event to PostHog. See [AnalyticsService.posthogCapture].
+typedef PosthogCapture = void Function(
+    String event, Map<String, Object>? properties);
+
+void _capturePosthog(String event, Map<String, Object>? properties) =>
+    unawaited(Posthog().capture(eventName: event, properties: properties));
+
 /// Thin wrapper around FirebaseAnalytics with typed event helpers.
 /// All calls are fire-and-forget — never throw to the caller.
 ///
@@ -55,9 +62,9 @@ class AnalyticsService {
   /// fire-and-forget and never throws (a mirror failure must not break the
   /// Firebase path or the caller).
   void _mirror(String event, [Map<String, Object>? properties]) {
-    if (!AppConfig.posthogEnabled) return;
+    if (!posthogWired) return;
     try {
-      unawaited(Posthog().capture(eventName: event, properties: properties));
+      posthogCapture(event, properties);
     } catch (e, s) {
       _logError('posthog.$event', e, s);
     }
@@ -124,6 +131,12 @@ class AnalyticsService {
   /// polarity unguarded.
   @visibleForTesting
   bool posthogWired = AppConfig.posthogEnabled;
+
+  /// Sends one event to PostHog. A field for the same reason as the consent
+  /// appliers: with no PostHog key in a test run, a direct SDK call is
+  /// unobservable, so a test could not tell a mirrored event from a dropped one.
+  @visibleForTesting
+  PosthogCapture posthogCapture = _capturePosthog;
 
   /// Turns collection on/off at runtime for ALL THREE collectors the profile
   /// switch claims to govern: Firebase Analytics, Firebase Crashlytics (crash
@@ -756,9 +769,9 @@ class AnalyticsService {
           AnalyticsEventItem(itemId: institutionId, itemCategory: 'institution')
         ],
       );
-      _mirror('view_item', {
+      _mirror(AnalyticsEventName.viewItem, {
         AnalyticsParamKey.itemId: institutionId,
-        'item_category': 'institution',
+        AnalyticsParamKey.itemCategory: 'institution',
       });
     } catch (e, s) {
       _logError('logViewInstitution', e, s);
@@ -772,12 +785,76 @@ class AnalyticsService {
           AnalyticsEventItem(itemId: scholarshipId, itemCategory: 'scholarship')
         ],
       );
-      _mirror('view_item', {
+      _mirror(AnalyticsEventName.viewItem, {
         AnalyticsParamKey.itemId: scholarshipId,
-        'item_category': 'scholarship',
+        AnalyticsParamKey.itemCategory: 'scholarship',
       });
     } catch (e, s) {
       _logError('logViewScholarship', e, s);
+    }
+  }
+
+  /// A program fiche was opened. [programName] is the French catalog name, not
+  /// the display-locale one, so a program counts as a single row in PostHog
+  /// whatever language the student reads in. [countryId] and [institutionId]
+  /// let views roll up per destination and per school without a join.
+  ///
+  /// The same parameter map goes to PostHog and, as event-level parameters, to
+  /// Firebase — the item list alone would drop `country_id` / `institution_id`
+  /// from GA4 and BigQuery.
+  ///
+  /// The mirror runs BEFORE the Firebase call: in a unit test (no Firebase
+  /// app) the Firebase call throws, and a mirror placed after it would never
+  /// run — the test would then prove nothing about what reaches PostHog.
+  Future<void> logViewProgram({
+    required String programId,
+    String? programName,
+    String? countryId,
+    String? institutionId,
+  }) async {
+    final parameters = <String, Object>{
+      AnalyticsParamKey.itemId: programId,
+      AnalyticsParamKey.itemCategory: 'program',
+      if (programName != null && programName.isNotEmpty)
+        AnalyticsParamKey.itemName: programName,
+      if (countryId != null && countryId.isNotEmpty)
+        AnalyticsParamKey.countryId: countryId,
+      if (institutionId != null && institutionId.isNotEmpty)
+        AnalyticsParamKey.institutionId: institutionId,
+    };
+    _mirror(AnalyticsEventName.viewItem, parameters);
+    try {
+      await _analytics.logViewItem(
+        items: [
+          AnalyticsEventItem(
+            itemId: programId,
+            itemName: programName,
+            itemCategory: 'program',
+          ),
+        ],
+        parameters: parameters,
+      );
+    } catch (e, s) {
+      _logError('logViewProgram', e, s);
+    }
+  }
+
+  /// A country guide was opened. [countryId] must already be normalized
+  /// (`normalizeCountryId`) so legacy aliases do not split one country across
+  /// several rows.
+  Future<void> logViewCountry(String countryId) async {
+    final parameters = <String, Object>{
+      AnalyticsParamKey.itemId: countryId,
+      AnalyticsParamKey.itemCategory: 'country',
+    };
+    _mirror(AnalyticsEventName.viewItem, parameters);
+    try {
+      await _analytics.logViewItem(
+        items: [AnalyticsEventItem(itemId: countryId, itemCategory: 'country')],
+        parameters: parameters,
+      );
+    } catch (e, s) {
+      _logError('logViewCountry', e, s);
     }
   }
 
