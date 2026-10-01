@@ -172,6 +172,33 @@ function parseEntries(value: unknown, where: string): SourceCheckEntry[] {
 }
 
 /**
+ * Les entrées d'une liste (`dead`, `uncertain`) doivent correspondre à son total.
+ *
+ * Le total compte des ADRESSES ; la liste compte des FORMATIONS, dont plusieurs
+ * peuvent partager une adresse. Les adresses distinctes de la liste doivent donc être
+ * exactement `total`. Sans cela, un fichier amputé de quelques entrées (une fusion de
+ * git mal résolue, un éditeur qui tronque) resterait « non vide » et serait lu comme
+ * complet : `deadProgramIds()` oublierait les formations perdues et la publication les
+ * activerait malgré leur page morte. Des doublons de formation sont refusés pour la
+ * même raison : ils cachent un manque derrière un compte juste.
+ */
+function assertEntriesMatchTotals(
+  name: 'dead' | 'uncertain',
+  entries: readonly SourceCheckEntry[],
+  total: number,
+): void {
+  const urls = new Set(entries.map((entry) => entry.url));
+  if (urls.size !== total) {
+    throw new Error(
+      `Rapport de contrôle incohérent : « ${name} » annonce ${total} adresse(s), la liste en porte ${urls.size}.`,
+    );
+  }
+  if (new Set(entries.map((entry) => entry.programId)).size !== entries.length) {
+    throw new Error(`Rapport de contrôle incohérent : « ${name} » contient une formation en double.`);
+  }
+}
+
+/**
  * Lit un rapport en REFUSANT ce qui n'a pas la forme attendue. Un fichier tronqué
  * qui se lirait « aucune page morte » publierait tout ce qu'il devait écarter.
  */
@@ -200,9 +227,32 @@ export function parseSourceCheckReport(raw: unknown): SourceCheckReport {
   }
   const dead = parseEntries(raw.dead, 'dead');
   const uncertain = parseEntries(raw.uncertain, 'uncertain');
-  if (dead.length === 0 && (totals.dead as number) > 0) {
+  const counted = {
+    programsChecked: totals.programsChecked as number,
+    urlsChecked: totals.urlsChecked as number,
+    ok: totals.ok as number,
+    dead: totals.dead as number,
+    uncertain: totals.uncertain as number,
+  };
+  assertEntriesMatchTotals('dead', dead, counted.dead);
+  assertEntriesMatchTotals('uncertain', uncertain, counted.uncertain);
+  if (counted.ok + counted.dead + counted.uncertain !== counted.urlsChecked) {
     throw new Error(
-      'Rapport de contrôle incohérent : des pages mortes sont annoncées, aucune n’est listée.',
+      'Rapport de contrôle incohérent : valides + mortes + incertaines ne font pas le nombre d’adresses contrôlées.',
+    );
+  }
+  const listed = new Set<string>();
+  for (const entry of [...dead, ...uncertain]) {
+    if (listed.has(entry.programId)) {
+      throw new Error(
+        `Rapport de contrôle incohérent : la formation ${entry.programId} figure deux fois.`,
+      );
+    }
+    listed.add(entry.programId);
+  }
+  if (listed.size > counted.programsChecked) {
+    throw new Error(
+      'Rapport de contrôle incohérent : plus de formations listées que de formations contrôlées.',
     );
   }
   return {
@@ -302,6 +352,26 @@ export function assertSourceCheckUsable(
     throw new Error(
       `Le contrôle annonce ${report.totals.programsChecked} formation(s) contrôlée(s), le catalogue en compte ${pages.length}.`,
     );
+  }
+  // Chaque adresse du rapport désigne TOUTES les formations qui la portent : une adresse
+  // morte dont une formation manque dans `dead` laisserait cette formation publiée.
+  const programsByUrl = new Map<string, string[]>();
+  for (const page of pages) {
+    programsByUrl.set(page.url, [...(programsByUrl.get(page.url) ?? []), page.programId]);
+  }
+  if (report.totals.urlsChecked !== programsByUrl.size) {
+    throw new Error(
+      `Le contrôle annonce ${report.totals.urlsChecked} adresse(s) contrôlée(s), le catalogue en compte ${programsByUrl.size}.`,
+    );
+  }
+  const deadIds = deadProgramIds(report);
+  for (const entry of report.dead) {
+    const missing = (programsByUrl.get(entry.url) ?? []).filter((id) => !deadIds.has(id));
+    if (missing.length > 0) {
+      throw new Error(
+        `Rapport de contrôle incomplet : l'adresse morte de ${entry.programId} porte aussi ${missing.length} formation(s) absente(s) de « dead ».`,
+      );
+    }
   }
   const urls = report.totals.urlsChecked;
   if (urls === 0 || report.totals.ok / urls < MIN_OK_SHARE) {

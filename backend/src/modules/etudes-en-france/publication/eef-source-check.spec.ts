@@ -151,6 +151,10 @@ describe('parseSourceCheckReport — un rapport tronqué ne doit pas se lire « 
     ['entrée sans identifiant', { ...valid, dead: [{ url: 'https://u.fr/a' }] }],
     ['morts annoncées, aucune listée', { ...valid, dead: [] }],
     ['portée inconnue', { ...valid, scope: 'tout' }],
+    ['valides + mortes + incertaines ≠ adresses', { ...valid, totals: { ...valid.totals, ok: 5 } }],
+    ['formation en double dans « dead »', { ...valid, dead: [valid.dead[0], valid.dead[0]] }],
+    ['même formation morte ET incertaine', { ...valid, uncertain: [valid.dead[0]], totals: { ...valid.totals, uncertain: 1, ok: 0 } }],
+    ['plus de formations listées que contrôlées', { ...valid, totals: { ...valid.totals, programsChecked: 0 } }],
     ['empreinte absente', { ...valid, scopeDigest: undefined }],
     ['empreinte illisible', { ...valid, scopeDigest: 'abc' }],
   ])('refuse : %s', (_label, raw) => {
@@ -210,6 +214,27 @@ describe('le rapport versionné', () => {
   });
 });
 
+describe('parseSourceCheckReport — une liste amputée n’est pas « complète parce que non vide »', () => {
+  const base = loadSourceCheckReport();
+
+  it('refuse un fichier qui a perdu quelques entrées mortes mais en garde une partie', () => {
+    // Le cas relevé en revue : seul « vide ou non » était testé, donc un rapport tronqué
+    // restait accepté et les formations perdues étaient publiées malgré leur page morte.
+    const truncated = { ...base, dead: base.dead.slice(0, base.dead.length - 40) };
+    expect(truncated.dead.length).toBeGreaterThan(0);
+    expect(() => parseSourceCheckReport(truncated)).toThrow(/adresse\(s\)/);
+  });
+
+  it('refuse aussi une liste « incertaine » amputée', () => {
+    const truncated = { ...base, uncertain: base.uncertain.slice(0, 5) };
+    expect(() => parseSourceCheckReport(truncated)).toThrow(/adresse\(s\)/);
+  });
+
+  it('accepte le rapport versionné tel quel', () => {
+    expect(() => parseSourceCheckReport(JSON.parse(JSON.stringify(base)))).not.toThrow();
+  });
+});
+
 describe('assertSourceCheckUsable — un rapport bien formé n’est pas forcément un rapport juste', () => {
   const catalog = loadEefCatalog();
   const base = loadSourceCheckReport();
@@ -246,6 +271,24 @@ describe('assertSourceCheckUsable — un rapport bien formé n’est pas forcém
     expect(() =>
       assertSourceCheckUsable(with_({ totals: { ok, uncertain, dead: urls - ok - uncertain } }), catalog),
     ).toThrow(/incertaine/);
+  });
+
+  it('refuse un rapport où une adresse morte laisse de côté une autre formation qui la porte', () => {
+    // Une adresse morte désigne TOUTES les formations qui la portent. On retire d'un
+    // rapport cohérent (adresses inchangées) une formation dont l'adresse est partagée.
+    const byUrl = new Map<string, string[]>();
+    for (const entry of base.dead) byUrl.set(entry.url, [...(byUrl.get(entry.url) ?? []), entry.programId]);
+    const shared = [...byUrl.entries()].find(([, ids]) => ids.length > 1);
+    expect(shared).toBeDefined();
+    const dropped = shared![1][0];
+    const report = with_({ dead: base.dead.filter((entry) => entry.programId !== dropped) });
+    expect(() => assertSourceCheckUsable(report, catalog)).toThrow(/absente\(s\) de « dead »/);
+  });
+
+  it('refuse un nombre d’adresses contrôlées qui n’est pas celui du catalogue', () => {
+    expect(() =>
+      assertSourceCheckUsable(with_({ totals: { urlsChecked: base.totals.urlsChecked + 1, ok: base.totals.ok + 1 } }), catalog),
+    ).toThrow(/adresse\(s\) contrôlée\(s\)/);
   });
 
   it('accepte le rapport versionné', () => {
