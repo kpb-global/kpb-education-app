@@ -60,7 +60,7 @@ Google Play), `docs/runbook-ouverture-espace-reel.md`, `docs/device-qa-build54.m
 
 | # | Quoi | Pourquoi / où |
 |---|---|---|
-| 1 | **Dire « ouvre la PR »**, relire, puis fusionner | Les builds de release partent de `main`. |
+| 1 | **Dire « ouvre la PR »**, relire, puis fusionner | Les builds de release partent de `main`. **Aucun CI n'a encore tourné sur les 7 commits de la 54** (le CI ne démarre qu'à l'ouverture d'une PR) : tout est vérifié en local, le premier vrai passage CI aura lieu à l'ouverture. Voir aussi §6 « PR ouvertes qui chevauchent ». |
 | 2 | **Déployer le backend** (`deploy.yml`, `scope=full`) au commit de fusion, puis `GET /api/health/version` | Sans lui : pas d'audience « sans le Niger » pour la notification du jour J, pas de `eefCatalog`. Migration additive. |
 | 3 | **Notification du 01/10** : audience `all_students_except_countries` + `{"exceptCountries":["eef_suspended"]}`, route **`/etudes-en-france`** (jamais `/catalogue`) ; **lire l'aperçu** (pays exclus, comptes retirés) ; feu vert humain | `docs/runbook-ouverture-espace-reel.md` §« Annoncer ». Sans backend récent : texte neutre pour le Niger. |
 | 4 | **Décider A ou B** (espace éteint ou allumé pendant la revue) | Recommandation **A** (éteint, déclaré dans les notes de revue) : aucun établissement n'est publié. `docs/release-54-store-pack.md` §1. |
@@ -115,3 +115,24 @@ Google Play), `docs/runbook-ouverture-espace-reel.md`, `docs/device-qa-build54.m
 - `recommended-version-set` ne touche **que** les builds 54 et suivantes ; pour amener les
   utilisateurs de la 53 vers la 54, il n'y a que la mise à jour du store ou une
   notification.
+- **PR ouvertes qui chevauchent la 54** (essai de fusion à sec, rien n'a été poussé ni touché
+  sur ces branches ; `main` n'a pas bougé depuis `95440db`) :
+  - **#287** (`fix/profile-fit-no-admission-pct`) — **conflit** dans
+    `lib/app/features/explore/explore_screen.dart`. Les deux retirent le « 85 % » codé en dur
+    de la fiche établissement : la 54 supprime la jauge, #287 la remplace par un badge
+    « match profil » (et retire aussi les pourcentages des cartes de liste, de la comparaison,
+    de la fiche formation, etc.). **Ordre conseillé : fusionner #287 d'abord**, puis fusionner
+    `main` dans la branche de la 54 et, sur ce seul fichier, **garder la version de #287**
+    (elle contient la mienne). Le garde `admission_meter_guard_test` reste valable (aucun
+    score littéral). `home_screen.dart`, `profile_screen.dart` et `app_translations.dart` se
+    fusionnent seuls. #287 modifie aussi le golden `theme_gallery.png` (hors CI).
+  - **#251** (`fix/counsellor-rotation-tiebreak`) — **conflits** dans
+    `.github/workflows/backend-ci.yml`, `backend/package.json` et
+    `backend/scripts/seed-kpb-counsellors.sql` (la 54 a ajouté la suite
+    `campaign-audience.postgres.spec.ts` au script `test:integration:eef-provenance`). Hors
+    périmètre de la 54 ; à rebaser par son auteur si elle doit partir.
+  - **#288, #289, #290** — se fusionnent sans conflit avec la 54 (en touchant les mêmes
+    fichiers : `app_config.dart`, `app_api_client.dart`, `app_translations.dart`,
+    `docker-compose.yml`, `.env.example`, contrat analytique). Si l'un part avant la 54, relancer
+    les tests Flutter après la fusion de `main` (le test `config_env_relay_test` lit
+    `docker-compose.yml` et `.env.example`).
