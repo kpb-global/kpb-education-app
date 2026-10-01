@@ -93,7 +93,7 @@ on:
       # `admin` ou `super_admin`, que le script retrouve en base — et la personne qui
       # a cliqué (`github.actor`) est inscrite à côté, dans le tampon et l'audit.
       verifier_email:
-        description: 'eef-publish : e-mail du compte administrateur qui signe la publication (vide = l’unique super_admin actif).'
+        description: 'eef-publish : e-mail du compte administrateur qui signe la publication (vide = l’unique super_admin actif, à défaut l’unique compte admin ; s’il y en a plusieurs, le job refuse et liste les comptes masqués).'
         type: string
         required: false
         default: ''

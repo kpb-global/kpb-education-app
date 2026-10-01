@@ -93,14 +93,23 @@ export interface AdminCandidate {
 
 const PUBLISHING_ROLES: ReadonlySet<string> = new Set(['admin', 'super_admin']);
 
+/** « a***@domaine » : de quoi reconnaître son compte, pas de quoi le recopier. */
+function maskEmail(email: string): string {
+  const at = email.lastIndexOf('@');
+  if (at <= 0) return '***';
+  return `${email.slice(0, 1)}***${email.slice(at)}`;
+}
+
 /**
  * Le compte administrateur au nom duquel l'outil publie — celui de l'écran admin :
  * actif, `admin` ou `super_admin` (jamais `content_manager`, qui édite le catalogue
  * sans signer sa publication).
  *
- * Avec un e-mail : exactement ce compte, sinon refus. Sans : le SEUL `super_admin`
- * actif, sinon refus — deviner entre deux propriétaires reviendrait à signer au nom de
- * la mauvaise personne. Les messages ne citent aucune adresse.
+ * - Avec un e-mail : exactement ce compte, sinon refus.
+ * - Sans e-mail : le SEUL `super_admin` actif ; à défaut, le SEUL compte éligible.
+ *   Deviner entre deux reviendrait à signer au nom de la mauvaise personne : l'outil
+ *   refuse alors, et liste les comptes éligibles MASQUÉS (« a***@domaine », avec leur
+ *   rôle) pour que l'on sache lequel désigner. Aucun message ne recopie une adresse.
  */
 export function pickVerifier(
   candidates: readonly AdminCandidate[],
@@ -110,14 +119,19 @@ export function pickVerifier(
     (candidate) => candidate.isActive && PUBLISHING_ROLES.has(candidate.role),
   );
   const wanted = email?.trim().toLowerCase() ?? '';
-  const matches = wanted
-    ? eligible.filter((candidate) => candidate.email.trim().toLowerCase() === wanted)
-    : eligible.filter((candidate) => candidate.role === 'super_admin');
+  let matches: AdminCandidate[];
+  if (wanted) {
+    matches = eligible.filter((candidate) => candidate.email.trim().toLowerCase() === wanted);
+  } else {
+    const supers = eligible.filter((candidate) => candidate.role === 'super_admin');
+    matches = supers.length > 0 ? supers : eligible;
+  }
   if (matches.length !== 1) {
+    const known = eligible.map((c) => `${maskEmail(c.email)} (${c.role})`).join(', ') || 'aucun';
     throw new Error(
       wanted
-        ? 'Aucun compte administrateur actif (admin ou super_admin) ne porte cet e-mail.'
-        : `${matches.length} compte(s) super_admin actif(s) : précisez le relecteur avec --verifier-email.`,
+        ? `Aucun compte administrateur actif (admin ou super_admin) ne porte cet e-mail. Comptes éligibles : ${known}.`
+        : `${matches.length} compte(s) éligible(s) : précisez le relecteur avec --verifier-email. Comptes éligibles : ${known}.`,
     );
   }
   const [admin] = matches;

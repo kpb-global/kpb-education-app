@@ -158,7 +158,7 @@ SELECT (SELECT COUNT(*) FROM "Institution" WHERE "isActive" AND "id" NOT LIKE 'e
        (SELECT COUNT(*) FROM "Program"     WHERE "isActive" AND "id" NOT LIKE 'eef-prog-%') AS formations_hors_import_actives;
 
 \echo ''
-\echo '    Comptes pouvant signer une publication (nombres seulement) : super_admin actif = 1 attendu.'
+\echo '    Comptes pouvant signer une publication (nombres seulement) : au moins 1 attendu.'
 SELECT "role", COUNT(*) AS comptes_actifs
 FROM "AdminUser"
 WHERE "isActive" AND "role" IN ('admin', 'super_admin')

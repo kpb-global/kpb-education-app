@@ -312,12 +312,15 @@ describe('pickVerifier', () => {
     expect(() => pickVerifier([candidate({ role: 'counselor' })], 'x@kpb.test')).toThrow();
   });
 
-  it('refuse un e-mail inconnu sans le recopier dans l’erreur', () => {
+  it('refuse un e-mail inconnu sans le recopier, et liste les comptes éligibles masqués', () => {
     try {
-      pickVerifier([candidate({})], 'inconnu@kpb.test');
+      pickVerifier([candidate({ email: 'prenom@kpb.test' })], 'inconnu@kpb.test');
       throw new Error('devait refuser');
     } catch (error) {
-      expect((error as Error).message).not.toContain('inconnu@kpb.test');
+      const message = (error as Error).message;
+      expect(message).not.toContain('inconnu@kpb.test');
+      expect(message).not.toContain('prenom@kpb.test');
+      expect(message).toContain('p***@kpb.test (admin)');
     }
   });
 
@@ -329,6 +332,14 @@ describe('pickVerifier', () => {
     expect(picked.id).toBe('boss');
   });
 
+  it('sans e-mail, sans super_admin : le seul compte admin actif', () => {
+    const picked = pickVerifier(
+      [candidate({ id: 'solo', role: 'admin' }), candidate({ id: 'off', isActive: false, email: 'off@kpb.test' }), candidate({ id: 'cm', role: 'content_manager', email: 'cm@kpb.test' })],
+      null,
+    );
+    expect(picked.id).toBe('solo');
+  });
+
   it('sans e-mail et deux super_admin : refuse de deviner', () => {
     expect(() =>
       pickVerifier(
@@ -338,8 +349,24 @@ describe('pickVerifier', () => {
     ).toThrow(/précisez/);
   });
 
-  it('sans e-mail et aucun super_admin : refuse', () => {
-    expect(() => pickVerifier([candidate({ role: 'admin' })], null)).toThrow();
+  it('sans e-mail, sans super_admin et deux admin : refuse, et nomme les deux masqués', () => {
+    try {
+      pickVerifier(
+        [candidate({ id: 'a', email: 'alice@kpb.test' }), candidate({ id: 'b', email: 'bob@kpb.test' })],
+        null,
+      );
+      throw new Error('devait refuser');
+    } catch (error) {
+      const message = (error as Error).message;
+      expect(message).toContain('a***@kpb.test (admin)');
+      expect(message).toContain('b***@kpb.test (admin)');
+      expect(message).not.toContain('alice@');
+    }
+  });
+
+  it('sans e-mail et aucun compte éligible : refuse', () => {
+    expect(() => pickVerifier([candidate({ role: 'content_manager' })], null)).toThrow();
+    expect(() => pickVerifier([], null)).toThrow();
   });
 
   it('un e-mail porté par deux comptes éligibles est refusé, pas choisi au hasard', () => {

@@ -63,8 +63,10 @@ tampon ne doit pas le laisser croire. Une ligne `AdminAuditEvent`
 
 1. **Simulation.** GitHub → Actions → « VPS ops » → `eef-publish`, `dry_run` **coché**.
    La sortie liste chaque établissement et finit par `TOTAL publiable : N formation(s)`.
-   Laisser `verifier_email` vide s'il n'y a qu'un seul `super_admin` actif (le script
-   refuse de deviner s'il y en a plusieurs).
+   `verifier_email` : l'e-mail de connexion du compte admin qui signe. Vide, l'outil prend
+   l'unique `super_admin` actif, à défaut l'unique compte `admin` ; s'il y en a plusieurs il
+   refuse de deviner et liste les comptes éligibles masqués (`a***@domaine`). La production
+   compte aujourd'hui 2 comptes `admin` et aucun `super_admin` : renseigner l'e-mail.
 2. **Essai sur un établissement** (facultatif, recommandé) : même action avec
    `institution_id` = un `eef-univ-…`, `dry_run` décoché, `expected_programs` = le total
    annoncé pour lui seul.
