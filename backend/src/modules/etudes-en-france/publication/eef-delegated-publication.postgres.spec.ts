@@ -355,7 +355,10 @@ describePostgres('Publication EEF déléguée — intégration PostgreSQL', () =
           checkedAt,
           dead: [
             ...real.dead,
-            { programId: deadId, institutionId: ids.instA, url: 'https://exemple.fr/formation', status: 404, passes: 2, redirectedToHome: false },
+            // La formation de test partage l'adresse d'une entrée réelle déjà morte : le
+            // rapport garde ainsi le nombre d'adresses distinctes qu'il annonce
+            // (`totals.dead`), ce que `parseSourceCheckReport` exige.
+            { programId: deadId, institutionId: ids.instA, url: real.dead[0].url, status: 404, passes: 2, redirectedToHome: false },
           ],
           ...over,
         }),
