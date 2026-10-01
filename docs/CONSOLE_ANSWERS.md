@@ -275,7 +275,7 @@ trois se cumulent.
 | PayDunya | (région prestataire) | facture seule, **aucune donnée client** | idem | collecte |
 | **YouTube IFrame (Google)** | US/global | **IP + user-agent + id vidéo** | Lecture vidéo / vignettes | pseudonyme (IP) |
 | **Wikimedia Commons (Wikimedia Foundation)** | US | **IP + user-agent** (+ URL de l'image) | Affichage des logos d'établissement (`Image.network`, dès l'ouverture d'une fiche ou d'une liste qui en porte) | pseudonyme (IP) — **même réponse que YouTube** dans les deux consoles (LIV-09) |
-| **WhatsApp / Meta** | US/global | URL `wa.me` (contexte catalogue ; **ni nom ni e-mail**) + ce que l'étudiant envoie | Remise externe | n/a (externe) — **pas un sous-traitant** |
+| **WhatsApp / Meta** | US/global | URL `wa.me` (contexte catalogue ou étape de l'espace Études en France ; **ni nom ni e-mail**) + ce que l'étudiant envoie | Remise externe | n/a (externe) — **pas un sous-traitant** |
 
 > **OpenRouter est un *routeur*, pas un modèle.** Il redistribue chaque invite
 > vers des clouds de modèles tiers ; en production le modèle demandé est

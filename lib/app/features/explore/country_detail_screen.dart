@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/intake_calendar.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/profile_fit_badge.dart';
 import '../../core/ui/components/source_link.dart';
 import '../../core/ui/components/verified_badge.dart';
 import '../../core/utils/country_utils.dart';
@@ -237,7 +238,7 @@ class _CountryDetailScreenState extends State<CountryDetailScreen> {
         children.add(_UniRow(
           name: _controller.resolve(inst.name),
           location: _controller.resolve(inst.location),
-          score: _controller.institutionMatch(inst),
+          fit: _controller.institutionFit(inst),
           onTap: inst.programIds.isNotEmpty
               ? () => Get.to(
                   () => ProgramDetailScreen(programId: inst.programIds.first))
@@ -810,13 +811,15 @@ class _UniRow extends StatelessWidget {
   const _UniRow({
     required this.name,
     required this.location,
-    required this.score,
+    required this.fit,
     required this.onTap,
   });
 
   final String name;
   final String location;
-  final int score;
+
+  /// Null (no badge) without a student profile.
+  final ProfileFit? fit;
   final VoidCallback? onTap;
 
   @override
@@ -862,22 +865,10 @@ class _UniRow extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-                decoration: BoxDecoration(
-                  color: KpbColors.actionPrimarySoft,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Text(
-                  '$score%',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: KpbColors.actionPrimary,
-                  ),
-                ),
-              ),
+              if (fit != null) ...[
+                const SizedBox(width: 10),
+                ProfileFitBadge(fit: fit!, fontSize: 11),
+              ],
               if (onTap != null)
                 const Padding(
                   padding: EdgeInsets.only(left: 4),

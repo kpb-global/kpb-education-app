@@ -577,7 +577,7 @@ class _ProgramCard extends StatelessWidget {
                 ),
               if (healthAccess)
                 KpbBadge(
-                  label: 'eef_catalog_value_cycle_sante'.tr,
+                  label: 'eef_catalog_badge_health_access'.tr,
                   small: true,
                   color: KpbColors.success,
                 ),

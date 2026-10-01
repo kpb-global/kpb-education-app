@@ -48,10 +48,27 @@ void main() {
     expect(aiConsentBlockCode(error), 'guardian_consent_required');
   });
 
-  test('timeouts blame the network', () {
-    final error = _dio(type: DioExceptionType.connectionTimeout);
-    expect(aiErrorMessage(error),
-        isNot(equals('tools_ai_error_check_connection')));
-    expect(aiErrorMessage(error).toLowerCase(), contains('connexion'));
+  test('connect and send timeouts blame the network', () {
+    for (final type in [
+      DioExceptionType.connectionTimeout,
+      DioExceptionType.sendTimeout,
+      DioExceptionType.connectionError,
+    ]) {
+      final message = aiErrorMessage(_dio(type: type));
+      expect(message, isNot(equals('tools_ai_error_check_connection')));
+      expect(message.toLowerCase(), contains('connexion'), reason: '$type');
+    }
+  });
+
+  test('a receive timeout says the generation is slow, not the connection', () {
+    final message = aiErrorMessage(_dio(type: DioExceptionType.receiveTimeout));
+    expect(message, isNot(equals('tools_ai_error_slow')));
+    expect(message.toLowerCase(), isNot(contains('connexion')));
+    expect(message, contains('plus de temps que prévu'));
+
+    Get.locale = const Locale('en');
+    addTearDown(() => Get.locale = const Locale('fr'));
+    expect(aiErrorMessage(_dio(type: DioExceptionType.receiveTimeout)),
+        contains('longer than expected'));
   });
 }

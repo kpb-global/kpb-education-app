@@ -1014,13 +1014,13 @@ ls -lh build/app/outputs/flutter-apk/*.apk        # arm64-v8a is the headline nu
 flutter build appbundle --release
 
 # Cold start (app fully closed → first frame), on the reference device:
-adb shell am force-stop org.karatou.app   # use the real applicationId
-adb shell am start-activity -W -n org.karatou.app/.MainActivity | grep -E 'TotalTime|WaitTime'
+adb shell am force-stop com.karatou.android   # applicationId (android/app/build.gradle)
+adb shell am start-activity -W -n com.karatou.android/.MainActivity | grep -E 'TotalTime|WaitTime'
 # average of 5 cold starts
 
 # Bytes/session — capture a representative session (open app, browse, 1 coach turn):
 #   Settings → Apps → KPB → Data usage   (before/after), or
-adb shell dumpsys netstats detail | grep -A3 org.karatou.app   # uid totals
+adb shell dumpsys netstats detail | grep -A3 com.karatou.android   # uid totals
 ```
 
 ### Results (to fill in on the reference device)

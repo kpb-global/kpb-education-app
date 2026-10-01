@@ -60,6 +60,28 @@ mixin _SearchMixin on _AppControllerBase {
   int institutionMatch(InstitutionModel institution) =>
       _searchService.institutionMatch(institution);
 
+  /// Displayable fit tier for [program], or null without a profile — the
+  /// ranking score then is a constant fallback that says nothing about the
+  /// student, so no badge must be shown.
+  ProfileFit? programFit(ProgramModel program) => profile == null
+      ? null
+      : ProfileFit.fromScore(_searchService.programMatch(program));
+
+  /// Displayable fit tier for [field]; see [programFit].
+  ProfileFit? fieldFit(FieldModel field) => profile == null
+      ? null
+      : ProfileFit.fromScore(_searchService.fieldMatch(field));
+
+  /// Displayable fit tier for [institution]; see [programFit].
+  ProfileFit? institutionFit(InstitutionModel institution) => profile == null
+      ? null
+      : ProfileFit.fromScore(_searchService.institutionMatch(institution));
+
+  /// Displayable fit tier for [scholarship]. Unlike schools, scholarships
+  /// carry a curated `baseMatch`, so a tier exists even without a profile.
+  ProfileFit scholarshipFit(ScholarshipModel scholarship) =>
+      ProfileFit.fromScore(_searchService.scholarshipMatch(scholarship));
+
   List<FieldModel> get recommendedFields => _searchService.recommendedFields;
 
   List<ProgramModel> get recommendedPrograms =>

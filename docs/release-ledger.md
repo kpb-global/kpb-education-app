@@ -67,6 +67,12 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   domaines dans la déclaration). L'ouverture est une opération serveur séparée
   (`docs/runbook-ouverture-espace-reel.md`), sans nouvelle soumission.
 
+  **Statut au 01/10/2026, 23 h 30** : non archivée, non soumise ; archivage et
+  soumission prévus le 02/10 (`docs/mise-a-jour-54-checklist.md`). Backend en
+  production : `33c5a51` (#299 à #301). Catalogue publié : 10 029 formations dans
+  84 établissements, 473 en attente — mais l'espace reste fermé
+  (`eefSpace=false`).
+
 ### Ce que 54 embarque
 
 **1. Le hub de l'espace « Études en France » (derrière `eefSpace`).**
@@ -103,6 +109,11 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   Pays suspendu (Niger) : jeu de textes **neutre** (« autres options »), jamais
   « démarre l'étude de ton dossier ». Aucune promesse d'admission ni de visa,
   aucun prix.
+- Santé : « médecine », « pharmacie », « kiné », « L.AS »… mènent aux PASS et L.AS
+  (serveur, #300 puis #301) ; la carte porte le badge « Accès santé » quand le
+  serveur le dit (`healthAccess`, absent = pas de badge). Le filtre du cycle
+  `sante` s'appelle « Études de santé » : il compte aussi 61 diplômes
+  paramédicaux, sans badge.
 - Mesure : `eef_space_viewed`, `eef_hub_tile_opened`, `eef_catalog_viewed`,
   `eef_catalog_searched`, `eef_catalog_failed`, `eef_help_card_shown`,
   `eef_help_cta_tapped` — des comptes et des identifiants fermés, **jamais le
@@ -126,9 +137,20 @@ email manquant qui bloquait la synchro du profil (#291) ; logos Wikimedia Common
 avec crédit de licence (#281, 330 px — MISS-01) ; client de recherche serveur
 (#280).
 
-**4. Conformité.**
-- MISS-02 : la jauge « 85 % » **codée en dur** disparaît de la fiche
-  établissement, avec un garde qui interdit tout score littéral.
+**4. Conformité et correctifs ajoutés au dernier moment** (PR d'intégration de #287
+et #288, si elle est fusionnée avant l'archivage).
+- MISS-02 et #287 : **plus aucun pourcentage d'admission** dans l'app. La jauge
+  « 85 % » codée en dur de la fiche établissement, les « 40 % » de repli des
+  Universités et de Comparer, les « 74 % » de la fiche formation et de la carte
+  partageable laissent place à un palier « match profil » calculé (Très bon
+  match / Bon match / À explorer), **absent sans profil**. Un garde interdit le
+  retour des jauges et tout palier littéral. Puce de ville du Logement lisible.
+- #288 : génération IA (CV, lettres, entretien, relecture, orientation,
+  diagnostic) avec un délai de **90 s** au lieu de 15 ; un délai dépassé dit
+  « plus long que prévu », plus « vérifiez votre connexion ». Côté serveur
+  (à déployer) : raisonnement caché désactivé sur OpenRouter, **503** au lieu d'un
+  modèle de lettre vierge présenté comme personnalisé, le nom de l'étudiant n'est
+  plus envoyé à la personnalisation.
 - FOR-M05 : « Un espace communautaire » retiré des CGU (web et app) tant que le
   forum n'est pas livré. LIV-28 : « Dernière mise à jour : septembre 2026 »
   (politique et CGU, web et app).
@@ -138,8 +160,9 @@ avec crédit de licence (#281, 330 px — MISS-01) ; client de recherche serveur
 **Ce que la 54 ne contient PAS** (et qu'aucun texte de fiche ne doit vanter) : la
 fiche formation, l'onglet Universités, la sélection en trois étages, la checklist,
 le projet d'études, les favoris synchronisés (build 55) ; le forum (build dédiée) ;
-tout logo visible (aucun établissement actif n'en a) ; un catalogue non vide
-(rien n'est publié au 01/10).
+aucun logo (la carte du catalogue n'en dessine pas) ; et, à l'approbation, l'espace
+ouvert : le catalogue est publié (10 029 formations, 84 établissements, le 01/10)
+mais reste derrière `eefSpace`.
 
 ### Couplage backend de la 54 : `tolerates-old`
 
@@ -149,9 +172,12 @@ une clé absente (`recommendedVersion`, `eefCatalog`, `platformUrl`,
 `suspendedSources`, `catalogPublished` — lue « publié » quand elle manque). Un
 backend en retard se traduit par **moins de choses affichées**, jamais par une
 erreur : c'est la définition de `tolerates-old`. Le préflight se lance donc avec
-`backend_coupling=tolerates-old` (`113cc55` tournait en production à l'audit du
-29/09 et est un ancêtre de la release ; relire `GET /api/health/version` avant de
-lancer le préflight : un déploiement de `main` depuis a pu le faire avancer).
+`backend_coupling=tolerates-old`. Au 01/10 à 23 h 05, la production sert `33c5a51`
+(#299 à #301), un ancêtre de la release ; si `main` n'a pas bougé depuis, la
+production **est** la release et `requires-new` passe aussi. Relire
+`GET /api/health/version` juste avant de lancer le préflight. Le déploiement du
+backend de #288 (s'il est intégré) peut se faire avant ou après l'archivage : la
+54 le tolère dans les deux sens.
 
 ⚠️ **Mais l'OUVERTURE de l'espace exige le backend de cette build** — le commit de
 fusion de la branche, **pas `95440db`** (qui porte la recherche et le `PATCH`
@@ -168,6 +194,11 @@ publication du pilote, **puis** `eef-space-on` — est dans
 qu'aucune formation n'est publiée **ou** que le conteneur ne porte pas ce backend
 (`eef-catalog-attribution.js`), et le workflow vérifie après coup que
 `/config/app` sert `eefCatalog` et `platformUrl`.
+
+**Condition remplie le 01/10/2026** : backend `33c5a51` en production, catalogue
+publié par délégation (`eef-publish` : 10 029 formations, 473 en attente,
+`docs/eef-publication-deleguee.md`). Ce qui retient l'ouverture n'est plus
+technique : les 7 questions de procédure, le juridique, et une 54 en vente.
 
 ### Ce qui reste à faire par un humain avant la soumission
 

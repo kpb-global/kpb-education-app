@@ -1,15 +1,16 @@
 // Primitives du lot 2 (architecture §9) : variantes KpbCard, statuts
-// KpbStatusChip, tiers accessibles du MatchBadge, bannière theme-aware.
+// KpbStatusChip, tiers accessibles du ProfileFitBadge, bannière theme-aware.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/ui/app_theme.dart';
 import 'package:karatou/app/core/ui/app_tokens.dart';
 import 'package:karatou/app/core/ui/components/kpb_card.dart';
 import 'package:karatou/app/core/ui/components/kpb_pressable.dart';
 import 'package:karatou/app/core/ui/components/kpb_sample_data_banner.dart';
 import 'package:karatou/app/core/ui/components/kpb_status_chip.dart';
-import 'package:karatou/app/core/ui/components/match_badge.dart';
+import 'package:karatou/app/core/ui/components/profile_fit_badge.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
       theme: AppTheme.buildTheme(),
@@ -100,20 +101,31 @@ void main() {
     });
   });
 
-  group('MatchBadge — tiers lisibles (AA)', () {
-    Future<Color?> tierColor(WidgetTester tester, int score) async {
-      await tester.pumpWidget(_wrap(MatchBadge(score: score)));
-      return tester
-          .widget<Icon>(find.descendant(
-              of: find.byType(MatchBadge), matching: find.byType(Icon)))
-          .color;
-    }
+  group('ProfileFit — paliers qualitatifs, jamais de pourcentage', () {
+    test('seuils 70 / 50', () {
+      expect(ProfileFit.fromScore(98), ProfileFit.strong);
+      expect(ProfileFit.fromScore(70), ProfileFit.strong);
+      expect(ProfileFit.fromScore(69), ProfileFit.good);
+      expect(ProfileFit.fromScore(50), ProfileFit.good);
+      expect(ProfileFit.fromScore(49), ProfileFit.explore);
+      expect(ProfileFit.fromScore(0), ProfileFit.explore);
+    });
 
-    testWidgets('≥80 success, ≥60 warning, sinon actionPrimary',
-        (tester) async {
-      expect(await tierColor(tester, 85), KpbColors.success);
-      expect(await tierColor(tester, 65), KpbColors.warning);
-      expect(await tierColor(tester, 40), KpbColors.actionPrimary);
+    test('zones serveur → paliers', () {
+      expect(ProfileFit.fromZone(SchoolMatchZone.green), ProfileFit.strong);
+      expect(ProfileFit.fromZone(SchoolMatchZone.yellow), ProfileFit.good);
+      expect(ProfileFit.fromZone(SchoolMatchZone.blue), ProfileFit.explore);
+    });
+
+    testWidgets('le badge affiche un libellé, sans « % »', (tester) async {
+      for (final fit in ProfileFit.values) {
+        await tester.pumpWidget(_wrap(ProfileFitBadge(fit: fit)));
+        final text = tester.widget<Text>(find.descendant(
+            of: find.byType(ProfileFitBadge), matching: find.byType(Text)));
+        expect(text.data, isNotEmpty);
+        expect(text.data, isNot(contains('%')));
+        expect(text.style?.color, fit.colors.$2);
+      }
     });
   });
 

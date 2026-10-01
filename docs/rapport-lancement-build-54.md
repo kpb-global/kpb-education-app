@@ -1,20 +1,28 @@
 # Rapport — Études en France, build 54 : ce qui est fait, ce qui reste
 
-> Mis à jour le 01/10/2026 à 21 h 30 (production vérifiée).
+> Mis à jour le 01/10/2026 à 23 h 45 (production vérifiée à 23 h 05).
+>
+> **Pour la mise à jour du 02/10 au matin : `docs/mise-a-jour-54-checklist.md`** — la
+> liste pas à pas (vérifications, Android, iOS, préflight, consoles, soumission).
 >
 > **Le catalogue Études en France est publié.** 10 029 formations dans 84 établissements,
-> par l'action `eef-publish` (#299, déployée en `660fd454a17b`) : essai sur l'UTT (5 formations)
-> à 21 h 24, puis le reste (10 024) à 21 h 25, 0 échec. Tampon « Aminou Laouali (publication
-> déléguée) », une trace d'audit par établissement. 473 formations restent **en attente**
-> (page-source morte, toutes des masters « Trouver mon master » 2021). Catalogue des autres
-> espaces **inchangé** (69 / 634), mesuré avant et après par le workflow.
+> par l'action `eef-publish` (#299) : essai sur l'UTT (5 formations) à 21 h 24, puis le
+> reste (10 024) à 21 h 25, 0 échec. Tampon « Aminou Laouali (publication déléguée) », une
+> trace d'audit par établissement. 473 formations restent **en attente** (page-source
+> morte, toutes des masters « Trouver mon master » 2021). Catalogue des autres espaces
+> **inchangé** (69 / 634), mesuré avant et après par le workflow.
+>
+> **Backend en production : `33c5a51`** (#299 publication déléguée, #300 cartes d'aide
+> WhatsApp et synonymes santé, #301 « médecine » → PASS / L.AS seulement, badge
+> `healthAccess`).
 >
 > **L'espace reste fermé** : `eefSpace=false`, `eef=false`, `eefTeaser=true`. Aucune build ne
-> montre ce catalogue ; l'API publique `/etudes-en-france/search` le sert (10 029 résultats,
-> 0,7 à 1,2 s par requête). Rien n'est soumis aux stores, aucune notification n'est partie.
+> montre ce catalogue ; l'API publique `/etudes-en-france/search` le sert. Rien n'est soumis
+> aux stores, aucune notification n'est partie.
 >
-> **Prêt, pas encore fusionné** : les cartes d'aide « C'est flou ? » vers WhatsApp (hub et
-> catalogue), sur la branche — voir §7.
+> **Prêt, en PR, à fusionner avant l'archivage** : l'intégration de #287 (plus aucun
+> pourcentage d'admission) et #288 (délai IA de 90 s), plus le libellé « Études de santé »
+> du filtre — voir la checklist, étape 0.
 
 ## 1. Où on en est, en trois phrases
 
@@ -24,7 +32,7 @@
   vitrine de la 53 (plus ses liens officiels). L'espace s'ouvre ensuite par une
   opération serveur, sans nouvelle soumission.
 - Ce qui reste est **humain** : valider le juridique, tester sur un appareil (Xcode),
-  archiver, remplir les consoles, soumettre, publier un premier établissement.
+  archiver, remplir les consoles, soumettre. Le catalogue, lui, est publié (01/10).
 
 ## 2. Ce qui est fait
 
@@ -70,26 +78,26 @@ Google Play), `docs/runbook-ouverture-espace-reel.md`, `docs/device-qa-build54.m
 
 | # | Quoi | Pourquoi / où |
 |---|---|---|
-| 1 | **Dire « ouvre la PR »**, relire, puis fusionner | Les builds de release partent de `main`. **Aucun CI n'a encore tourné sur les 7 commits de la 54** (le CI ne démarre qu'à l'ouverture d'une PR) : tout est vérifié en local, le premier vrai passage CI aura lieu à l'ouverture. Voir aussi §6 « PR ouvertes qui chevauchent ». |
-| 2 | **Déployer le backend** (`deploy.yml`, `scope=full`) au commit de fusion, puis `GET /api/health/version` | Sans lui : pas d'audience « sans le Niger » pour la notification du jour J, pas de `eefCatalog`. Migration additive. |
-| 3 | **Notification du 01/10** : audience `all_students_except_countries` + `{"exceptCountries":["eef_suspended"]}`, route **`/etudes-en-france`** (jamais `/catalogue`) ; **lire l'aperçu** (pays exclus, comptes retirés) ; feu vert humain | `docs/runbook-ouverture-espace-reel.md` §« Annoncer ». Sans backend récent : texte neutre pour le Niger. |
-| 4 | **Décider A ou B** (espace éteint ou allumé pendant la revue) | Recommandation **A** (éteint, déclaré dans les notes de revue) : aucun établissement n'est publié. `docs/release-54-store-pack.md` §1. |
-| 5 | **Valider le juridique** : phrase sur Campus France dans le héros, mention de non-affiliation, finalités « Marketing » dans les consoles, annonce d'ouverture couverte par le consentement ?, date et information sur la politique | `docs/eef-consent-v1.md`, `CONSOLE_ANSWERS.md` §0quater. |
-| 6 | **Test Xcode** sur un iPhone : fiche A de `docs/device-qa-build54.md` ; pour voir le hub, la voie B (tunnel HTTPS vers un backend local) | L'app n'affiche pas sa version : lire `2.3.0 (54)` dans TestFlight. |
-| 7 | **Archiver** : iOS dans Xcode Organizer avec la vraie clé `phc_…` + `scripts/preflight-ios-archive.sh` + dSYM ; Android : Flutter CI `release_android=true` ou tag `v2.3.0` | `docs/mobile-store-submission-contract.md`. |
-| 8 | **Préflight de release** : `backend_coupling=tolerates-old` (ou `requires-new` si état B) ; dérogation de stabilité 24 h ; rafraîchir le heartbeat de sauvegarde | LIV-06. |
-| 9 | **Consoles** : questionnaire d'âge (4+ affiché alors que 16 ans et 6 surfaces d'IA), Data Safety / App Privacy, « Government apps », Wikimedia | `CONSOLE_ANSWERS.md` §0quater. |
-| 10 | **Soumettre** : « Nouveautés » et notes de revue du pack, revue accélérée Apple, publication progressive iOS, Play par paliers 5 / 20 / 100 % | **L'approbation pour le 01/10 n'est pas garantie** (1 à 3 jours). |
-| 11 | **Budget de performance** (taille AAB, démarrage à froid, octets) sur l'appareil de référence | `docs/STORE_READINESS.md`, 4 lignes « _TBD_ ». |
-| 12 | **Ouvrir l'espace** — seulement après : 54 en vente et adoptée, backend récent, `eef-import`, **un établissement relu et publié sous le nom d'un vérificateur réel** | Runbook complet. Retour arrière : `eef-space-off`. |
+| 1 | ~~Ouvrir la PR, fusionner~~ — **fait** (#293, #295, #299, #300, #301 sur `main`) | La PR d'intégration de #287 / #288 reste à décider : checklist, étape 0. |
+| 2 | ~~Déployer le backend~~ — **fait** : `33c5a51` en production depuis le 01/10 à 23 h 02 | Si la PR d'intégration est fusionnée : redéployer (backend de #288), avant ou après l'archivage. |
+| 3 | ~~Notification du 01/10~~ — **reportée** : après `eef-space-on` (§7, points 6 et 7) | Envoyée avant, elle mènerait à la vitrine. |
+| 4 | **Décider A ou B** (espace éteint ou allumé pendant la revue) | Recommandation **A** : le catalogue est publié, mais les procédures (§7.1) et le juridique ne sont pas tranchés. `docs/release-54-store-pack.md` §1. |
+| 5 | **Valider le juridique** — bloquant pour la soumission : finalités « Marketing » des consoles (XC-06), tranche d'âge (D2), non-affiliation et « Government apps » (XC-04). Bloquant pour l'ouverture seulement : phrase sur Campus France dans le héros | `docs/eef-consent-v1.md`, `CONSOLE_ANSWERS.md` §0quater. |
+| 6 | **Test sur appareil** : fiche A de `docs/device-qa-build54.md` ; le hub par la **voie 2** (fenêtre de recette `eef-space-on` tant que la 54 n'est que chez les testeurs, puis `eef-space-off` avant de soumettre) | L'app n'affiche pas sa version : lire `2.3.0 (54)` dans TestFlight. |
+| 7 | **Archiver** : Android par Flutter CI `release_android=true` (**pas** de tag `v2.3.0`) ; iOS dans Xcode avec la vraie clé `phc_…` + `scripts/preflight-ios-archive.sh` + dSYM | Pas à pas : `docs/mise-a-jour-54-checklist.md`. |
+| 8 | **Préflight de release** : `backend_coupling=requires-new` si la production sert le commit archivé, sinon `tolerates-old` ; le heartbeat de sauvegarde ne se rafraîchit pas à la main (toutes les 6 h à h+23) | LIV-06. |
+| 9 | **Consoles** : questionnaire d'âge, Data Safety / App Privacy (inchangées pour la 54), « Government apps », Wikimedia | `CONSOLE_ANSWERS.md` §0quater. |
+| 10 | **Soumettre** : « Nouveautés » et notes de revue du pack, publication progressive iOS, Play par paliers 5 / 20 / 100 % | Soumission le 02/10 ; approbation en 1 à 3 jours, non garantie. |
+| 11 | **Budget de performance** (taille AAB, démarrage à froid, octets) sur l'appareil de référence | `docs/STORE_READINESS.md`, 4 lignes « _TBD_ » ; commandes dans la fiche QA §C. |
+| 12 | **Ouvrir l'espace** — seulement après : 54 en vente et adoptée ; catalogue publié (**fait**) ; 7 questions de procédure tranchées ; juridique du héros validé | Runbook complet. Retour arrière : `eef-space-off`. |
 
 ## 4. Ce que je n'ai PAS fait (et pourquoi)
 
 - **Rien d'irréversible ni d'extérieur** : pas de PR, pas de déploiement, pas d'envoi de
   notification, pas de soumission, pas de saisie dans les consoles.
 - **Aucune validation juridique** : tout texte « à valider » est marqué comme tel.
-- **Aucun établissement publié** : il faut le nom d'un vérificateur réel et ta décision
-  sur le périmètre de la première vague (L1, PASS/L.AS, DAP d'abord).
+- ~~**Aucun établissement publié**~~ — dépassé : publication déléguée du 01/10
+  (10 029 formations, §5 bis).
 - **Build 55** (fiche formation, onglet Universités, sélection, checklist, projet
   d'études, favoris) et **forum** (build dédiée) : hors périmètre convenu.
 - **Pas testé sur un appareil réel** : tout est vérifié par tests automatisés, pas à la
@@ -174,7 +182,7 @@ procédure fausse ne se corrige pas en masse après publication avec les outils 
 | 1 | **Faire trancher les 7 questions de procédure** (`docs/eef-dossier-relecture-procedures.md`) par une personne qui connaît Campus France | humain | Les lignes sont désormais publiées et tamponnées : une règle fausse ne se corrige plus en masse (`eef:reconcile` n'existe pas). Retirer un établissement reste possible. |
 | 2 | **Construire `eef:reconcile`** (réaligner les lignes publiées sur le catalogue régénéré, simulation d'abord) | code | Sans lui, la réponse au point 1 ne peut pas atteindre la production. |
 | 3 | ~~**Fusionner les cartes d'aide WhatsApp**~~ — **fait** (#300, sur `main` le 01/10) ; à inclure dans l'archive de la 54 | code + toi | Elles ne s'affichent que dans l'espace réel : sans effet tant que `eefSpace` est faux. |
-| 4 | **Synonymes de recherche** — « médecine », « pharmacie », « kiné », « L.AS »… → une 1re année PASS ou L.AS **seulement** ; « santé » → toute la famille ; « PASS » → les PASS, par leur intitulé | code | Mesuré le 01/10 : `q=medecine` rendait 0 résultat. #300 (déployé le 01/10 à 22 h 20) l'a mené aux 650 formations du cycle `sante`, dont **61 diplômes paramédicaux** (orthophoniste, orthoptiste…) qui passaient EN TÊTE (tri par intitulé) : aucune PASS ni L.AS dans les 50 premiers résultats, et le badge « Accès santé » sur un certificat d'orthophoniste. Corrigé par la PR suivante (`eef-health-access.ts`, champ `healthAccess`) : **à déployer avant d'archiver la 54**, qui lit ce champ. |
+| 4 | ~~**Synonymes de recherche**~~ — **fait** (#300 puis #301, déployés en `33c5a51`) : « médecine », « pharmacie », « kiné », « L.AS »… → une 1re année PASS ou L.AS **seulement** ; « santé » → toute la famille ; « PASS » → les PASS, par leur intitulé | code | Mesuré le 01/10 : `q=medecine` rendait 0 résultat. #300 (déployé le 01/10 à 22 h 20) l'a mené aux 650 formations du cycle `sante`, dont **61 diplômes paramédicaux** (orthophoniste, orthoptiste…) qui passaient EN TÊTE (tri par intitulé) : aucune PASS ni L.AS dans les 50 premiers résultats, et le badge « Accès santé » sur un certificat d'orthophoniste. Corrigé par #301 (`eef-health-access.ts`, champ `healthAccess`), en production depuis le 01/10 à 23 h 02. |
 | 5 | **Test sur appareil** (Xcode) de la 54 pointée sur la production, puis soumission | toi | `docs/device-qa-build54.md`, A et B (B-aide pour les cartes). |
 | 6 | **Ouvrir l'espace** : `eef-space-on` (simulation, puis application) — seulement 54 en vente et adoptée, et point 1 tranché | toi + moi | `docs/runbook-ouverture-espace-reel.md`. Retour arrière : `eef-space-off`. |
 | 7 | **Annonce** (audience `eef_interest` / `all_students_except_countries` + `eef_suspended`, route `/etudes-en-france`) | toi | Après le point 6 seulement : sinon la notification mène à la vitrine. |
