@@ -1928,7 +1928,8 @@ class AppTranslations extends Translations {
               'Pour passer à l\'étape supérieure, contacte-nous sur WhatsApp '
                   'pour démarrer une étude de ton dossier.',
           'eef_help_hub_cta': 'Démarrer l\'étude de mon dossier sur WhatsApp',
-          'eef_help_procedure_question': 'Procédure, dates, dépôt : c\'est flou ?',
+          'eef_help_procedure_question':
+              'Procédure, dates, dépôt : c\'est flou ?',
           'eef_help_documents_question':
               'Tu ne sais pas quels documents préparer ?',
           'eef_help_catalog_results_question': 'Tu hésites sur ta formation ?',
@@ -5135,7 +5136,8 @@ class AppTranslations extends Translations {
           'eef_help_step_procedure': 'procedure, dates and submission',
           'eef_help_step_documents': 'documents to provide',
           'eef_help_step_catalog_results': 'choosing my programme',
-          'eef_help_step_catalog_procedure': 'application procedure of a programme',
+          'eef_help_step_catalog_procedure':
+              'application procedure of a programme',
           'eef_help_step_catalog_empty': 'programme search with no result',
           'eef_help_step_catalog_unpublished': 'catalogue not yet available',
           'eef_hub_guest_body':
