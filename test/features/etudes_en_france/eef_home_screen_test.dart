@@ -10,14 +10,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 
 import 'package:karatou/app/core/config/app_config.dart';
 import 'package:karatou/app/core/data/eef_calendar.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/core/services/remote_feature_flags.dart';
 import 'package:karatou/app/core/translations/app_translations.dart';
+import 'package:karatou/app/features/etudes_en_france/eef_help_card.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_home_screen.dart';
 
+import '../../support/eef_help_fakes.dart';
 import '../../support/raw_key_guard.dart';
 import '../../support/screen_harness.dart';
 import '../../widget_test_helpers.dart';
@@ -44,9 +47,17 @@ void main() {
   setUpAll(initializeDateFormatting);
 
   late MockApiClient api;
+  late RecordingUrlLauncher launcher;
+  late UrlLauncherPlatform previousLauncher;
+  late RecordingHelpAnalytics helpAnalytics;
 
   setUp(() {
     api = MockApiClient();
+    previousLauncher = UrlLauncherPlatform.instance;
+    launcher = RecordingUrlLauncher();
+    UrlLauncherPlatform.instance = launcher;
+    helpAnalytics = RecordingHelpAnalytics();
+    EefHelpCard.analytics = helpAnalytics;
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefSpaceEnabledOverride = true;
     AppConfig.aiToolsEnabledOverride = null;
@@ -63,6 +74,8 @@ void main() {
   });
 
   tearDown(() {
+    UrlLauncherPlatform.instance = previousLauncher;
+    EefHelpCard.resetForTest();
     EefCalendar.resetForTest();
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefSpaceEnabledOverride = null;
@@ -140,7 +153,10 @@ void main() {
       expect(find.text('letters_title'.tr), findsNothing);
       expect(find.text('interview_title'.tr), findsNothing);
       // Le hub reste utile : catalogue et conseiller ne dépendent pas de l'IA.
-      expect(find.text('Parler à un conseiller'), findsOneWidget);
+      // Le conseiller, c'est désormais la carte d'aide (elle a remplacé la
+      // tuile « Parler à un conseiller », qui menait au même WhatsApp).
+      expect(find.text("Démarrer l'étude de mon dossier sur WhatsApp"),
+          findsOneWidget);
     });
 
     testWidgets('le héros dit où se dépose la candidature — dans son corps',
@@ -427,6 +443,215 @@ void main() {
 
       expect(find.text('Me retirer de la liste'), findsOneWidget);
       expect(find.text('Réessayer'), findsNothing);
+    });
+  });
+
+  // « À chaque étape où c'est un peu flou, on pose une question. » Le hub porte
+  // UNE carte pleine (la principale) et deux lignes (procédure, documents) ; ce
+  // groupe prouve qu'elles sont au bon endroit, pas en double, et qu'un pays
+  // suspendu n'y lit jamais « démarre ton dossier ».
+  group('aide à chaque étape floue', () {
+    const hubCta = "Démarrer l'étude de mon dossier sur WhatsApp";
+    const hubQuestion = "C'est flou ? Tu veux de l'aide ?";
+    const compactCta = "Demander de l'aide sur WhatsApp";
+    const procedureQuestion = "Procédure, dates, dépôt : c'est flou ?";
+    const documentsQuestion = 'Tu ne sais pas quels documents préparer ?';
+    final openAFile = RegExp(
+      r'dossier|d[ée]marrer|campus\s*france',
+      caseSensitive: false,
+    );
+
+    double top(WidgetTester tester, Finder finder) =>
+        tester.getTopLeft(finder.first).dy;
+
+    /// Les textes rendus par les cartes d'aide, et eux seuls.
+    String helpTexts(WidgetTester tester) => tester
+        .widgetList<Text>(find.descendant(
+          of: find.byType(EefHelpCard),
+          matching: find.byType(Text),
+        ))
+        .map((t) => t.data ?? '')
+        .join(' | ');
+
+    testWidgets('trois emplacements, UNE seule carte pleine', (tester) async {
+      stubInterest(null);
+      await pump(tester, viewport: _tall);
+
+      expect(find.byType(EefHelpCard), findsNWidgets(3));
+      // La carte principale : une fois. Sa mention (qui n'existe que sur une
+      // carte pleine) aussi : il n'y a pas deux cartes.
+      expect(find.text(hubQuestion), findsOneWidget);
+      expect(find.text(hubCta), findsOneWidget);
+      expect(find.text('eef_help_fineprint'.tr), findsOneWidget);
+      // Les deux lignes, chacune une fois.
+      expect(find.text(procedureQuestion), findsOneWidget);
+      expect(find.text(documentsQuestion), findsOneWidget);
+      expect(find.text(compactCta), findsNWidgets(2));
+      expect(rawTranslationKeysOnScreen(tester), isEmpty);
+    });
+
+    testWidgets(
+        'chacune est à sa place : sous le héros, sous « Trouver ma '
+        'formation », sous les outils', (tester) async {
+      stubInterest(null);
+      await pump(tester, viewport: _tall);
+
+      final hero = top(
+          tester,
+          find.text('Prépare ta candidature aux '
+              'universités françaises'));
+      final procedure = top(tester, find.text(procedureQuestion));
+      final formations = top(tester, find.text('Trouver ma formation'));
+      final main = top(tester, find.text(hubQuestion));
+      final toolsHeading = top(tester, find.text('Préparer mon dossier'));
+      final interview = top(tester, find.text('interview_title'.tr));
+      final documents = top(tester, find.text(documentsQuestion));
+      final profile = top(tester, find.text('Mon profil Études en France'));
+
+      expect(hero, lessThan(procedure));
+      expect(procedure, lessThan(formations));
+      expect(formations, lessThan(main));
+      expect(main, lessThan(toolsHeading));
+      expect(toolsHeading, lessThan(interview));
+      expect(interview, lessThan(documents));
+      expect(documents, lessThan(profile));
+    });
+
+    testWidgets('elle REMPLACE l\'ancienne tuile « Parler à un conseiller »',
+        (tester) async {
+      stubInterest(null);
+      await pump(tester, viewport: _tall);
+
+      // Deux invitations vers la même conversation, c'est une de trop.
+      expect(find.text('Parler à un conseiller'), findsNothing);
+      expect(find.text('eef_hub_advisor_body'.tr), findsNothing);
+    });
+
+    testWidgets('outils IA masqués : la ligne « documents » disparaît avec eux',
+        (tester) async {
+      AppConfig.aiToolsEnabledOverride = false;
+      stubInterest(null);
+      await pump(tester, viewport: _tall);
+
+      expect(find.byType(EefHelpCard), findsNWidgets(2));
+      expect(find.text(documentsQuestion), findsNothing);
+      expect(find.text(procedureQuestion), findsOneWidget);
+      expect(find.text(hubCta), findsOneWidget);
+    });
+
+    testWidgets('chaque emplacement est mesuré UNE fois', (tester) async {
+      stubInterest(null);
+      await pump(tester, viewport: _tall);
+
+      expect(helpAnalytics.shownCalls, hasLength(3));
+      expect(
+        helpAnalytics.shownCalls.toSet(),
+        {
+          const RecordedHelpEvent('procedure', 'hub', 'compact'),
+          const RecordedHelpEvent('hub', 'hub', 'card'),
+          const RecordedHelpEvent('documents', 'hub', 'compact'),
+        },
+      );
+
+      // Le profil se charge, la liste se reconstruit : pas de seconde « vue ».
+      await scrollDown(tester);
+      expect(helpAnalytics.shownCalls, hasLength(3));
+    });
+
+    testWidgets('le tap sur la carte principale ouvre WhatsApp avec l\'étape',
+        (tester) async {
+      stubInterest(null);
+      await pump(tester, viewport: _tall);
+
+      await tester.tap(find.text(hubCta));
+      await tester.pumpAndSettle();
+
+      expect(launcher.launched, hasLength(1));
+      expect(Uri.parse(launcher.launched.single).host, 'wa.me');
+      expect(launcher.lastText, frHelpPrefill("accueil de l'espace"));
+      expect(helpAnalytics.tappedCalls,
+          [const RecordedHelpEvent('hub', 'hub', 'card')]);
+    });
+
+    testWidgets('le tap sur la ligne « procédure » nomme SON étape',
+        (tester) async {
+      stubInterest(null);
+      await pump(tester, viewport: _tall);
+
+      await tester.tap(find.text(compactCta).first);
+      await tester.pumpAndSettle();
+
+      expect(launcher.lastText, frHelpPrefill('procédure, dates et dépôt'));
+      expect(helpAnalytics.tappedCalls,
+          [const RecordedHelpEvent('procedure', 'hub', 'compact')]);
+    });
+
+    testWidgets('le tap sur la ligne « documents » nomme SON étape',
+        (tester) async {
+      stubInterest(null);
+      await pump(tester, viewport: _tall);
+
+      await tester.tap(find.text(compactCta).last);
+      await tester.pumpAndSettle();
+
+      expect(launcher.lastText, frHelpPrefill('documents à fournir'));
+    });
+
+    testWidgets('un invité n\'a pas de compte, mais a un conseiller',
+        (tester) async {
+      await pump(tester, guest: true, viewport: _tall);
+
+      expect(find.text(hubCta), findsOneWidget);
+      await tester.tap(find.text(hubCta));
+      await tester.pumpAndSettle();
+      expect(launcher.lastText, frHelpPrefill("accueil de l'espace"));
+    });
+
+    group('pays suspendu (Niger)', () {
+      testWidgets('UNE carte visible, au libellé neutre — jamais « démarre »',
+          (tester) async {
+        stubInterest(null);
+        await pump(tester, country: 'Niger', viewport: _tall);
+
+        expect(find.text('Parler à un conseiller des autres options'),
+            findsOneWidget);
+        expect(find.text('eef_help_fineprint'.tr), findsOneWidget);
+        // Les deux lignes ont disparu : la mise en garde est déjà à l'écran.
+        expect(find.text(procedureQuestion), findsNothing);
+        expect(find.text(documentsQuestion), findsNothing);
+        expect(find.text(compactCta), findsNothing);
+        // Rien de ce que dit la carte normale.
+        expect(find.text(hubCta), findsNothing);
+        expect(find.text(hubQuestion), findsNothing);
+
+        final texts = helpTexts(tester);
+        expect(openAFile.hasMatch(texts), isFalse,
+            reason: 'texte des cartes d\'aide pour un pays suspendu : $texts');
+      });
+
+      testWidgets('le message prérempli demande les autres options',
+          (tester) async {
+        stubInterest(null);
+        await pump(tester, country: 'Niger', viewport: _tall);
+
+        await tester
+            .tap(find.text('Parler à un conseiller des autres options'));
+        await tester.pumpAndSettle();
+
+        expect(
+            launcher.lastText, frSuspendedHelpPrefill("accueil de l'espace"));
+        expect(openAFile.hasMatch(launcher.lastText), isFalse,
+            reason: launcher.lastText);
+        expect(launcher.lastText, isNot(contains('Niger')));
+      });
+
+      testWidgets('seule la carte principale est mesurée', (tester) async {
+        stubInterest(null);
+        await pump(tester, country: 'Niger', viewport: _tall);
+
+        expect(helpAnalytics.shownCalls,
+            [const RecordedHelpEvent('hub', 'hub', 'card')]);
+      });
     });
   });
 

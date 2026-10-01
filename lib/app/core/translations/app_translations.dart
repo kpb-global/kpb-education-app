@@ -1916,6 +1916,68 @@ class AppTranslations extends Translations {
           'eef_hub_whatsapp_prefill':
               'Bonjour, j\'ai une question sur ma candidature aux universités '
                   'françaises (Études en France).',
+          // ── Aide à chaque étape floue (EefHelpCard) ──────────────────────
+          // « À chaque étape où c'est un peu flou, on pose une question. »
+          // Règles tenues par ces textes : aucune promesse d'admission ni de
+          // visa (la mention `eef_help_fineprint` le dit), aucun prix, jamais le
+          // nom de l'opérateur de l'État dans un titre ou un libellé
+          // (eef_naming_test), et pour un pays suspendu un jeu NEUTRE
+          // (`eef_help_neutral_*`) qui ne parle jamais d'ouvrir un dossier.
+          'eef_help_hub_question': 'C\'est flou ? Tu veux de l\'aide ?',
+          'eef_help_hub_body':
+              'Pour passer à l\'étape supérieure, contacte-nous sur WhatsApp '
+                  'pour démarrer une étude de ton dossier.',
+          'eef_help_hub_cta': 'Démarrer l\'étude de mon dossier sur WhatsApp',
+          'eef_help_procedure_question': 'Procédure, dates, dépôt : c\'est flou ?',
+          'eef_help_documents_question':
+              'Tu ne sais pas quels documents préparer ?',
+          'eef_help_catalog_results_question': 'Tu hésites sur ta formation ?',
+          'eef_help_catalog_results_body':
+              'Dis-nous où tu en es sur WhatsApp : un conseiller KPB démarre '
+                  'l\'étude de ton dossier avec toi, pour choisir et passer à '
+                  'l\'étape suivante.',
+          'eef_help_catalog_results_cta':
+              'Démarrer l\'étude de mon dossier sur WhatsApp',
+          'eef_help_catalog_procedure_question':
+              'Pas sûr(e) de la procédure pour ces formations ?',
+          'eef_help_catalog_empty_question': 'Tu ne trouves pas ta formation ?',
+          'eef_help_catalog_empty_body':
+              'Un conseiller KPB peut chercher avec toi, à partir de ton '
+                  'profil et de ton projet.',
+          'eef_help_catalog_empty_cta': 'Demander de l\'aide sur WhatsApp',
+          'eef_help_catalog_unpublished_question': 'Tu ne veux pas attendre ?',
+          'eef_help_catalog_unpublished_body':
+              'Un conseiller KPB peut déjà regarder ton projet avec toi, sans '
+                  'attendre l\'arrivée du catalogue.',
+          'eef_help_catalog_unpublished_cta':
+              'Demander de l\'aide sur WhatsApp',
+          'eef_help_compact_cta': 'Demander de l\'aide sur WhatsApp',
+          'eef_help_neutral_question': 'Besoin d\'y voir plus clair ?',
+          'eef_help_neutral_body':
+              'Un conseiller KPB peut faire le point avec toi sur les autres '
+                  'options d\'études.',
+          'eef_help_neutral_cta': 'Parler à un conseiller des autres options',
+          'eef_help_fineprint':
+              'Un accompagnement n\'est pas une garantie : l\'admission et le '
+                  'visa dépendent des établissements et des autorités.',
+          // Le message prérempli de WhatsApp : l'ÉTAPE, aucune donnée
+          // personnelle (ni nom, ni e-mail, ni téléphone, ni pays).
+          'eef_help_prefill':
+              'Bonjour KPB Education, je suis dans l\'espace Études en France '
+                  'de l\'app (étape : @step). Pour passer à l\'étape supérieure, '
+                  'j\'aimerais démarrer l\'étude de mon dossier.',
+          'eef_help_prefill_suspended':
+              'Bonjour KPB Education, je suis dans l\'espace Études en France '
+                  'de l\'app (étape : @step). La procédure est suspendue dans '
+                  'mon pays : j\'aimerais parler des autres options d\'études.',
+          'eef_help_step_hub': 'accueil de l\'espace',
+          'eef_help_step_procedure': 'procédure, dates et dépôt',
+          'eef_help_step_documents': 'documents à fournir',
+          'eef_help_step_catalog_results': 'choix de ma formation',
+          'eef_help_step_catalog_procedure': 'procédure d\'une formation',
+          'eef_help_step_catalog_empty': 'recherche de formation sans résultat',
+          'eef_help_step_catalog_unpublished':
+              'catalogue pas encore disponible',
           'eef_hub_guest_body':
               'Crée ton compte pour enregistrer ton profil et demander à être '
                   'rappelé par un conseiller.',
@@ -5023,6 +5085,59 @@ class AppTranslations extends Translations {
           'eef_hub_whatsapp_prefill':
               'Hello, I have a question about my application to French '
                   'universities (Études en France).',
+          // ── Help at every unclear step (EefHelpCard) ─────────────────────
+          // No promise of admission or a visa (`eef_help_fineprint` says so),
+          // no price, and a NEUTRAL set (`eef_help_neutral_*`) for a suspended
+          // country that never talks about opening a file.
+          'eef_help_hub_question': 'Unclear? Want some help?',
+          'eef_help_hub_body':
+              'To move on to the next step, contact us on WhatsApp to start a '
+                  'review of your file.',
+          'eef_help_hub_cta': 'Start my file review on WhatsApp',
+          'eef_help_procedure_question':
+              'Procedure, dates, submission: unclear?',
+          'eef_help_documents_question': 'Not sure which documents to prepare?',
+          'eef_help_catalog_results_question': 'Unsure about your programme?',
+          'eef_help_catalog_results_body':
+              'Tell us where you are on WhatsApp: a KPB advisor starts a '
+                  'review of your file with you, to choose and move on to the '
+                  'next step.',
+          'eef_help_catalog_results_cta': 'Start my file review on WhatsApp',
+          'eef_help_catalog_procedure_question':
+              'Not sure about the procedure for these programmes?',
+          'eef_help_catalog_empty_question': 'Can\'t find your programme?',
+          'eef_help_catalog_empty_body':
+              'A KPB advisor can search with you, based on your profile and '
+                  'your plans.',
+          'eef_help_catalog_empty_cta': 'Ask for help on WhatsApp',
+          'eef_help_catalog_unpublished_question': 'Don\'t want to wait?',
+          'eef_help_catalog_unpublished_body':
+              'A KPB advisor can already look at your plans with you, without '
+                  'waiting for the catalogue to arrive.',
+          'eef_help_catalog_unpublished_cta': 'Ask for help on WhatsApp',
+          'eef_help_compact_cta': 'Ask for help on WhatsApp',
+          'eef_help_neutral_question': 'Need a clearer picture?',
+          'eef_help_neutral_body':
+              'A KPB advisor can go over the other study options with you.',
+          'eef_help_neutral_cta': 'Talk to an advisor about other options',
+          'eef_help_fineprint':
+              'Guidance is not a guarantee: admission and visas depend on '
+                  'institutions and authorities.',
+          'eef_help_prefill':
+              'Hello KPB Education, I am in the Études en France space of the '
+                  'app (step: @step). To move on to the next step, I would like '
+                  'to start a review of my file.',
+          'eef_help_prefill_suspended':
+              'Hello KPB Education, I am in the Études en France space of the '
+                  'app (step: @step). The procedure is suspended in my '
+                  'country: I would like to talk about other study options.',
+          'eef_help_step_hub': 'space home',
+          'eef_help_step_procedure': 'procedure, dates and submission',
+          'eef_help_step_documents': 'documents to provide',
+          'eef_help_step_catalog_results': 'choosing my programme',
+          'eef_help_step_catalog_procedure': 'application procedure of a programme',
+          'eef_help_step_catalog_empty': 'programme search with no result',
+          'eef_help_step_catalog_unpublished': 'catalogue not yet available',
           'eef_hub_guest_body':
               'Create your account to save your profile and ask to be called '
                   'back by an advisor.',

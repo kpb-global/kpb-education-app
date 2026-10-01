@@ -90,10 +90,34 @@ steady points at the feed itself, not at the content.
 | `eef_interest_declared` | `wants_premium`, `field_count`, `current_level` | LA question posée par la vitrine : y a-t-il une demande, et pour le payant ? |
 | `eef_interest_failed` | `reason` (`network`/`unauthorized`/`server`) | Un envoi qui échoue |
 | `eef_space_viewed` | `source` (`home_card`/`tools_drawer`/`student_tools`/`deep_link`/`direct`) | L'espace réel (hub) vu, et par quelle porte (build 54) |
-| `eef_hub_tile_opened` | `tile` (`catalogue`/`cv`/`lettres`/`entretien`/`conseiller`/`profil`) | Ce que les étudiants viennent FAIRE dans l'espace |
+| `eef_hub_tile_opened` | `tile` (`catalogue`/`cv`/`lettres`/`entretien`/`profil`) | Ce que les étudiants viennent FAIRE dans l'espace. La tuile `conseiller` n'existe plus : la carte d'aide l'a remplacée (voir `eef_help_cta_tapped`, `help_step` = `hub`) |
 | `eef_catalog_viewed` | `source` (`hub` quand l'étudiant vient du hub, `deep_link` sinon — lien profond ou notification) | Le catalogue ouvert, et par quelle porte |
 | `eef_catalog_searched` | `has_query` (`1`/`0`), `filter_count`, `result_count`, `catalog_published` (`1`/`0`) | Une recherche aboutie. **Jamais le texte tapé** : une requête libre peut contenir un nom, une ville, un établissement |
 | `eef_catalog_failed` | `reason` (`network`/`server`) | Le catalogue n'a pas pu répondre |
+| `eef_help_card_shown` | `help_step` (`hub`/`procedure`/`documents`/`catalog_results`/`catalog_procedure`/`catalog_empty`/`catalog_unpublished`), `surface` (`hub`/`catalog`), `variant` (`card`/`compact`) | Une carte d'aide (« c'est flou ? tu veux de l'aide ? ») a été montée : la portée de CHAQUE emplacement |
+| `eef_help_cta_tapped` | mêmes trois propriétés | Le bouton ou le lien de la carte d'aide a été tapé — part AVANT l'ouverture de WhatsApp |
+
+### Lire la carte d'aide sans se tromper (build 54)
+
+- **Le taux de clic d'un emplacement** est `eef_help_cta_tapped ÷ eef_help_card_shown`,
+  par `help_step`. C'est la seule façon de savoir où l'incitation marche et où elle
+  n'est que du bruit.
+- **`eef_help_card_shown` part une fois par étape et par visite de l'écran** (la mémoire
+  vit dans le `PageStorage` de la route) : défiler la liste de haut en bas ne compte
+  pas dix vues. Une liste paresseuse monte la carte un peu avant qu'elle soit visible :
+  c'est une borne haute de la portée, pas un compte d'yeux.
+- **Une carte invisible n'est pas « vue »** : pour un pays suspendu, les formes
+  compactes (`procedure`, `documents`, `catalog_procedure`) disparaissent et ne
+  partent pas ; seule une carte pleine (au libellé neutre « autres options ») reste.
+  On ne mesure volontairement PAS le pays, ni un drapeau « suspendu » qui le
+  désignerait presque : l'écart de clic entre pays se lirait sinon sur une donnée
+  personnelle.
+- **Le tap est distinct de la conversion** : `whatsapp_handoff` (`source` =
+  `eef_help_<help_step>`, `context_type` = `eef_help`, `success` 0/1) dit ensuite si
+  WhatsApp s'est ouvert. `tapped` sans `handoff` réussi = un téléphone qui n'ouvre pas
+  WhatsApp, pas un étudiant qui hésite.
+- **Aucune donnée personnelle** : trois identifiants fermés écrits dans le code. Le
+  test `analytics_event_contract_test.dart` rougit si une propriété est ajoutée.
 
 ### Lire le catalogue sans se tromper (build 54)
 

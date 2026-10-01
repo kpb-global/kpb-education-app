@@ -103,6 +103,20 @@ Ajouter en tête, **au futur ou au présent selon l'état réel du catalogue** �
 • New: the "Études en France" space — search programmes at French public universities, prepare your CV, motivation letters and interview, and follow your application with a KPB advisor.
 ```
 
+**Seulement dans l'état B** (jamais dans l'état A : les cartes d'aide vivent dans le
+hub et le catalogue, derrière `eefSpace` — les citer dans l'état A, ce serait vanter
+une fonction inatteignable, guidelines 2.3.1 / 2.3.3), ajouter une ligne :
+
+```
+• Un doute à une étape ? Des cartes « C'est flou ? » te proposent de demander de l'aide à un conseiller KPB sur WhatsApp, avec un message déjà rédigé qui indique où tu en es.
+```
+```
+• Not sure at some step? "Unclear?" cards let you ask a KPB advisor for help on WhatsApp, with a ready-written message that says where you are.
+```
+
+Ces phrases ne promettent ni admission, ni visa, ni prix — et c'est voulu : la carte
+elle-même dit qu'un accompagnement n'est pas une garantie.
+
 ### 2.3 TestFlight — « What to Test » (testeurs internes : tout ce qui existe)
 
 ```
@@ -112,7 +126,7 @@ FR — Build 54 (2.3.0)
 2. Fiche d'un établissement (Explorer) : plus de jauge verte « 85 % ».
 3. Accueil → carte « Études en France » : la vitrine s'affiche, la date « 1er octobre 2026 » sans compte à rebours ; pour un compte au Niger, la mise en garde remplace la date, avec un lien vers la source officielle.
 4. Profil → Conditions / Confidentialité : « Dernière mise à jour : septembre 2026 ». Plus de « espace communautaire » dans les CGU.
-Hub de l'espace (nécessite un build lancé avec KPB_EEF_SPACE_ENABLED=true, voir docs/device-qa-build54.md) : catalogue, profil (Modifier / Me retirer), CV, lettres, entretien, lien vers la plateforme officielle.
+Hub de l'espace (nécessite un build lancé avec KPB_EEF_SPACE_ENABLED=true, voir docs/device-qa-build54.md) : catalogue, profil (Modifier / Me retirer), CV, lettres, entretien, lien vers la plateforme officielle, cartes d'aide « C'est flou ? » (bouton WhatsApp avec message prérempli ; aucune carte « démarrer ton dossier » pour un compte du Niger — voir §B-aide de la fiche).
 ```
 ```
 EN — Build 54 (2.3.0)
@@ -121,7 +135,7 @@ Please test first:
 2. Institution page (Explore): no more green "85%" gauge.
 3. Home → "Études en France" card: the showcase appears with "1 October 2026" and no countdown; for an account in Niger the warning replaces the date, with a link to the official source.
 4. Profile → Terms / Privacy: "Last updated: September 2026". No more "community space" in the Terms.
-Space hub (needs a build run with KPB_EEF_SPACE_ENABLED=true, see docs/device-qa-build54.md): catalogue, profile (Edit / Remove me), CV, letters, interview, link to the official platform.
+Space hub (needs a build run with KPB_EEF_SPACE_ENABLED=true, see docs/device-qa-build54.md): catalogue, profile (Edit / Remove me), CV, letters, interview, link to the official platform, "Unclear?" help cards (WhatsApp button with a prefilled message; no "start your file" card for an account in Niger — see section B-aide of the sheet).
 ```
 
 ---
