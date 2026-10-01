@@ -298,6 +298,14 @@ class RemoteFeatureFlags {
   /// pas (plus ancien, ou charge incomplète).
   EefCatalogAttribution? get catalogAttribution => _catalogAttribution;
 
+  /// Pose la mention de paternité sans passer par `refresh` — pour qu'un test
+  /// d'écran n'ait pas besoin de simuler tout `/config/app`.
+  @visibleForTesting
+  void debugSetCatalogAttributionForTest(EefCatalogAttribution? value) {
+    _catalogAttribution = value;
+    flagsVersion.value++;
+  }
+
   /// La vitrine « Études en France » est-elle visible ?
   bool get eefTeaserEnabled => _flag('eefTeaser', AppConfig.eefTeaserEnabled);
 

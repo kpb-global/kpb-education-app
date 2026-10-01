@@ -1902,6 +1902,21 @@ class AppTranslations extends Translations {
               'Le serveur a bien répondu : c\'est la recherche qui est trop '
                   'étroite. Retire un filtre ou élargis les mots-clés.',
           'eef_catalog_empty_action': 'Tout effacer',
+          'eef_catalog_unpublished_title': 'Le catalogue arrive',
+          'eef_catalog_unpublished_body':
+              'Les universités sont ajoutées une par une, après vérification '
+                  'de leurs fiches. Reviens bientôt, ou demande à un conseiller '
+                  'KPB.',
+          'eef_catalog_more_failed': 'Impossible de charger la suite.',
+          'eef_catalog_more_retry': 'Réessayer',
+          'eef_catalog_sources_row': 'Sources des données et mentions',
+          'eef_catalog_sources_title': 'À propos des données',
+          'eef_catalog_attribution':
+              'Données : @producer (@sources). Licence @licence. '
+                  'Actualisées le @date.',
+          'eef_catalog_attribution_bare':
+              'Données : @producer. Licence @licence. Actualisées le @date.',
+          'eef_catalog_licence_link': 'Voir la licence',
           'eef_catalog_error_network_title': 'Pas de connexion',
           'eef_catalog_error_server_title': 'Catalogue indisponible',
           'eef_catalog_error_body':
@@ -4943,6 +4958,20 @@ class AppTranslations extends Translations {
               'The server did answer: it is the search that is too narrow. '
                   'Remove a filter or widen your keywords.',
           'eef_catalog_empty_action': 'Clear all',
+          'eef_catalog_unpublished_title': 'The catalogue is on its way',
+          'eef_catalog_unpublished_body':
+              'Universities are added one by one, after their listings are '
+                  'checked. Come back soon, or ask a KPB counsellor.',
+          'eef_catalog_more_failed': "Couldn't load more.",
+          'eef_catalog_more_retry': 'Retry',
+          'eef_catalog_sources_row': 'Data sources and notices',
+          'eef_catalog_sources_title': 'About the data',
+          'eef_catalog_attribution':
+              'Data: @producer (@sources). @licence licence. '
+                  'Updated on @date.',
+          'eef_catalog_attribution_bare':
+              'Data: @producer. @licence licence. Updated on @date.',
+          'eef_catalog_licence_link': 'See the licence',
           'eef_catalog_error_network_title': 'No connection',
           'eef_catalog_error_server_title': 'Catalogue unavailable',
           'eef_catalog_error_body':

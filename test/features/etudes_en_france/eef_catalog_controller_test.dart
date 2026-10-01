@@ -32,6 +32,7 @@ Map<String, dynamic> _body({
   bool hasMore = false,
   String? nextCursor,
   Map<String, dynamic>? facets,
+  bool? catalogPublished,
 }) =>
     <String, dynamic>{
       'items': [
@@ -63,17 +64,44 @@ Map<String, dynamic> _body({
       },
       'facets': facets ?? <String, dynamic>{},
       'facetsTruncated': <String>[],
+      if (catalogPublished != null) 'catalogPublished': catalogPublished,
     };
+
+/// Une mesure notée, pour affirmer sur ce que le contrôleur envoie.
+class _RecordingAnalytics implements EefCatalogAnalytics {
+  final searches = <Map<String, Object>>[];
+  final failures = <String>[];
+
+  @override
+  void searched({
+    required bool hasQuery,
+    required int filterCount,
+    required int resultCount,
+    required bool catalogPublished,
+  }) =>
+      searches.add(<String, Object>{
+        'hasQuery': hasQuery,
+        'filterCount': filterCount,
+        'resultCount': resultCount,
+        'catalogPublished': catalogPublished,
+      });
+
+  @override
+  void failed(String reason) => failures.add(reason);
+}
 
 void main() {
   late _MockApiClient api;
+  late _RecordingAnalytics analytics;
   late EefCatalogController controller;
 
   setUp(() {
     api = _MockApiClient();
+    analytics = _RecordingAnalytics();
     controller = EefCatalogController(
       apiClient: api,
       debounce: const Duration(milliseconds: 10),
+      analytics: analytics,
     );
   });
 
@@ -287,6 +315,210 @@ void main() {
 
       expect(controller.facets['cycle']!.single.value, 'master');
       expect(controller.facets['cycle']!.single.count, 3112);
+    });
+  });
+
+  // EEF-UX-M02 — la page SUIVANTE qui échoue ne détruit pas la liste.
+  group('échec de la page suivante', () {
+    void stubTwoPages({required bool secondFails, void Function()? onSecond}) {
+      stub((invocation) async {
+        final cursor = invocation.namedArguments[#cursor] as String?;
+        if (cursor == null) {
+          return _body(
+              ids: ['a', 'b'], total: 4, hasMore: true, nextCursor: 'c1');
+        }
+        onSecond?.call();
+        if (secondFails) throw _dio(DioExceptionType.connectionError);
+        return _body(ids: ['c', 'd'], total: 4);
+      });
+    }
+
+    test('garde les pages déjà lues et passe en loadMoreFailed', () async {
+      stubTwoPages(secondFails: true);
+
+      await controller.refresh();
+      await controller.loadMore();
+
+      expect(controller.items.map((p) => p.id), ['a', 'b']);
+      expect(controller.loadMoreFailed, isTrue);
+      // La liste reste LISIBLE : ni écran d'erreur, ni liste vide.
+      expect(controller.phase, EefCatalogPhase.ready);
+      expect(controller.isEmptyResult, isFalse);
+    });
+
+    // Le défilement rappelle `loadMore` à chaque image. Sans cette garde, un
+    // réseau coupé ferait partir une requête par image.
+    test('ne relance pas toute seule après un échec', () async {
+      var secondCalls = 0;
+      stubTwoPages(secondFails: true, onSecond: () => secondCalls += 1);
+
+      await controller.refresh();
+      await controller.loadMore();
+      await controller.loadMore();
+      await controller.loadMore();
+
+      expect(secondCalls, 1);
+    });
+
+    test('retryLoadMore relance sur geste, et complète la liste', () async {
+      var failing = true;
+      stub((invocation) async {
+        final cursor = invocation.namedArguments[#cursor] as String?;
+        if (cursor == null) {
+          return _body(
+              ids: ['a', 'b'], total: 4, hasMore: true, nextCursor: 'c1');
+        }
+        if (failing) throw _dio(DioExceptionType.connectionError);
+        return _body(ids: ['c', 'd'], total: 4);
+      });
+
+      await controller.refresh();
+      await controller.loadMore();
+      expect(controller.loadMoreFailed, isTrue);
+
+      failing = false;
+      await controller.retryLoadMore();
+
+      expect(controller.loadMoreFailed, isFalse);
+      expect(controller.items.map((p) => p.id), ['a', 'b', 'c', 'd']);
+    });
+
+    test('retryLoadMore est sans effet quand rien n\'a échoué', () async {
+      stub((_) async => _body(ids: ['a']));
+      await controller.refresh();
+      await controller.retryLoadMore();
+      expect(controller.items.map((p) => p.id), ['a']);
+    });
+
+    test('une nouvelle recherche efface l\'échec de la page suivante',
+        () async {
+      stubTwoPages(secondFails: true);
+      await controller.refresh();
+      await controller.loadMore();
+      expect(controller.loadMoreFailed, isTrue);
+
+      await controller.refresh();
+
+      expect(controller.loadMoreFailed, isFalse);
+    });
+
+    // Une PREMIÈRE page qui échoue, elle, n'a rien à garder : écran d'erreur.
+    test('une première page qui échoue reste un écran d\'erreur', () async {
+      stub((_) async => throw _dio(DioExceptionType.connectionError));
+      await controller.refresh();
+      expect(controller.phase, EefCatalogPhase.failed);
+      expect(controller.loadMoreFailed, isFalse);
+    });
+  });
+
+  // LIV-11 — « rien n'est publié » n'est pas « ta recherche est trop étroite ».
+  group('catalogue non publié', () {
+    test('catalogPublished: false avec zéro résultat', () async {
+      stub((_) async => _body(ids: <String>[], catalogPublished: false));
+      await controller.refresh();
+
+      expect(controller.isCatalogNotPublished, isTrue);
+      expect(controller.isEmptyResult, isTrue);
+    });
+
+    test(
+        'catalogPublished: true avec zéro résultat — c\'est un filtre trop étroit',
+        () async {
+      stub((_) async => _body(ids: <String>[], catalogPublished: true));
+      await controller.refresh();
+
+      expect(controller.isCatalogNotPublished, isFalse);
+      expect(controller.isEmptyResult, isTrue);
+    });
+
+    // Un serveur plus ancien n'envoie pas la clé : l'absence ne doit JAMAIS se
+    // lire « rien de publié », sinon toute recherche vide annoncerait « le
+    // catalogue arrive ».
+    test('une clé absente se lit « publié »', () async {
+      stub((_) async => _body(ids: <String>[]));
+      await controller.refresh();
+
+      expect(controller.catalogPublished, isTrue);
+      expect(controller.isCatalogNotPublished, isFalse);
+    });
+
+    test('avec des résultats, ce n\'est jamais « non publié »', () async {
+      stub((_) async => _body(ids: ['a'], catalogPublished: false));
+      await controller.refresh();
+      expect(controller.isCatalogNotPublished, isFalse);
+    });
+  });
+
+  group('ce qui est mesuré', () {
+    test('une recherche donne des comptes — jamais le texte tapé', () async {
+      stub((_) async => _body(ids: ['a', 'b'], total: 12));
+
+      await controller.search('prénom nom ville secrète');
+
+      expect(analytics.searches, hasLength(1));
+      final event = analytics.searches.single;
+      expect(event['hasQuery'], isTrue);
+      expect(event['resultCount'], 12);
+      expect(event['filterCount'], 0);
+      // Aucune valeur ne contient ce que l'étudiant a tapé.
+      expect(
+        event.values.map((v) => '$v').join(' '),
+        isNot(contains('secrète')),
+      );
+    });
+
+    test('compte les filtres posés, pas leur contenu', () async {
+      stub((_) async => _body(ids: ['a']));
+      controller.toggleFacet(kEefFacetCycle, 'master');
+      controller.toggleFacet(kEefFacetProcedure, 'eef');
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+
+      expect(analytics.searches.last['filterCount'], 2);
+      expect(controller.activeFilterCount, 2);
+    });
+
+    test('mesure UNE recherche par requête, pas une par page', () async {
+      stub((invocation) async {
+        final cursor = invocation.namedArguments[#cursor] as String?;
+        return cursor == null
+            ? _body(ids: ['a'], total: 2, hasMore: true, nextCursor: 'c1')
+            : _body(ids: ['b'], total: 2);
+      });
+
+      await controller.refresh();
+      await controller.loadMore();
+
+      expect(analytics.searches, hasLength(1));
+    });
+
+    test('une panne est mesurée, avec sa cause', () async {
+      stub((_) async => throw _dio(DioExceptionType.connectionError));
+      await controller.refresh();
+      stub((_) async => throw _dio(DioExceptionType.badResponse));
+      await controller.refresh();
+
+      expect(analytics.failures, ['network', 'server']);
+      // Et une panne n'est pas une recherche aboutie.
+      expect(analytics.searches, isEmpty);
+    });
+
+    test('une réponse périmée n\'est pas mesurée', () async {
+      final gate = Completer<void>();
+      stub((invocation) async {
+        final query = invocation.namedArguments[#query] as String?;
+        if (query == 'dro') {
+          await gate.future;
+          return _body(ids: ['ancien']);
+        }
+        return _body(ids: ['recent']);
+      });
+
+      final slow = controller.search('dro');
+      await controller.search('droit');
+      gate.complete();
+      await slow;
+
+      expect(analytics.searches, hasLength(1));
     });
   });
 }

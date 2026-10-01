@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../core/models/app_models.dart';
 import '../../core/models/eef_search.dart';
 import '../../core/repositories/app_api_client.dart';
+import '../../core/services/analytics_service.dart';
 
 /// Où en est la recherche, du point de vue de l'écran.
 ///
@@ -21,6 +21,43 @@ enum EefCatalogPhase { initial, loading, ready, loadingMore, failed }
 /// tard ». Un catalogue plus fin produirait des messages que personne ne sait
 /// traduire en geste.
 enum EefCatalogFailure { network, server }
+
+/// Ce que le contrôleur mesure. Une interface plutôt que `AnalyticsService` en
+/// direct : le service n'a pas de constructeur public, donc un test ne pouvait
+/// rien affirmer sur ce qui est mesuré — et ce qui n'est pas testé ici est ce qui
+/// finit par envoyer le texte tapé par l'étudiant.
+abstract interface class EefCatalogAnalytics {
+  void searched({
+    required bool hasQuery,
+    required int filterCount,
+    required int resultCount,
+    required bool catalogPublished,
+  });
+
+  void failed(String reason);
+}
+
+class _ServiceEefCatalogAnalytics implements EefCatalogAnalytics {
+  const _ServiceEefCatalogAnalytics();
+
+  @override
+  void searched({
+    required bool hasQuery,
+    required int filterCount,
+    required int resultCount,
+    required bool catalogPublished,
+  }) =>
+      unawaited(AnalyticsService.instance.logEefCatalogSearched(
+        hasQuery: hasQuery,
+        filterCount: filterCount,
+        resultCount: resultCount,
+        catalogPublished: catalogPublished,
+      ));
+
+  @override
+  void failed(String reason) =>
+      unawaited(AnalyticsService.instance.logEefCatalogFailed(reason));
+}
 
 /// Les facettes que l'écran propose, dans l'ordre d'affichage.
 const kEefFacetCycle = 'cycle';
@@ -49,11 +86,14 @@ class EefCatalogController extends ChangeNotifier {
   EefCatalogController({
     required AppApiClient apiClient,
     Duration debounce = const Duration(milliseconds: 350),
+    EefCatalogAnalytics? analytics,
   })  : _apiClient = apiClient,
-        _debounce = debounce;
+        _debounce = debounce,
+        _analytics = analytics ?? const _ServiceEefCatalogAnalytics();
 
   final AppApiClient _apiClient;
   final Duration _debounce;
+  final EefCatalogAnalytics _analytics;
 
   Timer? _debounceTimer;
 
@@ -66,10 +106,18 @@ class EefCatalogController extends ChangeNotifier {
   String _query = '';
   final Map<String, Set<String>> _selected = <String, Set<String>>{};
 
-  List<ProgramModel> _items = <ProgramModel>[];
+  List<EefProgram> _items = <EefProgram>[];
   final Set<String> _seenIds = <String>{};
   int _total = 0;
   bool _hasMore = false;
+  bool _catalogPublished = true;
+
+  /// La page SUIVANTE a échoué alors que la liste, elle, est intacte.
+  ///
+  /// Distinct de [EefCatalogPhase.failed], qui remplace tout l'écran : perdre
+  /// trois pages déjà lues parce que la quatrième n'a pas répondu — sur un
+  /// réseau de pays où c'est courant — ferait recommencer l'étudiant de zéro.
+  bool _loadMoreFailed = false;
   String? _cursor;
   Map<String, List<EefFacetValue>> _facets = <String, List<EefFacetValue>>{};
   List<String> _facetsTruncated = <String>[];
@@ -77,9 +125,20 @@ class EefCatalogController extends ChangeNotifier {
   EefCatalogPhase get phase => _phase;
   EefCatalogFailure? get failure => _failure;
   String get query => _query;
-  List<ProgramModel> get items => List.unmodifiable(_items);
+  List<EefProgram> get items => List.unmodifiable(_items);
   int get total => _total;
   bool get hasMore => _hasMore;
+
+  /// Le catalogue publié contient-il au moins une formation ? Voir
+  /// [EefSearchPage.catalogPublished].
+  bool get catalogPublished => _catalogPublished;
+
+  /// La page suivante a échoué ; la liste déjà lue reste affichée.
+  bool get loadMoreFailed => _loadMoreFailed;
+
+  /// Le nombre de filtres de facette posés (le texte libre n'en fait pas partie).
+  int get activeFilterCount =>
+      _selected.values.fold(0, (sum, values) => sum + values.length);
   Map<String, List<EefFacetValue>> get facets => _facets;
   List<String> get facetsTruncated => List.unmodifiable(_facetsTruncated);
 
@@ -90,6 +149,12 @@ class EefCatalogController extends ChangeNotifier {
   /// `true` quand le serveur a répondu et que rien ne correspond. Distinct de
   /// `failed` : voir le commentaire de [EefCatalogPhase].
   bool get isEmptyResult => _phase == EefCatalogPhase.ready && _items.isEmpty;
+
+  /// `true` quand le serveur a répondu, que la liste est vide ET que rien n'est
+  /// publié du tout. L'écran dit « le catalogue arrive », pas « ta recherche est
+  /// trop étroite » : retirer des filtres sur un catalogue vide ne mène nulle
+  /// part, et le suggérer est un faux conseil.
+  bool get isCatalogNotPublished => isEmptyResult && !_catalogPublished;
 
   Set<String> selectedValues(String facet) =>
       Set.unmodifiable(_selected[facet] ?? const <String>{});
@@ -138,10 +203,25 @@ class EefCatalogController extends ChangeNotifier {
   /// Page suivante. Sans effet s'il n'y a plus rien, si une requête est déjà en
   /// vol, ou si la précédente a échoué — réessayer une page suivante sur un
   /// état cassé empilerait des résultats sur une liste qu'on ne sait plus lire.
+  ///
+  /// Sans effet non plus après un échec de page suivante : le défilement
+  /// rappelle `loadMore` à chaque image, et sans cette garde un réseau coupé
+  /// ferait partir une requête par image. Seul [retryLoadMore] relance, sur un
+  /// geste de l'étudiant.
   Future<void> loadMore() {
-    if (!_hasMore || busy || _phase != EefCatalogPhase.ready) {
+    if (!_hasMore ||
+        busy ||
+        _loadMoreFailed ||
+        _phase != EefCatalogPhase.ready) {
       return Future<void>.value();
     }
+    return _load(append: true);
+  }
+
+  /// Relance la page suivante après un échec, sur un geste de l'étudiant.
+  Future<void> retryLoadMore() {
+    if (!_loadMoreFailed || busy || !_hasMore) return Future<void>.value();
+    _loadMoreFailed = false;
     return _load(append: true);
   }
 
@@ -149,6 +229,9 @@ class EefCatalogController extends ChangeNotifier {
     final sequence = ++_sequence;
     _phase = append ? EefCatalogPhase.loadingMore : EefCatalogPhase.loading;
     _failure = null;
+    // Une nouvelle recherche repart de zéro, y compris de l'échec de page
+    // suivante de la précédente.
+    if (!append) _loadMoreFailed = false;
     notifyListeners();
 
     try {
@@ -166,7 +249,7 @@ class EefCatalogController extends ChangeNotifier {
 
       final page = EefSearchPage.fromJson(body);
       if (!append) {
-        _items = <ProgramModel>[];
+        _items = <EefProgram>[];
         _seenIds.clear();
       }
       for (final program in page.items) {
@@ -184,18 +267,38 @@ class EefCatalogController extends ChangeNotifier {
       if (!append) {
         _facets = page.facets;
         _facetsTruncated = page.facetsTruncated;
+        _catalogPublished = page.catalogPublished;
+        // Une mesure par RECHERCHE, pas par page : le défilement n'est pas une
+        // nouvelle recherche. Des comptes seulement — jamais le texte tapé.
+        _analytics.searched(
+          hasQuery: _query.trim().isNotEmpty,
+          filterCount: activeFilterCount,
+          resultCount: page.total,
+          catalogPublished: page.catalogPublished,
+        );
       }
       _phase = EefCatalogPhase.ready;
     } on DioException catch (error) {
       if (sequence != _sequence) return;
-      _failure = _classify(error);
-      _phase = EefCatalogPhase.failed;
+      _fail(_classify(error), append: append);
     } catch (_) {
       if (sequence != _sequence) return;
-      _failure = EefCatalogFailure.server;
-      _phase = EefCatalogPhase.failed;
+      _fail(EefCatalogFailure.server, append: append);
     }
     notifyListeners();
+  }
+
+  /// Consigne un échec. Une page SUIVANTE qui échoue laisse la liste lisible ;
+  /// une première page qui échoue remplace l'écran, faute de rien à montrer.
+  void _fail(EefCatalogFailure failure, {required bool append}) {
+    _analytics.failed(failure.name);
+    if (append) {
+      _loadMoreFailed = true;
+      _phase = EefCatalogPhase.ready;
+      return;
+    }
+    _failure = failure;
+    _phase = EefCatalogPhase.failed;
   }
 
   static EefCatalogFailure _classify(DioException error) {
