@@ -90,7 +90,15 @@ void main() {
       final source = File('lib/app/core/translations/app_translations.dart')
           .readAsLinesSync()
           .where((line) => !line.trimLeft().startsWith('//'))
-          .join('\n');
+          // Les dates de MISE À JOUR des textes légaux (`last_updated_*`) sont
+          // des dates fixes par nature — « Dernière mise à jour : septembre
+          // 2026 » dit quand le texte a changé, pas quand commence une rentrée.
+          // Ce garde existe pour les mois de RENTRÉE ; l'exempter ici, par la
+          // clé, évite de forcer ces dates à passer par `IntakeCalendar`.
+          .join('\n')
+          // Le formateur peut couper la valeur sur la ligne suivante : on retire
+          // donc l'ENTRÉE entière, clé et valeur, et pas la seule ligne de la clé.
+          .replaceAll(RegExp(r"'last_updated_\w+':\s*'[^']*'"), '');
 
       // Pas de `(?i)` inline : le moteur de RegExp de Dart ne le connaît pas
       // et lève `FormatException: Invalid group` — mesuré ici même.

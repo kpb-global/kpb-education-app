@@ -691,7 +691,8 @@ class AppTranslations extends Translations {
               '9. Analytique produit & enregistrement de session',
           'privacy_s10_title': '10. Modifications',
           'privacy_transfers_title': 'Transferts hors de votre pays',
-          'last_updated_september_2026': 'Dernière mise à jour : septembre 2026',
+          'last_updated_september_2026':
+              'Dernière mise à jour : septembre 2026',
           // L'éditeur. « KPB Education » est un SERVICE, pas une personne
           // morale : le responsable du traitement est KPB Global L.L.C-FZ, et
           // la politique doit le dire, sinon l'utilisateur consent au profit
