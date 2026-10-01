@@ -208,6 +208,25 @@ function broadcastsNear(state, at) {
   return state.sends.filter((s) => countsAsBroadcast(s) && Math.abs(deliveredAt(s) - at) < 7 * DAY).length;
 }
 
+// Même lecture que le backend (`resolveExcludedCountries`) : tableau ou liste
+// séparée par des virgules, casse et espaces ignorés.
+function excludesSuspendedCountries(filters) {
+  const raw = filters?.exceptCountries;
+  const entries = Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split(',') : [];
+  return entries.some((e) => typeof e === 'string' && e.trim().toLowerCase() === 'eef_suspended');
+}
+
+// L'audience peut-elle atteindre des élèves d'un pays suspendu ? Une audience qui
+// exclut le jeton `eef_suspended` ne le peut pas : l'avertir serait contredire
+// l'aperçu qui confirme l'exclusion. `country_of_residence` et `country` ciblent
+// un pays choisi à dessein : ils ne sont pas un envoi large qui oublie l'exclusion.
+function reachesSuspendedCountries(d) {
+  if (!['all_students', 'all_users', 'eef_interest', 'all_students_except_countries', 'study_level'].includes(d.audienceType)) {
+    return false;
+  }
+  return !excludesSuspendedCountries(d.filters);
+}
+
 function guardrailProblems(d, state) {
   const problems = [];
   if (!routeIsNavigable(d.route)) {
@@ -440,10 +459,7 @@ server.registerTool(
     }
     // Une annonce vers l'espace envoyée sans exclure les pays suspendus part vers
     // des élèves dont l'État dit que les dossiers ne sont pas traités.
-    if (
-      d.route.startsWith('/etudes-en-france') &&
-      ['all_students', 'all_users', 'eef_interest', 'country_of_residence', 'study_level'].includes(d.audienceType)
-    ) {
+    if (d.route.startsWith('/etudes-en-france') && reachesSuspendedCountries(d)) {
       warnings.push('Cette annonce vise Études en France sans exclure les pays suspendus : préférer all_students_except_countries ou eef_interest avec {"exceptCountries":["eef_suspended"]}.');
     }
     if (preview.excludedCountries) {
