@@ -11,9 +11,9 @@
 > Les deux viennent après, quand la 54 est en vente et adoptée
 > (`docs/runbook-ouverture-espace-reel.md`).
 
-## 0. Une décision avant tout : la PR d'intégration de #287 et #288
+## 0. ~~Une décision avant tout~~ — fait le 01/10 : #302 fusionnée, backend déployé
 
-La PR ouverte depuis `claude/campus-france-space-98orw9` ajoute à la 54 :
+**Rien à faire à cette étape.** #302 (fusionnée le 01/10 à 23 h 40) a ajouté à la 54 :
 
 - **#287** — plus aucun pourcentage d'admission dans l'app (les « 40 % » de repli des
   Universités et de Comparer, les « 74 % » de la fiche formation) ; un palier « match
@@ -25,10 +25,9 @@ La PR ouverte depuis `claude/campus-france-space-98orw9` ajoute à la 54 :
 - le filtre du cycle santé renommé « Études de santé » (le badge garde « Accès
   santé »).
 
-| Choix | Ce qu'il faut faire | Notes de version |
-|---|---|---|
-| **Avec** (recommandé) | Fusionner la PR (CI verte), **déployer le backend** sur le commit de fusion, attendre la CI de `main` sur ce commit (≈ 15 min) | Pack §2.1 tel quel |
-| **Sans** | Fermer la PR ; archiver `33c5a51` | Pack §2.1 : appliquer la note « Sans elle » |
+Le backend a été déployé sur le dernier commit de `main` : la production sert
+normalement **le commit à archiver** (à vérifier à l'étape 1). Notes de version : pack
+§2.1 **tel quel**. #287 et #288 ont été fermées (contenu intégré par #302).
 
 Dans la suite, **`RELEASE`** = le SHA complet de `main` au moment d'archiver.
 

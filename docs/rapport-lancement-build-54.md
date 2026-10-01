@@ -20,9 +20,9 @@
 > montre ce catalogue ; l'API publique `/etudes-en-france/search` le sert. Rien n'est soumis
 > aux stores, aucune notification n'est partie.
 >
-> **Prêt, en PR, à fusionner avant l'archivage** : l'intégration de #287 (plus aucun
-> pourcentage d'admission) et #288 (délai IA de 90 s), plus le libellé « Études de santé »
-> du filtre — voir la checklist, étape 0.
+> **Intégrés à la 54 par #302** (fusionnée le 01/10 à 23 h 40, backend redéployé) : #287
+> (plus aucun pourcentage d'admission), #288 (délai IA de 90 s) et le libellé « Études de
+> santé » du filtre.
 
 ## 1. Où on en est, en trois phrases
 
@@ -78,8 +78,8 @@ Google Play), `docs/runbook-ouverture-espace-reel.md`, `docs/device-qa-build54.m
 
 | # | Quoi | Pourquoi / où |
 |---|---|---|
-| 1 | ~~Ouvrir la PR, fusionner~~ — **fait** (#293, #295, #299, #300, #301 sur `main`) | La PR d'intégration de #287 / #288 reste à décider : checklist, étape 0. |
-| 2 | ~~Déployer le backend~~ — **fait** : `33c5a51` en production depuis le 01/10 à 23 h 02 | Si la PR d'intégration est fusionnée : redéployer (backend de #288), avant ou après l'archivage. |
+| 1 | ~~Ouvrir la PR, fusionner~~ — **fait** (#293, #295, #299 à #302 sur `main`) | #287 et #288 intégrées par #302. |
+| 2 | ~~Déployer le backend~~ — **fait** : dernier commit de `main`, déployé dans la nuit du 01 au 02/10 | Vérifier `GET /api/health/version` à l'étape 1 de la checklist. |
 | 3 | ~~Notification du 01/10~~ — **reportée** : après `eef-space-on` (§7, points 6 et 7) | Envoyée avant, elle mènerait à la vitrine. |
 | 4 | **Décider A ou B** (espace éteint ou allumé pendant la revue) | Recommandation **A** : le catalogue est publié, mais les procédures (§7.1) et le juridique ne sont pas tranchés. `docs/release-54-store-pack.md` §1. |
 | 5 | **Valider le juridique** — bloquant pour la soumission : finalités « Marketing » des consoles (XC-06), tranche d'âge (D2), non-affiliation et « Government apps » (XC-04). Bloquant pour l'ouverture seulement : phrase sur Campus France dans le héros | `docs/eef-consent-v1.md`, `CONSOLE_ANSWERS.md` §0quater. |
