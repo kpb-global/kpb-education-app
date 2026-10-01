@@ -22,6 +22,7 @@ import {
 import { planEefImport } from '../src/modules/etudes-en-france/catalog/eef-catalog.importer';
 import { loadEefCatalog } from '../src/modules/etudes-en-france/catalog/eef-catalog.loader';
 import { validateEefCatalog } from '../src/modules/etudes-en-france/catalog/eef-catalog.validator';
+import { resolveFranceCountryId } from '../src/modules/etudes-en-france/catalog/eef-country';
 
 if (existsSync('.env')) loadEnvFile?.('.env');
 
@@ -34,26 +35,18 @@ if (dryRun === apply) {
 
 const prisma = new PrismaClient();
 
-async function resolveFranceCountryId(): Promise<string> {
+/**
+ * La RÈGLE vit dans `eef-country.ts`, partagée avec l'import et la recherche.
+ * Elle était recopiée ici, et la copie ne cherchait que le code « FR » alors que
+ * le référentiel M5 écrit « FRA » : sur la production, cette étape — la dernière
+ * de l'action `eef-import` — échouait après que l'import avait écrit.
+ */
+async function resolveCountryId(): Promise<string> {
   const countries = await prisma.country.findMany({
     where: { isActive: true },
     select: { id: true, code: true },
   });
-  const matches = countries.filter(
-    (country) => country.code.toUpperCase() === 'FR',
-  );
-  if (matches.length === 0) {
-    throw new Error(
-      "Aucun pays actif de code « FR » en base : le catalogue n'a nulle part où "
-      + 'se rattacher.',
-    );
-  }
-  if (matches.length > 1) {
-    throw new Error(
-      `Plusieurs pays actifs de code « FR » : ${matches.map((c) => c.id).join(', ')}.`,
-    );
-  }
-  return matches[0].id;
+  return resolveFranceCountryId(countries);
 }
 
 async function main(): Promise<void> {
@@ -69,7 +62,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const countryId = await resolveFranceCountryId();
+  const countryId = await resolveCountryId();
   const plan = planEefImport(catalog, countryId);
 
   const institutionRows = await prisma.institution.findMany({
