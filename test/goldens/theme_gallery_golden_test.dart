@@ -16,7 +16,8 @@ import 'package:karatou/app/core/ui/components/kpb_button.dart';
 import 'package:karatou/app/core/ui/components/kpb_card.dart';
 import 'package:karatou/app/core/ui/components/kpb_sample_data_banner.dart';
 import 'package:karatou/app/core/ui/components/kpb_status_chip.dart';
-import 'package:karatou/app/core/ui/components/match_badge.dart';
+import 'package:karatou/app/core/models/app_models.dart';
+import 'package:karatou/app/core/ui/components/profile_fit_badge.dart';
 import 'package:karatou/app/core/ui/components/section_header.dart';
 
 Widget _gallery() {
@@ -87,9 +88,9 @@ Widget _gallery() {
               KpbStatusChip(status: KpbStatus.error, label: 'Fermée'),
               KpbStatusChip(status: KpbStatus.info, label: 'Info'),
               KpbStatusChip(status: KpbStatus.neutral, label: 'Neutre'),
-              MatchBadge(score: 86),
-              MatchBadge(score: 65),
-              MatchBadge(score: 42),
+              ProfileFitBadge(fit: ProfileFit.strong),
+              ProfileFitBadge(fit: ProfileFit.good),
+              ProfileFitBadge(fit: ProfileFit.explore),
             ],
           ),
           const SizedBox(height: KpbSpacing.lg),

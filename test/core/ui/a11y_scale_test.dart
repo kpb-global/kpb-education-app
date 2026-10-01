@@ -14,7 +14,8 @@ import 'package:karatou/app/core/ui/components/kpb_empty_state.dart';
 import 'package:karatou/app/core/ui/components/kpb_error_state.dart';
 import 'package:karatou/app/core/ui/components/kpb_sample_data_banner.dart';
 import 'package:karatou/app/core/ui/components/kpb_status_chip.dart';
-import 'package:karatou/app/core/ui/components/match_badge.dart';
+import 'package:karatou/app/core/models/app_models.dart';
+import 'package:karatou/app/core/ui/components/profile_fit_badge.dart';
 import 'package:karatou/app/core/ui/components/section_header.dart';
 
 Widget _kit() {
@@ -59,7 +60,7 @@ Widget _kit() {
           KpbStatusChip(status: KpbStatus.warning, label: 'Date limite proche'),
           KpbStatusChip(
               status: KpbStatus.success, label: 'Candidature ouverte'),
-          MatchBadge(score: 86),
+          ProfileFitBadge(fit: ProfileFit.strong),
         ],
       ),
       const SizedBox(height: KpbSpacing.sm),

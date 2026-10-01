@@ -11,6 +11,7 @@ import '../../core/i18n/app_locale.dart';
 import '../../core/navigation/app_boot_screen.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/models/app_models.dart';
+import '../../core/ui/components/profile_fit_badge.dart';
 import '../../core/utils/country_utils.dart';
 import '../../core/utils/currency_utils.dart';
 import '../../core/utils/study_level.dart';
@@ -630,7 +631,7 @@ class _UniversityRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final match = controller.institutionMatch(institution);
+    final fit = controller.institutionFit(institution);
     final flag = displayCountryFlag(
       id: institution.countryId,
       flagEmoji: controller
@@ -661,34 +662,11 @@ class _UniversityRow extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          _MatchPill(match: match),
+          if (fit != null) ...[
+            const SizedBox(width: 8),
+            ProfileFitBadge(fit: fit, fontSize: 11),
+          ],
         ],
-      ),
-    );
-  }
-}
-
-class _MatchPill extends StatelessWidget {
-  const _MatchPill({required this.match});
-  final int match;
-
-  @override
-  Widget build(BuildContext context) {
-    final strong = match >= 70;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-      decoration: BoxDecoration(
-        color: strong ? KpbColors.successLight : KpbColors.actionPrimarySoft,
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: Text(
-        '$match%',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          color: strong ? KpbColors.success : KpbColors.actionPrimary,
-        ),
       ),
     );
   }

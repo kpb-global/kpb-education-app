@@ -7,22 +7,12 @@ import '../../core/models/app_models.dart';
 import '../../core/utils/country_utils.dart';
 import '../cases/case_composer_sheet.dart';
 import '../../core/ui/app_tokens.dart';
+import '../../core/ui/components/profile_fit_badge.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Couleurs : tokens sémantiques centraux (KpbColors — architecture §6/§10.2).
 
 String _flag(String id) => countryFlag(id);
-
-/// Match-percentage zone colours (bg, fg) — shared by the table match chip and
-/// the picker badges.
-(Color, Color) _zoneColors(int score) {
-  if (score >= 85) return (KpbColors.successLight, KpbColors.success);
-  if (score >= 70) {
-    return (KpbColors.actionPrimarySoft, KpbColors.actionPrimary);
-  }
-  if (score >= 50) return (KpbColors.warningLight, KpbColors.warning);
-  return (KpbColors.surfaceMuted, KpbColors.textMuted);
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Comparator screen
@@ -74,9 +64,9 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
       );
     }
 
-    final score1 = _controller.institutionMatch(inst1);
-    final score2 = _controller.institutionMatch(inst2);
-    final verdict = _verdict(inst1, inst2, score1, score2);
+    final fit1 = _controller.institutionFit(inst1);
+    final fit2 = _controller.institutionFit(inst2);
+    final verdict = _verdict(inst1, inst2, fit1, fit2);
 
     return Scaffold(
       backgroundColor: KpbColors.canvas,
@@ -88,7 +78,7 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
             children: [
               _header(inst1, inst2),
               const SizedBox(height: 13),
-              _table(inst1, inst2, score1, score2, verdict),
+              _table(inst1, inst2, fit1, fit2, verdict),
               const SizedBox(height: 13),
               Row(
                 children: [
@@ -175,13 +165,10 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
   Widget _table(
     InstitutionModel inst1,
     InstitutionModel inst2,
-    int score1,
-    int score2,
+    ProfileFit? fit1,
+    ProfileFit? fit2,
     String? verdict,
   ) {
-    final (bg1, fg1) = _zoneColors(score1);
-    final (bg2, fg2) = _zoneColors(score2);
-
     return Container(
       decoration: BoxDecoration(
         color: KpbColors.surface,
@@ -194,8 +181,8 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
           _pickHeaderRow(inst1, inst2),
           _attrRow(
             'compare_row_match'.tr,
-            _chip('$score1%', bg1, fg1),
-            _chip('$score2%', bg2, fg2),
+            _fitCell(fit1),
+            _fitCell(fit2),
           ),
           _attrRow(
             'saved_group_countries'.tr,
@@ -395,6 +382,10 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
     );
   }
 
+  /// Qualitative fit, or a dash without a student profile (never a score).
+  Widget _fitCell(ProfileFit? fit) =>
+      fit == null ? _cellText('—') : ProfileFitBadge(fit: fit, fontSize: 11);
+
   Widget _partnerChip(bool value) => value
       ? _chip('compare_yes'.tr, KpbColors.successLight, KpbColors.success)
       : _chip('compare_no'.tr, KpbColors.surfaceMuted, KpbColors.textMuted);
@@ -555,16 +546,16 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
   String? _verdict(
     InstitutionModel a,
     InstitutionModel b,
-    int scoreA,
-    int scoreB,
+    ProfileFit? fitA,
+    ProfileFit? fitB,
   ) {
-    if (scoreA != scoreB) {
-      final higher = scoreA > scoreB ? a : b;
-      return 'compare_verdict_higher_match'.trParams({
-        'name': _controller.resolve(higher.name),
-        'hi': '${scoreA > scoreB ? scoreA : scoreB}',
-        'lo': '${scoreA > scoreB ? scoreB : scoreA}',
-      });
+    // Compare the displayed tiers, not the raw ranking scores: the verdict
+    // must never contradict the two badges the student sees just above.
+    // ProfileFit is declared best-first, so a lower index is a better fit.
+    if (fitA != null && fitB != null && fitA != fitB) {
+      final better = fitA.index < fitB.index ? a : b;
+      return 'compare_verdict_higher_match'
+          .trParams({'name': _controller.resolve(better.name)});
     }
     if (a.isPartner != b.isPartner) {
       final partner = a.isPartner ? a : b;
@@ -587,16 +578,19 @@ class _InstitutionCompareScreenState extends State<InstitutionCompareScreen> {
   void _shareComparison(InstitutionModel inst1, InstitutionModel inst2) {
     final name1 = _controller.resolve(inst1.name);
     final name2 = _controller.resolve(inst2.name);
-    final score1 = _controller.institutionMatch(inst1);
-    final score2 = _controller.institutionMatch(inst2);
+    String line(String name, ProfileFit? fit) => fit == null
+        ? 'compare_share_line_plain'.trParams({'name': name})
+        : 'compare_share_line'.trParams({'name': name, 'fit': fit.labelKey.tr});
+    final fit1 = _controller.institutionFit(inst1);
+    final fit2 = _controller.institutionFit(inst2);
     SharePlus.instance.share(ShareParams(
       text: 'compare_share_header'.tr +
-          'compare_share_line'.trParams({'name': name1, 'score': '$score1'}) +
+          line(name1, fit1) +
           'compare_share_tuition'
               .trParams({'tuition': _controller.resolve(inst1.tuitionLabel)}) +
           'compare_share_language'.trParams(
               {'lang': _controller.resolve(inst1.languageRequirements)}) +
-          'compare_share_line'.trParams({'name': name2, 'score': '$score2'}) +
+          line(name2, fit2) +
           'compare_share_tuition'
               .trParams({'tuition': _controller.resolve(inst2.tuitionLabel)}) +
           'compare_share_language'.trParams(
@@ -784,8 +778,7 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
   }
 
   Widget _pickRow(InstitutionModel inst) {
-    final score = widget.controller.institutionMatch(inst);
-    final (bg, fg) = _zoneColors(score);
+    final fit = widget.controller.institutionFit(inst);
     final selected = inst.id == widget.currentId;
     return Material(
       color: selected ? KpbColors.actionPrimarySoft : Colors.transparent,
@@ -834,22 +827,10 @@ class _UniversityPickerSheetState extends State<_UniversityPickerSheet> {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Text(
-                  '$score%',
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w800,
-                    color: fg,
-                  ),
-                ),
-              ),
+              if (fit != null) ...[
+                const SizedBox(width: 8),
+                ProfileFitBadge(fit: fit, fontSize: 10.5),
+              ],
             ],
           ),
         ),

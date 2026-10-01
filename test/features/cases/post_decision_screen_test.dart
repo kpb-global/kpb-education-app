@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:karatou/app/core/config/app_config.dart';
 import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
+import 'package:karatou/app/core/ui/components/profile_fit_badge.dart';
 import 'package:karatou/app/features/cases/post_decision_screen.dart';
 
 import '../../widget_test_helpers.dart';
@@ -70,8 +71,9 @@ void main() {
 
       // Plan B is populated from the real (mock-catalog) institution ranking.
       expect(find.text('post_decision_plan_b_title'), findsOneWidget);
-      // At least one alternative renders a real match percentage.
-      expect(find.textContaining('%'), findsWidgets);
+      // Alternatives carry a qualitative profile fit — never a percentage.
+      expect(find.byType(ProfileFitBadge), findsWidgets);
+      expect(find.textContaining('%'), findsNothing);
 
       // Counselor hand-off → WhatsApp (no in-app payment).
       expect(find.text('post_decision_counselor_title'), findsOneWidget);
