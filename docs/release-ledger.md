@@ -67,11 +67,11 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   domaines dans la déclaration). L'ouverture est une opération serveur séparée
   (`docs/runbook-ouverture-espace-reel.md`), sans nouvelle soumission.
 
-  **Statut au 01/10/2026, 23 h 30** : non archivée, non soumise ; archivage et
-  soumission prévus le 02/10 (`docs/mise-a-jour-54-checklist.md`). Backend en
-  production : `33c5a51` (#299 à #301). Catalogue publié : 10 029 formations dans
-  84 établissements, 473 en attente — mais l'espace reste fermé
-  (`eefSpace=false`).
+  **Statut dans la nuit du 01 au 02/10/2026** : non archivée, non soumise ;
+  archivage et soumission prévus le 02/10 (`docs/mise-a-jour-54-checklist.md`).
+  `main` porte #299 à #302 ; le backend est déployé sur le dernier commit de `main`.
+  Catalogue publié : 10 029 formations dans 84 établissements, 473 en attente —
+  mais l'espace reste fermé (`eefSpace=false`).
 
 ### Ce que 54 embarque
 
@@ -137,8 +137,8 @@ email manquant qui bloquait la synchro du profil (#291) ; logos Wikimedia Common
 avec crédit de licence (#281, 330 px — MISS-01) ; client de recherche serveur
 (#280).
 
-**4. Conformité et correctifs ajoutés au dernier moment** (PR d'intégration de #287
-et #288, si elle est fusionnée avant l'archivage).
+**4. Conformité et correctifs ajoutés au dernier moment** (#287 et #288, intégrées
+par #302 le 01/10).
 - MISS-02 et #287 : **plus aucun pourcentage d'admission** dans l'app. La jauge
   « 85 % » codée en dur de la fiche établissement, les « 40 % » de repli des
   Universités et de Comparer, les « 74 % » de la fiche formation et de la carte
@@ -172,12 +172,10 @@ une clé absente (`recommendedVersion`, `eefCatalog`, `platformUrl`,
 `suspendedSources`, `catalogPublished` — lue « publié » quand elle manque). Un
 backend en retard se traduit par **moins de choses affichées**, jamais par une
 erreur : c'est la définition de `tolerates-old`. Le préflight se lance donc avec
-`backend_coupling=tolerates-old`. Au 01/10 à 23 h 05, la production sert `33c5a51`
-(#299 à #301), un ancêtre de la release ; si `main` n'a pas bougé depuis, la
-production **est** la release et `requires-new` passe aussi. Relire
-`GET /api/health/version` juste avant de lancer le préflight. Le déploiement du
-backend de #288 (s'il est intégré) peut se faire avant ou après l'archivage : la
-54 le tolère dans les deux sens.
+`backend_coupling=tolerates-old`. Dans la nuit du 01 au 02/10, le backend a été
+déployé sur le dernier commit de `main` (avec le serveur de #288) : si `main` n'a pas
+bougé depuis, la production **est** la release et `requires-new` passe. Relire
+`GET /api/health/version` juste avant de lancer le préflight.
 
 ⚠️ **Mais l'OUVERTURE de l'espace exige le backend de cette build** — le commit de
 fusion de la branche, **pas `95440db`** (qui porte la recherche et le `PATCH`

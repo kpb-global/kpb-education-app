@@ -54,11 +54,9 @@ carte du catalogue n'en dessine pas) et le catalogue est derrière un drapeau
 éteint — le dire serait vanter une fonction inatteignable (guidelines 2.3.1 /
 2.3.3).
 
-> **Ces notes supposent la PR qui intègre #287 et #288 fusionnée** (plus aucun
-> pourcentage d'admission ; délai IA de 90 s). Sans elle, remplacer la 3ᵉ ligne par
-> « Fiches établissements : retrait d'un indicateur d'admission qui n'était pas fondé
-> sur un calcul réel. » (EN : « Institution pages: removed an admission indicator
-> that was not based on a real calculation. ») et retirer la 4ᵉ.
+> **Ces notes couvrent #287 et #288**, intégrées à la 54 par #302 (fusionnée le
+> 01/10) : plus aucun pourcentage d'admission ; délai IA de 90 s. À coller telles
+> quelles.
 
 ### 2.1 État A — espace éteint (recommandé)
 
