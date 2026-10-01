@@ -26,12 +26,14 @@ void main() {
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
+    AppConfig.eefSpaceEnabledOverride = null;
   });
 
   tearDown(() {
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
+    AppConfig.eefSpaceEnabledOverride = null;
     Get.reset();
   });
 
@@ -99,6 +101,11 @@ void main() {
       AppConfig.eefEnabledOverride = true;
       expect(EefEntry.isVisible, isTrue);
     });
+
+    test('vrai quand l\'espace est ouvert pour cette build (eefSpace)', () {
+      AppConfig.eefSpaceEnabledOverride = true;
+      expect(EefEntry.isVisible, isTrue);
+    });
   });
 
   group('l\'écran servi', () {
@@ -144,8 +151,26 @@ void main() {
       expect(find.byType(EefTeaserScreen), findsNothing);
     });
 
-    // Le serveur garantit déjà que les deux ne sont jamais servis ensemble
-    // (`eef` retire `eefTeaser`), mais l'ordre est écrit ici AUSSI : un repli de
+    // `eefSpace` ouvre l'espace pour cette build SANS retirer la vitrine des
+    // builds plus anciennes : le serveur sert donc les deux ensemble, et c'est
+    // cet écran qui tranche. Un « bientôt » devant un espace ouvert serait le
+    // contraire de ce que la clé existe pour faire.
+    testWidgets('eefSpace + vitrine servis ensemble → l\'espace PRIME',
+        (tester) async {
+      AppConfig.eefTeaserEnabledOverride = true;
+      AppConfig.eefSpaceEnabledOverride = true;
+      await seedKpbController();
+      await pumpKpbScreen(
+        tester,
+        screen: const EefEntry(),
+        viewport: iphone14,
+      );
+
+      expect(find.byType(EefHomeScreen), findsOneWidget);
+      expect(find.byType(EefTeaserScreen), findsNothing);
+    });
+
+    // L'ordre est écrit ici AUSSI pour l'ancien commutateur : un repli de
     // compilation ou un backend plus ancien pourrait rendre les deux vrais, et
     // il vaut mieux montrer l'espace ouvert qu'un « bientôt » devant un espace
     // vivant.

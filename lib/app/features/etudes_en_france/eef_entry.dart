@@ -22,11 +22,12 @@ import 'eef_teaser_screen.dart';
 ///
 /// ## L'ordre des cas
 ///
-/// L'espace réel PRIME sur la vitrine. Le serveur garantit déjà qu'ils ne sont
-/// jamais servis tous les deux (`eef` retire `eefTeaser`), mais l'ordre est
-/// écrit ici aussi : un repli de compilation ou un backend plus ancien pourrait
-/// rendre les deux vrais, et il vaut mieux montrer l'espace ouvert qu'un
-/// « bientôt » devant un espace vivant.
+/// L'espace réel PRIME sur la vitrine. Il s'ouvre par `eefSpace`, la clé que le
+/// serveur pose pour la seule build 54 : elle ne retire pas la vitrine des
+/// builds plus anciennes, donc le serveur PEUT servir `eefSpace` et `eefTeaser`
+/// ensemble, et c'est ici que l'ordre se décide. L'ancien commutateur `eef`
+/// ouvre l'espace aussi. Il vaut mieux montrer l'espace ouvert qu'un « bientôt »
+/// devant un espace vivant.
 ///
 /// ## Le troisième cas
 ///
@@ -48,7 +49,7 @@ class EefEntry extends StatelessWidget {
   /// choix éditorial, casser un lien profond est un cul-de-sac.
   static bool get isVisible {
     final flags = RemoteFeatureFlags.instance;
-    if (!flags.eefEnabled && !flags.eefTeaserEnabled) return false;
+    if (!flags.eefSpaceEnabled && !flags.eefTeaserEnabled) return false;
 
     // ── Comptes étudiants SEULEMENT ──────────────────────────────────────
     //
@@ -85,7 +86,7 @@ class EefEntry extends StatelessWidget {
       valueListenable: RemoteFeatureFlags.instance.flagsVersion,
       builder: (context, _, __) {
         final flags = RemoteFeatureFlags.instance;
-        if (flags.eefEnabled) return const EefHomeScreen();
+        if (flags.eefSpaceEnabled) return const EefHomeScreen();
         if (flags.eefTeaserEnabled) return EefTeaserScreen(source: source);
         return const ComingSoonScreen();
       },

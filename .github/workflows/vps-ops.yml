@@ -62,6 +62,7 @@ on:
           - eef-space-on
           - eef-space-off
           - eef-campaign-set
+          - recommended-version-set
           - publish-catalog
           - recreate-clamav
           - import-partners
@@ -74,7 +75,7 @@ on:
           - eef-purge-pending
           - reviews-purge-orphans
       dry_run:
-        description: 'Simuler seulement (eef-space-on, eef-campaign-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, reviews-purge-orphans). Décocher pour appliquer.'
+        description: 'Simuler seulement (eef-space-on, eef-campaign-set, recommended-version-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, reviews-purge-orphans). Décocher pour appliquer.'
         type: boolean
         required: false
         default: true

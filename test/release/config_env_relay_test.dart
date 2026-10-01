@@ -112,14 +112,22 @@ void main() {
     }
     // Et les dates : défaut VIDE, jamais une date de repli. Une échéance
     // inventée est indistinguable d'une information pour qui la lit.
+    //
+    // Même règle pour les liens officiels et la version recommandée : vides par
+    // défaut, le serveur retombe alors sur des liens vérifiés / n'invite à rien.
+    // Un lien ou une version écrits dans le fichier compose seraient figés dans
+    // le dépôt, donc périmés dès la première évolution de la plateforme.
     for (final date in [
       'KPB_EEF_CAMPAIGN_OPENS_AT',
       'KPB_EEF_CAMPAIGN_CLOSES_AT',
+      'KPB_EEF_PLATFORM_URL',
+      'KPB_EEF_SUSPENDED_SOURCES',
+      'KPB_RECOMMENDED_APP_VERSION',
     ]) {
       expect(
         compose,
         contains('- $date=\${$date:-}'),
-        reason: '$date doit avoir un défaut VIDE, pas une date.',
+        reason: '$date doit avoir un défaut VIDE, pas une valeur de repli.',
       );
     }
   });

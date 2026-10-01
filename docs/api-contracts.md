@@ -746,6 +746,43 @@ vivait dans la couture : les tests mobiles décodaient la valeur d'exploitation
 directement, contournant la normalisation serveur, et un test backend figeait
 cette normalisation comme contrat.
 
+### Ce que `GET /config/app` sert d'autre que des drapeaux (build 54)
+
+Route publique, sans authentification. Quatre ajouts, tous **absents sur un
+serveur plus ancien** — le client les traite comme « rien à afficher », jamais
+comme une valeur de repli :
+
+| Clé | Forme | Variable d'environnement | Sens |
+|---|---|---|---|
+| `recommendedVersion` | `"2.3.0"` ou `null` | `KPB_RECOMMENDED_APP_VERSION` | En dessous, l'app affiche un bandeau **qu'on ferme**. À ne pas confondre avec `minVersion`, qui bloque l'app derrière un écran sans sortie. Une valeur qui n'est pas `x.y.z` vaut `null` : « pas de bandeau », jamais « bandeau pour tous ». |
+| `eefCampaign.platformUrl` | URL https | `KPB_EEF_PLATFORM_URL` | La plateforme officielle, affichée sous la date et dans la mention de non-affiliation. Repli serveur vérifié : `https://www.campusfrance.org/fr`. |
+| `eefCampaign.suspendedSources` | `[{country, url}]` | `KPB_EEF_SUSPENDED_SOURCES` (`Pays\|https://…;Autre\|https://…`) | La page officielle qui justifie la suspension d'un pays. **Un élément par pays de `suspendedCountries` seulement** : la source d'une suspension ne voyage pas sans suspension. Connue sans configuration : le Niger (`ne.diplomatie.gouv.fr/informations-visas`). |
+| `eefCatalog` | `{producer, producerUrl, licence, licenceUrl, sources[], updatedAt, catalogVersion}` | — (constante) | La mention de paternité de la Licence Ouverte 2.0, posée en pied de l'écran catalogue. `updatedAt` est un **jour nu** `AAAA-MM-JJ`. |
+
+**Toute URL servie est `https`, sans identifiants**, sinon elle est écartée :
+ces valeurs sont écrites à la main, et `javascript:` ne doit jamais atteindre un
+bouton « ouvrir ». Côté client, une adresse non ouvrable masque le lien au lieu
+de l'afficher mort.
+
+**`eefCatalog` est une constante TypeScript** (`eef-catalog-attribution.ts`), pas
+une lecture de `manifest.json` : le manifeste vit dans `src/` et n'est pas copié
+dans `dist/`, donc le lire au démarrage marcherait en test et échouerait en
+production, en silence. Le risque devient qu'elle oublie un réimport, et
+`eef-catalog-attribution.spec.ts` le couvre : il compare la constante au
+manifeste (version, jour de récupération, familles de jeux citées, licence) et
+**échoue au premier réimport qui ne la met pas à jour**.
+
+#### En-têtes de version de l'app
+
+Depuis la build 54, chaque requête de l'app porte `X-KPB-App-Version`
+(`2.3.0`) et `X-KPB-App-Build` (`54`). Avant, le serveur ne pouvait pas
+distinguer une 53 d'une 54 : toute décision « par version » — montrer des lignes
+aux seules builds qui savent les afficher, mesurer qui a mis à jour — était
+impossible. La version d'une application publiée est la même pour tous ses
+utilisateurs : ce n'est ni un identifiant ni une donnée de profil. Un en-tête
+absent (build antérieure, plugin indisponible) ne doit jamais faire échouer une
+requête.
+
 ### Le consentement, sur le fil
 
 `POST /etudes-en-france/interest` exige deux champs, et les refuse absents :

@@ -128,6 +128,15 @@ services:
       - KPB_EEF_CAMPAIGN_OPENS_AT=${KPB_EEF_CAMPAIGN_OPENS_AT:-}
       - KPB_EEF_CAMPAIGN_CLOSES_AT=${KPB_EEF_CAMPAIGN_CLOSES_AT:-}
       - KPB_EEF_SUSPENDED_COUNTRIES=${KPB_EEF_SUSPENDED_COUNTRIES:-}
+      # Les liens OFFICIELS que l'app affiche sous la date et sous la mise en
+      # garde de suspension. VIDES par défaut : le serveur retombe alors sur des
+      # liens vérifiés (Campus France ; la page de l'ambassade pour le Niger).
+      - KPB_EEF_PLATFORM_URL=${KPB_EEF_PLATFORM_URL:-}
+      - KPB_EEF_SUSPENDED_SOURCES=${KPB_EEF_SUSPENDED_SOURCES:-}
+      # La version à partir de laquelle l'app cesse d'inviter à mettre à jour
+      # (bandeau NON bloquant). Vide = aucun bandeau. À ne pas confondre avec
+      # KPB_MIN_APP_VERSION, qui bloque l'app derrière un écran qu'on ne ferme pas.
+      - KPB_RECOMMENDED_APP_VERSION=${KPB_RECOMMENDED_APP_VERSION:-}
       - KPB_AI_DIAGNOSTIC_MIN_AGE=${KPB_AI_DIAGNOSTIC_MIN_AGE:-13}
       - KPB_AI_DIAGNOSTIC_PROMPT_VERSION=${KPB_AI_DIAGNOSTIC_PROMPT_VERSION:-success-lab-v1}
       - KPB_AI_DIAGNOSTIC_MAX_INPUT_CHARS=${KPB_AI_DIAGNOSTIC_MAX_INPUT_CHARS:-8000}

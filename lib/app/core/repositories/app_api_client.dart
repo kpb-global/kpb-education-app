@@ -14,6 +14,7 @@ import '../controllers/app_controller.dart';
 import '../data/catalog_source.dart';
 import '../models/app_models.dart';
 import '../navigation/app_boot_screen.dart';
+import 'app_version_headers.dart';
 
 class AppApiClient {
   AppApiClient({Dio? dio})
@@ -36,6 +37,7 @@ class AppApiClient {
                 },
               ),
             ) {
+    _dio.interceptors.add(AppVersionHeadersInterceptor());
     _dio.interceptors.add(_AuthInterceptor(_dio));
   }
 

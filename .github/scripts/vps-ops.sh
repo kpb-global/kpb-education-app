@@ -470,6 +470,13 @@ EEF_CAMPAIGN_OPENS_AT="2026-10-01"
 EEF_CAMPAIGN_CLOSES_AT=""
 EEF_CAMPAIGN_SUSPENDED="Niger,NE"
 
+# La version RECOMMANDÉE (bandeau doux « une mise à jour est disponible »). Écrite
+# ici, relue en PR, comme le reste : l'action n'accepte aucune valeur libre. À
+# changer à chaque build qui doit être poussée, et SEULEMENT quand elle est
+# disponible sur les deux stores — sinon le bandeau envoie vers un store qui n'a
+# encore rien. Vide = aucun bandeau.
+RECOMMENDED_APP_VERSION="2.3.0"
+
 # Nombre de formations de l'import que la recherche SERVIRAIT : active, sous un
 # établissement actif, du périmètre de l'import (même définition que
 # `eefProgramWhere` côté serveur). Zéro = un espace qui s'ouvrirait VIDE.
@@ -580,6 +587,30 @@ case "$ACTION" in
     set_env_key KPB_EEF_CAMPAIGN_CLOSES_AT "$EEF_CAMPAIGN_CLOSES_AT"
     set_env_key KPB_EEF_SUSPENDED_COUNTRIES "$EEF_CAMPAIGN_SUSPENDED"
     echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
+    recreate_api_same_image
+    ;;
+
+  recommended-version-set)
+    # Pose (ou, si la constante est vide, RETIRE) la version recommandée. Ne
+    # touche ni à la vitrine, ni à l'espace, ni à KPB_MIN_APP_VERSION : inviter à
+    # mettre à jour et bloquer l'app sont deux décisions distinctes.
+    require_relay KPB_RECOMMENDED_APP_VERSION
+    if [ -n "$RECOMMENDED_APP_VERSION" ] && ! printf '%s' "$RECOMMENDED_APP_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+      echo "::error::RECOMMENDED_APP_VERSION doit être « x.y.z » (reçu « ${RECOMMENDED_APP_VERSION} ») — le serveur l'ignorerait."
+      exit 1
+    fi
+    echo "── Version recommandée à poser (relue en PR) ──"
+    echo "KPB_RECOMMENDED_APP_VERSION=${RECOMMENDED_APP_VERSION}"
+    if grep -qE '^KPB_MIN_APP_VERSION=' .env; then
+      echo "(KPB_MIN_APP_VERSION n'est pas modifiée par cette action.)"
+    fi
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "── SIMULATION : rien n'est écrit. Décocher « dry_run » pour appliquer. ──"
+      exit 0
+    fi
+    cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+    set_env_key KPB_RECOMMENDED_APP_VERSION "$RECOMMENDED_APP_VERSION"
+    echo "── .env après écriture ──"; grep -E '^KPB_RECOMMENDED_APP_VERSION' .env
     recreate_api_same_image
     ;;
 

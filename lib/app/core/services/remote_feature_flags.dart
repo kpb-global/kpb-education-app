@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 import '../config/app_config.dart';
+import '../models/eef_catalog_attribution.dart';
 import '../repositories/app_api_client.dart';
+import '../utils/external_link.dart';
 import '../utils/app_logger.dart';
 
 /// Une fenêtre de campagne telle que `/config/app` la sert.
@@ -16,6 +18,8 @@ class EefCampaignWindow {
     this.opensAt,
     this.closesAt,
     this.suspendedCountries = const <String>[],
+    this.platformUrl,
+    this.suspendedSources = const <String, String>{},
   });
 
   final DateTime? opensAt;
@@ -28,6 +32,16 @@ class EefCampaignWindow {
   /// depuis l'écran de profil. La comparaison passe donc par
   /// [isSuspendedForCountry], qui normalise les deux côtés.
   final List<String> suspendedCountries;
+
+  /// La plateforme officielle, servie. `null` quand le serveur est plus ancien
+  /// ou que la valeur n'est pas une adresse web ouvrable : l'app n'affiche alors
+  /// aucun lien plutôt qu'un lien qui ne marche pas.
+  final String? platformUrl;
+
+  /// La page officielle qui justifie la suspension, par pays — clé normalisée
+  /// par [normalizeCountry]. Servie avec la liste des pays suspendus : une
+  /// suspension annoncée sans sa source est une affirmation invérifiable.
+  final Map<String, String> suspendedSources;
 
   static const empty = EefCampaignWindow();
 
@@ -57,6 +71,15 @@ class EefCampaignWindow {
     return suspendedCountries.any(
       (entry) => normalizeCountry(entry) == needle,
     );
+  }
+
+  /// La source officielle de la suspension pour [country], ou `null`.
+  ///
+  /// Rend `null` quand le pays n'est pas suspendu : la source d'une suspension
+  /// ne doit jamais voyager vers quelqu'un qui n'est pas concerné.
+  String? suspensionSourceFor(String? country) {
+    if (!isSuspendedForCountry(country)) return null;
+    return suspendedSources[normalizeCountry(country)];
   }
 
   /// Minuscules, sans accents, apostrophes unifiées, espaces réduits.
@@ -95,7 +118,33 @@ class EefCampaignWindow {
       opensAt: _parseCampaignDay(raw['opensAt']),
       closesAt: _parseCampaignDay(raw['closesAt']),
       suspendedCountries: _parseStringList(raw['suspendedCountries']),
+      platformUrl: _parseWebUrl(raw['platformUrl']),
+      suspendedSources: _parseSources(raw['suspendedSources']),
     );
+  }
+
+  /// Une adresse que l'app peut réellement ouvrir, ou `null`. Même règle que
+  /// partout ailleurs : un bouton qui ne peut pas marcher n'est pas affiché.
+  static String? _parseWebUrl(Object? value) {
+    if (value is! String) return null;
+    final trimmed = value.trim();
+    return isOpenableWebUrl(trimmed) ? trimmed : null;
+  }
+
+  /// `[{country, url}]` → `{pays normalisé: url}`. Une entrée illisible est
+  /// ignorée, jamais devinée, et ne fait pas perdre les autres.
+  static Map<String, String> _parseSources(Object? value) {
+    if (value is! List) return const <String, String>{};
+    final out = <String, String>{};
+    for (final entry in value) {
+      if (entry is! Map) continue;
+      final country = entry['country'];
+      final url = _parseWebUrl(entry['url']);
+      if (country is! String || url == null) continue;
+      final key = normalizeCountry(country);
+      if (key.isNotEmpty) out[key] = url;
+    }
+    return Map.unmodifiable(out);
   }
 
   static List<String> _parseStringList(Object? value) {
@@ -207,12 +256,20 @@ class RemoteFeatureFlags {
   static void resetForTest() {
     instance._features = const <String, bool>{};
     instance._campaign = EefCampaignWindow.empty;
+    instance._recommendedVersion = null;
+    instance._iosStoreUrl = null;
+    instance._androidStoreUrl = null;
+    instance._catalogAttribution = null;
     instance._loaded = false;
     instance.flagsVersion.value = 0;
   }
 
   Map<String, bool> _features = const <String, bool>{};
   EefCampaignWindow _campaign = EefCampaignWindow.empty;
+  String? _recommendedVersion;
+  String? _iosStoreUrl;
+  String? _androidStoreUrl;
+  EefCatalogAttribution? _catalogAttribution;
   bool _loaded = false;
 
   /// Incrémenté à chaque rafraîchissement réussi. Les écrans qui dépendent d'un
@@ -226,11 +283,39 @@ class RemoteFeatureFlags {
   /// La fenêtre de campagne servie, ou [EefCampaignWindow.empty].
   EefCampaignWindow get eefCampaign => _campaign;
 
+  /// La version à partir de laquelle l'app cesse d'inviter à mettre à jour, ou
+  /// `null` (aucun bandeau). À ne pas confondre avec `minVersion`, que lit
+  /// `AppVersionGate` : en dessous de celle-ci l'app est bloquée, en dessous de
+  /// [recommendedVersion] elle l'invite — et se laisse fermer.
+  String? get recommendedVersion => _recommendedVersion;
+
+  /// Le lien de la fiche du store pour CETTE plateforme, ou `null`.
+  String? get storeUrl => defaultTargetPlatform == TargetPlatform.iOS
+      ? _iosStoreUrl
+      : _androidStoreUrl;
+
+  /// La mention de paternité du catalogue, ou `null` si le serveur ne la sert
+  /// pas (plus ancien, ou charge incomplète).
+  EefCatalogAttribution? get catalogAttribution => _catalogAttribution;
+
   /// La vitrine « Études en France » est-elle visible ?
   bool get eefTeaserEnabled => _flag('eefTeaser', AppConfig.eefTeaserEnabled);
 
-  /// L'espace « Études en France » réel est-il ouvert ?
+  /// L'ANCIEN commutateur de l'espace réel. Les builds 49 à 53 le lisent, et
+  /// pour elles `true` veut dire « montre l'espace » ET « retire la vitrine ».
+  /// Cette build l'honore encore (un serveur qui le pose ouvre l'espace partout)
+  /// mais ne s'y fie plus : voir [eefSpaceEnabled].
   bool get eefEnabled => _flag('eef', AppConfig.eefEnabled);
+
+  /// L'espace « Études en France » réel est-il ouvert POUR CETTE BUILD ?
+  ///
+  /// C'est la clé que le serveur pose pour ouvrir l'espace à la build 54 sans
+  /// toucher à la vitrine des builds plus anciennes (qui ignorent cette clé et
+  /// continuent de lire `eef`). L'ancien commutateur l'allume aussi : un serveur
+  /// plus ancien, qui ne connaît pas `eefSpace` mais pose `eef`, ouvre l'espace
+  /// ici comme ailleurs.
+  bool get eefSpaceEnabled =>
+      _flag('eefSpace', AppConfig.eefSpaceEnabled) || eefEnabled;
 
   /// La valeur servie, ou le repli de compilation quand elle est absente.
   bool _flag(String key, bool fallback) => _features[key] ?? fallback;
@@ -241,6 +326,11 @@ class RemoteFeatureFlags {
       final config = await apiClient.getAppConfig();
       _features = _readFeatures(config['features']);
       _campaign = EefCampaignWindow.fromJson(config['eefCampaign']);
+      _recommendedVersion = _readVersion(config['recommendedVersion']);
+      _iosStoreUrl = _readWebUrl(config['iosStoreUrl']);
+      _androidStoreUrl = _readWebUrl(config['androidStoreUrl']);
+      _catalogAttribution =
+          EefCatalogAttribution.fromJson(config['eefCatalog']);
       _loaded = true;
       flagsVersion.value++;
     } catch (error) {
@@ -252,6 +342,21 @@ class RemoteFeatureFlags {
         tag: 'RemoteFeatureFlags',
       );
     }
+  }
+
+  /// Une version nue `x.y.z`, ou `null`. Le serveur filtre déjà ; ceci est la
+  /// bretelle : une valeur illisible vaut « pas de bandeau », jamais « bandeau
+  /// pour tous ».
+  static String? _readVersion(Object? raw) {
+    if (raw is! String) return null;
+    final trimmed = raw.trim();
+    return RegExp(r'^\d+\.\d+\.\d+$').hasMatch(trimmed) ? trimmed : null;
+  }
+
+  static String? _readWebUrl(Object? raw) {
+    if (raw is! String) return null;
+    final trimmed = raw.trim();
+    return isOpenableWebUrl(trimmed) ? trimmed : null;
   }
 
   /// Ne retient que les entrées booléennes.

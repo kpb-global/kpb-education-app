@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from "@nestjs/common";
+
+import { EEF_CATALOG_ATTRIBUTION } from "../etudes-en-france/catalog/eef-catalog-attribution";
 
 function enabled(value: string | undefined, defaultValue = false): boolean {
   if (value === undefined) return defaultValue;
-  return value.trim().toLowerCase() === 'true';
+  return value.trim().toLowerCase() === "true";
 }
 
 function rolloutPercent(value: string | undefined): number {
-  const parsed = Number(value ?? '0');
+  const parsed = Number(value ?? "0");
   if (!Number.isFinite(parsed)) return 0;
   return Math.max(0, Math.min(100, Math.round(parsed)));
 }
@@ -23,7 +25,7 @@ function rolloutPercent(value: string | undefined): number {
  */
 function nameList(value: string | undefined): string[] {
   const seen = new Set<string>();
-  for (const entry of (value ?? '').split(',')) {
+  for (const entry of (value ?? "").split(",")) {
     const trimmed = entry.trim();
     if (trimmed) seen.add(trimmed);
   }
@@ -94,6 +96,105 @@ function campaignDay(value: string | undefined): string | null {
 }
 
 /**
+ * Une URL que l'app va OUVRIR : https uniquement, sans identifiants.
+ *
+ * Ces liens sont servis par une variable d'exploitation, donc écrits à la main
+ * par quelqu'un pressé. `javascript:` ou `http:` ne doivent jamais atteindre un
+ * bouton « ouvrir » — et une faute de frappe doit faire taire le lien, pas
+ * l'envoyer vers un hôte que personne n'a voulu.
+ */
+function httpsUrl(value: string | undefined): string | null {
+  const raw = value?.trim();
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:" || url.username || url.password) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+/** « Côte d'Ivoire » et « cote d’ivoire » doivent désigner le même pays. */
+function countryKey(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’]/g, "'")
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * La plateforme officielle, quand l'exploitation n'en désigne pas une autre.
+ * Un repli publié et vérifié (réponse 200 au 01/10/2026) plutôt qu'un lien
+ * absent : la mention de non-affiliation de l'app renvoie « aux plateformes de
+ * l'État », et sans lien l'étudiant ne sait pas où elles sont.
+ */
+const OFFICIAL_PLATFORM_URL = "https://www.campusfrance.org/fr";
+
+/**
+ * Les pages officielles qui justifient une suspension, par pays. Ce sont les
+ * sources citées par `docs/eef-campaign-calendar-2027-2028-research.md` : une
+ * suspension annoncée sans sa source est une affirmation que l'étudiant ne peut
+ * pas vérifier. `KPB_EEF_SUSPENDED_SOURCES` complète ou remplace ces entrées.
+ */
+const KNOWN_SUSPENSION_SOURCES: Readonly<Record<string, string>> = {
+  niger: "https://ne.diplomatie.gouv.fr/informations-visas",
+};
+
+/**
+ * `Pays|https://…;Autre pays|https://…`.
+ *
+ * `;` sépare les entrées et `|` le pays de son lien, parce que ni l'un ni
+ * l'autre n'apparaît dans une URL de page ordinaire — une virgule le ferait
+ * (`?a=1,2`), et le `=` d'un format clé=valeur aussi.
+ */
+function suspensionSourceOverrides(
+  value: string | undefined,
+): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const entry of (value ?? "").split(";")) {
+    const separator = entry.indexOf("|");
+    if (separator < 0) continue;
+    const country = countryKey(entry.slice(0, separator));
+    const url = httpsUrl(entry.slice(separator + 1));
+    if (country && url) out.set(country, url);
+  }
+  return out;
+}
+
+/** Un lien par pays suspendu, et seulement pour les pays suspendus. */
+function suspendedSources(
+  suspended: readonly string[],
+  overrides: string | undefined,
+): { country: string; url: string }[] {
+  const custom = suspensionSourceOverrides(overrides);
+  const out: { country: string; url: string }[] = [];
+  for (const country of suspended) {
+    const key = countryKey(country);
+    const url = custom.get(key) ?? KNOWN_SUSPENSION_SOURCES[key];
+    if (url) out.push({ country, url });
+  }
+  return out;
+}
+
+/**
+ * La version RECOMMANDÉE : celle à partir de laquelle l'app cesse d'inviter à
+ * mettre à jour. Une version nue `x.y.z`, ou rien.
+ *
+ * Elle diffère de `minVersion` par sa conséquence : en dessous de `minVersion`
+ * l'app est bloquée derrière un écran qu'on ne ferme pas ; en dessous de
+ * celle-ci, un bandeau qu'on ferme. Une valeur illisible vaut « pas de
+ * bandeau » — jamais « bandeau pour tous », ce qui enverrait chaque utilisateur
+ * vers le store pour rien.
+ */
+function recommendedVersion(value: string | undefined): string | null {
+  const raw = value?.trim();
+  return raw && /^\d+\.\d+\.\d+$/.test(raw) ? raw : null;
+}
+
+/**
  * The listings actually published. These serve whenever the env vars are unset,
  * which makes them a fallback and not merely a default: the force-update screen
  * cannot be dismissed and its only button is disabled without a usable URL, so a
@@ -101,8 +202,8 @@ function campaignDay(value: string | undefined): string | null {
  * KPB_MIN_APP_VERSION is raised.
  */
 const PUBLISHED_ANDROID_STORE_URL =
-  'https://play.google.com/store/apps/details?id=com.karatou.android';
-const PUBLISHED_IOS_STORE_URL = 'https://apps.apple.com/app/id1128659292';
+  "https://play.google.com/store/apps/details?id=com.karatou.android";
+const PUBLISHED_IOS_STORE_URL = "https://apps.apple.com/app/id1128659292";
 
 /**
  * Public, unauthenticated app configuration. The mobile client reads this at
@@ -110,9 +211,9 @@ const PUBLISHED_IOS_STORE_URL = 'https://apps.apple.com/app/id1128659292';
  * gate). `minVersion` defaults to 0.0.0 — i.e. no build is ever blocked until
  * operators explicitly raise KPB_MIN_APP_VERSION.
  */
-@Controller('config')
+@Controller("config")
 export class AppConfigController {
-  @Get('app')
+  @Get("app")
   getAppConfig() {
     const competitionReadiness = enabled(
       process.env.KPB_COMPETITION_READINESS_ENABLED,
@@ -155,8 +256,18 @@ export class AppConfigController {
     // à la porte de ce que les autres builds montrent déjà.
     const eefSpace = eef || enabled(process.env.KPB_EEF_SPACE_ENABLED);
 
+    const suspendedCountries = nameList(
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES,
+    );
+
     return {
-      minVersion: process.env.KPB_MIN_APP_VERSION?.trim() || '0.0.0',
+      minVersion: process.env.KPB_MIN_APP_VERSION?.trim() || "0.0.0",
+      // Le bandeau doux, par opposition à l'écran bloquant ci-dessus : voir
+      // [recommendedVersion]. C'est ce qui permet de faire passer les builds
+      // 54 → 55 → forum sans relever `minVersion`, donc sans bloquer personne.
+      recommendedVersion: recommendedVersion(
+        process.env.KPB_RECOMMENDED_APP_VERSION,
+      ),
       androidStoreUrl:
         process.env.KPB_ANDROID_STORE_URL?.trim() ||
         PUBLISHED_ANDROID_STORE_URL,
@@ -202,13 +313,25 @@ export class AppConfigController {
         //
         // Servi et non compilé pour la même raison que tout le reste ici : une
         // réouverture ne doit pas attendre une soumission App Store.
-        suspendedCountries: nameList(
-          process.env.KPB_EEF_SUSPENDED_COUNTRIES,
+        suspendedCountries,
+        // Les sources OFFICIELLES de ce que l'app affirme. Servies, pas
+        // compilées : elles évitent de figer un hôte dans le binaire (et de
+        // grossir la liste des hôtes que le test de parité de confidentialité
+        // surveille).
+        platformUrl:
+          httpsUrl(process.env.KPB_EEF_PLATFORM_URL) ?? OFFICIAL_PLATFORM_URL,
+        suspendedSources: suspendedSources(
+          suspendedCountries,
+          process.env.KPB_EEF_SUSPENDED_SOURCES,
         ),
       },
+      // La mention de paternité du catalogue (Licence Ouverte 2.0). Une
+      // constante vérifiée contre le manifeste par son spec — voir
+      // `eef-catalog-attribution.ts`.
+      eefCatalog: EEF_CATALOG_ATTRIBUTION,
       successLabRollout: {
-        countryCodes: (process.env.KPB_SUCCESS_LAB_PILOT_COUNTRIES ?? '')
-          .split(',')
+        countryCodes: (process.env.KPB_SUCCESS_LAB_PILOT_COUNTRIES ?? "")
+          .split(",")
           .map((value) => value.trim().toUpperCase())
           .filter(Boolean),
         percent: rolloutPercent(process.env.KPB_SUCCESS_LAB_ROLLOUT_PERCENT),

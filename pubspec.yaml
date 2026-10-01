@@ -16,8 +16,15 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-# 2.2.0 : la fiche App Store existante (id 1128659292) est en 2.0.9 — la
-# CFBundleShortVersionString doit lui être supérieure. Le NUMÉRO de build vit
+# 2.3.0 : la 2.2.0 est EN VENTE sur l'App Store depuis le 13/09/2026, et App
+# Store Connect refuse le téléversement d'une build dont la
+# CFBundleShortVersionString n'est pas supérieure à la dernière version
+# approuvée (ITMS-90062). La build 54 ne peut donc pas rester en 2.2.0. Elle
+# prend 2.3.0 plutôt que 2.2.1 : elle ajoute un espace entier (« Études en
+# France »), et c'est un numéro de version mineure qui le dit.
+#
+# (Historique : la fiche existante était en 2.0.9 quand la 2.2.0 a été posée —
+# la CFBundleShortVersionString doit toujours être supérieure à la publiée.) Le NUMÉRO de build vit
 # dans docs/release-ledger.md, qui fait foi.
 #
 # Pourquoi 2.1.0 → 2.2.0 le 03/09/2026. La porte de mise à jour
@@ -27,12 +34,13 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # `KPB_MIN_APP_VERSION` ne pouvait distinguer une build d'une autre — la porte
 # était inutilisable en pratique.
 #
-# ATTENTION à l'ordre : ne poser `KPB_MIN_APP_VERSION=2.2.0` sur le VPS
-# qu'APRÈS que la 2.2.0 soit RÉELLEMENT téléchargeable sur les deux stores.
-# Posée avant, elle enferme tous les utilisateurs derrière un écran plein
-# (`PopScope(canPop: false)`) qui renvoie vers une version qui n'existe pas
-# encore.
-version: 2.2.0+53
+# ATTENTION à l'ordre : ne poser `KPB_MIN_APP_VERSION=2.3.0` sur le VPS
+# qu'APRÈS que la 2.3.0 soit RÉELLEMENT téléchargeable sur les deux stores,
+# ET déployée à 100 %. Posée avant, elle enferme tous les utilisateurs derrière
+# un écran plein (`PopScope(canPop: false)`) qui renvoie vers une version qui
+# n'existe pas encore. Pour inviter à mettre à jour SANS bloquer, le serveur
+# sert `recommendedVersion` (voir `AppVersionGate`).
+version: 2.3.0+54
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

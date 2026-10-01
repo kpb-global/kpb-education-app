@@ -259,6 +259,28 @@ class AppConfig {
   @visibleForTesting
   static set eefEnabledOverride(bool? value) => _eefEnabledOverride = value;
 
+  /// Repli local pour l'ouverture de l'espace réel DANS CETTE BUILD.
+  ///
+  /// `eef` (ci-dessus) est l'ancien commutateur, que lisent aussi les builds 49
+  /// à 53 : pour elles il retire la vitrine et montre une coquille vide. La
+  /// clé `eefSpace` est lue par la seule build 54 et les suivantes, donc le
+  /// serveur peut ouvrir l'espace réel sans rien changer à ce que voit une
+  /// build plus ancienne. Fermée par défaut, pour la même raison que les deux
+  /// autres : quand `/config/app` est injoignable, on ne montre rien plutôt
+  /// qu'un espace qu'on ne saurait plus refermer à distance.
+  static bool get eefSpaceEnabled =>
+      _eefSpaceEnabledOverride ??
+      const bool.fromEnvironment(
+        'KPB_EEF_SPACE_ENABLED',
+        defaultValue: false,
+      );
+
+  static bool? _eefSpaceEnabledOverride;
+
+  @visibleForTesting
+  static set eefSpaceEnabledOverride(bool? value) =>
+      _eefSpaceEnabledOverride = value;
+
   // ── Supabase Auth ──────────────────────────────────────────────────────
   /// Supabase project URL (auth only — business data stays in Prisma/Postgres).
   static const supabaseUrl = String.fromEnvironment(

@@ -1881,6 +1881,8 @@ class AppTranslations extends Translations {
           // Suspension : elle REMPLACE la date d'ouverture. Le texte ne promet
           // pas de débloquer une situation diplomatique — il dit ce qui est, et
           // propose la seule chose utile, parler à quelqu'un.
+          'eef_official_platform_link': 'Voir la plateforme officielle',
+          'eef_official_suspension_link': 'Voir la source officielle',
           'eef_suspended_notice':
               'Dans ton pays, le traitement des dossiers Études en France est '
                   'actuellement suspendu par les autorités françaises. '
@@ -2743,6 +2745,12 @@ class AppTranslations extends Translations {
           'community_hub_alumni': 'Mentors',
           'community_hub_salon': 'Salons',
           'community_hub_parcours': 'Parcours',
+          // ── Mise à jour recommandée (bandeau doux, jamais bloquant) ──
+          'update_recommended_title': 'Une mise à jour est disponible',
+          'update_recommended_body':
+              'Une nouvelle version de KPB Education est disponible. Mets-la à jour pour profiter des dernières nouveautés.',
+          'update_recommended_cta': 'Mettre à jour',
+          'update_recommended_dismiss': 'Plus tard',
           // ── Mise à jour obligatoire ──
           'force_update_title': 'Mise à jour requise',
           'force_update_body':
@@ -4915,6 +4923,8 @@ class AppTranslations extends Translations {
           'eef_deadline_varies_notice':
               'Closing dates vary by country and by procedure. We will confirm '
                   'yours inside the space.',
+          'eef_official_platform_link': 'Open the official platform',
+          'eef_official_suspension_link': 'See the official source',
           'eef_suspended_notice':
               'In your country, processing of Études en France applications is '
                   'currently suspended by the French authorities. The platform '
@@ -5737,6 +5747,11 @@ class AppTranslations extends Translations {
           'community_hub_salon': 'Fairs',
           'community_hub_parcours': 'Journeys',
           // ── Force update ──
+          'update_recommended_title': 'An update is available',
+          'update_recommended_body':
+              'A new version of KPB Education is available. Update to get the latest improvements.',
+          'update_recommended_cta': 'Update now',
+          'update_recommended_dismiss': 'Later',
           'force_update_title': 'Update required',
           'force_update_body':
               'This version of the app is no longer supported. Update it to keep using KPB Education.',

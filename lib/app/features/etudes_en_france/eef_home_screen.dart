@@ -5,6 +5,7 @@ import '../../core/config/app_routes.dart';
 import '../../core/controllers/app_controller.dart';
 import '../../core/data/eef_calendar.dart';
 import '../../core/ui/kpb_components.dart';
+import 'eef_official_links.dart';
 
 /// La coquille de l'espace « Études en France » réel.
 ///
@@ -185,31 +186,7 @@ class EefHomeScreen extends StatelessWidget {
             const SizedBox(height: KpbSpacing.sm),
           ],
           const SizedBox(height: KpbSpacing.md),
-          Container(
-            padding: const EdgeInsets.all(KpbSpacing.md),
-            decoration: BoxDecoration(
-              color: KpbColors.surfaceMuted,
-              borderRadius: KpbRadius.mdBr,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 18,
-                  color: context.kpb.textMuted,
-                ),
-                const SizedBox(width: KpbSpacing.sm),
-                Expanded(
-                  child: Text(
-                    'eef_affiliation_notice'.tr,
-                    style: KpbTextStyles.caption
-                        .copyWith(color: context.kpb.textMuted),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const EefAffiliationNotice(),
         ],
       ),
     );

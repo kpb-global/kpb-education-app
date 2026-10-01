@@ -8,6 +8,7 @@ import '../../core/services/analytics_service.dart';
 import '../../core/ui/kpb_components.dart';
 import 'eef_interest_controller.dart';
 import 'eef_interest_sheet.dart';
+import 'eef_official_links.dart';
 
 /// La vitrine de l'espace « Études en France » — Phase 0.
 ///
@@ -173,7 +174,7 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
               onSignUp: _convertGuest,
             ),
             const SizedBox(height: KpbSpacing.lg),
-            const _EefAffiliationNotice(),
+            const EefAffiliationNotice(),
           ],
         ),
       ),
@@ -278,10 +279,22 @@ class _EefHero extends StatelessWidget {
                 ),
                 const SizedBox(width: KpbSpacing.sm),
                 Expanded(
-                  child: Text(
-                    'eef_suspended_notice'.tr,
-                    style: KpbTextStyles.bodySm
-                        .copyWith(color: KpbColors.errorOnDark),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'eef_suspended_notice'.tr,
+                        style: KpbTextStyles.bodySm
+                            .copyWith(color: KpbColors.errorOnDark),
+                      ),
+                      // La source de ce que l'app affirme : une suspension
+                      // annoncée sans sa source est invérifiable.
+                      EefOfficialLink(
+                        url: EefCalendar.suspensionSourceFor(country),
+                        labelKey: 'eef_official_suspension_link',
+                        color: KpbColors.errorOnDark,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -301,10 +314,21 @@ class _EefHero extends StatelessWidget {
                 ),
                 const SizedBox(width: KpbSpacing.sm),
                 Expanded(
-                  child: Text(
-                    timing,
-                    style: KpbTextStyles.bodySm
-                        .copyWith(color: KpbColors.actionOnDark),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        timing,
+                        style: KpbTextStyles.bodySm
+                            .copyWith(color: KpbColors.actionOnDark),
+                      ),
+                      // Une date administrative se vérifie à sa source.
+                      EefOfficialLink(
+                        url: EefCalendar.platformUrl,
+                        labelKey: 'eef_official_platform_link',
+                        color: KpbColors.actionOnDark,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -652,46 +676,6 @@ class _EefCallToAction extends StatelessWidget {
             fullWidth: true,
             loading: controller.busy,
             onTap: controller.busy ? null : onDeclare,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Non-affiliation
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// La mention de non-affiliation.
-///
-/// Elle n'est pas une précaution juridique décorative : l'espace parle d'une
-/// procédure opérée par un établissement public français, et un étudiant qui
-/// croirait être sur un canal officiel prendrait pour parole d'État ce qui est
-/// l'accompagnement d'une entreprise privée.
-class _EefAffiliationNotice extends StatelessWidget {
-  const _EefAffiliationNotice();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(KpbSpacing.md),
-      decoration: BoxDecoration(
-        color: KpbColors.surfaceMuted,
-        borderRadius: KpbRadius.mdBr,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline_rounded,
-              size: 18, color: context.kpb.textMuted),
-          const SizedBox(width: KpbSpacing.sm),
-          Expanded(
-            child: Text(
-              'eef_affiliation_notice'.tr,
-              style:
-                  KpbTextStyles.caption.copyWith(color: context.kpb.textMuted),
-            ),
           ),
         ],
       ),
