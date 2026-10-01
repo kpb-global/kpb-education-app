@@ -525,6 +525,11 @@ class _ProgramCard extends StatelessWidget {
 
     final procedure = _procedureLabel();
     final level = program.level.resolve(locale);
+    // Une 1re année d'accès santé (PASS ou L.AS) s'intitule souvent « L1 - Droit »
+    // ou « L1 - Chimie » : sans ce badge, une recherche « médecine » montrerait des
+    // licences de droit sans dire pourquoi. Le serveur range ces formations dans
+    // le cycle `sante`, et la recherche y mène les mots de la santé.
+    final healthAccess = item.cycle == 'sante';
 
     return KpbCard(
       child: Column(
@@ -568,6 +573,12 @@ class _ProgramCard extends StatelessWidget {
                   color: item.procedureType == 'hors_eef'
                       ? KpbColors.warning
                       : KpbColors.blue,
+                ),
+              if (healthAccess)
+                KpbBadge(
+                  label: 'eef_catalog_value_cycle_sante'.tr,
+                  small: true,
+                  color: KpbColors.success,
                 ),
               if (level.isNotEmpty)
                 Text(

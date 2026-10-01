@@ -47,7 +47,8 @@ export const EEF_SEARCH_MAX_EXPANDED_TERMS = 10;
 
 const LICENCE = ['licence1', 'licence2', 'licence3', 'licence_pro'] as const;
 
-/// Les mots de niveau que les étudiants tapent, et les cycles qu'ils désignent.
+/// Les mots de niveau (et d'accès aux études de santé) que les étudiants tapent,
+/// et les cycles qu'ils désignent.
 /// Table FERMÉE, sur les clés normalisées : un mot absent n'est pas un niveau.
 /// Les cycles sont ceux de `EEF_CYCLES` — le validateur de la recherche et la
 /// shortlist parlent du même vocabulaire.
@@ -68,6 +69,36 @@ export const EEF_LEVEL_SYNONYMS: Readonly<Record<string, readonly string[]>> = {
   deust: ['deust'],
   ingenieur: ['ingenieur'],
   ingenieurs: ['ingenieur'],
+  // ── Les études de santé ─────────────────────────────────────────────────────
+  // Aucun intitulé du catalogue ne contient « médecine », « pharmacie » ni
+  // « kiné » : on entre en médecine, maïeutique, odontologie, pharmacie ou
+  // kinésithérapie (MMOPK) par une 1re année « accès santé » — un PASS ou une
+  // L.AS, qui s'intitule « L1 - Droit » ou « L1 - Chimie ». Mesuré le 01/10/2026
+  // en production : `q=medecine` rendait 0 résultat sur 650 formations de santé
+  // publiées. Ces mots désignent donc le cycle `sante`, comme « master » désigne
+  // le cycle `master`. La carte de formation affiche « Accès santé » : une L.AS
+  // « L1 - Droit » n'y apparaît pas sans explication.
+  //
+  // Pas de « sage » ni de « femme » seuls (sage-femme se découpe en deux mots) :
+  // « femme » désignerait aussi « Études sur le genre ». Pas de « medical » :
+  // aucun intitulé ne le porte, et le mot évoque autant l'imagerie que le soin.
+  medecine: ['sante'],
+  medecin: ['sante'],
+  medicine: ['sante'],
+  sante: ['sante'],
+  health: ['sante'],
+  pass: ['sante'],
+  las: ['sante'],
+  paces: ['sante'],
+  mmopk: ['sante'],
+  pharmacie: ['sante'],
+  pharmacy: ['sante'],
+  odontologie: ['sante'],
+  dentaire: ['sante'],
+  dentiste: ['sante'],
+  maieutique: ['sante'],
+  kine: ['sante'],
+  kinesitherapie: ['sante'],
 };
 
 /**
@@ -81,8 +112,28 @@ export const EEF_LEVEL_SYNONYMS: Readonly<Record<string, readonly string[]>> = {
 export function buildSearchTerms(rawTerms: readonly string[]): SearchTerm[] {
   const expanded: SearchTerm[] = [];
   const seen = new Set<string>();
+  // « L AS » tapé avec une espace arrive en deux mots : on les recolle aussi.
+  const tokens: string[] = [];
   for (const token of rawTerms) {
-    const words = normalizeSearchText(token).split(' ').filter((w) => w !== '');
+    const previous = tokens[tokens.length - 1];
+    if (
+      previous !== undefined
+      && normalizeSearchText(previous) === 'l'
+      && normalizeSearchText(token) === 'as'
+    ) {
+      tokens[tokens.length - 1] = `${previous}.${token}`;
+    } else {
+      tokens.push(token);
+    }
+  }
+  for (const token of tokens) {
+    // « L.AS » s'écrit avec un point que la normalisation change en espace : sans
+    // ce recollage, il deviendrait « l » (mot vide) et « as », et ne désignerait
+    // plus l'accès santé.
+    const words = normalizeSearchText(token)
+      .replace(/\bl as\b/g, 'las')
+      .split(' ')
+      .filter((w) => w !== '');
     for (const word of words) {
       if (seen.has(word)) continue;
       seen.add(word);

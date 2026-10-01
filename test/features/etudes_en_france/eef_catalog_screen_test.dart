@@ -43,6 +43,7 @@ Map<String, dynamic> _program(
   Object? institution,
   Object? procedureType = 'eef',
   Object? campusCity = 'Lyon',
+  String cycle = 'licence3',
 }) =>
     <String, dynamic>{
       'id': id,
@@ -62,7 +63,7 @@ Map<String, dynamic> _program(
       'requirementsFr': <String>[],
       'requirementsEn': <String>[],
       'procedureType': procedureType,
-      'cycle': 'licence3',
+      'cycle': cycle,
       'campusCity': campusCity,
       'institution': institution,
     };
@@ -239,6 +240,28 @@ void main() {
       expect(rawTranslationKeysOnScreen(tester), isEmpty);
       expect(report.overflows, isEmpty);
       expect(find.textContaining('nouvelle_voie'), findsNothing);
+    });
+
+    testWidgets(
+        'une 1re année d\'accès santé dit « Accès santé » — une L.AS « L1 - Chimie » '
+        'trouvée par « médecine » doit dire pourquoi', (tester) async {
+      stub((_) async => _page([
+            _program('a',
+                name: 'L1 - Chimie',
+                institution: _university(),
+                procedureType: 'dap_blanche',
+                cycle: 'sante'),
+            _program('b',
+                name: 'L1 - Chimie',
+                institution: _university(),
+                procedureType: 'dap_blanche',
+                cycle: 'licence1'),
+          ]));
+      final report = await pump(tester);
+
+      expect(find.text('Accès santé'), findsOneWidget);
+      expect(rawTranslationKeysOnScreen(tester), isEmpty);
+      expect(report.overflows, isEmpty);
     });
 
     testWidgets('une procédure « hors procédure » est dite telle',
