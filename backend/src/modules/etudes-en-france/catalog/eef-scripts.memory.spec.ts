@@ -11,10 +11,15 @@
 // après que l'import avait écrit. Avec le drapeau, le même rattrapage culmine à
 // 125 Mo de tas (336 Mo de mémoire du processus au lieu de 705).
 //
-// Les types sont vérifiés par la CI (`tsc`, `eslint`), pas au lancement.
+// CE QUE LE DRAPEAU RETIRE, IL FAUT LE REMETTRE AILLEURS. `tsconfig.json` et
+// `npm run lint` ne couvrent que `src/` : sans autre contrôle, ces scripts
+// d'écriture en production n'auraient plus AUCUNE vérification de types (relevé
+// en revue de la PR #298). `npm run typecheck:scripts` (tsconfig.scripts.json,
+// tout `scripts/`) est donc exécuté par Backend CI, et ce garde exige les deux.
 //
 // Ce garde lit les sources : un script ajouté à `vps-ops.sh` sans le drapeau
-// recréerait la panne, et rien d'autre ne le verrait avant la production.
+// recréerait la panne, un drapeau sans contrôle de types laisserait passer une
+// erreur de type jusqu'à la production, et rien d'autre ne le verrait.
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -25,6 +30,15 @@ const REPO = join(BACKEND, '..');
 const packageScripts: Record<string, string> = JSON.parse(
   readFileSync(join(BACKEND, 'package.json'), 'utf8'),
 ).scripts;
+
+const scriptsTsconfig = JSON.parse(
+  readFileSync(join(BACKEND, 'tsconfig.scripts.json'), 'utf8'),
+);
+
+const backendCi = readFileSync(
+  join(REPO, '.github', 'workflows', 'backend-ci.yml'),
+  'utf8',
+);
 
 const opsScript = readFileSync(
   join(REPO, '.github', 'scripts', 'vps-ops.sh'),
@@ -66,6 +80,25 @@ describe('les scripts EEF lancés par vps-ops tournent en --transpile-only', () 
       expect(command).toMatch(/\bts-node\s+(?:-T|--transpile-only)\b/);
     },
   );
+
+  // La contrepartie : sans drapeau, c'est ts-node qui vérifiait les types. Il
+  // faut qu'un autre contrôle les lise, et qu'il tourne en CI.
+  describe('les types des scripts sont vérifiés ailleurs, en CI', () => {
+    it('npm run typecheck:scripts existe et lit tsconfig.scripts.json', () => {
+      expect(packageScripts['typecheck:scripts']).toMatch(
+        /\btsc\b.*-p\s+tsconfig\.scripts\.json/,
+      );
+    });
+
+    it('tsconfig.scripts.json couvre tout scripts/ sans rien émettre', () => {
+      expect(scriptsTsconfig.include).toEqual(['scripts/**/*.ts']);
+      expect(scriptsTsconfig.compilerOptions.noEmit).toBe(true);
+    });
+
+    it('Backend CI exécute typecheck:scripts', () => {
+      expect(backendCi).toMatch(/run:\s*npm run typecheck:scripts/);
+    });
+  });
 
   it('le motif attrape bien la commande qui a mordu', () => {
     expect(

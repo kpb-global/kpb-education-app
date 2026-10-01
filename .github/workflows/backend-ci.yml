@@ -69,6 +69,12 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Type-check scripts
+        # `tsconfig.json` et `lint` ne couvrent que `src/`. Les scripts d'exploitation
+        # (`backend/scripts/`) tournent en production sous `ts-node --transpile-only`,
+        # qui ne vérifie PAS les types : cette étape est la seule à les lire.
+        run: npm run typecheck:scripts
+
       - name: Build NestJS
         run: npm run build
 
