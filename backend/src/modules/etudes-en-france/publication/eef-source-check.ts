@@ -1,5 +1,9 @@
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+
+import type { EefCatalog } from '../catalog/eef-catalog.types';
+import { classifyProgramSource } from './eef-publication.plan';
 
 /**
  * Le contrôle des pages-sources des formations de l'import « Études en France ».
@@ -13,8 +17,8 @@ import { join } from 'node:path';
  *
  * Mesuré le 01/10/2026 sur les 2 150 formations dont la source est une page de
  * l'établissement (les autres pointent Parcoursup, Mon Master ou le jeu de données
- * du ministère, qui répondent) : environ un quart de ces adresses est morte. Elles
- * viennent surtout des masters du jeu « Trouver mon master » de 2021.
+ * du ministère, des portails) : plus d'une adresse sur cinq est morte. Elles
+ * viennent toutes des masters du jeu « Trouver mon master » de 2021.
  *
  * ## Ce que le contrôle dit, et ce qu'il ne dit pas
  *
@@ -68,18 +72,32 @@ export function sourceVerdict(
   return 'uncertain';
 }
 
-const LANGUAGE_ROOT = /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?(?:\/(?:index|accueil)\.(?:html?|php))?\/?$/i;
+/**
+ * Une « racine » de site : rien, une langue (`/fr`, `/en-gb`), un nom d'accueil
+ * (`/index.html`, `/accueil/`, `/home`), ou les deux (`/fr/home/`).
+ */
+const SITE_ROOT = /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?(?:\/(?:index|accueil|home)(?:\.(?:html?|php))?)?\/?$/i;
+/** Une requête qui ne fait que choisir la langue ne change pas la page. */
+const LANGUAGE_ONLY_QUERY = /^(?:\?(?:lang|language|locale|l)=[a-z-]{2,5})?$/i;
+
+/** `www.univ-x.fr` et `formations.univ-x.fr` : le même site pour ce contrôle. */
+function registrableDomain(hostname: string): string {
+  return hostname.toLowerCase().split('.').slice(-2).join('.');
+}
+
+function isSiteRoot(url: URL): boolean {
+  return SITE_ROOT.test(url.pathname) && LANGUAGE_ONLY_QUERY.test(url.search);
+}
 
 /** `requested` est une page profonde, `final` la racine du même site. */
 export function redirectedToHome(requested: string, final: string): boolean {
   try {
     const from = new URL(requested);
     const to = new URL(final);
-    if (from.hostname.replace(/^www\./, '') !== to.hostname.replace(/^www\./, '')) {
+    if (registrableDomain(from.hostname) !== registrableDomain(to.hostname)) {
       return false;
     }
-    const fromIsRoot = LANGUAGE_ROOT.test(from.pathname) && from.search === '';
-    return !fromIsRoot && LANGUAGE_ROOT.test(to.pathname) && to.search === '';
+    return !isSiteRoot(from) && isSiteRoot(to);
   } catch {
     return false;
   }
@@ -98,6 +116,17 @@ export interface SourceCheckEntry {
 export interface SourceCheckReport {
   readonly checkedAt: string;
   readonly method: string;
+  /**
+   * `full` : toutes les pages d'établissement du catalogue. `partial` : un essai
+   * (`--limit`) — un rapport partiel ne peut JAMAIS servir à publier.
+   */
+  readonly scope: 'full' | 'partial';
+  /**
+   * L'empreinte de ce qui devait être contrôlé (voir [scopeDigest]). Si le
+   * catalogue est régénéré — une formation ajoutée, une adresse changée — elle ne
+   * correspond plus, et le rapport est périmé même si chaque entrée citée existe.
+   */
+  readonly scopeDigest: string;
   readonly totals: {
     readonly programsChecked: number;
     readonly urlsChecked: number;
@@ -154,6 +183,12 @@ export function parseSourceCheckReport(raw: unknown): SourceCheckReport {
   if (typeof raw.method !== 'string') {
     throw new Error('Rapport de contrôle : `method` absent.');
   }
+  if (raw.scope !== 'full' && raw.scope !== 'partial') {
+    throw new Error('Rapport de contrôle : `scope` doit valoir « full » ou « partial ».');
+  }
+  if (typeof raw.scopeDigest !== 'string' || !/^[0-9a-f]{64}$/.test(raw.scopeDigest)) {
+    throw new Error('Rapport de contrôle : `scopeDigest` absent ou illisible.');
+  }
   const totals = raw.totals;
   if (
     !isRecord(totals)
@@ -173,6 +208,8 @@ export function parseSourceCheckReport(raw: unknown): SourceCheckReport {
   return {
     checkedAt: raw.checkedAt,
     method: raw.method,
+    scope: raw.scope,
+    scopeDigest: raw.scopeDigest,
     totals: {
       programsChecked: totals.programsChecked as number,
       urlsChecked: totals.urlsChecked as number,
@@ -194,4 +231,89 @@ export function loadSourceCheckReport(
 /** Les formations que la publication déléguée laisse en attente. */
 export function deadProgramIds(report: SourceCheckReport): Set<string> {
   return new Set(report.dead.map((entry) => entry.programId));
+}
+
+// ── ce qui est contrôlé, et si le rapport est digne de servir à publier ───────
+
+export interface CheckedPage {
+  readonly programId: string;
+  readonly institutionId: string;
+  readonly url: string;
+}
+
+/**
+ * Les formations dont la source est une PAGE D'ÉTABLISSEMENT. Les fiches Parcoursup,
+ * la racine de Mon Master et le jeu de données du ministère sont des portails qui
+ * répondent toujours : leur contrôle ne dirait rien de l'existence de la formation.
+ */
+export function checkedScope(catalog: EefCatalog): CheckedPage[] {
+  const pages: CheckedPage[] = [];
+  for (const university of catalog.universities) {
+    for (const program of university.programs) {
+      if (classifyProgramSource(program.sourceUrl) !== 'formation_page') continue;
+      if (new URL(program.sourceUrl).hostname === 'dossierappel.parcoursup.fr') continue;
+      pages.push({
+        programId: program.id,
+        institutionId: program.institutionId,
+        url: program.sourceUrl,
+      });
+    }
+  }
+  return pages;
+}
+
+export function scopeDigest(pages: readonly CheckedPage[]): string {
+  const lines = pages
+    .map((page) => `${page.programId}\t${page.institutionId}\t${page.url}`)
+    .sort();
+  return createHash('sha256').update(lines.join('\n')).digest('hex');
+}
+
+/** Sous ces seuils, c'est le CONTRÔLE qui est en panne, pas les pages. */
+export const MIN_OK_SHARE = 0.4;
+export const MAX_UNCERTAIN_SHARE = 0.35;
+
+/**
+ * Le rapport est-il digne de décider ce qu'on publie ?
+ *
+ * Un rapport « frais et bien formé » n'est pas un rapport juste : avec un réseau
+ * coupé, le sondage sort `0 valides, 0 mortes, 12 incertaines`, un fichier tout à
+ * fait valide qui ne met AUCUNE formation en attente — c'est-à-dire qui publie les
+ * pages mortes qu'il devait écarter (relevé en relecture indépendante).
+ *
+ * Refus si : partiel ; périmé par rapport au catalogue ; trop peu de pages valides
+ * ou trop d'incertaines (le sondage lui-même est en cause).
+ */
+export function assertSourceCheckUsable(
+  report: SourceCheckReport,
+  catalog: EefCatalog,
+): void {
+  if (report.scope !== 'full') {
+    throw new Error('Le contrôle des pages est un essai partiel : il ne peut pas servir à publier.');
+  }
+  const pages = checkedScope(catalog);
+  if (report.scopeDigest !== scopeDigest(pages)) {
+    throw new Error(
+      'Le catalogue a changé depuis le contrôle des pages (formation ajoutée, retirée ou adresse modifiée) : '
+        + 'relancer « npm run eef:check-sources ».',
+    );
+  }
+  if (report.totals.programsChecked !== pages.length) {
+    throw new Error(
+      `Le contrôle annonce ${report.totals.programsChecked} formation(s) contrôlée(s), le catalogue en compte ${pages.length}.`,
+    );
+  }
+  const urls = report.totals.urlsChecked;
+  if (urls === 0 || report.totals.ok / urls < MIN_OK_SHARE) {
+    throw new Error(
+      `Seulement ${report.totals.ok} page(s) valide(s) sur ${urls} : le sondage est probablement en panne `
+        + `(réseau, blocage) plutôt que les pages. Seuil : ${MIN_OK_SHARE * 100} %.`,
+    );
+  }
+  if (report.totals.uncertain / urls > MAX_UNCERTAIN_SHARE) {
+    throw new Error(
+      `${report.totals.uncertain} page(s) incertaine(s) sur ${urls} : le sondage est trop incomplet pour décider `
+        + `ce qu'on publie. Seuil : ${MAX_UNCERTAIN_SHARE * 100} %.`,
+    );
+  }
 }

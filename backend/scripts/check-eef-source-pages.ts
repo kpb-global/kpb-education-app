@@ -14,10 +14,12 @@
 import { writeFileSync } from 'node:fs';
 
 import { loadEefCatalog } from '../src/modules/etudes-en-france/catalog/eef-catalog.loader';
-import { classifyProgramSource } from '../src/modules/etudes-en-france/publication/eef-publication.plan';
 import {
+  assertSourceCheckUsable,
+  checkedScope,
   EEF_SOURCE_CHECK_FILE,
   redirectedToHome,
+  scopeDigest,
   sourceVerdict,
   type SourceCheckEntry,
   type SourceCheckReport,
@@ -36,8 +38,18 @@ function option(name: string): string | undefined {
 }
 
 const limit = Number(option('--limit') ?? '0');
-const out = option('--out') ?? EEF_SOURCE_CHECK_FILE;
 const retryDelaySeconds = Number(option('--retry-delay-seconds') ?? '60');
+if (!Number.isFinite(limit) || limit < 0 || !Number.isFinite(retryDelaySeconds) || retryDelaySeconds < 0) {
+  console.error('--limit et --retry-delay-seconds doivent être des nombres positifs.');
+  process.exit(2);
+}
+// Un essai partiel n'écrase JAMAIS le rapport versionné : celui-ci décide ce que la
+// publication laisse en attente, et un rapport partiel en laisserait passer.
+if (limit > 0 && option('--out') === undefined) {
+  console.error('--limit (essai partiel) exige --out : le rapport versionné ne doit pas être écrasé par un essai.');
+  process.exit(2);
+}
+const out = option('--out') ?? EEF_SOURCE_CHECK_FILE;
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -96,22 +108,9 @@ async function probeAll(urls: readonly string[]): Promise<Map<string, SourceObse
 
 async function main(): Promise<void> {
   const catalog = loadEefCatalog();
-  const programs: Array<{ programId: string; institutionId: string; url: string }> = [];
-  for (const university of catalog.universities) {
-    for (const program of university.programs) {
-      // Parcoursup, Mon Master (racine) et le jeu de données du ministère ne sont
-      // pas « la page de l'établissement » : ce sont des portails qui répondent, et
-      // leur contrôle ne dirait rien de l'existence de la formation.
-      if (classifyProgramSource(program.sourceUrl) !== 'formation_page') continue;
-      const host = new URL(program.sourceUrl).hostname;
-      if (host === 'dossierappel.parcoursup.fr') continue;
-      programs.push({
-        programId: program.id,
-        institutionId: program.institutionId,
-        url: program.sourceUrl,
-      });
-    }
-  }
+  // Les formations dont la source est une PAGE D'ÉTABLISSEMENT (voir `checkedScope`).
+  const fullScope = checkedScope(catalog);
+  const programs = fullScope;
 
   // Ordre déterministe mais mélangé : les sites ne reçoivent pas leurs adresses
   // d'affilée, ce qui ménage les petits serveurs d'université.
@@ -174,6 +173,8 @@ async function main(): Promise<void> {
   const count = (verdict: string) => [...verdictByUrl.values()].filter((v) => v === verdict).length;
   const report: SourceCheckReport = {
     checkedAt: new Date().toISOString(),
+    scope: limit > 0 ? 'partial' : 'full',
+    scopeDigest: scopeDigest(fullScope),
     method:
       `GET suivi des redirections, délai ${TIMEOUT_MS / 1000} s, ${PER_HOST} requêtes simultanées par site, `
       + `deux passages espacés de ${retryDelaySeconds} s pour toute adresse sans réponse valide. `
@@ -189,6 +190,20 @@ async function main(): Promise<void> {
     dead,
     uncertain,
   };
+  // Un rapport « frais et bien formé » n'est pas un rapport juste : réseau coupé, le
+  // sondage sort 0 valide, 0 morte, N incertaines — un fichier valide qui n'écarte
+  // rien. Un essai complet doit passer les mêmes garde-fous que la publication.
+  if (report.scope === 'full') {
+    try {
+      assertSourceCheckUsable(report, catalog);
+    } catch (error) {
+      const rejected = `${out}.rejected.json`;
+      writeFileSync(rejected, `${JSON.stringify(report, null, 1)}\n`);
+      console.error(`Rapport REFUSÉ, non écrit à ${out} : ${error instanceof Error ? error.message : String(error)}`);
+      console.error(`Copie de diagnostic : ${rejected}`);
+      process.exit(1);
+    }
+  }
   writeFileSync(out, `${JSON.stringify(report, null, 1)}\n`);
   console.log(`Adresses : ${report.totals.ok} valides, ${report.totals.dead} mortes, ${report.totals.uncertain} incertaines.`);
   console.log(`Formations écartées (page morte) : ${dead.length} ; incertaines : ${uncertain.length}.`);

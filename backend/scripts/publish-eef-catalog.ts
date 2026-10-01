@@ -8,10 +8,13 @@
 //
 // Aucun mode par défaut. `--apply` exige `--expect-programs N`, le total que la
 // simulation annonce : une confirmation SAISIE (un `--apply` collé ne suffit pas) et
-// un contrôle de concurrence (si la base a bougé depuis la simulation, rien n'est écrit).
+// un contrôle de concurrence : l'écriture applique les listes EXACTES de la simulation,
+// et une formation qui n'est plus publiable (ou déjà publiée) fait échouer son
+// établissement sans rien écrire pour lui.
 //
 // Les formations dont la page-source a disparu (`source-check.json`) restent inactives.
-// N'imprime que des noms d'établissements (données publiques) et des décomptes.
+// N'imprime que des noms d'établissements (données publiques), des décomptes et le
+// RÔLE du relecteur — ni son nom, ni son e-mail.
 import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';
@@ -21,6 +24,7 @@ import {
   EEF_PROGRAM_ID_PREFIX,
 } from '../src/common/eef-provenance';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
+import { loadEefCatalog } from '../src/modules/etudes-en-france/catalog/eef-catalog.loader';
 import {
   delegatedVerifier,
   pickVerifier,
@@ -28,6 +32,7 @@ import {
 } from '../src/modules/etudes-en-france/publication/eef-delegated-publication';
 import { EefPublicationService } from '../src/modules/etudes-en-france/publication/eef-publication.service';
 import {
+  assertSourceCheckUsable,
   deadProgramIds,
   EEF_SOURCE_CHECK_FILE,
   loadSourceCheckReport,
@@ -54,6 +59,11 @@ if (dryRun === apply) {
 }
 
 const MAX_CHECK_AGE_DAYS = Number(single('--max-check-age-days') ?? '14');
+if (!Number.isFinite(MAX_CHECK_AGE_DAYS) || MAX_CHECK_AGE_DAYS <= 0) {
+  // `NaN` ferait passer TOUTE comparaison d'âge : le garde ne refuserait jamais.
+  console.error('--max-check-age-days doit être un nombre de jours strictement positif.');
+  process.exit(2);
+}
 
 const prismaService = new PrismaService();
 
@@ -75,6 +85,10 @@ async function main(): Promise<void> {
     if (apply) throw new Error(message);
     console.warn(`⚠ ${message}`);
   }
+  // Le rapport est-il digne de décider ? Complet, à jour du catalogue, et issu d'un
+  // sondage qui a fonctionné (voir `assertSourceCheckUsable`) — un rapport « frais »
+  // mais vide publierait les pages mortes qu'il devait écarter.
+  assertSourceCheckUsable(check, loadEefCatalog());
   const holdback = deadProgramIds(check);
 
   // ── le relecteur ────────────────────────────────────────────────────────
@@ -92,8 +106,8 @@ async function main(): Promise<void> {
     }),
   );
   const admin = pickVerifier(admins ?? [], single('--verifier-email') ?? null);
-  const verifier = delegatedVerifier(admin, single('--actor') ?? null);
-  console.log(`Relecteur inscrit : ${verifier.fullName} (${admin.role}).`);
+  const verifier = delegatedVerifier(admin);
+  console.log(`Relecteur inscrit : un compte ${admin.role} (publication déléguée).`);
 
   // ── le périmètre ────────────────────────────────────────────────────────
   const only = values('--institution');
@@ -174,6 +188,7 @@ async function main(): Promise<void> {
     holdback,
     apply: true,
     verifier,
+    simulation,
     log: (line) => console.log(line),
   });
   const a = applied.totals;
@@ -182,8 +197,21 @@ async function main(): Promise<void> {
       + `${a.institutionsFailed} en échec ; ${a.programsHeldBack} en attente (page morte).`,
   );
 
-  // La trace durable : une ligne d'audit par établissement publié. Un échec ici ne
-  // défait pas la publication (déjà validée en base) ; il se dit.
+  // Le total saisi a été comparé AVANT la boucle ; on le recompare APRÈS. Écrire autre
+  // chose que ce qu'on a confirmé est une erreur, même si chaque transaction a réussi.
+  if (a.programsPublished !== expected) {
+    console.error(
+      `⚠ ${a.programsPublished} formation(s) publiée(s) alors que ${expected} avaient été confirmées : `
+        + 'relire le détail ci-dessus avant toute autre action.',
+    );
+    process.exitCode = 1;
+  }
+
+  // La trace durable : une ligne d'audit par établissement publié, avec la personne qui
+  // a LANCÉ l'opération (`--actor` = github.triggering_actor : au « Re-run », celle qui
+  // relance). Un échec ici ne défait pas la publication (déjà validée en base) ; il
+  // rend le job rouge, parce qu'une publication sans trace est une publication à
+  // signaler.
   const requestId = randomUUID();
   for (const report of applied.institutions) {
     if (report.outcome !== 'published') continue;
@@ -197,7 +225,7 @@ async function main(): Promise<void> {
             entityType: 'Institution',
             entityId: report.institutionId,
             requestId,
-            reasonCode: 'owner_request',
+            reasonCode: 'delegated_publication',
             result: 'applied',
             changes: {
               programsPublished: report.programsPublished,
@@ -209,7 +237,8 @@ async function main(): Promise<void> {
         }),
       );
     } catch {
-      console.warn(`⚠ Trace d'audit non écrite pour ${report.institutionId} (la publication, elle, est en base).`);
+      console.error(`⚠ Trace d'audit NON écrite pour ${report.institutionId} : la publication, elle, est en base.`);
+      process.exitCode = 1;
     }
   }
   if (applied.hasFailures) process.exitCode = 1;

@@ -1,12 +1,14 @@
 {
- "checkedAt": "2026-10-01T16:44:29.465Z",
- "method": "GET suivi des redirections, délai 25 s, 2 requêtes simultanées par site, deux passages espacés de 60 s pour toute adresse sans réponse valide. « morte » = deux constats 404/410/redirigée vers l’accueil ; 403, 5xx, délai et certificat incomplet restent « incertains » et n’écartent rien.",
+ "checkedAt": "2026-10-01T17:22:26.822Z",
+ "scope": "full",
+ "scopeDigest": "be15b38ec6497069e8d09bd5b3b214e363725b277f657e8ed4ff72ed67b564c6",
+ "method": "GET suivi des redirections, délai 25 s, 2 requêtes simultanées par site, deux passages espacés de 1 s pour toute adresse sans réponse valide. « morte » = deux constats 404/410/redirigée vers l’accueil ; 403, 5xx, délai et certificat incomplet restent « incertains » et n’écartent rien.",
  "totals": {
   "programsChecked": 2150,
   "urlsChecked": 1559,
-  "ok": 1031,
+  "ok": 1034,
   "dead": 341,
-  "uncertain": 187
+  "uncertain": 184
  },
  "dead": [
   {
@@ -29,14 +31,6 @@
    "programId": "eef-prog-018a74b08c2cc916",
    "institutionId": "eef-univ-0342569h",
    "url": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/sciences-humaines-et-sociales-SHS/master-1-sociologie-program-master-1-sociologie-parcours-sociologie-generale.html",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-01955efa50ad5658",
-   "institutionId": "eef-univ-9740478b",
-   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -194,6 +188,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-0e2f83144a636817",
+   "institutionId": "eef-univ-0952259p",
+   "url": "https://www.cyu.fr/master-economie-parcours-economie-generale",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-0e4013f637fe5632",
    "institutionId": "eef-univ-0691775e",
    "url": "https://www.univ-lyon2.fr/master-1-mondes-anciens-1",
@@ -258,14 +260,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-1340e0b9b118794c",
-   "institutionId": "eef-univ-9740478b",
-   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-13848811019c0ace",
    "institutionId": "eef-univ-0342569h",
    "url": "https://cales-new.univ-montp3.fr/fr/index/offre-de-formation/master-lmd-XB/arts-lettres-langues-ALL/master-1-creation-numerique-program-master-1-creation-numerique.html",
@@ -274,20 +268,20 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-13ac655d420e6c19",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-1437682fd8ff9ef6",
    "institutionId": "eef-univ-0252044l",
    "url": "https://www.ubfc.fr/master-dasee/",
    "status": 200,
    "passes": 2,
    "redirectedToHome": true
-  },
-  {
-   "programId": "eef-prog-148dbf15e1cb8d97",
-   "institutionId": "eef-univ-0751724s",
-   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
   },
   {
    "programId": "eef-prog-149b7982cfdd76ef",
@@ -386,14 +380,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-1b69af247edda6f2",
-   "institutionId": "eef-univ-0692459y",
-   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-1c5a888eb08326d7",
    "institutionId": "eef-univ-0252044l",
    "url": "https://www.ubfc.fr/master-pics/",
@@ -466,12 +452,28 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-2004896198d9a89d",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-206819327ba35b2b",
    "institutionId": "eef-univ-0353074b",
    "url": "https://formations.univ-rennes1.fr/formation/master-controle-de-gestion-et-audit-organisationnel?studentstatus=112",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-207556ed107f89aa",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-20f777ca6c688812",
@@ -802,6 +804,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-36cc58ad150ff8b7",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-379cc2f0e315532a",
    "institutionId": "eef-univ-0911975c",
    "url": "https://www.uvsq.fr/master-2-metiers-de-lenseignement-de-leducation-et-de-la-formation-second-degre-parcours-histoire-geographie",
@@ -986,12 +996,20 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-412fc5781d13bd1a",
-   "institutionId": "eef-univ-9740478b",
-   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
-   "status": 404,
+   "programId": "eef-prog-40cc6a8393759985",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
    "passes": 2,
-   "redirectedToHome": false
+   "redirectedToHome": true
+  },
+  {
+   "programId": "eef-prog-41a97c84e51bb64c",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-4413e89d8c9e44ec",
@@ -1034,6 +1052,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-4682e9fe80b060cf",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-47d61ad6438d9eed",
    "institutionId": "eef-univ-0762762p",
    "url": "https://www.univ-lehavre.fr/spip.php?formation38",
@@ -1045,6 +1071,14 @@
    "programId": "eef-prog-47d8eb991f36e3ec",
    "institutionId": "eef-univ-0422388t",
    "url": "https://www.univ-lyon2.fr/master-1-sciences-de-l-education-campus-numerique-forse",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-47f143422aa92240",
+   "institutionId": "eef-univ-0694123g",
+   "url": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -1170,6 +1204,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-4e180a21f0f2dc23",
+   "institutionId": "eef-univ-0450855k",
+   "url": "https://www.univ-orleans.fr/fr/univ/formation/catalogue-des-formations/formations-par-diplome",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-4f02753571a8c7d4",
    "institutionId": "eef-univ-0931238r",
    "url": "https://llshs.univ-paris13.fr/formations/master-sciences-langage-lexiques-discours-langues-theories/",
@@ -1184,6 +1226,14 @@
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-4f75e4e26c621fd5",
+   "institutionId": "eef-univ-0331766r",
+   "url": "https://www.u-bordeaux-montaigne.fr/fr/formations/offre-de-formation-2016-2020/master-XB/etudes-sur-le-genre-GENRE.17/master-etude-sur-le-genre-mediations-cultures-langues-program-mal16-216.html",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-50dd0b38b2f48f1b",
@@ -1314,6 +1364,22 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-55bafe513e71a46f",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
+   "programId": "eef-prog-562fe31833f7b87f",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-56f3effdda1a294e",
    "institutionId": "eef-univ-0632084y",
    "url": "https://www.uca.fr/formation/nos-formations/catalogue-des-formations/master-comptabilite-controle-audit-2",
@@ -1394,6 +1460,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-5e4193ea834e0fde",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-5ee3dcc95c20fd23",
    "institutionId": "eef-univ-0952259p",
    "url": "https://www.cyu.fr/master-electronique-energie-electrique-automatique-electronique-approfondie-1",
@@ -1426,14 +1500,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-6235bd3e54978dd7",
-   "institutionId": "eef-univ-0422388t",
-   "url": "https://www.univ-lyon2.fr/master-1-sc-politique-pol-itique-comparee-et-europeenne-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-62cf2f72e9ba4623",
    "institutionId": "eef-univ-0692437z",
    "url": "https://www.univ-st-etienne.fr/fr/formation/master-meef-ZI/master-meef-ZI/master-meef-premier-degre-parcours-professorat-des-ecoles-3_03_08_0001_FR.html",
@@ -1445,14 +1511,6 @@
    "programId": "eef-prog-62e2091dee370abc",
    "institutionId": "eef-univ-0952259p",
    "url": "https://www.cyu.fr/master-psychologie-de-leducation",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-6335e9afd1f98fd3",
-   "institutionId": "eef-univ-0422388t",
-   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -1506,14 +1564,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-6745629c86884846",
-   "institutionId": "eef-univ-0751724s",
-   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-67473286b3ececcd",
    "institutionId": "eef-univ-0755976n",
    "url": "https://www.inspe-paris.fr/article/parcours-ingenierie-formation-medias-numeriques",
@@ -1536,22 +1586,6 @@
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-69194acd64baf580",
-   "institutionId": "eef-univ-9740478b",
-   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-69ade8870c40c98c",
-   "institutionId": "eef-univ-0753742k",
-   "url": "https://www.ehess.fr/fr/master-arts-et-langages",
-   "status": 200,
-   "passes": 2,
-   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-6a1ce4193bb9be65",
@@ -1690,12 +1724,20 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-713c9e29df7a1a9f",
-   "institutionId": "eef-univ-0694123g",
-   "url": "https://www.univ-lyon2.fr/master-1-sc-politique-pol-itique-comparee-et-europeenne-1",
+   "programId": "eef-prog-715bf903c030c164",
+   "institutionId": "eef-univ-0370800u",
+   "url": "https://www.univ-orleans.fr/fr/univ/formation/catalogue-des-formations/formations-par-diplome",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-71f3e22a34be8aa3",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-723eb6cd12cdbdfb",
@@ -1789,14 +1831,6 @@
    "programId": "eef-prog-773080f304ddbe66",
    "institutionId": "eef-univ-0313218e",
    "url": "https://www.univ-tlse3.fr/master-genie-civil-parcours-conception-des-ouvrages-d-art-et-batiment",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-775cf6bcc42bc465",
-   "institutionId": "eef-univ-0941111x",
-   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -1922,12 +1956,12 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-822ed57a4191780c",
-   "institutionId": "eef-univ-9740478b",
-   "url": "https://inspe.univ-reunion.fr/formations/meef-1er-degre",
-   "status": 404,
+   "programId": "eef-prog-8255e0723d82a757",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
    "passes": 2,
-   "redirectedToHome": false
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-82dc873140474d1d",
@@ -2082,6 +2116,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-89ca337cc2464c93",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-8accadf9bd5e5e20",
    "institutionId": "eef-univ-9830445s",
    "url": "https://unc.nc/formations/master-civilisations-cultures-et-societes-parcours-etudes-oceaniennes-et-du-pacifique/",
@@ -2186,14 +2228,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-8efaadd9c87101a7",
-   "institutionId": "eef-univ-0691775e",
-   "url": "https://www.univ-lyon2.fr/master-1-economie-de-l-environnement-de-l-energie-et-des-transports-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-8f0e76879de2f16c",
    "institutionId": "eef-univ-0931238r",
    "url": "https://dsps.univ-paris13.fr/master-1-action-publique-strategies-france-international/",
@@ -2266,14 +2300,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-948dd88909497dea",
-   "institutionId": "eef-univ-0941111x",
-   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-9494accaa5d663d4",
    "institutionId": "eef-univ-0692437z",
    "url": "https://www.univ-lyon2.fr/master-1-histoire-1",
@@ -2296,14 +2322,6 @@
    "status": 200,
    "passes": 2,
    "redirectedToHome": true
-  },
-  {
-   "programId": "eef-prog-955438ae23f46889",
-   "institutionId": "eef-univ-9740478b",
-   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
   },
   {
    "programId": "eef-prog-9575b5174b9ac40a",
@@ -2336,6 +2354,14 @@
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-97c9f8f0864a5f59",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-98c7a44c60a38206",
@@ -2422,14 +2448,6 @@
    "institutionId": "eef-univ-0673021v",
    "url": "https://www.unistra.fr/index.php?id=27887&tx_unistrarof_pi1%5Brof-program%5D=ME147&cHash=40f52e6b9f9201fca764bf04a993886f#data-rof-tab-presentation",
    "status": 410,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-9be3b3d79eca6ba4",
-   "institutionId": "eef-univ-0691775e",
-   "url": "https://www.univ-lyon2.fr/master-1-sc-politique-pol-itique-comparee-et-europeenne-1",
-   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -2522,6 +2540,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-a297811efef3fd82",
+   "institutionId": "eef-univ-0691775e",
+   "url": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-a29d0d978623d9da",
    "institutionId": "eef-univ-0755890v",
    "url": "https://www.inspe-paris.fr/article/parcours-ingenierie-formation-medias-numeriques",
@@ -2570,14 +2596,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-a57d87551895ebbd",
-   "institutionId": "eef-univ-0772894c",
-   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-a6842660f2d271a3",
    "institutionId": "eef-univ-0353074b",
    "url": "https://formations.univ-rennes1.fr/formation/master-electronique-electrotechnique-automatique/master-mention-electronique-energie?studentstatus=112",
@@ -2605,6 +2623,14 @@
    "programId": "eef-prog-a9abd95df42e5afc",
    "institutionId": "eef-univ-0692437z",
    "url": "https://www.univ-lyon2.fr/master-1-sciences-de-l-eau-1",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-a9efd4da2cb61601",
+   "institutionId": "eef-univ-0870669e",
+   "url": "https://www.sciences.unilim.fr/chimie/master-igee-geebv/",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -2674,6 +2700,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-ac9533feccef16b6",
+   "institutionId": "eef-univ-0691774d",
+   "url": "https://www.univ-st-etienne.fr/fr/faculte-de-medecine/formations.html",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-adbc70dfb8f3e32e",
    "institutionId": "eef-univ-0673021v",
    "url": "https://www.unistra.fr/index.php?id=27887&tx_unistrarof_pi1%5Brof-program%5D=ME55&cHash=ee2630be4fd4cc51fbc778b575d413fb#data-rof-tab-presentation",
@@ -2733,22 +2767,6 @@
    "programId": "eef-prog-b1a307574a6acf8d",
    "institutionId": "eef-univ-0313218e",
    "url": "https://www.univ-tlse3.fr/master-reseaux-et-telecommunication-parcours-securite-des-systemes-d-information-et-des-reseaux",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-b1dfaff355637e5f",
-   "institutionId": "eef-univ-0931238r",
-   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-b3039f791d37a6c6",
-   "institutionId": "eef-univ-0931238r",
-   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -2818,6 +2836,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-b5c8ccafba1b9562",
+   "institutionId": "eef-univ-0422388t",
+   "url": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-b6aac1594c1baf98",
    "institutionId": "eef-univ-0801344b",
    "url": "https://www.u-picardie.fr/catalogue-formations/FI/co/master-m.html",
@@ -2864,14 +2890,6 @@
    "status": 200,
    "passes": 2,
    "redirectedToHome": true
-  },
-  {
-   "programId": "eef-prog-b8d00aa80872df6d",
-   "institutionId": "eef-univ-0772894c",
-   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
   },
   {
    "programId": "eef-prog-b95045c01953d478",
@@ -2970,6 +2988,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-c2053345cd8fa677",
+   "institutionId": "eef-univ-0331766r",
+   "url": "https://www.u-bordeaux-montaigne.fr/fr/formations/offre-de-formation-2016-2020/master-XB/lettres-et-lettres-langues-LGC.12/master-recherche-en-etudes-litteraires-MDR16_216.html",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-c296b937e482da1a",
    "institutionId": "eef-univ-0691774d",
    "url": "https://www.enise.fr/Formations/les-masters-de-recherche.html",
@@ -2978,17 +3004,17 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-c2cee24fdfd50467",
-   "institutionId": "eef-univ-0691775e",
-   "url": "https://www.univ-lyon2.fr/master-1-psychologie-psychopathologie-clinique-psychanalytique-1",
+   "programId": "eef-prog-c2ecb7bd78e01f69",
+   "institutionId": "eef-univ-0756305w",
+   "url": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-c2ecb7bd78e01f69",
-   "institutionId": "eef-univ-0756305w",
-   "url": "https://www.u-paris2.fr/fr/formations/offre-de-formation/masters",
+   "programId": "eef-prog-c337586de5ad6da5",
+   "institutionId": "eef-univ-0692437z",
+   "url": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -3018,14 +3044,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-c6dcbed3d2a8c201",
-   "institutionId": "eef-univ-9740478b",
-   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-c79aa5753a1a1b2c",
    "institutionId": "eef-univ-0342490x",
    "url": "https://www.iamm.ciheam.org/fr/education/masters",
@@ -3034,33 +3052,9 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-c7ace87fdbc53908",
-   "institutionId": "eef-univ-0691775e",
-   "url": "https://www.univ-lyon2.fr/master-1-psychologie-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-c8b85e3db8c9bf69",
    "institutionId": "eef-univ-0762762p",
    "url": "https://www.univ-lehavre.fr/spip.php?formation20",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-c95c02908c7bb6e3",
-   "institutionId": "eef-univ-9740478b",
-   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-c97e66be0b28d113",
-   "institutionId": "eef-univ-0691775e",
-   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -3218,6 +3212,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-d251444575879766",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-d2c784a0f9b2066b",
    "institutionId": "eef-univ-0694123g",
    "url": "https://www.univ-lyon2.fr/master-1-sciences-des-religions-et-societes-1",
@@ -3296,6 +3298,14 @@
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-d8e5b8ced25f1236",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-d8fd4ef28a023e06",
@@ -3514,25 +3524,17 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-e90d33d96519b11f",
-   "institutionId": "eef-univ-0691774d",
-   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
-   "status": 404,
+   "programId": "eef-prog-e88c8a37461ee607",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
    "passes": 2,
-   "redirectedToHome": false
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-ea16dc70a5353a6e",
    "institutionId": "eef-univ-0597132g",
    "url": "https://formations.uphf.fr/cdm/subProgram/FR_RNE_0593279U_PR_SOF-15667/FR_RNE_0593279U_PR_SOF-15668",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-ec2d4871108bc9f6",
-   "institutionId": "eef-univ-0692437z",
-   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -3578,9 +3580,25 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-f078f47cb207ea02",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
    "programId": "eef-prog-f0901eda26be578e",
    "institutionId": "eef-univ-0292473f",
    "url": "https://www.enib.fr/files/masters/2017-2018-plaquette-master-informatique.pdf",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
+   "programId": "eef-prog-f0bb4a4fdb8a528a",
+   "institutionId": "eef-univ-0422388t",
+   "url": "https://www.univ-st-etienne.fr/fr/faculte-de-medecine/formations.html",
    "status": 200,
    "passes": 2,
    "redirectedToHome": true
@@ -3634,17 +3652,25 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-f47bec8d09af0e88",
-   "institutionId": "eef-univ-0694123g",
-   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
+   "programId": "eef-prog-f4c83accce044e34",
+   "institutionId": "eef-univ-0756305w",
+   "url": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-penal-et-sciences-criminelles",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-f4c83accce044e34",
-   "institutionId": "eef-univ-0756305w",
-   "url": "https://www.u-paris2.fr/fr/formations/offre-de-formation/master-1-droit-penal-et-sciences-criminelles",
+   "programId": "eef-prog-f56187432b0c2c99",
+   "institutionId": "eef-univ-0756036d",
+   "url": "https://www.ehess.fr/fr/master-pratique-linterdisciplinarit%C3%A9-dans-sciences-sociales",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
+  },
+  {
+   "programId": "eef-prog-f5d0106d66652581",
+   "institutionId": "eef-univ-0450855k",
+   "url": "https://formation.univ-orleans.fr/fr/formation/offre-de-formation/master-lmd-XB/sciences-technologies-sante-STS/master-automatique-robotique-mars-program-espm2mt-514-2-3-2-2-2-2-2-2-2-2-2-2-2-3.html",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -3730,14 +3756,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-f9ac1dead57c3de5",
-   "institutionId": "eef-univ-0753742k",
-   "url": "https://www.ehess.fr/fr/master-en-sciences-humaines-et-sociales",
-   "status": 200,
-   "passes": 2,
-   "redirectedToHome": true
-  },
-  {
    "programId": "eef-prog-fadc0d0f2a5f2721",
    "institutionId": "eef-univ-0753471r",
    "url": "https://enjmin.cnam.fr/formations/master-jeux-video/",
@@ -3768,6 +3786,14 @@
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-feb5bdc34b90dd6f",
+   "institutionId": "eef-univ-0660437s",
+   "url": "https://www.univ-perp.fr/fr/je-choisis-ma-formation",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
   }
  ],
  "uncertain": [
@@ -3776,6 +3802,14 @@
    "institutionId": "eef-univ-0870669e",
    "url": "https://www.medecine.unilim.fr/formations/masters/",
    "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-01955efa50ad5658",
+   "institutionId": "eef-univ-9740478b",
+   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
+   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -3836,14 +3870,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-0c42efa4552c18cc",
-   "institutionId": "eef-univ-0450855k",
-   "url": "https://www.univ-orleans.fr/fr/sciences-techniques/formation/informatique/master-miage",
-   "status": 0,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-0d954c89420f4981",
    "institutionId": "eef-univ-0952259p",
    "url": "https://www.u-cergy.fr/fr/formations/schema-des-formations/master-lmd-XB/arts-lettres-langues-ALL.html",
@@ -3855,14 +3881,6 @@
    "programId": "eef-prog-0dfb1397107a5d10",
    "institutionId": "eef-univ-0511296g",
    "url": "https://www.univ-reims.fr/formation/catalogue-de-formation/master-physique-appliquee-et-ingenierie-physique,23515,38949.html?args=R9qFsCnMmKDtxCa17YTDkHVqaqbfYRXwwTnCVt2witCDUIiVoUdkeMDp%2AXGEGm2SMIhvMbuZ3_kOrRxvJlk6dOorIryuNioRCyFFyPAvhl9tCdwYdtHRrwAvNC1tDg_H&formation_id=203",
-   "status": 0,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-0e2f83144a636817",
-   "institutionId": "eef-univ-0952259p",
-   "url": "https://www.cyu.fr/master-economie-parcours-economie-generale",
    "status": 0,
    "passes": 2,
    "redirectedToHome": false
@@ -3940,6 +3958,22 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-1340e0b9b118794c",
+   "institutionId": "eef-univ-9740478b",
+   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-148dbf15e1cb8d97",
+   "institutionId": "eef-univ-0751724s",
+   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-178c5080fb4810a1",
    "institutionId": "eef-univ-0772894c",
    "url": "https://formations.univ-gustave-eiffel.fr/index.php?id=1941&tx_agof_brochure%5Bbrochure%5D=479&tx_agof_brochure%5Bcontroller%5D=Brochure&tx_agof_brochure%5Baction%5D=show&cHash=84cab7292dd9d83c06dcdad059e369d9",
@@ -3983,6 +4017,14 @@
    "programId": "eef-prog-1b671d6cb8ac5421",
    "institutionId": "eef-univ-0772894c",
    "url": "https://formations.univ-gustave-eiffel.fr/index.php?id=1941&tx_agof_brochure%5Bbrochure%5D=463&tx_agof_brochure%5Bcontroller%5D=Brochure&tx_agof_brochure%5Baction%5D=show&cHash=b87e78a4b2e4199b563893fd1567d676",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-1b69af247edda6f2",
+   "institutionId": "eef-univ-0692459y",
+   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
    "status": 0,
    "passes": 2,
    "redirectedToHome": false
@@ -4204,14 +4246,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-37148f260a5c1aa3",
-   "institutionId": "eef-univ-0751724s",
-   "url": "https://www.univ-paris8.fr/-Master-Etudes-sur-le-genre-639-",
-   "status": 0,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-376e4757215b1d02",
    "institutionId": "eef-univ-0342490x",
    "url": "https://formations.umontpellier.fr/odf/innovation_education_et_societe.html",
@@ -4276,6 +4310,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-412fc5781d13bd1a",
+   "institutionId": "eef-univ-9740478b",
+   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-41835faa8ba25836",
    "institutionId": "eef-univ-0772894c",
    "url": "https://formations.univ-gustave-eiffel.fr/index.php?id=1941&tx_agof_brochure%5Bbrochure%5D=515&tx_agof_brochure%5Bcontroller%5D=Brochure&tx_agof_brochure%5Baction%5D=show&cHash=d61ccd9e0c41b09605805ceae537d1ab",
@@ -4320,14 +4362,6 @@
    "institutionId": "eef-univ-0681166y",
    "url": "https://www.uco.fr/fr/formations/humanites/master-conflictualites-et-mediation",
    "status": 0,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-47f143422aa92240",
-   "institutionId": "eef-univ-0694123g",
-   "url": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1",
-   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -4392,14 +4426,6 @@
    "institutionId": "eef-univ-0141408e",
    "url": "https://uniform.unicaen.fr/catalogue/formation/master/5402-master-metier-de-l-enseignement--de-l-education-et-de-la-formation--second-degre-p.-physique-chimie?s=&r=1473427115457",
    "status": 500,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-4e180a21f0f2dc23",
-   "institutionId": "eef-univ-0450855k",
-   "url": "https://www.univ-orleans.fr/fr/univ/formation/catalogue-des-formations/formations-par-diplome",
-   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -4524,9 +4550,17 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-6338dcbaad7621b5",
-   "institutionId": "eef-univ-0751724s",
-   "url": "https://www.univ-paris8.fr/-Master-Communication-numerique-et-conduite-de-projets-632-",
+   "programId": "eef-prog-6235bd3e54978dd7",
+   "institutionId": "eef-univ-0422388t",
+   "url": "https://www.univ-lyon2.fr/master-1-sc-politique-pol-itique-comparee-et-europeenne-1",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-6335e9afd1f98fd3",
+   "institutionId": "eef-univ-0422388t",
+   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
    "status": 0,
    "passes": 2,
    "redirectedToHome": false
@@ -4548,12 +4582,36 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-6745629c86884846",
+   "institutionId": "eef-univ-0751724s",
+   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-6752379fa4c67cd6",
    "institutionId": "eef-univ-0141408e",
    "url": "https://uniform.unicaen.fr/catalogue/formation/master/5339-master-sciences-de-la-mer-parcours-exploitation-des-ressources-vivantes-cotieres?s=&r=1473427115457",
    "status": 500,
    "passes": 2,
    "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-69194acd64baf580",
+   "institutionId": "eef-univ-9740478b",
+   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-69ade8870c40c98c",
+   "institutionId": "eef-univ-0753742k",
+   "url": "https://www.ehess.fr/fr/master-arts-et-langages",
+   "status": 200,
+   "passes": 2,
+   "redirectedToHome": true
   },
   {
    "programId": "eef-prog-6a40b8c1b9d798d6",
@@ -4620,10 +4678,10 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-715bf903c030c164",
-   "institutionId": "eef-univ-0370800u",
-   "url": "https://www.univ-orleans.fr/fr/univ/formation/catalogue-des-formations/formations-par-diplome",
-   "status": 404,
+   "programId": "eef-prog-713c9e29df7a1a9f",
+   "institutionId": "eef-univ-0694123g",
+   "url": "https://www.univ-lyon2.fr/master-1-sc-politique-pol-itique-comparee-et-europeenne-1",
+   "status": 0,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -4680,6 +4738,14 @@
    "institutionId": "eef-univ-0141408e",
    "url": "https://uniform.unicaen.fr/catalogue/formation/master/5104-master-droit-du-numerique-parcours-droit-de-l-internet--des-entreprises-innovantes-et-des-creations-numeriques?s=droit&r=1485351063975",
    "status": 500,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-775cf6bcc42bc465",
+   "institutionId": "eef-univ-0941111x",
+   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
+   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -4799,7 +4865,15 @@
    "programId": "eef-prog-805153b318c6eb61",
    "institutionId": "eef-univ-0751724s",
    "url": "https://www.univ-paris8.fr/-Master-Cyber-Securite-et-Sciences-des-Donnees-",
-   "status": 0,
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-822ed57a4191780c",
+   "institutionId": "eef-univ-9740478b",
+   "url": "https://inspe.univ-reunion.fr/formations/meef-1er-degre",
+   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -4868,6 +4942,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-8efaadd9c87101a7",
+   "institutionId": "eef-univ-0691775e",
+   "url": "https://www.univ-lyon2.fr/master-1-economie-de-l-environnement-de-l-energie-et-des-transports-1",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-8fa442e09513a5bd",
    "institutionId": "eef-univ-0772894c",
    "url": "https://formations.univ-gustave-eiffel.fr/index.php?id=1941&tx_agof_brochure%5Bbrochure%5D=427&tx_agof_brochure%5Bcontroller%5D=Brochure&tx_agof_brochure%5Baction%5D=show&cHash=8098159eac6d5a07f389bb2d1a89f968",
@@ -4880,6 +4962,22 @@
    "institutionId": "eef-univ-0141408e",
    "url": "https://uniform.unicaen.fr/catalogue/formation/master/5096-master-droit-civil-parcours-protection-des-personnes-vulnerables?s=&r=",
    "status": 500,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-948dd88909497dea",
+   "institutionId": "eef-univ-0941111x",
+   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-955438ae23f46889",
+   "institutionId": "eef-univ-9740478b",
+   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
+   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -4956,6 +5054,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-9be3b3d79eca6ba4",
+   "institutionId": "eef-univ-0691775e",
+   "url": "https://www.univ-lyon2.fr/master-1-sc-politique-pol-itique-comparee-et-europeenne-1",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-9c7a4b0265f39e8b",
    "institutionId": "eef-univ-0141408e",
    "url": "https://uniform.unicaen.fr/catalogue/formation/master/6601-m2-meef-pratiques-et-ingenierie-de-la-formation---parcours-formation-de-formateurs-du-milieu-scolaire?s=espe&r=1485353603009",
@@ -5012,14 +5118,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-a297811efef3fd82",
-   "institutionId": "eef-univ-0691775e",
-   "url": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1",
-   "status": 404,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-a3ce9d407d62e903",
    "institutionId": "eef-univ-0490970n",
    "url": "https://www.uco.fr/fr/formations/droit-economie-gestion/master-innovation-entreprise-et-societe#",
@@ -5032,6 +5130,14 @@
    "institutionId": "eef-univ-0694123g",
    "url": "https://www.univ-lyon2.fr/master-1-cinema-et-audiovisuel-1",
    "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-a57d87551895ebbd",
+   "institutionId": "eef-univ-0772894c",
+   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
+   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -5076,26 +5182,10 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-a9efd4da2cb61601",
-   "institutionId": "eef-univ-0870669e",
-   "url": "https://www.sciences.unilim.fr/chimie/master-igee-geebv/",
-   "status": 0,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-aceae911da4570ec",
    "institutionId": "eef-univ-0761904g",
    "url": "https://uniform.unicaen.fr/catalogue/formation/master/5734-master-biologie--agrosciences-parcours-ecoproduction--biotechnologies-vegetales-et-biovalorisation?s=&r=1473427115457",
    "status": 500,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
-   "programId": "eef-prog-aeb44b0d4faa9d99",
-   "institutionId": "eef-univ-0751724s",
-   "url": "https://www.univ-paris8.fr/-Master-Interpretation-Langue-des-Signes-Francaise-Francais-666-",
-   "status": 0,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -5164,6 +5254,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-b1dfaff355637e5f",
+   "institutionId": "eef-univ-0931238r",
+   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-b2bbda0dc97efc51",
    "institutionId": "eef-univ-0692437z",
    "url": "https://www.univ-lyon2.fr/master-1-communication-des-organisations-1",
@@ -5172,9 +5270,9 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-b5c8ccafba1b9562",
-   "institutionId": "eef-univ-0422388t",
-   "url": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1",
+   "programId": "eef-prog-b3039f791d37a6c6",
+   "institutionId": "eef-univ-0931238r",
+   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
@@ -5216,6 +5314,14 @@
    "institutionId": "eef-univ-0212296g",
    "url": "https://agrosupdijon.fr/formations/masters/ingenierie-de-la-formation-professionnelle-et-psychologie-ergonomique-ifpe",
    "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-b8d00aa80872df6d",
+   "institutionId": "eef-univ-0772894c",
+   "url": "https://www.univ-paris8.fr/-Presentation-des-masters-metiers-de-l-enseignement-709-",
+   "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -5276,6 +5382,14 @@
    "redirectedToHome": false
   },
   {
+   "programId": "eef-prog-c2cee24fdfd50467",
+   "institutionId": "eef-univ-0691775e",
+   "url": "https://www.univ-lyon2.fr/master-1-psychologie-psychopathologie-clinique-psychanalytique-1",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
    "programId": "eef-prog-c2dbe395c34af891",
    "institutionId": "eef-univ-0691775e",
    "url": "https://www.univ-lyon2.fr/master-1-humanites-numeriques-1",
@@ -5284,17 +5398,25 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-c337586de5ad6da5",
-   "institutionId": "eef-univ-0692437z",
-   "url": "https://www.univ-lyon2.fr/master-1-llcer-etudes-anglophones-1",
+   "programId": "eef-prog-c42c7196e40f9659",
+   "institutionId": "eef-univ-0772894c",
+   "url": "https://formations.univ-gustave-eiffel.fr/index.php?id=1941&tx_agof_brochure%5Bbrochure%5D=581&tx_agof_brochure%5Bcontroller%5D=Brochure&tx_agof_brochure%5Baction%5D=show&cHash=f179c0082d25504823d919e0738d5ed9",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-c6dcbed3d2a8c201",
+   "institutionId": "eef-univ-9740478b",
+   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
    "status": 404,
    "passes": 2,
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-c42c7196e40f9659",
-   "institutionId": "eef-univ-0772894c",
-   "url": "https://formations.univ-gustave-eiffel.fr/index.php?id=1941&tx_agof_brochure%5Bbrochure%5D=581&tx_agof_brochure%5Bcontroller%5D=Brochure&tx_agof_brochure%5Baction%5D=show&cHash=f179c0082d25504823d919e0738d5ed9",
+   "programId": "eef-prog-c7ace87fdbc53908",
+   "institutionId": "eef-univ-0691775e",
+   "url": "https://www.univ-lyon2.fr/master-1-psychologie-1",
    "status": 0,
    "passes": 2,
    "redirectedToHome": false
@@ -5311,6 +5433,22 @@
    "programId": "eef-prog-c90fcd6f1dadd43f",
    "institutionId": "eef-univ-0691775e",
    "url": "https://www.univ-lyon2.fr/master-1-sciences-cognitives-1",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-c95c02908c7bb6e3",
+   "institutionId": "eef-univ-9740478b",
+   "url": "https://ufr-lsh.univ-reunion.fr/formation/licence-1",
+   "status": 404,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-c97e66be0b28d113",
+   "institutionId": "eef-univ-0691775e",
+   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
    "status": 0,
    "passes": 2,
    "redirectedToHome": false
@@ -5492,14 +5630,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-daa609df0e1b3f4b",
-   "institutionId": "eef-univ-0751724s",
-   "url": "https://www.univ-paris8.fr/-Master-Projet-culturel-et-artistique-international-572-",
-   "status": 0,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-dc42c98a93529b7d",
    "institutionId": "eef-univ-0141408e",
    "url": "https://uniform.unicaen.fr/catalogue/formation/master/5119-master-langues-etrangeres-appliquees-parcours-developpement-durable---strategies-de-concertation-et-de-communication?s=&r=1473427115457",
@@ -5556,18 +5686,18 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-e6c7dc261b072a17",
-   "institutionId": "eef-univ-0751724s",
-   "url": "https://www.univ-paris8.fr/-Master-Danse-631-",
-   "status": 0,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-e8549d45b6222258",
    "institutionId": "eef-univ-0141408e",
    "url": "https://uniform.unicaen.fr/catalogue/formation/master/5696-master-metier-de-l-enseignement--de-l-education-et-de-la-formation--encadrement-educatif?s=&r=",
    "status": 500,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-e90d33d96519b11f",
+   "institutionId": "eef-univ-0691774d",
+   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
+   "status": 0,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -5591,6 +5721,14 @@
    "programId": "eef-prog-eb453023e748ff84",
    "institutionId": "eef-univ-0694123g",
    "url": "https://www.univ-lyon2.fr/master-1-sciences-cognitives-1",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-ec2d4871108bc9f6",
+   "institutionId": "eef-univ-0692437z",
+   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
    "status": 0,
    "passes": 2,
    "redirectedToHome": false
@@ -5668,14 +5806,6 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-f32e8b6ea94ce5db",
-   "institutionId": "eef-univ-0490970n",
-   "url": "https://www.groupe-esa.com/formation/master-international-vintage-dnm-2/",
-   "status": 0,
-   "passes": 2,
-   "redirectedToHome": false
-  },
-  {
    "programId": "eef-prog-f432211bce0dc650",
    "institutionId": "eef-univ-0912408y",
    "url": "https://www.universite-paris-saclay.fr/formation/master/genie-civil/m1-genie-civil-materiaux-et-structures",
@@ -5684,18 +5814,10 @@
    "redirectedToHome": false
   },
   {
-   "programId": "eef-prog-f56187432b0c2c99",
-   "institutionId": "eef-univ-0756036d",
-   "url": "https://www.ehess.fr/fr/master-pratique-linterdisciplinarit%C3%A9-dans-sciences-sociales",
-   "status": 200,
-   "passes": 2,
-   "redirectedToHome": true
-  },
-  {
-   "programId": "eef-prog-f5d0106d66652581",
-   "institutionId": "eef-univ-0450855k",
-   "url": "https://formation.univ-orleans.fr/fr/formation/offre-de-formation/master-lmd-XB/sciences-technologies-sante-STS/master-automatique-robotique-mars-program-espm2mt-514-2-3-2-2-2-2-2-2-2-2-2-2-2-3.html",
-   "status": 404,
+   "programId": "eef-prog-f47bec8d09af0e88",
+   "institutionId": "eef-univ-0694123g",
+   "url": "https://www.univ-lyon2.fr/master-1-information-communication-1",
+   "status": 0,
    "passes": 2,
    "redirectedToHome": false
   },
@@ -5743,6 +5865,14 @@
    "programId": "eef-prog-f962350745964671",
    "institutionId": "eef-univ-0772894c",
    "url": "https://formations.univ-gustave-eiffel.fr/index.php?id=1941&tx_agof_brochure%5Bbrochure%5D=537&tx_agof_brochure%5Bcontroller%5D=Brochure&tx_agof_brochure%5Baction%5D=show&cHash=a262555e8b33b7c9cfde022407479fa0",
+   "status": 0,
+   "passes": 2,
+   "redirectedToHome": false
+  },
+  {
+   "programId": "eef-prog-f9ac1dead57c3de5",
+   "institutionId": "eef-univ-0753742k",
+   "url": "https://www.ehess.fr/fr/master-en-sciences-humaines-et-sociales",
    "status": 0,
    "passes": 2,
    "redirectedToHome": false

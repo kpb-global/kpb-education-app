@@ -93,6 +93,10 @@ function fakeService(plans: Record<string, PublicationPlan>, fail: Set<string> =
       };
       if (!options.apply) return { mode: 'dry-run', plan: restricted };
       if (fail.has(id)) throw new Error('Une formation a changé pendant la publication');
+      // Comme le vrai service : le nombre attendu doit être exactement ce que la base donne.
+      if (options.expectedPrograms !== wanted.length) {
+        throw new Error(`La simulation annonçait ${options.expectedPrograms}, la base en donne ${wanted.length}`);
+      }
       return {
         mode: 'applied',
         plan: restricted,
@@ -239,7 +243,7 @@ describe('runDelegatedPublication', () => {
 
   it('transmet au service le relecteur annoté, pas un identifiant fabriqué', async () => {
     const { service, calls } = fakeService(plans);
-    const verifier = delegatedVerifier(admin, 'aminou-gh');
+    const verifier = delegatedVerifier(admin);
     await runDelegatedPublication({
       service,
       institutionIds: ['eef-univ-a'],
@@ -248,6 +252,85 @@ describe('runDelegatedPublication', () => {
       verifier,
     });
     expect(calls.every((call) => call.verifier.id === 'adm-1')).toBe(true);
+  });
+
+  it('l’écriture applique les listes EXACTES de la simulation, pas un nouveau calcul', async () => {
+    const { service: simService } = fakeService(plans);
+    const simulation = await runDelegatedPublication({
+      service: simService,
+      institutionIds: ['eef-univ-a'],
+      holdback: new Set(['eef-prog-2']),
+      apply: false,
+      verifier: admin,
+    });
+    expect(simulation.institutions[0].programIds).toEqual(['eef-prog-1', 'eef-prog-3']);
+
+    // Entre la simulation et l'écriture, la base BOUGE : une formation de plus devient
+    // publiable. Un nouveau calcul publierait 3 formations ; la simulation en confirmait 2.
+    const moved = { ...plans, 'eef-univ-a': plan({ id: 'eef-univ-a', name: 'Univ A', toPublish: ['eef-prog-1', 'eef-prog-3', 'eef-prog-7'] }) };
+    const { service, calls } = fakeService(moved);
+    const report = await runDelegatedPublication({
+      service,
+      institutionIds: ['eef-univ-a'],
+      holdback: new Set(['eef-prog-2']),
+      apply: true,
+      verifier: admin,
+      simulation,
+    });
+    const write = calls.find((call) => call.apply);
+    expect(write?.programIds).toEqual(['eef-prog-1', 'eef-prog-3']);
+    expect(write?.expectedPrograms).toBe(2);
+    expect(report.totals.programsPublished).toBe(2);
+    expect(calls.flatMap((call) => call.programIds ?? [])).not.toContain('eef-prog-7');
+  });
+
+  it('un établissement que la simulation ne publiait pas n’atteint jamais le service en écriture', async () => {
+    const { service: simService } = fakeService(plans);
+    const simulation = await runDelegatedPublication({
+      service: simService,
+      institutionIds: ['eef-univ-c'],
+      holdback: new Set(),
+      apply: false,
+      verifier: admin,
+    });
+    // Après la simulation, l'établissement refusé devient publiable : on ne l'écrit pas.
+    const fixed = { ...plans, 'eef-univ-c': plan({ id: 'eef-univ-c', toPublish: ['eef-prog-5'] }) };
+    const { service, calls } = fakeService(fixed);
+    const report = await runDelegatedPublication({
+      service,
+      institutionIds: ['eef-univ-c'],
+      holdback: new Set(),
+      apply: true,
+      verifier: admin,
+      simulation,
+    });
+    expect(calls).toHaveLength(0);
+    expect(report.totals.programsPublished).toBe(0);
+  });
+
+  it('si la base a bougé, le service refuse et l’établissement échoue sans rien écrire', async () => {
+    const { service: simService } = fakeService(plans);
+    const simulation = await runDelegatedPublication({
+      service: simService,
+      institutionIds: ['eef-univ-a'],
+      holdback: new Set(),
+      apply: false,
+      verifier: admin,
+    });
+    // Une formation de la simulation n'est plus publiable au moment d'écrire.
+    const shrunk = { ...plans, 'eef-univ-a': plan({ id: 'eef-univ-a', name: 'Univ A', toPublish: ['eef-prog-1', 'eef-prog-2'] }) };
+    const { service } = fakeService(shrunk);
+    const report = await runDelegatedPublication({
+      service,
+      institutionIds: ['eef-univ-a'],
+      holdback: new Set(),
+      apply: true,
+      verifier: admin,
+      simulation,
+    });
+    expect(report.institutions[0].outcome).toBe('failed');
+    expect(report.hasFailures).toBe(true);
+    expect(report.totals.programsPublished).toBe(0);
   });
 
   it('journalise une ligne par établissement', async () => {
@@ -269,21 +352,20 @@ describe('runDelegatedPublication', () => {
 });
 
 describe('delegatedVerifier — le tampon ne laisse pas croire à une relecture une à une', () => {
-  it('nomme la délégation et la personne qui a lancé l’opération', () => {
-    const verifier = delegatedVerifier(admin, 'aminou-gh');
-    expect(verifier.fullName).toBe('Aminou Test (publication déléguée · lancée par aminou-gh)');
+  it('nomme la délégation', () => {
+    const verifier = delegatedVerifier(admin);
+    expect(verifier.fullName).toBe('Aminou Test (publication déléguée)');
     expect(verifier.id).toBe(admin.id);
   });
 
-  it('sans lanceur connu, garde la mention de délégation', () => {
-    expect(delegatedVerifier(admin, null).fullName).toBe('Aminou Test (publication déléguée)');
-    expect(delegatedVerifier(admin, '  ').fullName).toBe('Aminou Test (publication déléguée)');
-  });
-
-  it('retombe sur l’e-mail quand le nom est vide', () => {
-    expect(delegatedVerifier({ ...admin, fullName: '  ' }, null).fullName).toBe(
-      'owner@kpb.test (publication déléguée)',
-    );
+  it('le tampon est PUBLIC : ni e-mail, ni compte GitHub de l’opérateur', () => {
+    const named = delegatedVerifier(admin).fullName;
+    expect(named).not.toContain('@');
+    expect(named).not.toContain('·');
+    // Sans nom, le service retomberait sur l'e-mail : le tampon ne le permet pas.
+    const anonymous = delegatedVerifier({ ...admin, fullName: '   ' }).fullName;
+    expect(anonymous).toBe('Administrateur KPB (publication déléguée)');
+    expect(anonymous).not.toContain('owner@kpb.test');
   });
 });
 

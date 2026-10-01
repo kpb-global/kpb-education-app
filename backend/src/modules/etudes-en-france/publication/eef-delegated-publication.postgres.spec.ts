@@ -19,6 +19,7 @@ import {
   runDelegatedPublication,
 } from './eef-delegated-publication';
 import { EefPublicationService } from './eef-publication.service';
+import { loadSourceCheckReport } from './eef-source-check';
 
 /**
  * La publication déléguée, contre un vrai Postgres — puis le script de bout en bout.
@@ -243,7 +244,6 @@ describePostgres('Publication EEF déléguée — intégration PostgreSQL', () =
         ],
         ids.adminEmail,
       ),
-      'lanceur-gh',
     );
 
   it('une simulation ne change AUCUNE ligne', async () => {
@@ -263,12 +263,20 @@ describePostgres('Publication EEF déléguée — intégration PostgreSQL', () =
   });
 
   it('l’écriture publie ce qui passe, laisse la page morte et l’établissement refusé inactifs', async () => {
+    const simulation = await runDelegatedPublication({
+      service,
+      institutionIds,
+      holdback: new Set([ids.aDead]),
+      apply: false,
+      verifier: verifier(),
+    });
     const report = await runDelegatedPublication({
       service,
       institutionIds,
       holdback: new Set([ids.aDead]),
       apply: true,
       verifier: verifier(),
+      simulation,
     });
     expect(report.hasFailures).toBe(false);
     expect(await active()).toEqual([ids.a1, ids.a2, ids.b1].sort());
@@ -287,9 +295,7 @@ describePostgres('Publication EEF déléguée — intégration PostgreSQL', () =
     // Le tampon : le compte ET la mention de délégation.
     for (const id of [ids.a1, ids.a2, ids.b1]) {
       expect(byId.get(id)?.verifiedById).toBe(ids.admin);
-      expect(byId.get(id)?.verifiedByName).toBe(
-        'Relectrice Test (publication déléguée · lancée par lanceur-gh)',
-      );
+      expect(byId.get(id)?.verifiedByName).toBe('Relectrice Test (publication déléguée)');
       expect(byId.get(id)?.lastVerifiedAt).toBeInstanceOf(Date);
     }
     expect(instById.get(ids.instA)?.verifiedById).toBe(ids.admin);
@@ -300,14 +306,23 @@ describePostgres('Publication EEF déléguée — intégration PostgreSQL', () =
 
   it('un second passage n’écrit plus rien et ne remplace pas le premier tampon', async () => {
     const before = await rows();
+    const otherVerifier = delegatedVerifier(pickVerifier([
+      { id: ids.admin, fullName: 'Autre Nom', email: ids.adminEmail, role: 'super_admin', isActive: true, languageScope: [] },
+    ], null));
+    const simulation = await runDelegatedPublication({
+      service,
+      institutionIds,
+      holdback: new Set([ids.aDead]),
+      apply: false,
+      verifier: otherVerifier,
+    });
     const report = await runDelegatedPublication({
       service,
       institutionIds,
       holdback: new Set([ids.aDead]),
       apply: true,
-      verifier: delegatedVerifier(pickVerifier([
-        { id: ids.admin, fullName: 'Autre Nom', email: ids.adminEmail, role: 'super_admin', isActive: true, languageScope: [] },
-      ], null), 'autre-lanceur'),
+      verifier: otherVerifier,
+      simulation,
     });
     expect(report.totals.programsPublished).toBe(0);
     expect(await rows()).toEqual(before);
@@ -327,16 +342,22 @@ describePostgres('Publication EEF déléguée — intégration PostgreSQL', () =
         return { code: e.status ?? 1, out: `${e.stdout ?? ''}${e.stderr ?? ''}` };
       }
     };
-    const reportFile = (checkedAt: string, deadId: string) => {
+    /// Le rapport VERSIONNÉ (le seul qui passe `assertSourceCheckUsable` : même empreinte
+    /// que le catalogue), daté comme on veut, avec une formation de test en plus parmi
+    /// les mortes. Un rapport fabriqué de toutes pièces serait refusé, et c'est voulu.
+    const reportFile = (checkedAt: string, deadId: string, over: Record<string, unknown> = {}) => {
       const file = join(workdir, `check-${randomUUID()}.json`);
+      const real = loadSourceCheckReport();
       writeFileSync(
         file,
         JSON.stringify({
+          ...real,
           checkedAt,
-          method: 'test',
-          totals: { programsChecked: 1, urlsChecked: 1, ok: 0, dead: 1, uncertain: 0 },
-          dead: [{ programId: deadId, institutionId: ids.instA, url: 'https://exemple.fr/formation', status: 404, passes: 2, redirectedToHome: false }],
-          uncertain: [],
+          dead: [
+            ...real.dead,
+            { programId: deadId, institutionId: ids.instA, url: 'https://exemple.fr/formation', status: 404, passes: 2, redirectedToHome: false },
+          ],
+          ...over,
         }),
       );
       return file;
@@ -374,6 +395,22 @@ describePostgres('Publication EEF déléguée — intégration PostgreSQL', () =
       expect(await active()).toEqual([]);
     });
 
+    it('un rapport partiel, périmé ou dégénéré est refusé, même récent', async () => {
+      const now = new Date().toISOString();
+      const partial = run(['--dry-run', '--source-check', reportFile(now, ids.aDead, { scope: 'partial' }), '--verifier-email', ids.adminEmail, ...scope]);
+      expect(partial.code).not.toBe(0);
+      expect(partial.out).toContain('essai partiel');
+
+      const stale = run(['--dry-run', '--source-check', reportFile(now, ids.aDead, { scopeDigest: 'a'.repeat(64) }), '--verifier-email', ids.adminEmail, ...scope]);
+      expect(stale.code).not.toBe(0);
+      expect(stale.out).toContain('Le catalogue a changé depuis le contrôle');
+
+      const real = loadSourceCheckReport();
+      const degenerate = run(['--dry-run', '--source-check', reportFile(now, ids.aDead, { totals: { ...real.totals, ok: 0 } }), '--verifier-email', ids.adminEmail, ...scope]);
+      expect(degenerate.code).not.toBe(0);
+      expect(await active()).toEqual([]);
+    });
+
     it('--apply refuse un contrôle de pages trop ancien', async () => {
       const old = new Date(Date.now() - 40 * 86_400_000).toISOString();
       const file = reportFile(old, ids.aDead);
@@ -393,12 +430,17 @@ describePostgres('Publication EEF déléguée — intégration PostgreSQL', () =
       expect(aDead.isActive).toBe(false);
       const stamped = await prisma.program.findUniqueOrThrow({ where: { id: ids.a1 } });
       expect(stamped.verifiedByName).toContain('publication déléguée');
-      expect(stamped.verifiedByName).toContain('lanceur-gh');
+      // Le tampon est PUBLIC (la recherche le recopie) : ni le compte GitHub de
+      // l'opérateur, ni l'e-mail — ils vont dans l'audit, ci-dessous.
+      expect(stamped.verifiedByName).not.toContain('lanceur-gh');
+      expect(stamped.verifiedByName).not.toContain('@');
       const audit = await prisma.adminAuditEvent.findMany({
         where: { entityId: { in: institutionIds }, action: 'eef.publication.delegated' },
       });
       expect(audit.map((event) => event.entityId).sort()).toEqual([ids.instA, ids.instB].sort());
       expect(audit.every((event) => event.actorAdminId === ids.admin)).toBe(true);
+      expect(audit.every((event) => (event.changes as { launchedBy?: string }).launchedBy === 'lanceur-gh')).toBe(true);
+      expect(audit.every((event) => event.reasonCode === 'delegated_publication')).toBe(true);
     });
 
     it('un e-mail inconnu ou un rôle qui ne signe pas est refusé avant toute lecture du catalogue', async () => {

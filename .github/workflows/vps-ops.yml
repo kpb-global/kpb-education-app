@@ -107,6 +107,16 @@ on:
         type: string
         required: false
         default: ''
+      exclude_procedure:
+        description: 'eef-publish : laisser une famille de procédure hors de cette vague (elle reste importée, inactive). « aucune » = tout publier.'
+        type: choice
+        required: false
+        default: aucune
+        options:
+          - aucune
+          - hors_eef
+          - dap_jaune
+          - parcoursup
 
 # Groupe PARTAGÉ avec `deploy.yml` (`deploy-vps`), pas un groupe à nous.
 #
@@ -181,6 +191,20 @@ jobs:
           echo "declared=$declared" >> "$GITHUB_OUTPUT"
           echo "Destinataire IA déclaré par la fiche : $declared"
 
+      # Le catalogue GÉNÉRAL (les autres espaces) relevé AVANT : l'étape de preuve compare
+      # ce qu'il sert APRÈS. « Ces formations n'apparaissent que dans l'espace Études en
+      # France » est une promesse qu'on mesure, pas qu'on imprime.
+      - name: Relever le catalogue général avant publication
+        if: ${{ inputs.action == 'eef-publish' }}
+        env:
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+        run: |
+          set -euo pipefail
+          inst="$(curl -fsS "${HEALTH_URL}/api/catalog/institutions" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
+          prog="$(curl -fsS "${HEALTH_URL}/api/catalog/programs" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
+          echo "GENERAL_BEFORE=${inst}/${prog}" >> "$GITHUB_ENV"
+          echo "Catalogue général avant : ${inst} établissement(s), ${prog} formation(s)"
+
       - name: Exécuter l'opération
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -193,44 +217,57 @@ jobs:
           EEF_VERIFIER_EMAIL: ${{ inputs.verifier_email }}
           EEF_EXPECTED_PROGRAMS: ${{ inputs.expected_programs }}
           EEF_INSTITUTION_ID: ${{ inputs.institution_id }}
-          EEF_ACTOR: ${{ github.actor }}
+          EEF_EXCLUDE_PROCEDURE: ${{ inputs.exclude_procedure }}
+          # `triggering_actor`, pas `actor` : à un « Re-run », `actor` reste celui qui a
+          # lancé la première fois, `triggering_actor` est celui qui relance MAINTENANT.
+          EEF_ACTOR: ${{ github.triggering_actor }}
         run: |
           set -euo pipefail
           # Les valeurs libres d'`eef-publish` sont bornées ICI, avant de composer la
           # ligne de commande envoyée au VPS : une adresse, un entier, un identifiant
-          # d'établissement, un nom d'utilisateur GitHub. Rien d'autre ne passe.
+          # d'établissement, un nom d'utilisateur GitHub, un choix fermé. Rien d'autre
+          # ne passe. Pour les autres actions elles ne sont ni lues ni contrôlées : un
+          # login GitHub atypique ne doit pas bloquer `eef-space-off`.
           # `[[ =~ ]]` teste la valeur ENTIÈRE : `grep` ne teste que ses lignes, et une
           # valeur « adresse valide + retour à la ligne + commande » l'aurait franchi.
           bounded() { # nom valeur motif
-            if [ -n "$2" ] && ! [[ "$2" =~ $3 ]]; then
+            if [ -n "$2" ] && { [ "${#2}" -gt 254 ] || ! [[ "$2" =~ $3 ]]; }; then
               echo "::error::$1 n'a pas la forme attendue — refus avant d'atteindre le serveur."
               exit 1
             fi
           }
-          bounded verifier_email "$EEF_VERIFIER_EMAIL" '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
-          bounded expected_programs "$EEF_EXPECTED_PROGRAMS" '^[0-9]{1,6}$'
-          bounded institution_id "$EEF_INSTITUTION_ID" '^eef-univ-[A-Za-z0-9-]{1,60}$'
-          bounded github.actor "$EEF_ACTOR" '^[A-Za-z0-9][A-Za-z0-9-]{0,38}(\[bot\])?$'
+          if [ "$ACTION" = "eef-publish" ]; then
+            bounded verifier_email "$EEF_VERIFIER_EMAIL" '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+            bounded expected_programs "$EEF_EXPECTED_PROGRAMS" '^[0-9]{1,6}$'
+            bounded institution_id "$EEF_INSTITUTION_ID" '^eef-univ-[A-Za-z0-9-]{1,60}$'
+            bounded exclude_procedure "$EEF_EXCLUDE_PROCEDURE" '^(aucune|hors_eef|dap_jaune|parcoursup)$'
+            bounded github.triggering_actor "$EEF_ACTOR" '^[A-Za-z0-9][A-Za-z0-9-]{0,38}(\[bot\])?$'
+          fi
           scp -i ~/.ssh/deploy_key -o BatchMode=yes \
             .github/scripts/vps-ops.sh "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/vps-ops.sh"
           ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
-            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' EXPECTED_ONESIGNAL_APP_ID='${EXPECTED_ONESIGNAL_APP_ID}' EXPECTED_LLM_PROVIDER='${EXPECTED_LLM_PROVIDER}' EEF_VERIFIER_EMAIL='${EEF_VERIFIER_EMAIL}' EEF_EXPECTED_PROGRAMS='${EEF_EXPECTED_PROGRAMS}' EEF_INSTITUTION_ID='${EEF_INSTITUTION_ID}' EEF_ACTOR='${EEF_ACTOR}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
+            "VPS_PATH='${VPS_PATH}' ACTION='${ACTION}' DRY_RUN='${DRY_RUN}' EXPECTED_ONESIGNAL_APP_ID='${EXPECTED_ONESIGNAL_APP_ID}' EXPECTED_LLM_PROVIDER='${EXPECTED_LLM_PROVIDER}' EEF_VERIFIER_EMAIL='${EEF_VERIFIER_EMAIL}' EEF_EXPECTED_PROGRAMS='${EEF_EXPECTED_PROGRAMS}' EEF_INSTITUTION_ID='${EEF_INSTITUTION_ID}' EEF_EXCLUDE_PROCEDURE='${EEF_EXCLUDE_PROCEDURE}' EEF_ACTOR='${EEF_ACTOR}' bash '${VPS_PATH}/vps-ops.sh'; rc=\$?; rm -f '${VPS_PATH}/vps-ops.sh'; exit \$rc"
 
-      # Ce que l'app lira vraiment, depuis l'extérieur : la recherche « Études en
-      # France » reflète la publication, et le catalogue GÉNÉRAL (celui des autres
-      # espaces) n'a pas bougé d'une ligne — c'est la promesse « ces formations
-      # n'apparaissent que dans l'espace Études en France ».
+      # Ce que l'app lira vraiment, depuis l'extérieur : le catalogue GÉNÉRAL (celui des
+      # autres espaces) n'a pas bougé d'une ligne — la promesse « ces formations
+      # n'apparaissent que dans l'espace Études en France » — et la recherche Études en
+      # France reflète la publication. Un écart FAIT ÉCHOUER le job : il se lit, il ne
+      # s'imprime pas au milieu d'un journal.
       - name: Prouver l'isolation (catalogue général inchangé, recherche Études en France)
-        if: ${{ always() && inputs.action == 'eef-publish' }}
+        if: ${{ always() && inputs.action == 'eef-publish' && env.GENERAL_BEFORE != '' }}
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
         run: |
           set -euo pipefail
-          for path in "catalog/institutions" "catalog/programs" "etudes-en-france/search?limit=1"; do
-            printf '%-34s ' "$path"
-            curl -fsS "${HEALTH_URL}/api/${path}" \
-              | python3 -c 'import json,sys; d=json.load(sys.stdin); print({k: d.get(k) for k in ("total","catalogPublished") if k in d})'
-          done
+          inst="$(curl -fsS "${HEALTH_URL}/api/catalog/institutions" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
+          prog="$(curl -fsS "${HEALTH_URL}/api/catalog/programs" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
+          echo "Catalogue général après : ${inst} établissement(s), ${prog} formation(s) (avant : ${GENERAL_BEFORE})"
+          curl -fsS "${HEALTH_URL}/api/etudes-en-france/search?limit=1" \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print("Recherche Études en France : total =", d.get("total"), "| catalogPublished =", d.get("catalogPublished"))'
+          if [ "${inst}/${prog}" != "${GENERAL_BEFORE}" ]; then
+            echo "::error::Le catalogue général a changé pendant la publication (${GENERAL_BEFORE} -> ${inst}/${prog}). Vérifier avant toute autre action : une modification légitime par un administrateur au même moment est possible, une fuite des lignes de l'import ne l'est pas."
+            exit 1
+          fi
 
       - name: Vérifier depuis l'extérieur ce que le serveur annonce vraiment
         if: ${{ always() && inputs.action != 'publish-catalog' }}

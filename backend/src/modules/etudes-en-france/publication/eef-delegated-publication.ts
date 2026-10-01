@@ -10,21 +10,28 @@ import type { EefPublicationService, PublishResult } from './eef-publication.ser
  *
  * L'écran admin publie un établissement à la fois, sous la session de la personne
  * qui clique. Pour 84 établissements et 10 502 formations, le propriétaire a demandé
- * de ne pas cliquer 84 fois — et personne d'autre que lui ne peut ouvrir la session.
+ * de ne pas cliquer 84 fois — et aucun outil n'a de session.
  *
- * Ce chemin n'AFFAIBLIT donc rien : il appelle le MÊME service (`EefPublicationService`),
- * donc le même plan (`planEefPublication`), la même transaction `RepeatableRead` par
- * établissement, le même « tout ou rien », le même `expectedPrograms`. Il ajoute
- * seulement, au-dessus :
+ * ## Ce qui est identique, et ce qui ne l'est PAS
  *
- *   • une **simulation par défaut** (l'application est un choix explicite) ;
+ * Identique : l'outil appelle le MÊME service (`EefPublicationService`), donc le même
+ * plan (`planEefPublication`), la même transaction `RepeatableRead` par établissement,
+ * le même « tout ou rien », le même `expectedPrograms`.
+ *
+ * Différent, et c'est un affaiblissement réel de la garantie « le relecteur est la
+ * personne qui a appuyé » (`eef-publication.controller.ts`) : ici le relecteur inscrit
+ * est un compte administrateur CHOISI par une valeur de workflow, et non prouvé par une
+ * session. Qui peut lancer ce workflow peut déjà déployer le backend ; la trace de qui
+ * l'a lancé (`github.triggering_actor`) va dans l'audit, et le tampon dit « publication
+ * déléguée » plutôt que de laisser croire à une relecture une à une.
+ *
+ * Ce que l'outil ajoute au-dessus du service :
+ *
+ *   • une **simulation par défaut** (l'application est un choix explicite), puis
+ *     l'application des listes EXACTES que la simulation a produites ;
  *   • une **liste d'attente** : les formations dont la page-source a disparu
  *     (`eef-source-check.ts`) ne sont jamais envoyées au service — elles restent
- *     inactives, comme avant ;
- *   • un **relecteur honnête** : le compte administrateur qui a demandé la
- *     publication, avec la mention « publication déléguée » et qui a lancé l'opération.
- *     Le badge « Vérifié » dit qui a regardé ; ici, personne n'a regardé les formations
- *     une à une, et le tampon ne doit pas le laisser croire.
+ *     inactives, comme avant.
  *
  * Il ne remplace ni ne contourne la relecture métier des procédures
  * (`docs/eef-dossier-relecture-procedures.md`) : il ne la remplit pas.
@@ -48,6 +55,11 @@ export interface InstitutionReport {
   readonly programsRefused: number;
   readonly institutionActivated: boolean;
   readonly refusals: readonly InstitutionRefusal[];
+  /**
+   * Les formations que cette passe publie (ou, en simulation, publierait) : c'est
+   * CETTE liste que l'application réutilise, pas un nouveau calcul.
+   */
+  readonly programIds: readonly string[];
   readonly error?: string;
 }
 
@@ -72,14 +84,16 @@ export interface DelegatedPublicationReport {
 /**
  * Le tampon posé sur chaque ligne publiée. `verifierName()` du service retient
  * `fullName`, d'où la mention portée ici plutôt que dans un champ de plus.
+ *
+ * Ce tampon est PUBLIC : `mapEefProgram` recopie `verifiedByName` et `verifiedById`
+ * dans la réponse non authentifiée de `/etudes-en-france/search` (c'est aussi le cas
+ * d'une publication par l'écran admin). On n'y met donc NI l'e-mail (le service retombe
+ * dessus quand le nom est vide), NI le compte GitHub de l'opérateur : celui-ci va dans
+ * la ligne d'audit. Un compte sans nom signe « Administrateur KPB ».
  */
-export function delegatedVerifier(
-  admin: AdminSessionUser,
-  actor: string | null,
-): AdminSessionUser {
-  const base = admin.fullName.trim() || admin.email;
-  const by = actor && actor.trim() ? ` · lancée par ${actor.trim()}` : '';
-  return { ...admin, fullName: `${base} (publication déléguée${by})` };
+export function delegatedVerifier(admin: AdminSessionUser): AdminSessionUser {
+  const base = admin.fullName.trim() || 'Administrateur KPB';
+  return { ...admin, fullName: `${base} (publication déléguée)` };
 }
 
 export interface AdminCandidate {
@@ -151,6 +165,14 @@ export interface DelegatedPublicationInput {
   readonly holdback: ReadonlySet<string>;
   readonly apply: boolean;
   readonly verifier: AdminSessionUser;
+  /**
+   * Pour écrire : le rapport de la SIMULATION, dont on applique les listes exactes.
+   * Sans lui, une écriture recalculerait ses listes, et le total saisi (comparé une
+   * fois, avant la boucle) ne protégerait plus rien si la base bouge pendant la boucle.
+   * Avec lui, une formation qui n'est plus publiable ou qui est publiée entre-temps
+   * fait échouer son établissement (409 du service, rien d'écrit pour lui).
+   */
+  readonly simulation?: DelegatedPublicationReport;
   readonly log?: (line: string) => void;
 }
 
@@ -171,7 +193,9 @@ export async function runDelegatedPublication(
   for (const institutionId of input.institutionIds) {
     let report: InstitutionReport;
     try {
-      report = await publishOne(input, institutionId, refusedByReason);
+      report = input.apply && input.simulation
+        ? await applySimulated(input, institutionId)
+        : await publishOne(input, institutionId, refusedByReason);
     } catch (error) {
       // Une erreur sur UN établissement (conflit d'écriture, base) n'arrête pas les
       // autres : la transaction de celui-ci est annulée en entier, les suivants sont
@@ -185,6 +209,7 @@ export async function runDelegatedPublication(
         programsRefused: 0,
         institutionActivated: false,
         refusals: [],
+        programIds: [],
         error: error instanceof Error ? error.message : String(error),
       };
     }
@@ -241,6 +266,7 @@ async function publishOne(
       programsPublished: 0,
       programsHeldBack: 0,
       institutionActivated: false,
+      programIds: [],
     };
   }
 
@@ -255,6 +281,7 @@ async function publishOne(
       programsPublished: 0,
       programsHeldBack: heldBack,
       institutionActivated: false,
+      programIds: [],
     };
   }
 
@@ -273,6 +300,7 @@ async function publishOne(
       programsPublished: result.programsPublished,
       programsHeldBack: heldBack,
       institutionActivated: result.institutionActivated,
+      programIds: ids,
     };
   }
   return {
@@ -281,6 +309,53 @@ async function publishOne(
     programsPublished: result.plan.programs.toPublish.length,
     programsHeldBack: heldBack,
     institutionActivated: result.plan.institution.willActivate,
+    programIds: result.plan.publishable ? [...result.plan.programs.toPublish] : [],
+  };
+}
+
+/**
+ * L'écriture : pour chaque établissement, les formations EXACTES de la simulation et
+ * leur nombre comme `expectedPrograms`. Un établissement que la simulation ne publiait
+ * pas n'est pas même transmis au service. Le service recalcule dans sa transaction : si
+ * la base a bougé (formation devenue invalide, publiée par un autre), il lève un 409 et
+ * rien n'est écrit pour cet établissement.
+ */
+async function applySimulated(
+  input: DelegatedPublicationInput,
+  institutionId: string,
+): Promise<InstitutionReport> {
+  const planned = input.simulation?.institutions.find(
+    (report) => report.institutionId === institutionId,
+  );
+  if (!planned || planned.outcome !== 'published' || planned.programIds.length === 0) {
+    return planned
+      ? { ...planned, programsPublished: 0, institutionActivated: false, programIds: [] }
+      : {
+          institutionId,
+          institutionName: institutionId,
+          outcome: 'nothing',
+          programsPublished: 0,
+          programsHeldBack: 0,
+          programsRefused: 0,
+          institutionActivated: false,
+          refusals: [],
+          programIds: [],
+        };
+  }
+  const result = await input.service.publish(institutionId, {
+    apply: true,
+    programIds: planned.programIds,
+    expectedPrograms: planned.programIds.length,
+    verifier: input.verifier,
+  });
+  if (result.mode !== 'applied') {
+    throw new Error('Le service a répondu par une simulation à une demande d’écriture.');
+  }
+  return {
+    ...planned,
+    outcome: 'published',
+    programsPublished: result.programsPublished,
+    institutionActivated: result.institutionActivated,
   };
 }
 

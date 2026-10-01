@@ -108,12 +108,17 @@ Google Play), `docs/runbook-ouverture-espace-reel.md`, `docs/device-qa-build54.m
 | Intégrité des 10 502 formations | source HTTPS, procédure, cycle, domaine d01–d12, nom, établissement parent, pays : **0 manque, 0 orpheline** ; **10 502 passent le plan de publication** |
 | Catalogue général (autres espaces) | **69 établissements, 634 formations**, inchangés |
 | Sites des 84 universités | **76 répondent** ; 2 bloquent les robots (403) ; 6 non vérifiables depuis mon poste (certificat mal servi par le site, ou coupure) — pas de preuve qu'ils soient morts |
-| Pages-sources des formations (2 150 pages d'établissement, 1 559 adresses, deux passages) | **1 031 répondent ; 341 sont mortes (404/410/renvoi à l'accueil) = 470 formations, toutes des masters du jeu « Trouver mon master » de 2021, dans 64 établissements ; 187 incertaines** |
-| Fiches Parcoursup (4 140), Mon Master (1 078), jeu du ministère (3 134) | non contrôlées une à une (portails qui répondent toujours) ; échantillon de 40 fiches Parcoursup : 40 répondent |
+| Pages-sources des formations (2 150 pages d'établissement, 1 559 adresses, deux passages) | **1 034 répondent ; 341 sont mortes (404/410/renvoi à l'accueil) = 473 formations, toutes des masters du jeu « Trouver mon master » de 2021, dans 63 établissements ; 184 incertaines** (deux passages complets ont donné 470 puis 473 : quelques pages sont instables) |
+| Fiches Parcoursup (4 140), Mon Master (1 078), jeu du ministère (3 134) | non contrôlées une à une (portails) ; échantillons : 40 fiches Parcoursup sur 40 répondent, et une relecture indépendante en a trouvé une générique sur 380 |
 | Titres identiques | 669 groupes (2 323 lignes) portent le même intitulé, le même cycle et la même ville, **avec des fiches Parcoursup distinctes** (codes différents) : ce ne sont pas des doublons de données, mais l'étudiant verra des cartes qui se ressemblent |
 
-**Conséquence :** la publication déléguée publie **10 032 formations** et laisse **470 en
+**Conséquence :** la publication déléguée publie **10 029 formations** et laisse **473 en
 attente** (page-source morte). Aucune ne disparaît : elles restent importées, inactives.
+
+**À savoir avant d'ouvrir l'espace :** la recherche publique (`/etudes-en-france/search`) est lisible sans
+session dès la publication, même si aucune build n'affiche encore le catalogue. Et une règle de
+procédure fausse ne se corrige pas en masse après publication avec les outils actuels (pas de
+`eef:reconcile`) : voir `docs/eef-publication-deleguee.md` § « Retour arrière ».
 
 ## 6. Points d'attention connus
 

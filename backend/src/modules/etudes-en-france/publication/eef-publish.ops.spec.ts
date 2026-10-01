@@ -25,6 +25,7 @@ const FREE_VALUES = [
   'EEF_VERIFIER_EMAIL',
   'EEF_EXPECTED_PROGRAMS',
   'EEF_INSTITUTION_ID',
+  'EEF_EXCLUDE_PROCEDURE',
   'EEF_ACTOR',
 ] as const;
 
@@ -39,20 +40,43 @@ describe('action eef-publish — workflow vps-ops', () => {
     expect(workflow).toMatch(/bounded\(\)[\s\S]*?\[\[ "\$2" =~ \$3 \]\]/);
     const bounded = workflow.slice(workflow.indexOf('bounded() {'), workflow.indexOf('bounded verifier_email'));
     expect(bounded).not.toMatch(/\bgrep\b\s+-q/);
-    for (const name of ['verifier_email', 'expected_programs', 'institution_id', 'github.actor']) {
+    for (const name of [
+      'verifier_email',
+      'expected_programs',
+      'institution_id',
+      'exclude_procedure',
+      'github.triggering_actor',
+    ]) {
       expect(workflow).toContain(`bounded ${name} `);
     }
+  });
+
+  it('borne aussi la longueur, et ne contrôle ces valeurs que pour eef-publish', () => {
+    expect(workflow).toMatch(/\$\{#2\}" -gt 254/);
+    // Un login GitHub atypique ne doit pas bloquer `eef-space-off`.
+    expect(workflow).toMatch(/if \[ "\$ACTION" = "eef-publish" \]; then\s+bounded verifier_email/);
+  });
+
+  it('inscrit celui qui LANCE (triggering_actor), pas celui qui a lancé la première fois', () => {
+    expect(workflow).toContain('EEF_ACTOR: ${{ github.triggering_actor }}');
+    expect(workflow).not.toContain('EEF_ACTOR: ${{ github.actor }}');
+  });
+
+  it('exclure une procédure est un choix FERMÉ, pas un texte libre', () => {
+    expect(workflow).toMatch(/exclude_procedure:[\s\S]*?type: choice[\s\S]*?- aucune[\s\S]*?- hors_eef[\s\S]*?- dap_jaune[\s\S]*?- parcoursup/);
   });
 
   it.each(FREE_VALUES)('%s est transmis au VPS', (name) => {
     expect(workflow).toContain(`${name}='\${${name}}'`);
   });
 
-  it('prouve depuis l’extérieur que le catalogue général n’a pas bougé', () => {
+  it('MESURE depuis l’extérieur que le catalogue général n’a pas bougé, et échoue sinon', () => {
     expect(workflow).toMatch(/inputs\.action == 'eef-publish'/);
-    expect(workflow).toContain('catalog/institutions');
-    expect(workflow).toContain('catalog/programs');
-    expect(workflow).toContain('etudes-en-france/search');
+    // Le relevé AVANT, puis la comparaison APRÈS qui fait échouer le job.
+    expect(workflow).toContain('GENERAL_BEFORE=${inst}/${prog}');
+    const proof = workflow.slice(workflow.indexOf("name: Prouver l'isolation"));
+    expect(proof).toMatch(/"\$\{inst\}\/\$\{prog\}" != "\$\{GENERAL_BEFORE\}"[\s\S]*?exit 1/);
+    expect(proof).toContain('etudes-en-france/search');
   });
 });
 
@@ -64,11 +88,18 @@ describe('action eef-publish — script du VPS', () => {
     expect(branch).toMatch(/\[\[ "\$2" =~ \$3 \]\]/);
   });
 
+  it('n’écrit que sur un « false » explicite : toute autre valeur reste en simulation', () => {
+    expect(branch).toContain('if [ "$DRY_RUN" != "false" ]; then');
+    expect(branch).not.toContain('if [ "$DRY_RUN" = "true" ]');
+  });
+
+  it('transmet la famille de procédure écartée', () => {
+    expect(branch).toContain('--exclude-procedure "$EEF_EXCLUDE_PROCEDURE"');
+  });
+
   it('la simulation ne contient jamais --apply', () => {
-    const dry = branch.slice(
-      branch.indexOf('if [ "$DRY_RUN" = "true" ]'),
-      branch.indexOf('else', branch.indexOf('if [ "$DRY_RUN" = "true" ]')),
-    );
+    const start = branch.indexOf('if [ "$DRY_RUN" != "false" ]');
+    const dry = branch.slice(start, branch.indexOf('else', start));
     expect(dry).toContain('--dry-run');
     expect(dry).not.toContain('--apply');
   });
