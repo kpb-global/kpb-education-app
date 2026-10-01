@@ -90,6 +90,12 @@ abstract final class AnalyticsEventName {
   /// `eef_catalog_failed` suit la logique de `eef_interest_failed` : sans lui,
   /// une panne du catalogue le jour du lancement se lit dans les tableaux de
   /// bord exactement comme « personne ne cherche ».
+  /// L'espace réel (le hub) : `eef_space_viewed` donne la portée et la porte
+  /// d'entrée ; `eef_hub_tile_opened` dit CE QUE les étudiants y viennent faire
+  /// (`tile` = catalogue, cv, lettres, entretien, échéances, éligibilité,
+  /// conseiller, profil) — la seule mesure de ce que l'espace vaut avant la 55.
+  static const eefSpaceViewed = 'eef_space_viewed';
+  static const eefHubTileOpened = 'eef_hub_tile_opened';
   static const eefCatalogViewed = 'eef_catalog_viewed';
   static const eefCatalogSearched = 'eef_catalog_searched';
   static const eefCatalogFailed = 'eef_catalog_failed';
@@ -167,6 +173,7 @@ abstract final class AnalyticsParamKey {
   static const wantsPremium = 'wants_premium';
 
   /// Catalogue de l'espace : des COMPTES et des drapeaux, jamais le texte tapé.
+  static const tile = 'tile';
   static const hasQuery = 'has_query';
   static const filterCount = 'filter_count';
   static const resultCount = 'result_count';

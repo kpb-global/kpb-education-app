@@ -286,4 +286,99 @@ void main() {
           EefInterestFailure.server);
     });
   });
+
+  // EEF-UX-13 — modifier ses niveaux et ses domaines SANS redonner le
+  // consentement : c'est PATCH, jamais POST.
+  group('updateProfile — PATCH, pas POST', () {
+    void stubPatch(Future<Map<String, dynamic>> Function() answer) {
+      when(() => api.updateEefProfile(
+            currentLevel: any(named: 'currentLevel'),
+            targetLevel: any(named: 'targetLevel'),
+            fieldIds: any(named: 'fieldIds'),
+          )).thenAnswer((_) async => answer());
+    }
+
+    test('envoie niveaux et domaines, et ne touche JAMAIS à la déclaration',
+        () async {
+      stubPatch(() async => <String, dynamic>{
+            ..._declaredBody,
+            'targetLevel': 'master',
+            'fieldIds': ['d07'],
+          });
+
+      final ok = await controller.updateProfile(
+        targetLevel: 'master',
+        fieldIds: ['d07'],
+      );
+
+      expect(ok, isTrue);
+      expect(controller.interest.targetLevel, 'master');
+      expect(controller.interest.fieldIds, ['d07']);
+      verify(() => api.updateEefProfile(
+            currentLevel: null,
+            targetLevel: 'master',
+            fieldIds: ['d07'],
+          )).called(1);
+      // Le consentement n'est PAS redonné : POST n'est jamais appelé.
+      verifyNever(() => api.declareEefInterest(
+            consentVersion: any(named: 'consentVersion'),
+            currentLevel: any(named: 'currentLevel'),
+            targetLevel: any(named: 'targetLevel'),
+            fieldIds: any(named: 'fieldIds'),
+            wantsPremium: any(named: 'wantsPremium'),
+          ));
+    });
+
+    // Un 200 n'est pas une preuve d'écriture : le corps l'est.
+    test('un 2xx qui ne dit pas « declared » est un échec', () async {
+      stubPatch(() async => <String, dynamic>{'declared': false});
+
+      final ok = await controller.updateProfile(fieldIds: ['d07']);
+
+      expect(ok, isFalse);
+      expect(controller.phase, EefInterestPhase.failed);
+      expect(controller.failure, EefInterestFailure.server);
+    });
+
+    test('une panne réseau est dite telle, sans toucher à l\'état connu',
+        () async {
+      // Il y a déjà une déclaration en mémoire.
+      when(() => api.getEefInterest()).thenAnswer((_) async => _declaredBody);
+      await controller.load();
+      expect(controller.declared, isTrue);
+
+      stubPatch(() async => throw _dio(type: DioExceptionType.connectionError));
+      final ok = await controller.updateProfile(fieldIds: ['d07']);
+
+      expect(ok, isFalse);
+      expect(controller.failure, EefInterestFailure.network);
+      // L'échec ne détruit pas ce que l'étudiant avait déclaré.
+      expect(controller.declared, isTrue);
+      expect(controller.interest.fieldIds, ['info', 'sante']);
+    });
+
+    test('404 (pas de déclaration) est une erreur serveur, pas un succès',
+        () async {
+      stubPatch(() async => throw _dio(status: 404));
+      final ok = await controller.updateProfile(fieldIds: ['d07']);
+      expect(ok, isFalse);
+      expect(controller.declared, isFalse);
+    });
+
+    test('ne rejoue pas une mise à jour en cours', () async {
+      var calls = 0;
+      stubPatch(() async {
+        calls += 1;
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        return _declaredBody;
+      });
+
+      final first = controller.updateProfile(fieldIds: ['d07']);
+      final second = await controller.updateProfile(fieldIds: ['d01']);
+      await first;
+
+      expect(second, isFalse);
+      expect(calls, 1);
+    });
+  });
 }

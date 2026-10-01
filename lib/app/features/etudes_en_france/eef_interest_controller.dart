@@ -145,6 +145,57 @@ class EefInterestController extends ChangeNotifier {
     }
   }
 
+  /// Met à jour les niveaux et les domaines d'une déclaration EXISTANTE, sans
+  /// redonner le consentement. Rend `true` seulement si le SERVEUR a confirmé.
+  ///
+  /// C'est la raison d'être de `PATCH` : modifier ses domaines ne doit ni
+  /// refabriquer un consentement au rappel commercial que l'étudiant n'a pas
+  /// redonné, ni effacer son intérêt Premium. Le corps de la réponse doit dire
+  /// `declared: true` — un 200 qui ne le dit pas est un échec, comme pour
+  /// [submit].
+  ///
+  /// Aucune mesure `eef_interest_declared` ici : ce n'est pas une nouvelle
+  /// déclaration, et la compter fausserait le ratio que ce document garde pour
+  /// les premières.
+  Future<bool> updateProfile({
+    String? currentLevel,
+    String? targetLevel,
+    List<String>? fieldIds,
+  }) async {
+    if (_phase == EefInterestPhase.submitting) return false;
+
+    _phase = EefInterestPhase.submitting;
+    _failure = null;
+    notifyListeners();
+
+    try {
+      final raw = await _apiClient.updateEefProfile(
+        currentLevel: currentLevel,
+        targetLevel: targetLevel,
+        fieldIds: fieldIds,
+      );
+      final saved = EefInterest.fromJson(raw);
+      if (!saved.declared) {
+        _failure = EefInterestFailure.server;
+        _phase = EefInterestPhase.failed;
+        notifyListeners();
+        _analytics.logEefInterestFailed(_failure!.name);
+        return false;
+      }
+
+      _interest = saved;
+      _phase = EefInterestPhase.ready;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _failure = classifyFailure(error);
+      _phase = EefInterestPhase.failed;
+      notifyListeners();
+      _analytics.logEefInterestFailed(_failure!.name);
+      return false;
+    }
+  }
+
   /// Retire la déclaration. Rend `true` seulement si le SERVEUR a confirmé.
   ///
   /// Symétrique de [submit], et pour la même raison : afficher « tu es retiré »

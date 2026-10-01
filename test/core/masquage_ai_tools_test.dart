@@ -39,6 +39,7 @@ import 'package:karatou/app/core/models/app_models.dart';
 import 'package:karatou/app/core/repositories/app_snapshot.dart';
 import 'package:karatou/app/features/ai_advisor/ai_chat_screen.dart';
 import 'package:karatou/app/features/cases/case_detail_screen.dart';
+import 'package:karatou/app/features/etudes_en_france/eef_home_screen.dart';
 import 'package:karatou/app/features/shell/kpb_tools_drawer.dart';
 import 'package:karatou/app/features/tools/motivation_letters_screen.dart';
 import 'package:karatou/app/features/tools/student_tools_screen.dart';
@@ -67,6 +68,10 @@ const _expectedCallSites = <String, int>{
   'lib/app/features/tools/student_tools_screen.dart': 3,
   'lib/app/features/cases/case_detail_screen.dart': 2,
   'lib/app/features/ai_advisor/ai_chat_screen.dart': 1,
+  // Le hub de l'espace « Études en France » (build 54) : CV, lettres, entretien.
+  // Même masque que la boîte à outils (`AppConfig.aiToolsEnabled`), couvert plus
+  // bas dans les deux sens.
+  'lib/app/features/etudes_en_france/eef_home_screen.dart': 3,
 };
 
 /// On mesure le dépôt SUIVI PAR GIT, pas les brouillons locaux d'une autre
@@ -171,7 +176,7 @@ void main() {
   });
 
   group('(a) l\'inventaire des points d\'entrée', () {
-    test('aucun appelant hors des quatre fichiers hôtes déclarés', () {
+    test('aucun appelant hors des fichiers hôtes déclarés', () {
       final measured = _measuredCallSites();
       final undeclared = measured.keys
           .where((path) => !_expectedCallSites.containsKey(path))
@@ -210,10 +215,10 @@ void main() {
       );
     });
 
-    test('les dix appels totalisent bien dix', () {
+    test('les treize appels totalisent bien treize', () {
       final total =
           _measuredCallSites().values.fold<int>(0, (sum, n) => sum + n);
-      expect(total, 10);
+      expect(total, 13);
     });
   });
 
@@ -244,6 +249,18 @@ void main() {
       expect(find.text('interview_title'), findsNothing);
       expect(find.text('scanner_title'), findsOneWidget);
       expect(find.text('impact_title'), findsOneWidget);
+    });
+
+    testWidgets('le hub de l\'espace « Études en France » ne les offre plus',
+        (tester) async {
+      await _pump(tester, const EefHomeScreen());
+
+      // Le hub est bien monté (contre-épreuve de ce test)…
+      expect(find.text('eef_hub_formations_title'), findsOneWidget);
+      // …et ne porte aucune des trois tuiles IA.
+      expect(find.text('cv_generator_title'), findsNothing);
+      expect(find.text('letters_title'), findsNothing);
+      expect(find.text('interview_title'), findsNothing);
     });
 
     testWidgets('l\'écran de dossier perd le simulateur et la relecture',
@@ -290,6 +307,15 @@ void main() {
 
     testWidgets('la boîte à outils retrouve ses trois cartes', (tester) async {
       await _pump(tester, const StudentToolsScreen());
+
+      expect(find.text('cv_generator_title'), findsOneWidget);
+      expect(find.text('letters_title'), findsOneWidget);
+      expect(find.text('interview_title'), findsOneWidget);
+    });
+
+    testWidgets('le hub de l\'espace retrouve ses trois outils',
+        (tester) async {
+      await _pump(tester, const EefHomeScreen());
 
       expect(find.text('cv_generator_title'), findsOneWidget);
       expect(find.text('letters_title'), findsOneWidget);

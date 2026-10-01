@@ -241,6 +241,34 @@ class AppApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
+  /// Met à jour les NIVEAUX et les DOMAINES d'une déclaration existante — rien
+  /// d'autre (`PATCH /etudes-en-france/interest`).
+  ///
+  /// Ne touche ni au consentement, ni à la version du texte accepté, ni à
+  /// l'intérêt Premium : `POST` est un remplacement complet qui réécrit tout cela
+  /// et fabriquerait un consentement au rappel que l'étudiant n'a pas redonné.
+  ///
+  /// Trois états par champ, comme côté serveur : `null` = inchangé, chaîne ou
+  /// liste vide = effacé, valeur = remplacée.
+  ///
+  /// Pas de `try`/`catch` : l'appelant DOIT voir l'échec, pour la même raison que
+  /// [declareEefInterest].
+  Future<Map<String, dynamic>> updateEefProfile({
+    String? currentLevel,
+    String? targetLevel,
+    List<String>? fieldIds,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/etudes-en-france/interest',
+      data: <String, dynamic>{
+        if (currentLevel != null) 'currentLevel': currentLevel,
+        if (targetLevel != null) 'targetLevel': targetLevel,
+        if (fieldIds != null) 'fieldIds': fieldIds,
+      },
+    );
+    return response.data ?? <String, dynamic>{};
+  }
+
   /// Retire la déclaration d'intérêt du profil authentifié.
   ///
   /// Pas de `try`/`catch`, comme la déclaration : l'appelant DOIT voir l'échec.

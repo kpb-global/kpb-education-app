@@ -89,6 +89,24 @@ steady points at the feed itself, not at the content.
 | `eef_teaser_viewed` | `source` (`home_card`/`tools_drawer`/`student_tools`/`deep_link`/`direct`) | Portée de la vitrine, et par quelle porte |
 | `eef_interest_declared` | `wants_premium`, `field_count`, `current_level` | LA question posée par la vitrine : y a-t-il une demande, et pour le payant ? |
 | `eef_interest_failed` | `reason` (`network`/`unauthorized`/`server`) | Un envoi qui échoue |
+| `eef_space_viewed` | `source` (`home_card`/`tools_drawer`/`student_tools`/`deep_link`/`direct`) | L'espace réel (hub) vu, et par quelle porte (build 54) |
+| `eef_hub_tile_opened` | `tile` (`catalogue`/`cv`/`lettres`/`entretien`/`echeances`/`eligibilite`/`conseiller`/`profil`) | Ce que les étudiants viennent FAIRE dans l'espace |
+| `eef_catalog_viewed` | `source` (`hub`/`deep_link`) | Le catalogue ouvert |
+| `eef_catalog_searched` | `has_query` (`1`/`0`), `filter_count`, `result_count`, `catalog_published` (`1`/`0`) | Une recherche aboutie. **Jamais le texte tapé** : une requête libre peut contenir un nom, une ville, un établissement |
+| `eef_catalog_failed` | `reason` (`network`/`server`) | Le catalogue n'a pas pu répondre |
+
+### Lire le catalogue sans se tromper (build 54)
+
+- **`eef_catalog_failed` existe pour la même raison que `eef_interest_failed`** :
+  une panne du catalogue le jour du lancement se lit, sans lui, exactement comme
+  « personne ne cherche ».
+- **`result_count = 0` n'est pas une panne** : c'est une recherche qui n'a rien
+  trouvé. Croiser avec `catalog_published` : `0` ⇒ rien n'est publié (ce n'est pas
+  un défaut de recherche), `1` ⇒ la recherche était trop étroite.
+- **Une recherche par requête, pas par page** : `eef_catalog_searched` ne part
+  pas au défilement.
+- **Les booléens partent en `1`/`0`**, pas en `true`/`false`
+  (`FirebaseAnalytics.logEvent` n'accepte que `String` ou `num`).
 
 ### Pourquoi `eef_interest_failed` existe
 
@@ -110,13 +128,14 @@ déclarations est le signal qui décide du modèle payant — c'est la seule mes
 directe de la demande pour le Premium dont l'app dispose aujourd'hui, faute de
 tout produit payant existant.
 
-> **`field_count` vaut structurellement 0, et ce n'est pas une panne.** La
-> feuille de déclaration ne comporte aucun sélecteur de filière : le champ
-> existe dans le DTO, en base et dans le CSV, mais l'écran ne l'envoie jamais.
-> Ne pas lire ce paramètre comme un axe de segmentation tant que le sélecteur
-> n'existe pas — il arrive avec le catalogue de la Phase 1. Écrit ici parce que
-> c'est le document qu'on ouvre pour interpréter l'entonnoir, et qu'un zéro
-> constant se lit autrement comme « personne ne choisit de filière ».
+> **`field_count` vaut 0 jusqu'à la build 53, puis varie.** Les builds 49 à 53 n'ont
+> aucun sélecteur de domaine : le champ existe dans le DTO, en base et dans le
+> CSV, mais ces écrans ne l'envoient jamais. La build 54 ajoute le sélecteur
+> (domaines d01–d12, préremplis depuis le profil) : à partir d'elle seulement,
+> `field_count` segmente. Ne pas comparer la distribution avant/après sans
+> filtrer sur la version de l'app (`X-KPB-App-Version`). Écrit ici parce que c'est
+> le document qu'on ouvre pour interpréter l'entonnoir, et qu'un zéro constant
+> se lit autrement comme « personne ne choisit de filière ».
 >
 > **`wants_premium` part en `1`/`0`, pas en booléen.**
 > `FirebaseAnalytics.logEvent` assert `value is String || value is num` : le

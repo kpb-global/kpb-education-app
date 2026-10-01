@@ -1890,8 +1890,58 @@ class AppTranslations extends Translations {
                   'Parles-en à un conseiller KPB : d\'autres destinations '
                   'restent ouvertes.',
           'eef_pillars_heading': 'Ce que tu pourras faire',
+          // ── Hub de l'espace (build 54) ────────────────────────────────────
+          // L'agence n'est nommée que dans les CORPS de texte, jamais dans un
+          // titre (eef_naming_test). Le corps du héros dit où se dépose la
+          // candidature — texte à valider par le juridique.
+          'eef_hub_hero_title':
+              'Prépare ta candidature aux universités françaises',
+          'eef_hub_hero_body':
+              'Trouve les formations qui te correspondent, puis prépare ton '
+                  'dossier : CV, lettres de motivation, entretien. La '
+                  'candidature elle-même se dépose sur la plateforme officielle '
+                  'Études en France, gérée par Campus France.',
+          'eef_hub_formations_title': 'Trouver ma formation',
+          'eef_hub_formations_body':
+              'Les universités publiques et quelques établissements publics : '
+                  'cherche par nom, ville, niveau et procédure d\'admission.',
+          'eef_hub_tools_heading': 'Préparer mon dossier',
+          'eef_hub_advisor_title': 'Parler à un conseiller',
+          'eef_hub_advisor_body':
+              'Une question sur ta candidature ? Un conseiller KPB te répond '
+                  'sur WhatsApp.',
+          'eef_hub_whatsapp_prefill':
+              'Bonjour, j\'ai une question sur ma candidature aux universités '
+                  'françaises (Études en France).',
+          'eef_hub_guest_body':
+              'Crée ton compte pour enregistrer ton profil et demander à être '
+                  'rappelé par un conseiller.',
+          'eef_students_only_title': 'Un espace pour les étudiants',
+          'eef_students_only_body':
+              'Cet espace prépare la candidature d\'un étudiant et utilise son '
+                  'profil. Connecte-toi avec le compte de l\'étudiant, ou parle '
+                  'à un conseiller KPB.',
+          // ── Mon profil Études en France ───────────────────────────────────
+          'eef_profile_title': 'Mon profil Études en France',
+          'eef_profile_empty_body':
+              'Dis-nous ton niveau et tes domaines : un conseiller KPB pourra '
+                  'te rappeler avec les bonnes informations.',
+          'eef_profile_declare_cta': 'Compléter mon profil',
+          'eef_profile_level_line': 'Niveau actuel : @level',
+          'eef_profile_target_line': 'Niveau visé : @level',
+          'eef_profile_fields_line': 'Domaines : @fields',
+          'eef_profile_no_fields': 'Aucun domaine choisi',
+          'eef_profile_recorded_body':
+              'Un conseiller KPB peut te rappeler au sujet de cet espace. Tu '
+                  'peux te retirer à tout moment.',
+          'eef_profile_edit_cta': 'Modifier mon profil',
+          'eef_profile_edit_title': 'Modifier mon profil',
+          'eef_profile_edit_body':
+              'Tu modifies seulement ton niveau et tes domaines. Ton accord '
+                  'pour être rappelé ne change pas.',
+          'eef_field_domains': 'Tes domaines (plusieurs choix possibles)',
           // ── Catalogue « Études en France » (Phase 1) ──────────────────
-          'eef_catalog_title': 'Catalogue des universités',
+          'eef_catalog_title': 'Formations',
           'eef_catalog_open': 'Ouvrir le catalogue',
           'eef_catalog_search_hint': 'Formation, ville…',
           'eef_catalog_facet_cycle': 'Niveau',
@@ -1937,9 +1987,9 @@ class AppTranslations extends Translations {
           'eef_catalog_value_procedureType_hors_eef': 'Hors procédure',
           'eef_pillar_catalog_title': 'Un catalogue dense',
           'eef_pillar_catalog_body':
-              'Universités publiques, écoles d\'ingénieurs, BUT, BTS, écoles de '
-                  'commerce : chercher par ville, filière, niveau, budget et '
-                  'procédure.',
+              'Les universités publiques et quelques établissements publics : '
+                  'licences, BUT, masters, cycles ingénieur. Cherche par nom, '
+                  'ville, niveau et procédure d\'admission.',
           'eef_pillar_shortlist_title': 'Les formations faites pour toi',
           'eef_pillar_shortlist_body':
               'Une sélection classée en trois étages — ambition, cible, '
@@ -4946,8 +4996,55 @@ class AppTranslations extends Translations {
                   'opening does not change that. Talk to a KPB counsellor: '
                   'other destinations remain open.',
           'eef_pillars_heading': 'What you will be able to do',
+          // ── Space hub (build 54) ──────────────────────────────────────────
+          'eef_hub_hero_title':
+              'Prepare your application to French universities',
+          'eef_hub_hero_body':
+              'Find the programmes that suit you, then prepare your file: CV, '
+                  'motivation letters, interview. The application itself is '
+                  'submitted on the official Études en France platform, run by '
+                  'Campus France.',
+          'eef_hub_formations_title': 'Find my programme',
+          'eef_hub_formations_body':
+              'Public universities and a few public institutions: search by '
+                  'name, city, level and admission procedure.',
+          'eef_hub_tools_heading': 'Prepare my file',
+          'eef_hub_advisor_title': 'Talk to an advisor',
+          'eef_hub_advisor_body':
+              'A question about your application? A KPB advisor answers you on '
+                  'WhatsApp.',
+          'eef_hub_whatsapp_prefill':
+              'Hello, I have a question about my application to French '
+                  'universities (Études en France).',
+          'eef_hub_guest_body':
+              'Create your account to save your profile and ask to be called '
+                  'back by an advisor.',
+          'eef_students_only_title': 'A space for students',
+          'eef_students_only_body':
+              'This space prepares a student\'s application and uses their '
+                  'profile. Sign in with the student\'s account, or talk to a KPB '
+                  'advisor.',
+          // ── My Études en France profile ───────────────────────────────────
+          'eef_profile_title': 'My Études en France profile',
+          'eef_profile_empty_body':
+              'Tell us your level and your fields: a KPB advisor will be able '
+                  'to call you back with the right information.',
+          'eef_profile_declare_cta': 'Complete my profile',
+          'eef_profile_level_line': 'Current level: @level',
+          'eef_profile_target_line': 'Target level: @level',
+          'eef_profile_fields_line': 'Fields: @fields',
+          'eef_profile_no_fields': 'No field chosen',
+          'eef_profile_recorded_body':
+              'A KPB advisor may call you back about this space. You can '
+                  'withdraw at any time.',
+          'eef_profile_edit_cta': 'Edit my profile',
+          'eef_profile_edit_title': 'Edit my profile',
+          'eef_profile_edit_body':
+              'You are only changing your level and your fields. Your consent '
+                  'to be called back does not change.',
+          'eef_field_domains': 'Your fields (several choices possible)',
           // ── "Études en France" catalogue (Phase 1) ────────────────────
-          'eef_catalog_title': 'University catalogue',
+          'eef_catalog_title': 'Programmes',
           'eef_catalog_open': 'Open the catalogue',
           'eef_catalog_search_hint': 'Programme, city…',
           'eef_catalog_facet_cycle': 'Level',
@@ -4992,8 +5089,9 @@ class AppTranslations extends Translations {
           'eef_catalog_value_procedureType_hors_eef': 'Outside the procedure',
           'eef_pillar_catalog_title': 'A dense catalogue',
           'eef_pillar_catalog_body':
-              'Public universities, engineering schools, BUT, BTS, business '
-                  'schools: search by city, field, level, budget and procedure.',
+              'Public universities and a few public institutions: bachelor\'s, '
+                  'BUT, master\'s, engineering cycles. Search by name, city, '
+                  'level and admission procedure.',
           'eef_pillar_shortlist_title': 'The programmes that fit you',
           'eef_pillar_shortlist_body':
               'A shortlist ranked in three tiers — reach, target, safety — with '

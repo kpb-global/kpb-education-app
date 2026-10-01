@@ -345,6 +345,35 @@ class AnalyticsService {
     }
   }
 
+  /// L'espace réel (le hub) a été vu. [source] dit par quelle porte.
+  Future<void> logEefSpaceViewed(String source) async {
+    final params = <String, Object>{AnalyticsParamKey.source: source};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefSpaceViewed,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefSpaceViewed, params);
+    } catch (e, s) {
+      _logError('logEefSpaceViewed', e, s);
+    }
+  }
+
+  /// Une tuile du hub a été ouverte. [tile] est un identifiant fermé écrit dans
+  /// le code, jamais un texte saisi.
+  Future<void> logEefHubTileOpened(String tile) async {
+    final params = <String, Object>{AnalyticsParamKey.tile: tile};
+    try {
+      await _analytics.logEvent(
+        name: AnalyticsEventName.eefHubTileOpened,
+        parameters: params,
+      );
+      _mirror(AnalyticsEventName.eefHubTileOpened, params);
+    } catch (e, s) {
+      _logError('logEefHubTileOpened', e, s);
+    }
+  }
+
   /// Le catalogue a été ouvert. [source] dit par quelle porte.
   Future<void> logEefCatalogViewed(String source) async {
     final params = <String, Object>{AnalyticsParamKey.source: source};

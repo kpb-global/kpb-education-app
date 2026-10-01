@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/controllers/app_controller.dart';
 import '../../core/ui/kpb_components.dart';
 import 'eef_interest_controller.dart';
+import 'eef_profile_prefill.dart';
 
 /// Les niveaux proposés. Les VALEURS sont des identifiants stables, jamais des
 /// libellés traduits : elles partent en base et dans l'export commercial, et un
 /// export dont la colonne « niveau » change de langue selon le téléphone de
 /// l'étudiant n'est pas exploitable.
-const _levelSlugs = <String>[
-  'terminale',
-  'bac',
-  'licence',
-  'master',
-  'doctorat',
-  'autre',
-];
+const _levelSlugs = kEefLevelSlugs;
 
 String _levelLabel(String slug) => 'eef_level_$slug'.tr;
+
+/// Ce que la feuille fait à la validation.
+enum EefSheetMode {
+  /// Première déclaration : `POST`, avec le consentement au rappel.
+  declare,
+
+  /// Modification d'une déclaration existante : `PATCH`, niveaux et domaines
+  /// seulement. Le consentement n'est NI redemandé NI réécrit.
+  edit,
+}
 
 /// Ouvre la feuille de déclaration d'intérêt.
 ///
@@ -25,12 +30,14 @@ String _levelLabel(String slug) => 'eef_level_$slug'.tr;
 Future<bool> showEefInterestSheet(
   BuildContext context, {
   required EefInterestController controller,
+  EefSheetMode mode = EefSheetMode.declare,
 }) async {
   final confirmed = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (sheetContext) => _EefInterestSheet(controller: controller),
+    builder: (sheetContext) =>
+        _EefInterestSheet(controller: controller, mode: mode),
   );
   return confirmed ?? false;
 }
@@ -55,9 +62,10 @@ Future<bool> showEefInterestSheet(
 /// Ici la feuille RESTE ouverte, l'erreur s'affiche À L'INTÉRIEUR et ne
 /// s'efface pas, et le bouton redevient actionnable pour réessayer.
 class _EefInterestSheet extends StatefulWidget {
-  const _EefInterestSheet({required this.controller});
+  const _EefInterestSheet({required this.controller, required this.mode});
 
   final EefInterestController controller;
+  final EefSheetMode mode;
 
   @override
   State<_EefInterestSheet> createState() => _EefInterestSheetState();
@@ -66,7 +74,10 @@ class _EefInterestSheet extends StatefulWidget {
 class _EefInterestSheetState extends State<_EefInterestSheet> {
   String? _currentLevel;
   String? _targetLevel;
+  final Set<String> _fieldIds = <String>{};
   bool _wantsPremium = false;
+
+  bool get _isEdit => widget.mode == EefSheetMode.edit;
 
   @override
   void initState() {
@@ -78,6 +89,20 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
     _currentLevel = _knownLevel(existing.currentLevel);
     _targetLevel = _knownLevel(existing.targetLevel);
     _wantsPremium = existing.wantsPremium;
+    _fieldIds.addAll(eefFieldIdsFromProfile(existing.fieldIds));
+
+    // Première déclaration : on part de ce que le PROFIL sait déjà, plutôt que
+    // de reposer à l'étudiant des questions qu'il a traitées à l'onboarding.
+    // Jamais par-dessus une réponse existante, et jamais pour une valeur que la
+    // table fermée ne reconnaît pas.
+    if (!existing.declared && Get.isRegistered<AppController>()) {
+      final profile = Get.find<AppController>().profile;
+      _currentLevel ??= eefLevelSlugForProfileLevel(profile?.currentLevel);
+      _targetLevel ??= eefLevelSlugForProfileLevel(profile?.targetLevel);
+      if (_fieldIds.isEmpty) {
+        _fieldIds.addAll(eefFieldIdsFromProfile(profile?.fieldIds));
+      }
+    }
   }
 
   /// Ne repropose une valeur que si elle fait partie des choix offerts.
@@ -90,11 +115,27 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
       raw != null && _levelSlugs.contains(raw) ? raw : null;
 
   Future<void> _submit() async {
-    final ok = await widget.controller.submit(
-      currentLevel: _currentLevel,
-      targetLevel: _targetLevel,
-      wantsPremium: _wantsPremium,
-    );
+    // Les domaines partent dans l'ordre de la taxonomie, pas dans l'ordre des
+    // taps : deux étudiants qui cochent les mêmes cases donnent le même
+    // enregistrement.
+    final fieldIds = [
+      for (final id in kEefFieldIds)
+        if (_fieldIds.contains(id)) id,
+    ];
+    final ok = _isEdit
+        // Chaîne vide = « effacé » côté serveur : un niveau remis sur « je
+        // préfère ne pas dire » doit réellement être retiré, pas laissé tel quel.
+        ? await widget.controller.updateProfile(
+            currentLevel: _currentLevel ?? '',
+            targetLevel: _targetLevel ?? '',
+            fieldIds: fieldIds,
+          )
+        : await widget.controller.submit(
+            currentLevel: _currentLevel,
+            targetLevel: _targetLevel,
+            fieldIds: fieldIds,
+            wantsPremium: _wantsPremium,
+          );
     if (!mounted) return;
     // On ne referme QUE sur confirmation du serveur. Sur échec, la feuille reste
     // et affiche la raison.
@@ -123,10 +164,13 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('eef_sheet_title'.tr, style: KpbTextStyles.title),
+                Text(
+                  _isEdit ? 'eef_profile_edit_title'.tr : 'eef_sheet_title'.tr,
+                  style: KpbTextStyles.title,
+                ),
                 const SizedBox(height: KpbSpacing.xs),
                 Text(
-                  'eef_sheet_body'.tr,
+                  _isEdit ? 'eef_profile_edit_body'.tr : 'eef_sheet_body'.tr,
                   style: KpbTextStyles.bodySm
                       .copyWith(color: context.kpb.textMuted),
                 ),
@@ -147,30 +191,69 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
                 ),
                 const SizedBox(height: KpbSpacing.md),
 
-                // LA question du lot : y a-t-il une demande pour le payant.
-                SwitchListTile.adaptive(
-                  contentPadding: EdgeInsets.zero,
-                  value: _wantsPremium,
-                  onChanged: busy
-                      ? null
-                      : (value) => setState(() => _wantsPremium = value),
-                  title: Text(
-                    'eef_field_wants_premium'.tr,
-                    style: KpbTextStyles.bodySm,
-                  ),
-                ),
-
-                const SizedBox(height: KpbSpacing.sm),
-
-                // Le consentement, DIT avant le bouton qui le donne. Le
-                // serveur horodate la réception de cette action : c'est la
-                // preuve, et elle serait sans valeur si l'écran n'avait pas
-                // annoncé ce à quoi l'étudiant consent.
+                // Les domaines : ce que la recherche du catalogue filtre. Plusieurs
+                // choix, aucun obligatoire.
                 Text(
-                  'eef_consent_notice'.tr,
-                  style: KpbTextStyles.caption
+                  'eef_field_domains'.tr,
+                  style: KpbTextStyles.labelSm
                       .copyWith(color: context.kpb.textMuted),
                 ),
+                const SizedBox(height: KpbSpacing.xs),
+                Wrap(
+                  spacing: KpbSpacing.xs,
+                  runSpacing: KpbSpacing.xs,
+                  children: [
+                    for (final id in kEefFieldIds)
+                      FilterChip(
+                        label: Text(
+                          eefFieldLabel(id),
+                          style: KpbTextStyles.caption,
+                        ),
+                        selected: _fieldIds.contains(id),
+                        onSelected: busy
+                            ? null
+                            : (selected) => setState(() {
+                                  if (selected) {
+                                    _fieldIds.add(id);
+                                  } else {
+                                    _fieldIds.remove(id);
+                                  }
+                                }),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: KpbSpacing.md),
+
+                // Réservé à la première déclaration : l'intérêt Premium et le
+                // consentement ne se modifient PAS par un `PATCH` — c'est tout
+                // son contrat. Les afficher en modification laisserait croire
+                // qu'on peut les changer ici.
+                if (!_isEdit) ...[
+                  // LA question du lot : y a-t-il une demande pour le payant.
+                  SwitchListTile.adaptive(
+                    contentPadding: EdgeInsets.zero,
+                    value: _wantsPremium,
+                    onChanged: busy
+                        ? null
+                        : (value) => setState(() => _wantsPremium = value),
+                    title: Text(
+                      'eef_field_wants_premium'.tr,
+                      style: KpbTextStyles.bodySm,
+                    ),
+                  ),
+
+                  const SizedBox(height: KpbSpacing.sm),
+
+                  // Le consentement, DIT avant le bouton qui le donne. Le
+                  // serveur horodate la réception de cette action : c'est la
+                  // preuve, et elle serait sans valeur si l'écran n'avait pas
+                  // annoncé ce à quoi l'étudiant consent.
+                  Text(
+                    'eef_consent_notice'.tr,
+                    style: KpbTextStyles.caption
+                        .copyWith(color: context.kpb.textMuted),
+                  ),
+                ],
 
                 if (failure != null) ...[
                   const SizedBox(height: KpbSpacing.md),
