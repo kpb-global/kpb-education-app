@@ -133,7 +133,9 @@ describe('CampaignExecutorService', () => {
       route: '/scholarships/abc',
     });
     await h.service.execute('c1');
-    expect(h.pushData().every((d) => d?.route === '/scholarships/abc')).toBe(true);
+    expect(h.pushData().every((d) => d?.route === '/scholarships/abc')).toBe(
+      true,
+    );
   });
 
   it('sans route, n’en invente pas (l’app ouvre l’accueil)', async () => {
@@ -250,5 +252,99 @@ describe('CampaignExecutorService', () => {
     });
     await h.service.execute('c1');
     expect(h.deliveries().length).toBeGreaterThan(0);
+  });
+
+  // ── LIV-24 : les déclarants « Études en France » et l'exclusion des pays ──
+  describe('audiences Études en France', () => {
+    it('all_students_except_countries exclut les pays donnés, sans casse', async () => {
+      const h = makeService({
+        channels: ['push'],
+        template: TEMPLATE,
+        audienceType: 'all_students_except_countries',
+        filters: { exceptCountries: ['Niger', 'NE'] },
+      });
+      await h.service.execute('c1');
+
+      const where = h.profileQueries().at(-1) as Record<string, any>;
+      expect(where.accountType).toBe('student');
+      expect(where.NOT.OR).toEqual([
+        { countryOfResidence: { equals: 'Niger', mode: 'insensitive' } },
+        { countryOfResidence: { equals: 'NE', mode: 'insensitive' } },
+      ]);
+    });
+
+    // Une exclusion illisible est « personne », JAMAIS « tous les étudiants ».
+    it.each([
+      ['absente', {}],
+      ['vide', { exceptCountries: [] }],
+      ['blanche', { exceptCountries: ['  '] }],
+      ['illisible', { exceptCountries: 42 }],
+    ])(
+      'all_students_except_countries : exclusion %s → personne',
+      async (_n, filters) => {
+        const h = makeService({
+          channels: ['push'],
+          template: TEMPLATE,
+          audienceType: 'all_students_except_countries',
+          filters: filters as Record<string, unknown>,
+        });
+        await h.service.execute('c1');
+
+        expect(h.deliveries()).toEqual([]);
+        expect(h.profileQueries()).not.toContainEqual(undefined);
+      },
+    );
+
+    it('le jeton eef_suspended suit KPB_EEF_SUSPENDED_COUNTRIES', async () => {
+      const previous = process.env.KPB_EEF_SUSPENDED_COUNTRIES;
+      process.env.KPB_EEF_SUSPENDED_COUNTRIES = 'Niger';
+      try {
+        const h = makeService({
+          channels: ['push'],
+          template: TEMPLATE,
+          audienceType: 'all_students_except_countries',
+          filters: { exceptCountries: ['eef_suspended'] },
+        });
+        await h.service.execute('c1');
+
+        const where = h.profileQueries().at(-1) as Record<string, any>;
+        expect(where.NOT.OR).toEqual([
+          { countryOfResidence: { equals: 'Niger', mode: 'insensitive' } },
+        ]);
+      } finally {
+        if (previous === undefined)
+          delete process.env.KPB_EEF_SUSPENDED_COUNTRIES;
+        else process.env.KPB_EEF_SUSPENDED_COUNTRIES = previous;
+      }
+    });
+
+    it('eef_interest vise les étudiants qui ont une déclaration', async () => {
+      const h = makeService({
+        channels: ['push'],
+        template: TEMPLATE,
+        audienceType: 'eef_interest',
+      });
+      await h.service.execute('c1');
+
+      const where = h.profileQueries().at(-1) as Record<string, any>;
+      expect(where).toEqual({
+        accountType: 'student',
+        eefInterest: { isNot: null },
+      });
+    });
+
+    it('eef_interest peut exclure les pays suspendus', async () => {
+      const h = makeService({
+        channels: ['push'],
+        template: TEMPLATE,
+        audienceType: 'eef_interest',
+        filters: { exceptCountries: ['Niger'] },
+      });
+      await h.service.execute('c1');
+
+      const where = h.profileQueries().at(-1) as Record<string, any>;
+      expect(where.eefInterest).toEqual({ isNot: null });
+      expect(where.NOT.OR).toHaveLength(1);
+    });
   });
 });

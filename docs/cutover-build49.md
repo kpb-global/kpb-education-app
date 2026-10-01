@@ -562,6 +562,10 @@ pendant un incident PostgreSQL ne prouve donc pas que la garde est absente.
 
 ### Étape 9 bis — Allumer la vitrine « Études en France »  *(après le déploiement, jamais avant)*
 
+> **Pour l'espace RÉEL de la build 54** (hub, catalogue, profil), ce n'est pas cette
+> étape : voir [`runbook-ouverture-espace-reel.md`](runbook-ouverture-espace-reel.md).
+> Elle passe par `eefSpace` (`eef-space-on`) et **jamais** par `KPB_EEF_ENABLED`.
+
 La build 49 embarque la vitrine **éteinte**. Elle ne s'allume pas toute seule :
 c'est `/config/app` qui la déclare, et seule l'image déployée à l'étape 8 sait
 lire ces variables. Les poser avant le déploiement n'aurait aucun effet — pas un

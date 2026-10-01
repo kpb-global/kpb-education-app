@@ -1010,6 +1010,32 @@ l'import encore en attente (voir plus bas).
 Purpose:
 - let operations teams add service offers, destination coverage, articles, forum categories, and topic tags from the dashboard
 
+### Audiences « Études en France » (LIV-24)
+
+Deux audiences de campagne s'ajoutent à `all_students`, `country`, etc. :
+
+| Audience | Filtre | Qui |
+|---|---|---|
+| `eef_interest` | aucun exigé ; `exceptCountries` optionnel | Les étudiants qui ont une ligne `EefInterest` — donc qui ont déclaré leur intérêt **et** accepté d'être rappelés (un retrait supprime la ligne). L'ensemble est borné par la table : elle ne peut pas retomber sur « tout le monde ». |
+| `all_students_except_countries` | `exceptCountries` **exigé** | Tous les étudiants sauf les pays donnés. Une exclusion absente, vide ou illisible donne **zéro** destinataire — jamais « tous les étudiants », la diffusion que ce nom prétend éviter. |
+
+`exceptCountries` accepte une liste, une chaîne séparée par des virgules, ou le
+jeton **`eef_suspended`**, qui désigne les pays de `KPB_EEF_SUSPENDED_COUNTRIES` —
+**la même liste que celle que `/config/app` sert à l'app.** Écrire `["Niger","NE"]`
+à la main dans chaque campagne, c'est oublier un pays le jour où la liste change :
+« la campagne est ouverte » partirait vers un pays dont l'État dit que les
+dossiers ne sont pas traités. Le jeton peut figurer dans la liste à côté d'autres
+pays.
+
+La comparaison est **insensible à la casse** (`countryOfResidence` est un texte
+saisi : « Niger », « NIGER », parfois un code) et **exacte** — « Niger » n'exclut
+pas le « Nigeria ». Prouvé contre un vrai Postgres
+(`campaign-audience.postgres.spec.ts`), pas seulement par des doubles.
+
+**Piège connu, inchangé :** l'audience `country` filtre sur le pays de
+**résidence** (`countryOfResidence`), pas sur le pays visé. `country: france`
+toucherait les résidents de France, pas les candidats à la France.
+
 ## Admin notifications
 
 - `GET /admin/notifications/templates`

@@ -49,21 +49,21 @@ export interface EefCatalogAttribution {
  * réutilisé sans être cité est exactement ce que la licence interdit.
  */
 export const EEF_ATTRIBUTION_SOURCE_NAMES: Readonly<Record<string, string>> = {
-  parcoursup: "Parcoursup",
-  "trouver-mon-master": "Trouver mon master",
-  "diplomes-prepares": "Principaux diplômes et formations préparés",
+  parcoursup: 'Parcoursup',
+  'trouver-mon-master': 'Trouver mon master',
+  'diplomes-prepares': 'Principaux diplômes et formations préparés',
 };
 
 export const EEF_CATALOG_ATTRIBUTION: EefCatalogAttribution = {
   producer: "Ministère de l'Enseignement supérieur et de la Recherche",
-  producerUrl: "https://data.enseignementsup-recherche.gouv.fr",
-  licence: "Licence Ouverte 2.0",
-  licenceUrl: "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+  producerUrl: 'https://data.enseignementsup-recherche.gouv.fr',
+  licence: 'Licence Ouverte 2.0',
+  licenceUrl: 'https://www.etalab.gouv.fr/licence-ouverte-open-licence/',
   sources: [
     EEF_ATTRIBUTION_SOURCE_NAMES.parcoursup,
-    EEF_ATTRIBUTION_SOURCE_NAMES["trouver-mon-master"],
-    EEF_ATTRIBUTION_SOURCE_NAMES["diplomes-prepares"],
+    EEF_ATTRIBUTION_SOURCE_NAMES['trouver-mon-master'],
+    EEF_ATTRIBUTION_SOURCE_NAMES['diplomes-prepares'],
   ],
-  updatedAt: "2026-09-21",
-  catalogVersion: "1.2.0",
+  updatedAt: '2026-09-21',
+  catalogVersion: '1.2.0',
 };

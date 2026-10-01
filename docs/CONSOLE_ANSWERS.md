@@ -4,6 +4,14 @@
 > 04/09/2026 à 10h21, AAB Android du run CI 33781909005. Vérification précédente :
 > `2.1.0 (49)`, le 25/08/2026.
 >
+> **⚠️ Build 54 (`2.3.0 (54)`) : réponses RELUES sur le dépôt, PAS encore vérifiées
+> sur l'artefact.** Les réponses ci-dessous valent pour la 53 ; la section **0quater**
+> liste ce que la 54 change (Wikimedia, finalités commerciales, langue du
+> consentement, déclaration « applications gouvernementales »). Les contrôles qui
+> dépendent de l'ARTEFACT — clé PostHog (`strings App.framework/App | grep -c
+> '^phc_'` = 1), `AD_ID` absent du manifeste fusionné — se refont sur l'archive 54
+> avant de changer cet en-tête (LIV-09). Ne pas le passer à « 54 » sans l'avoir fait.
+>
 > **Le numéro de build n'est PAS dans le titre**, et c'est délibéré. Ce fichier
 > s'appelait « — build 49 » et servait encore de référence quatre numéros plus
 > tard, alors que trois de ses six points ouverts s'étaient résolus entre-temps.
@@ -68,6 +76,19 @@ rouvre tout seul à la revue suivante.
 
 ---
 
+## 0quater. NOUVEAU avec la 54 — à reporter dans les formulaires À LA SOUMISSION
+
+| # | Point | Ce qu'il faut faire | Qui tranche |
+|---|---|---|---|
+| **LIV-09** | **Wikimedia Commons** est un destinataire | La politique publiée le nomme (IP + user-agent dès qu'un logo s'affiche). Ajouté au tableau §5. Reporter la **même réponse que pour YouTube** dans Data Safety (Play) et App Privacy (Apple). | Dev (fait ici) · Ops (consoles) |
+| **XC-06** | **Finalités commerciales** des coordonnées | La politique publiée dit que (a) les déclarations d'intérêt sont lues par l'équipe commerciale pour rappeler l'étudiant et (b) dès qu'un dossier est déposé, nom, e-mail, téléphone, WhatsApp et contact du tuteur partent par e-mail aux commerciaux. Or les tableaux §1.2 et §2 ne déclarent que « Fonctionnalité / Compte ». **⚠️ À TRANCHER avec le juridique** — recommandation : ajouter la finalité **Marketing** (Play : « Advertising or marketing » ; Apple : « Developer's Advertising or Marketing ») sur Nom, E-mail, Téléphone et listes d'intérêt, pour que les consoles ne contredisent pas la politique. Le sens de l'erreur est choisi : sur-déclarer coûte une ligne, sous-déclarer coûte une soumission (« declaration inconsistent with privacy policy »). | **Juridique** |
+| **XC-06** | « Langue du consentement » | Corrigé §1.2 : `EefInterest` n'a pas de colonne de langue. Soit retirer l'affirmation (fait), soit ajouter `consentLocale` avec une `eef-consent-v2` — **non fait**, voir `docs/eef-consent-v1.md`. | Juridique + Dev |
+| **XC-04** | **Applications gouvernementales** (Play → App content → « Government apps ») | L'app communique des informations d'État (date d'ouverture de la campagne, suspension d'un pays). Répondre : **l'app n'est pas une application gouvernementale et ne représente aucune entité gouvernementale**. La description de la fiche doit porter la **mention de non-affiliation** et la **source officielle** : texte prêt dans `docs/release-54-store-pack.md` §4. Côté Apple, vérifier la guideline 5.2.1 (usage du nom « Campus France » — cité en corps de texte seulement, jamais en enseigne : `eef_naming_test`). | Contenu KPB + Ops |
+| **MISS-04** | **Classification d'âge** | L'App Store affiche **4+** alors que les CGU fixent **16 ans** et que l'app a **6 surfaces d'IA générative à texte libre**. Remplir le questionnaire App Store Connect **et** IARC avec les réponses du §3, **garder la preuve des réponses** (exigée par le §5 du contrat de soumission), consigner la décision D2 (`store-listing-copy.md` §9). | Ops + propriétaire |
+| **XC-03** | L'espace réel pendant la revue | Décision et texte pour « Notes for Review » : `docs/release-54-store-pack.md` §3. | Propriétaire |
+
+---
+
 ## 1. Google Play — Data Safety
 
 ### 1.1 Portée
@@ -112,7 +133,7 @@ rouvre tout seul à la revue suivante.
 | Activité — **Autres actions** (4 étiquettes OneSignal) | Oui | **Oui (OneSignal)** | **Requis — non coupable** | Fonctionnalité (+ perso.) | `addTags` (`onesignal_service.dart:85`) |
 | Perf — **Journaux de plantage** | Oui | Non | **Peut choisir** — active par défaut | Stabilité | opt-out réel + purge (`crashlytics_observability.dart:52,59`) ; dSYM envoyés depuis la 52, donc plantages symbolisés |
 | Perf — **Diagnostics** | Oui | Non | **Peut choisir** — même interrupteur | Stabilité | idem |
-| Activité — **Autres actions** (listes d'intérêt : Premium, Études en France) | Oui | Non | **Peut choisir** — geste explicite | Fonctionnalité | `PremiumWaitlistEntry` / `EefInterest` : id de compte, horodatage serveur, version **et langue** du consentement. Aucune donnée financière. |
+| Activité — **Autres actions** (listes d'intérêt : Premium, Études en France) | Oui | Non | **Peut choisir** — geste explicite | Fonctionnalité | `PremiumWaitlistEntry` : id de compte, horodatage serveur, version **et langue** du consentement. `EefInterest` : id de compte, horodatage serveur, version du consentement — **pas de langue** (la table n'a pas de colonne de langue ; seule `PremiumWaitlistEntry` en a une, XC-06). Aucune donnée financière. |
 | **Identifiants d'appareil** | Oui | **Oui (OneSignal)** | **Requis** | Analyses, Push | OneSignal init inconditionnel ; ID Firebase suit l'interrupteur |
 
 > **Requis vs « l'utilisateur peut choisir » — ne pas uniformiser.** Nom/E-mail =
@@ -253,6 +274,7 @@ trois se cumulent.
 | CinetPay | (région prestataire) | e-mail, téléphone, nom | Accompagnement payant (**toujours inatteignable** : aucun tunnel d'achat dans l'app) | collecte |
 | PayDunya | (région prestataire) | facture seule, **aucune donnée client** | idem | collecte |
 | **YouTube IFrame (Google)** | US/global | **IP + user-agent + id vidéo** | Lecture vidéo / vignettes | pseudonyme (IP) |
+| **Wikimedia Commons (Wikimedia Foundation)** | US | **IP + user-agent** (+ URL de l'image) | Affichage des logos d'établissement (`Image.network`, dès l'ouverture d'une fiche ou d'une liste qui en porte) | pseudonyme (IP) — **même réponse que YouTube** dans les deux consoles (LIV-09) |
 | **WhatsApp / Meta** | US/global | URL `wa.me` (contexte catalogue ; **ni nom ni e-mail**) + ce que l'étudiant envoie | Remise externe | n/a (externe) — **pas un sous-traitant** |
 
 > **OpenRouter est un *routeur*, pas un modèle.** Il redistribue chaque invite

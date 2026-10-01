@@ -1,14 +1,14 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get } from '@nestjs/common';
 
-import { EEF_CATALOG_ATTRIBUTION } from "../etudes-en-france/catalog/eef-catalog-attribution";
+import { EEF_CATALOG_ATTRIBUTION } from '../etudes-en-france/catalog/eef-catalog-attribution';
 
 function enabled(value: string | undefined, defaultValue = false): boolean {
   if (value === undefined) return defaultValue;
-  return value.trim().toLowerCase() === "true";
+  return value.trim().toLowerCase() === 'true';
 }
 
 function rolloutPercent(value: string | undefined): number {
-  const parsed = Number(value ?? "0");
+  const parsed = Number(value ?? '0');
   if (!Number.isFinite(parsed)) return 0;
   return Math.max(0, Math.min(100, Math.round(parsed)));
 }
@@ -25,7 +25,7 @@ function rolloutPercent(value: string | undefined): number {
  */
 function nameList(value: string | undefined): string[] {
   const seen = new Set<string>();
-  for (const entry of (value ?? "").split(",")) {
+  for (const entry of (value ?? '').split(',')) {
     const trimmed = entry.trim();
     if (trimmed) seen.add(trimmed);
   }
@@ -108,7 +108,7 @@ function httpsUrl(value: string | undefined): string | null {
   if (!raw) return null;
   try {
     const url = new URL(raw);
-    if (url.protocol !== "https:" || url.username || url.password) return null;
+    if (url.protocol !== 'https:' || url.username || url.password) return null;
     return url.toString();
   } catch {
     return null;
@@ -118,8 +118,8 @@ function httpsUrl(value: string | undefined): string | null {
 /** « Côte d'Ivoire » et « cote d’ivoire » doivent désigner le même pays. */
 function countryKey(value: string): string {
   return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[’]/g, "'")
     .trim()
     .toLowerCase();
@@ -131,7 +131,7 @@ function countryKey(value: string): string {
  * absent : la mention de non-affiliation de l'app renvoie « aux plateformes de
  * l'État », et sans lien l'étudiant ne sait pas où elles sont.
  */
-const OFFICIAL_PLATFORM_URL = "https://www.campusfrance.org/fr";
+const OFFICIAL_PLATFORM_URL = 'https://www.campusfrance.org/fr';
 
 /**
  * Les pages officielles qui justifient une suspension, par pays. Ce sont les
@@ -140,7 +140,7 @@ const OFFICIAL_PLATFORM_URL = "https://www.campusfrance.org/fr";
  * pas vérifier. `KPB_EEF_SUSPENDED_SOURCES` complète ou remplace ces entrées.
  */
 const KNOWN_SUSPENSION_SOURCES: Readonly<Record<string, string>> = {
-  niger: "https://ne.diplomatie.gouv.fr/informations-visas",
+  niger: 'https://ne.diplomatie.gouv.fr/informations-visas',
 };
 
 /**
@@ -154,8 +154,8 @@ function suspensionSourceOverrides(
   value: string | undefined,
 ): Map<string, string> {
   const out = new Map<string, string>();
-  for (const entry of (value ?? "").split(";")) {
-    const separator = entry.indexOf("|");
+  for (const entry of (value ?? '').split(';')) {
+    const separator = entry.indexOf('|');
     if (separator < 0) continue;
     const country = countryKey(entry.slice(0, separator));
     const url = httpsUrl(entry.slice(separator + 1));
@@ -202,8 +202,8 @@ function recommendedVersion(value: string | undefined): string | null {
  * KPB_MIN_APP_VERSION is raised.
  */
 const PUBLISHED_ANDROID_STORE_URL =
-  "https://play.google.com/store/apps/details?id=com.karatou.android";
-const PUBLISHED_IOS_STORE_URL = "https://apps.apple.com/app/id1128659292";
+  'https://play.google.com/store/apps/details?id=com.karatou.android';
+const PUBLISHED_IOS_STORE_URL = 'https://apps.apple.com/app/id1128659292';
 
 /**
  * Public, unauthenticated app configuration. The mobile client reads this at
@@ -211,9 +211,9 @@ const PUBLISHED_IOS_STORE_URL = "https://apps.apple.com/app/id1128659292";
  * gate). `minVersion` defaults to 0.0.0 — i.e. no build is ever blocked until
  * operators explicitly raise KPB_MIN_APP_VERSION.
  */
-@Controller("config")
+@Controller('config')
 export class AppConfigController {
-  @Get("app")
+  @Get('app')
   getAppConfig() {
     const competitionReadiness = enabled(
       process.env.KPB_COMPETITION_READINESS_ENABLED,
@@ -261,7 +261,7 @@ export class AppConfigController {
     );
 
     return {
-      minVersion: process.env.KPB_MIN_APP_VERSION?.trim() || "0.0.0",
+      minVersion: process.env.KPB_MIN_APP_VERSION?.trim() || '0.0.0',
       // Le bandeau doux, par opposition à l'écran bloquant ci-dessus : voir
       // [recommendedVersion]. C'est ce qui permet de faire passer les builds
       // 54 → 55 → forum sans relever `minVersion`, donc sans bloquer personne.
@@ -330,8 +330,8 @@ export class AppConfigController {
       // `eef-catalog-attribution.ts`.
       eefCatalog: EEF_CATALOG_ATTRIBUTION,
       successLabRollout: {
-        countryCodes: (process.env.KPB_SUCCESS_LAB_PILOT_COUNTRIES ?? "")
-          .split(",")
+        countryCodes: (process.env.KPB_SUCCESS_LAB_PILOT_COUNTRIES ?? '')
+          .split(',')
           .map((value) => value.trim().toUpperCase())
           .filter(Boolean),
         percent: rolloutPercent(process.env.KPB_SUCCESS_LAB_ROLLOUT_PERCENT),

@@ -691,7 +691,7 @@ class AppTranslations extends Translations {
               '9. Analytique produit & enregistrement de session',
           'privacy_s10_title': '10. Modifications',
           'privacy_transfers_title': 'Transferts hors de votre pays',
-          'last_updated_august_2026': 'Dernière mise à jour : août 2026',
+          'last_updated_september_2026': 'Dernière mise à jour : septembre 2026',
           // L'éditeur. « KPB Education » est un SERVICE, pas une personne
           // morale : le responsable du traitement est KPB Global L.L.C-FZ, et
           // la politique doit le dire, sinon l'utilisateur consent au profit
@@ -3921,7 +3921,7 @@ class AppTranslations extends Translations {
           'privacy_s9_title': '9. Product analytics & session recording',
           'privacy_s10_title': '10. Changes',
           'privacy_transfers_title': 'Transfers outside your country',
-          'last_updated_august_2026': 'Last updated: August 2026',
+          'last_updated_september_2026': 'Last updated: September 2026',
           'privacy_s1_body':
               'KPB Education (hereafter "we", "our", "KPB") is a service of KPB Global L.L.C-FZ, a free-zone limited liability company registered with the Meydan Free Zone (Meydan City Corporation, Emirate of Dubai) under licence no. 2537631.01. KPB Global L.L.C-FZ is the controller of personal data collected through the KPB Education mobile app.\n\n'
                   'Registered office: Meydan Grandstand, 6th floor, Meydan Road, Nad Al Sheba, Dubai, United Arab Emirates\n'

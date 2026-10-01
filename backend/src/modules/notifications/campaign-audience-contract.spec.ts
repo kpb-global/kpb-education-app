@@ -50,11 +50,40 @@ describe('Contrat d’audience des campagnes', () => {
   // Seules les audiences dont le NOM annonce une diffusion peuvent se passer
   // de filtre. Toute autre doit en exiger un : `where: undefined` en Prisma ne
   // veut pas dire « personne » mais « tous les comptes ».
-  it('seules all_users et all_students peuvent se passer de filtre', () => {
+  //
+  // `eef_interest` est la troisième : son nom dit QUI elle vise (les déclarants),
+  // et son ensemble est borné par la table `EefInterest` — elle ne peut pas
+  // retomber sur « tous les comptes », puisque la requête part de cette table.
+  it('seules all_users, all_students et eef_interest peuvent se passer de filtre', () => {
     const unfiltered = AUDIENCE_TYPES.filter(
       (a) => AUDIENCE_REQUIRED_FILTER[a] === null,
     );
-    expect(unfiltered.sort()).toEqual(['all_students', 'all_users']);
+    expect(unfiltered.sort()).toEqual([
+      'all_students',
+      'all_users',
+      'eef_interest',
+    ]);
+  });
+
+  // « Tous les étudiants SAUF… » sans l'exception est « tous les étudiants » :
+  // la diffusion que ce nom prétend éviter. Le filtre est donc exigé.
+  it('all_students_except_countries exige son exclusion', () => {
+    expect(AUDIENCE_REQUIRED_FILTER['all_students_except_countries']).toBe(
+      'exceptCountries',
+    );
+    expect(audienceFilterMissing('all_students_except_countries', {})).toBe(
+      true,
+    );
+    expect(
+      audienceFilterMissing('all_students_except_countries', {
+        exceptCountries: [],
+      }),
+    ).toBe(true);
+    expect(
+      audienceFilterMissing('all_students_except_countries', {
+        exceptCountries: ['Niger'],
+      }),
+    ).toBe(false);
   });
 
   describe('audienceFilterMissing', () => {

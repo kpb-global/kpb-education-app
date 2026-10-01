@@ -375,7 +375,7 @@ server.registerTool(
 
 const audienceSchema = {
   audienceType: z
-    .enum(['all_students', 'all_users', 'country', 'country_of_residence', 'study_level', 'account_type', 'single_user', 'case_status'])
+    .enum(['all_students', 'all_users', 'country', 'country_of_residence', 'study_level', 'account_type', 'single_user', 'case_status', 'eef_interest', 'all_students_except_countries'])
     .default('all_students'),
   filters: z.record(z.unknown()).default({}),
 };
@@ -385,7 +385,7 @@ server.registerTool(
   {
     description:
       "Combien d'élèves une audience toucherait (total + répartition FR/EN), sans rien envoyer. " +
-      'Filtres : country→{countryId}, country_of_residence→{countryCode}, study_level→{levels:[...]}, account_type→{accountType}, single_user→{userId}.',
+      'Filtres : country→{countryId}, country_of_residence→{countryCode}, study_level→{levels:[...]}, account_type→{accountType}, single_user→{userId}, all_students_except_countries→{exceptCountries:[...] | "eef_suspended"} (EXIGÉ), eef_interest→{} ou {exceptCountries:[...]} (déclarants Études en France ; "eef_suspended" = les pays suspendus servis par /config/app). ATTENTION : `country` filtre sur le pays de RÉSIDENCE, pas sur le pays visé.',
     inputSchema: audienceSchema,
   },
   tool(async (a) => ok(await api('POST', '/admin/notifications/campaigns/preview', a))),

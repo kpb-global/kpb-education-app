@@ -43,7 +43,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'last_updated_august_2026'.tr,
+              'last_updated_september_2026'.tr,
               style: TextStyle(fontSize: 13, color: context.kpb.textMuted),
             ),
             const SizedBox(height: KpbSpacing.lg),
@@ -132,7 +132,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'last_updated_august_2026'.tr,
+              'last_updated_september_2026'.tr,
               style: TextStyle(fontSize: 13, color: context.kpb.textMuted),
             ),
             const SizedBox(height: KpbSpacing.lg),
@@ -163,8 +163,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                   '• Un catalogue de filières, pays, institutions, programmes et bourses\n'
                   '• Un système de mise en relation avec des conseillers\n'
                   '• Un suivi de dossiers de candidature\n'
-                  '• Des contenus éducatifs (articles, guides)\n'
-                  '• Un espace communautaire\n\n'
+                  '• Des contenus éducatifs (articles, guides)\n\n'
                   'Les informations fournies sont à titre indicatif et ne constituent pas un engagement contractuel de résultat.',
             ),
             // Mesure d'audience — ACTIVE PAR DÉFAUT, donc annoncée ici et pas
