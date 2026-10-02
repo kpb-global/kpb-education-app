@@ -384,6 +384,17 @@ const DOORS: Readonly<Record<string, Door>> = {
     unscoped: ['purgePendingEefRows'],
     accesses: 6,
   },
+  'modules/etudes-en-france/catalog/eef-catalog.reconcile.db.ts': {
+    reason:
+      'L’outil d’exploitation qui réaligne les lignes de l’import DÉJÀ en base '
+      + '(publiées ou en attente) sur les règles du dépôt. Il ne sert rien à '
+      + 'personne : chaque lecture porte le préfixe de l’import (`startsWith`), et '
+      + 'chaque écriture vise un identifiant ainsi lu en répétant son établissement '
+      + 'et les quatre champs lus — jamais une ligne du catalogue général.',
+    scoped: {},
+    unscoped: ['planEefReconcile', 'applyEefReconcile'],
+    accesses: 3,
+  },
   'modules/competition-readiness/admin/admin-partnerships.service.ts': {
     reason:
       'Lecture par identifiant d’un établissement, par un administrateur qui gère '

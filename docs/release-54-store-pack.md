@@ -29,10 +29,10 @@ possibles à l'approbation :
 | Ce que voit un utilisateur de la 54 | La **vitrine de la 53** (déclaration d'intérêt gratuite) — avec en plus ses liens vers les sources officielles et le sélecteur de domaines dans la déclaration — plus les correctifs du §2 | Le hub : catalogue, CV/lettres/entretien, profil |
 | Ce que voit le relecteur Apple | La vitrine — **et il doit être prévenu** que l'espace réel s'active à distance (guideline 2.3.1) | Le hub, avec le catalogue (non vide : voir « Condition ») |
 | Condition | Aucune | **Remplie le 01/10/2026** : 10 029 formations publiées dans 84 établissements (`eef-publish`, 473 en attente) et backend de la build en production (`33c5a51`) |
-| Risque | Fonction activée après la revue : il faut la déclarer (§3) | L'espace s'ouvre à tous les utilisateurs de la 54 dès l'approbation, **avant** que les 7 questions de procédure soient tranchées (`docs/eef-dossier-relecture-procedures.md` ; pas d'`eef:reconcile`) et que le héros du hub soit validé par le juridique |
+| Risque | Fonction activée après la revue : il faut la déclarer (§3) | L'espace s'ouvre à tous les utilisateurs de la 54 dès l'approbation, **avant** que les corrections de procédure soient en production (questions tranchées le 02/10, `docs/eef-dossier-relecture-procedures.md` ; appliquées par `eef-reconcile`, #305) et que le héros du hub soit validé par le juridique |
 
 **Recommandation : A.** Le catalogue est publié (10 029 formations au 01/10/2026),
-mais l'ouverture attend trois choses : les 7 questions de procédure, la validation
+mais l'ouverture attend trois choses : les corrections de procédure en production (tranchées le 02/10, `eef-reconcile`), la validation
 juridique (§6) et une 54 en vente et adoptée. La 54 part donc **éteinte**, avec la
 déclaration du §3 ; l'ouverture est une opération serveur séparée
 (`docs/runbook-ouverture-espace-reel.md`), sans nouvelle soumission.

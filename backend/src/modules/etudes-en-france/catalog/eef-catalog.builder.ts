@@ -13,6 +13,7 @@ import {
   normalizeCityName,
   normalizeLabel,
   resolveFieldId,
+  refineParcoursupProcedure,
   refineParcoursupShape,
   resolveParcoursupShape,
   restoreAccentedLabel,
@@ -184,7 +185,11 @@ export function buildParcoursupPrograms(
       rejected.push({ reason: 'intitule-vide', label: (row.etab_nom ?? '').trim() });
       continue;
     }
-    const shape = refineParcoursupShape(resolved, label);
+    const shape = refineParcoursupProcedure(
+      refineParcoursupShape(resolved, label),
+      label,
+      institution,
+    );
     const source = (row.fiche ?? '').trim();
     if (!source.startsWith('https://')) {
       rejected.push({ reason: 'source-manquante', label });

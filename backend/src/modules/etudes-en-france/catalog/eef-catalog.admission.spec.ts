@@ -68,7 +68,7 @@ describe('admissionGuidance', () => {
     expect(text).not.toMatch(/\d{2}\/20/);
   });
 
-  it('cite le plancher de la mention la plus fréquente, pas un seuil officiel', () => {
+  it('cite la mention la plus fréquente comme repère de concurrence, hors de la population du lecteur', () => {
     const text = admissionGuidance({
       ...PROGRAM,
       admissionCohort: {
@@ -86,10 +86,40 @@ describe('admissionGuidance', () => {
       },
     }).fr;
     expect(text).toContain('Aucune moyenne minimale');
-    expect(text).toContain('mention Bien');
-    expect(text).toContain('14/20');
-    expect(text).toContain("Ce n'est pas un seuil");
-    expect(text).toContain('40 %');
+    expect(text).toContain('Repère de concurrence uniquement');
+    expect(text).toContain('mention Bien (14 à moins de 16/20)');
+    // Les chiffres ne décrivent que des élèves de terminale française, et le taux
+    // d'accès ne compte que les candidats scolarisés en France ou européens.
+    expect(text).toContain('admis issus de terminale française');
+    expect(text).toContain("n'incluent pas les candidats à bac étranger");
+    expect(text).toContain("n'est pas un seuil pour toi");
+    expect(text).toContain('scolarisés en France ou européens : 40 %');
+    // Plus aucune consigne tirée d'une population qui n'est pas celle du lecteur
+    // (décision du 02/10/2026).
+    expect(text).not.toMatch(/vise/i);
+  });
+
+  it('ne donne aucune consigne de note, quelle que soit la mention dominante', () => {
+    for (const dominant of ['sansMention', 'assezBien', 'bien', 'tresBien', 'tresBienFelicitations'] as const) {
+      const cohort = {
+        session: '2025',
+        sourceUrl:
+          'https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/',
+        admittedNeobac: 40,
+        sansMention: 0,
+        assezBien: 0,
+        bien: 0,
+        tresBien: 0,
+        tresBienFelicitations: 0,
+        accessRatePct: null,
+        lastCalledRank: null,
+        [dominant]: 40,
+      };
+      const guidance = admissionGuidance({ ...PROGRAM, admissionCohort: cohort });
+      expect(guidance.fr).not.toMatch(/vise|au moins \d+\/20/i);
+      expect(guidance.en).not.toMatch(/aim for|at least \d+\/20/i);
+      expect(guidance.en).toContain('not a threshold for you');
+    }
   });
 
   it('ne tire pas d’objectif d’un effectif trop petit', () => {
@@ -110,6 +140,7 @@ describe('admissionGuidance', () => {
       },
     }).fr;
     expect(text).toContain('trop petit');
+    expect(text).toContain('terminale française');
     expect(text).not.toMatch(/\d{2}\/20/);
   });
 });

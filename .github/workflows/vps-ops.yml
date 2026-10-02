@@ -18,8 +18,9 @@ name: VPS ops (feature flag / catalogue)
 # sur « Run workflow ».
 #
 # Les seules valeurs libres sont les trois d'`eef-publish` (une adresse, un entier,
-# un identifiant d'établissement), bornées par une expression régulière sur la valeur
-# entière avant d'atteindre le serveur, puis une seconde fois par le script.
+# un identifiant d'établissement) — `eef-reconcile` en reprend deux, l'entier et
+# l'identifiant —, bornées par une expression régulière sur la valeur entière avant
+# d'atteindre le serveur, puis une seconde fois par le script.
 #
 # Les seules clés que les branches `eef-*` écrivent dans le `.env` sont les
 # `KPB_EEF_*` (vitrine, espace, fenêtre de campagne) et `KPB_RECOMMENDED_APP_VERSION`
@@ -79,9 +80,10 @@ on:
           - eef-import
           - eef-purge-pending
           - eef-publish
+          - eef-reconcile
           - reviews-purge-orphans
       dry_run:
-        description: 'Simuler seulement (eef-space-on, eef-campaign-set, recommended-version-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, eef-publish, reviews-purge-orphans). Décocher pour appliquer.'
+        description: 'Simuler seulement (eef-space-on, eef-campaign-set, recommended-version-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, eef-publish, eef-reconcile, reviews-purge-orphans). Décocher pour appliquer.'
         type: boolean
         required: false
         default: true
@@ -98,12 +100,12 @@ on:
         required: false
         default: ''
       expected_programs:
-        description: 'eef-publish, application seulement : le total « TOTAL publiable » annoncé par la simulation. Un autre nombre, et rien n’est écrit.'
+        description: 'eef-publish / eef-reconcile, application seulement : le total annoncé par la simulation (« TOTAL publiable », « À RÉALIGNER »). Un autre nombre, et rien n’est écrit.'
         type: string
         required: false
         default: ''
       institution_id:
-        description: 'eef-publish : limiter à UN établissement (eef-univ-…), pour un essai. Vide = tous.'
+        description: 'eef-publish / eef-reconcile : limiter à UN établissement (eef-univ-…), pour un essai. Vide = tous.'
         type: string
         required: false
         default: ''
@@ -195,15 +197,21 @@ jobs:
       # ce qu'il sert APRÈS. « Ces formations n'apparaissent que dans l'espace Études en
       # France » est une promesse qu'on mesure, pas qu'on imprime.
       - name: Relever le catalogue général avant publication
-        if: ${{ inputs.action == 'eef-publish' }}
+        if: ${{ inputs.action == 'eef-publish' || inputs.action == 'eef-reconcile' }}
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
         run: |
           set -euo pipefail
           inst="$(curl -fsS "${HEALTH_URL}/api/catalog/institutions" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
           prog="$(curl -fsS "${HEALTH_URL}/api/catalog/programs" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
+          # `eef-reconcile` ne publie ni ne dépublie rien : le total de la recherche
+          # Études en France doit lui aussi rester le même. Les trois relevés sont
+          # LUS avant d'être écrits : un relevé raté n'en laisse aucun à moitié posé.
+          eef="$(curl -fsS "${HEALTH_URL}/api/etudes-en-france/search?limit=1" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
           echo "GENERAL_BEFORE=${inst}/${prog}" >> "$GITHUB_ENV"
+          echo "EEF_SEARCH_BEFORE=${eef}" >> "$GITHUB_ENV"
           echo "Catalogue général avant : ${inst} établissement(s), ${prog} formation(s)"
+          echo "Recherche Études en France avant : total = ${eef}"
 
       - name: Exécuter l'opération
         env:
@@ -243,6 +251,18 @@ jobs:
             bounded exclude_procedure "$EEF_EXCLUDE_PROCEDURE" '^(aucune|hors_eef|dap_jaune|parcoursup)$'
             bounded github.triggering_actor "$EEF_ACTOR" '^[A-Za-z0-9][A-Za-z0-9-]{0,38}(\[bot\])?$'
           fi
+          # `eef-reconcile` n'en lit que trois : le total, l'établissement, l'opérateur.
+          # Il ne signe rien : un e-mail de relecteur saisi par erreur est refusé plutôt
+          # que transmis, non borné, au serveur.
+          if [ "$ACTION" = "eef-reconcile" ]; then
+            if [ -n "$EEF_VERIFIER_EMAIL" ]; then
+              echo "::error::eef-reconcile ne signe aucune publication : laisser l'e-mail du relecteur vide."
+              exit 1
+            fi
+            bounded expected_programs "$EEF_EXPECTED_PROGRAMS" '^[0-9]{1,6}$'
+            bounded institution_id "$EEF_INSTITUTION_ID" '^eef-univ-[A-Za-z0-9-]{1,60}$'
+            bounded github.triggering_actor "$EEF_ACTOR" '^[A-Za-z0-9][A-Za-z0-9-]{0,38}(\[bot\])?$'
+          fi
           scp -i ~/.ssh/deploy_key -o BatchMode=yes \
             .github/scripts/vps-ops.sh "${VPS_USER}@${VPS_HOST}:${VPS_PATH}/vps-ops.sh"
           ssh -n -i ~/.ssh/deploy_key -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" \
@@ -254,9 +274,10 @@ jobs:
       # France reflète la publication. Un écart FAIT ÉCHOUER le job : il se lit, il ne
       # s'imprime pas au milieu d'un journal.
       - name: Prouver l'isolation (catalogue général inchangé, recherche Études en France)
-        if: ${{ always() && inputs.action == 'eef-publish' && env.GENERAL_BEFORE != '' }}
+        if: ${{ always() && (inputs.action == 'eef-publish' || inputs.action == 'eef-reconcile') && env.GENERAL_BEFORE != '' }}
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+          ACTION: ${{ inputs.action }}
         run: |
           set -euo pipefail
           inst="$(curl -fsS "${HEALTH_URL}/api/catalog/institutions" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
@@ -264,8 +285,20 @@ jobs:
           echo "Catalogue général après : ${inst} établissement(s), ${prog} formation(s) (avant : ${GENERAL_BEFORE})"
           curl -fsS "${HEALTH_URL}/api/etudes-en-france/search?limit=1" \
             | python3 -c 'import json,sys; d=json.load(sys.stdin); print("Recherche Études en France : total =", d.get("total"), "| catalogPublished =", d.get("catalogPublished"))'
+          if [ "${ACTION}" = "eef-reconcile" ]; then
+            # Ce que l'app lira, par procédure : la preuve que la correction est servie.
+            for procedure in dap_blanche dap_jaune eef parcoursup hors_eef; do
+              curl -fsS "${HEALTH_URL}/api/etudes-en-france/search?limit=1&procedureType=${procedure}" \
+                | python3 -c 'import json,sys; print("  procédure", sys.argv[1], ":", json.load(sys.stdin).get("total"))' "$procedure"
+            done
+            eef="$(curl -fsS "${HEALTH_URL}/api/etudes-en-france/search?limit=1" | python3 -c 'import json,sys; print(json.load(sys.stdin)["total"])')"
+            if [ "${eef}" != "${EEF_SEARCH_BEFORE}" ]; then
+              echo "::error::La recherche Études en France sert ${eef} formation(s) au lieu de ${EEF_SEARCH_BEFORE} : eef-reconcile ne publie ni ne dépublie rien. Vérifier avant toute autre action."
+              exit 1
+            fi
+          fi
           if [ "${inst}/${prog}" != "${GENERAL_BEFORE}" ]; then
-            echo "::error::Le catalogue général a changé pendant la publication (${GENERAL_BEFORE} -> ${inst}/${prog}). Vérifier avant toute autre action : une modification légitime par un administrateur au même moment est possible, une fuite des lignes de l'import ne l'est pas."
+            echo "::error::Le catalogue général a changé pendant l'opération (${GENERAL_BEFORE} -> ${inst}/${prog}). Vérifier avant toute autre action : une modification légitime par un administrateur au même moment est possible, une fuite des lignes de l'import ne l'est pas."
             exit 1
           fi
 

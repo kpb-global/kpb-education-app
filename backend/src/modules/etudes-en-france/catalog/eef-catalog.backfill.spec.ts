@@ -173,8 +173,8 @@ describe('planProgramRequirementsBackfill', () => {
     expect(plan.writeFr).toEqual(plannedProgram.requirementsFr);
     expect(plan.writeEn).toEqual(plannedProgram.requirementsEn);
     expect(plan.writeFr?.[0]).toContain('L1 - Droit');
-    expect(plan.writeFr?.join(' ')).toMatch(/14\/20/);
-    expect(plan.writeFr?.join(' ')).toContain("Ce n'est pas un seuil d'admission");
+    expect(plan.writeFr?.join(' ')).toContain('mention Bien (14 à moins de 16/20)');
+    expect(plan.writeFr?.join(' ')).toContain("n'est pas un seuil pour toi");
   });
 
   it('ne touche pas une ligne publiée ou déjà vérifiée', () => {

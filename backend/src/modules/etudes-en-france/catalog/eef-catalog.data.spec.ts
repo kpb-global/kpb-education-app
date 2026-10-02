@@ -9,7 +9,7 @@ import { ORIENTATION_FIELDS } from '../../orientation/orientation-fields.data';
 import { programRequirements } from './eef-catalog.copy';
 import { loadEefCatalog } from './eef-catalog.loader';
 import { planEefImport } from './eef-catalog.importer';
-import { resolveFieldId } from './eef-catalog.normalize';
+import { procedureExceptionOf, resolveFieldId } from './eef-catalog.normalize';
 import { classifyProgramSource } from '../publication/eef-publication.plan';
 import { validateEefCatalog } from './eef-catalog.validator';
 
@@ -142,9 +142,15 @@ describe('catalogue « Études en France » versionné', () => {
   it('range chaque formation sous une procédure connue, et surtout la bonne', () => {
     // Le partage DAP / Études en France est la seule chose qui décide du
     // calendrier d'un candidat : une L1 classée « eef » lui ferait rater
-    // l'échéance de la DAP.
+    // l'échéance de la DAP — sauf les exceptions validées le 02/10/2026
+    // (`procedureExceptionOf`), testées juste en dessous.
     for (const file of catalog.universities) {
       for (const program of file.programs) {
+        const exception = procedureExceptionOf(program, file.institution);
+        if (exception) {
+          expect(program.procedureType).toBe(exception.procedureType);
+          continue;
+        }
         if (program.cycle === 'licence1' || program.cycle === 'sante') {
           expect(['dap_blanche', 'dap_jaune']).toContain(program.procedureType);
         }
@@ -157,6 +163,38 @@ describe('catalogue « Études en France » versionné', () => {
           // master se demandent par la procédure Études en France.
           expect(program.procedureType).toBe('eef');
         }
+      }
+    }
+  });
+
+  it('applique les exceptions de procédure du 02/10/2026, et seulement elles', () => {
+    // Les fichiers sont des données générées : une exception ajoutée au code
+    // n'atteint pas les lignes tant qu'on ne les a pas régénérées. Les comptes
+    // sont ceux de la décision (dossier de relecture, § « Réponses de recherche ») :
+    // un compte qui bouge veut dire qu'une collecte a ajouté ou retiré des lignes,
+    // et la décision doit être relue avec elle.
+    const byKey: Record<string, number> = {};
+    for (const file of catalog.universities) {
+      for (const program of file.programs) {
+        const exception = procedureExceptionOf(program, file.institution);
+        if (!exception) continue;
+        byKey[exception.key] = (byKey[exception.key] ?? 0) + 1;
+        expect({ id: program.id, procedureType: program.procedureType }).toEqual({
+          id: program.id,
+          procedureType: exception.procedureType,
+        });
+      }
+    }
+    expect(byKey).toEqual({ sciences_po_paris_l1: 39, dcg: 1, cupge: 17 });
+
+    // Sciences Po Paris n'a plus AUCUNE formation en DAP ; les IEP de région n'en
+    // avaient pas (masters et une L3, en `eef`).
+    const sciencesPo = catalog.universities.filter((file) =>
+      file.institution.nameFr.startsWith('Sciences Po'),
+    );
+    for (const file of sciencesPo) {
+      for (const program of file.programs) {
+        expect(program.procedureType).not.toMatch(/^dap_/);
       }
     }
   });
