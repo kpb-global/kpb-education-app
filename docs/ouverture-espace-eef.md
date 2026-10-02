@@ -9,15 +9,15 @@
 | | État |
 |---|---|
 | Build 54 | **Soumise** le 02/10 (archive de `47a1295`). En attente d'approbation (1 à 3 jours) |
-| Backend | `47a1295` en production (#299 à #303) |
+| Backend | `ebec041` en production (#305, déployé le 02/10 à 13 h 29 UTC) |
 | Catalogue | **Publié** : 10 029 formations, 84 établissements ; 473 en attente (page-source morte) |
 | Espace | **Fermé** (`eefSpace=false`, `eef=false`, `eefTeaser=true`) ; recette sur appareil faite le 02/10 (fenêtre 10 h 23 – 10 h 35 UTC) |
 | Actions `eef-space-on` / `-off` | Fonctionnent, mais **se marquent en échec** à tort (course au redémarrage) : corrigé par **#304**, à fusionner |
-| Questions de procédure | **Tranchées** le 02/10 (« tout valider ») ; appliquées dans le code, catalogue **1.3.0** (#305) ; **pas encore en production** |
+| Questions de procédure | **Tranchées** le 02/10 (« tout valider ») et **appliquées en production** le 02/10 : `eef-reconcile` a réaligné 3 834 formations publiées dans 70 établissements (run 37014663792), dont 57 changements de procédure ; simulation de contrôle : 0 à réaligner |
 
 ## 2. Ce qui bloque l'ouverture
 
-### 2.1 Les 7 questions de procédure — **tranchées, corrigées dans le code**
+### 2.1 Les 7 questions de procédure — **tranchées, corrigées en production**
 
 La recherche du 02/10 (`docs/eef-dossier-relecture-procedures.md`, § « Réponses de
 recherche ») établit que **cinq points du catalogue publié sont faux ou trompeurs**. Le
@@ -80,9 +80,9 @@ limite mémoire du conteneur.
 
 | Précondition | État |
 |---|---|
-| Corrections de procédure appliquées en production (`eef-reconcile`) | ⏳ code prêt (#305) |
+| Corrections de procédure appliquées en production (`eef-reconcile`) | ✅ 02/10 : 3 834 réalignées, 0 signalée ; recherche servie DAP blanche 3 076 · DAP jaune 29 · Études en France 6 804 · Parcoursup 1 · hors procédure 119 (total 10 029 inchangé, catalogue général 69 / 634 inchangé) |
 | 54 en vente sur les deux stores | ⏳ soumise |
-| Backend porteur de la build 54 (`eef-catalog-attribution.js`) | ✅ `47a1295` |
+| Backend porteur de la build 54 (`eef-catalog-attribution.js`) | ✅ `ebec041` |
 | Catalogue publié, recherche qui répond | ✅ 10 029 |
 | Héros du hub (`eef_hub_hero_body`) validé par le juridique | ⏳ |
 | « depuis cet écran » (retrait) | ⏳ validé tel quel, ou lien « Me retirer » ajouté dans la feuille (sans nouvelle version de consentement) |
@@ -145,8 +145,8 @@ déclarations d'intérêt dans l'admin ; à J+7, la part de recherches sans rés
 ## 6. Ce que le propriétaire doit trancher
 
 1. ~~Valider les réponses de recherche~~ — **fait** le 02/10 (« tout valider »).
-2. ~~Construire `eef:reconcile`~~ — **fait** (#305). Restent, chacun sur ton feu vert : fusionner
-   #305, déployer, simuler, appliquer (§ 2.2).
+2. ~~Construire `eef:reconcile` et appliquer les corrections~~ — **fait** le 02/10 : #305
+   fusionnée, déployée (`ebec041`), simulée puis appliquée (3 834 formations), contrôle à 0.
 3. **Fusionner #304.**
 4. **Le juridique** : la phrase du héros, « depuis cet écran », et l'audience de l'annonce.
 5. **Le moment** : ouvrir dès l'approbation de la 54 et les corrections appliquées
