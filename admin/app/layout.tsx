@@ -1,19 +1,31 @@
 import './globals.css';
 
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 
 import { AdminAuthProvider } from '../components/admin-auth-provider';
 import { LocaleProvider } from '../components/locale-provider';
 
-const inter = Inter({
-  subsets: ['latin'],
+// Polices embarquées dans app/fonts/ (licences SIL OFL 1.1 à côté) : le build
+// ne télécharge plus rien chez Google Fonts. Fichiers variables, sous-ensemble
+// latin, style normal, repris de @fontsource-variable/inter et
+// @fontsource-variable/plus-jakarta-sans 5.3.0 ; un caractère hors de ce
+// sous-ensemble (latin étendu, etc.) s'affiche dans la police de secours. Le
+// nom de famille reste celui que servait next/font/google.
+const inter = localFont({
+  src: './fonts/inter-latin-wght-normal.woff2',
+  weight: '100 900',
+  style: 'normal',
+  declarations: [{ prop: 'font-family', value: 'Inter' }],
   variable: '--font-inter',
   display: 'swap',
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['600', '700', '800'],
+// Le fichier variable couvre 200 à 800 : les graisses 600, 700 et 800 en font partie.
+const jakarta = localFont({
+  src: './fonts/plus-jakarta-sans-latin-wght-normal.woff2',
+  weight: '200 800',
+  style: 'normal',
+  declarations: [{ prop: 'font-family', value: 'Plus Jakarta Sans' }],
   variable: '--font-jakarta',
   display: 'swap',
 });
