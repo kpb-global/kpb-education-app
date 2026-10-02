@@ -442,22 +442,31 @@ avec le classement ; il ne peut pas être trompé sur ce qui le fonde.
 ### Les trois étages n'existent pas toujours
 
 Constat qui a façonné toute la route : `selectivity` est **constante à
-l'intérieur d'un cycle**. Sur les 10 247 formations, tous les masters, toutes
-les L2, toutes les L3, tous les BUT et tous les DEUST sont `selective` ; seule
-la L1 varie (1 723 non sélectives, 663 sélectives). Trier des masters là-dessus
-aurait rendu trois étages qui sont le même étage sous trois noms.
+l'intérieur d'un cycle**. Sur les 10 502 formations, tous les masters, toutes
+les L2, toutes les L3, tous les BUT et tous les DEUST sont `selective`, toutes
+les lignes `sante` `non_selective` ; seule la L1 varie (1 778 non sélectives,
+734 sélectives). Trier des masters là-dessus aurait rendu trois étages qui sont
+le même étage sous trois noms.
 
-Le classement repose donc sur ce qui varie ET qui est attesté, et il diffère
-selon la porte d'entrée :
+Et là où elle varie, elle ne parle pas de l'étudiant. « Non sélective » est la
+catégorie de Parcoursup, donc des élèves de terminale française : pour un
+candidat en demande d'admission préalable, l'université examine le dossier et
+peut le refuser (décision n° 5 du 02/10/2026,
+`docs/eef-dossier-relecture-procedures.md`). Les 2 428 non sélectives du chemin
+post-bac sont toutes en DAP : les ranger en « sécurité » — ce que faisait l'axe
+`selectivity`, retiré le 02/10/2026 — promettait ce que la décision dément.
+
+Le classement repose donc sur ce qui varie, qui est attesté ET qui décrit le
+candidat, et il diffère selon la porte d'entrée :
 
 | `path` | Cycles servis | `ranking.basis` | Étages |
 |---|---|---|---|
 | `master` | `master` | `admission_effort` | `securite` (dossier seul) · `cible` (+ entretien) · `ambition` (+ examen ou concours) · `unranked` (modalité non publiée) |
-| `post_bac` | `licence1` `but1` `deust` `sante` | `selectivity` | `securite` (non sélective) · `ambition` (sélective) — **deux**, faute d'une troisième valeur publiée |
+| `post_bac` | `licence1` `but1` `deust` `sante` | `null` | `unranked` seul — la sélectivité Parcoursup ne dit rien d'un candidat en DAP |
 | `licence_continuation` | `licence2` `licence3` `licence_pro` | `null` | `unranked` seul — aucune donnée ouverte ne classe ce chemin |
 
-Mesuré sur le catalogue réel, tout publié, sans domaine déclaré : 1 221 /
-1 442 / 251 / 198 sur le chemin master. L'axe discrimine réellement.
+Mesuré sur les fichiers versionnés du catalogue, sans domaine déclaré :
+1 259 / 1 474 / 262 / 249 sur le chemin master. L'axe discrimine réellement.
 
 Un étage **vide n'est pas servi** : une colonne vide se lit « rien pour toi »,
 ce qui est faux quand les autres sont pleines. `unranked` n'est pas un
@@ -484,7 +493,22 @@ seul. Un couple absent rend un motif, jamais un chemin « le plus probable » :
 
 ### Ce que la route sélectionne
 
-Deux strates, servies dans cet ordre :
+Seulement des formations qui se demandent **par la procédure de l'espace** :
+`procedureType` dans `dap_blanche`, `dap_jaune`, `eef` — liste fermée
+(`EEF_SHORTLIST_PROCEDURES`), qu'une valeur nouvelle ne rejoint pas sans
+décision. Le cycle ne suffit pas à le dire : la 1re année de Sciences Po
+(Paris) est une `licence1` en `hors_eef` (39 lignes), le DCG une `licence1` en
+`parcoursup` (1 ligne). Sont donc écartées :
+
+| `procedureType` | Pourquoi |
+|---|---|
+| `hors_eef` | Admission propre à l'établissement (Sciences Po Paris en 1re année, cycles d'ingénieurs). |
+| `parcoursup` | Autre plateforme, autre calendrier, et `/config/app` ne sert que la campagne Études en France : `campaign_dates_served_separately` serait faux. |
+| `NULL` | Formation saisie à la main, sans procédure. La recherche ne la sert pas non plus. |
+
+La recherche continue de servir les deux premières, avec la phrase de leur
+procédure. Parmi les formations retenues, deux strates, servies dans cet
+ordre :
 
 1. **`linked`** — la formation est reliée à un domaine déclaré dans un sens ou
    dans l'autre : son propre `fieldId`, **ou** l'un des domaines de ses
@@ -557,15 +581,19 @@ fiche officielle.
 | `admission_file_only` | `Dossier` | Candidature sur dossier. |
 | `admission_interview` | `Entretien` | La candidature comporte un entretien. |
 | `admission_exam` | `Examen`, `Concours` | La candidature comporte un examen ou un concours. |
-| `selectivity_open` | `non_selective` | La capacité d'accueil est la seule limite publiée. |
-| `selectivity_arbitrated` | `selective` | L'établissement arbitre entre les dossiers. |
 
-Les motifs de sélectivité ne sont émis que là où la sélectivité **distingue**
-(le chemin post-bac). Sur un master elle vaut `selective` pour les 3 112
-lignes — la loi du 23 décembre 2016 en fait une règle, pas une caractéristique
-de l'établissement — et l'émettre partout aurait ajouté à chaque fiche une
-justification qui ne justifie rien. Le fait reste écrit dans les exigences
-d'admission de la formation.
+**Aucun motif de sélectivité**, sur aucun chemin — `selectivity_open` et
+`selectivity_arbitrated` ont été retirés le 02/10/2026, avant qu'aucun client ne
+les lise. Sur un master, la sélectivité vaut `selective` pour chaque ligne — la
+loi du 23 décembre 2016 en fait une règle, pas une caractéristique de
+l'établissement. Sur le chemin post-bac, « non sélective » est la catégorie
+Parcoursup des élèves de terminale française et ne dit rien d'un candidat en
+DAP (« la capacité d'accueil est la seule limite publiée » y était faux). Le
+fait reste écrit dans les exigences d'admission de chaque formation, que le
+catalogue 1.3.0 formule pour la DAP.
+
+Les motifs d'admission (`admission_*`) ne sont émis que sur le chemin `master` :
+ils justifient l'étage, et c'est le seul chemin qui en a.
 
 Une modalité hors du référentiel fermé **n'est pas servie comme motif** :
 inventer un libellé donnerait à l'écran une phrase qu'il ne sait pas traduire.
@@ -580,7 +608,7 @@ si rien ne l'est.
 | `french_level_not_published` | Aucun jeu ouvert ne publie le niveau de français exigé formation par formation. |
 | `campaign_dates_served_separately` | Les dates de campagne sont servies par `/config/app`, jamais figées dans une ligne de catalogue. |
 | `no_field_declared` | Aucun domaine déclaré : la liste n'est resserrée sur aucune filière. |
-| `no_ranking_data` | Le chemin d'entrée ne porte aucune donnée de classement. |
+| `no_ranking_data` | Le chemin d'entrée ne porte aucune donnée qui classe le candidat (`post_bac`, `licence_continuation`) : tout est `unranked`. |
 
 Les trois premiers sont vrais pour chaque ligne du catalogue, donc dits une
 fois en tête de réponse : les répéter par formation serait du bruit, les taire

@@ -34,6 +34,7 @@ function programRow(over: Record<string, unknown> = {}) {
     applicationDeadline: null,
     teachingLanguages: ['fr'],
     cycle: 'master',
+    procedureType: 'eef',
     selectivity: 'selective',
     recommendedBachelors: ['Economie et gestion'],
     recommendedFieldIds: ['d02'],
@@ -256,6 +257,40 @@ describe('EefShortlistService', () => {
         expect(captured.calls.filter((c) => c.kind === 'institution')).toEqual([]);
       });
     });
+
+    // La 1re année de Sciences Po (Paris) est une `licence1` en `hors_eef`, le
+    // DCG une `licence1` en `parcoursup` : le cycle ne les écartait pas du
+    // chemin post-bac. C'est la procédure qui le fait, sur chaque requête —
+    // un total qui compterait ces lignes annoncerait des formations que la
+    // liste ne montrera jamais.
+    it('ne recommande que ce qui se demande par la procédure de l’espace, sur chaque chemin',
+      async () => {
+        for (const [currentLevel, targetLevel] of [
+          ['terminale', 'licence'],
+          ['licence', 'licence'],
+          ['licence', 'master'],
+        ]) {
+          const { service, captured } = serviceWith({
+            interest: { currentLevel, targetLevel, fieldIds: ['d02'] },
+            rows: [programRow()],
+          });
+          await service.getShortlist('u-1');
+          const reads = captured.calls.filter(
+            (c) => c.kind === 'findMany' || c.kind === 'count',
+          );
+          expect(reads).toHaveLength(12);
+          for (const call of reads) {
+            expect({
+              declared: `${currentLevel}|${targetLevel}`,
+              procedureType: (call.where as Record<string, unknown>)
+                .procedureType,
+            }).toEqual({
+              declared: `${currentLevel}|${targetLevel}`,
+              procedureType: { in: ['dap_blanche', 'dap_jaune', 'eef'] },
+            });
+          }
+        }
+      });
   });
 
   describe('l’état « je ne peux pas encore »', () => {
@@ -405,6 +440,40 @@ describe('EefShortlistService', () => {
       const asked = findManyWheres(captured);
       expect(asked.filter((where) => isImpossible(where))).toHaveLength(6);
     });
+
+    // La décision n° 5 du 02/10/2026 : « non sélective » est la catégorie
+    // Parcoursup des élèves de terminale française. Un candidat en DAP voit son
+    // dossier examiné, et peut le voir refusé — la ranger en « sécurité »
+    // promettait le contraire.
+    it('avoue l’absence d’axe sur le chemin post-bac, même pour une L1 non sélective',
+      async () => {
+        const { service, captured } = serviceWith({
+          interest: { currentLevel: 'terminale', targetLevel: 'licence', fieldIds: ['d02'] },
+          rows: [
+            programRow({
+              cycle: 'licence1',
+              procedureType: 'dap_blanche',
+              selectivity: 'non_selective',
+              recommendedBachelors: [],
+              recommendedFieldIds: [],
+              admissionModes: [],
+            }),
+          ],
+        });
+        const result = await service.getShortlist('u-1');
+        expect(result.path).toBe('post_bac');
+        expect(result.ranking.basis).toBeNull();
+        expect(result.disclosures).toContain('no_ranking_data');
+        expect(result.tiers.map((tier) => tier.tier)).toEqual(['unranked']);
+        expect(
+          findManyWheres(captured).filter((where) => isImpossible(where)),
+        ).toHaveLength(6);
+        // Et la justification ne dit rien de la sélectivité : seul le domaine
+        // déclaré, qui est un fait sur l'étudiant, justifie la ligne.
+        expect(result.tiers[0].items[0].reasons).toEqual([
+          { code: 'field_declared', value: 'd02' },
+        ]);
+      });
 
     it('avoue qu’aucun domaine n’a été déclaré', async () => {
       const { service } = serviceWith({
