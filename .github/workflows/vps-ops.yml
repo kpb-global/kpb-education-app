@@ -269,16 +269,60 @@ jobs:
             exit 1
           fi
 
+      # DISPONIBILITÉ D'ABORD. Les actions de drapeau RECRÉENT `kpb_api`, et cette
+      # étape lisait `/config/app` une demi-seconde après « Container kpb_api
+      # Started » : Traefik n'a alors aucun conteneur vers qui router et répond 404
+      # — pas 502, pas une connexion refusée. `json.load` tombait sur une réponse
+      # vide, le job rougissait, et « Prouver l'état de l'espace » ne tournait pas.
+      #
+      # Mesuré : TOUTES les recréations passées par ce workflow ont fini ainsi,
+      # « Exécuter l'opération » pourtant vert — `eef-teaser-on` le 30/08/2026 (run
+      # 33339706986), `eef-space-on` et `eef-space-off` le 02/10/2026 (runs
+      # 36995198501 et 36996234713 : 404 à +0,5 s, `startedAt` à +2,2 s). La
+      # barrière de santé de `deploy.yml`, sur la même URL publique, voit l'API
+      # répondre 5 à 10 s après « Started ».
+      #
+      # On attend donc un 200 portant du JSON sur `/health/version`, puis on lit :
+      # 30 tentatives à 3 s d'écart, bien au-delà du pire délai mesuré. Seule la
+      # DISPONIBILITÉ est attendue : la valeur servie est lue une fois, et les
+      # assertions, inchangées, échouent toujours sur une valeur fausse.
+      #
+      # `/config/app` est lu dans un FICHIER (`-o`), jamais dans un tube :
+      # `--retry-all-errors` ne reprend proprement que ce qu'il écrit lui-même
+      # (man curl : une sortie en tube n'est pas remise à zéro entre deux
+      # tentatives), et une lecture ratée s'arrête sur l'erreur de curl au lieu
+      # d'une trace Python sur une entrée vide.
       - name: Vérifier depuis l'extérieur ce que le serveur annonce vraiment
         if: ${{ always() && inputs.action != 'publish-catalog' }}
         env:
           HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
         run: |
           set -euo pipefail
+          echo "── attente : l'API doit répondre avant toute lecture ──"
+          probe="$(mktemp)"
+          ready=0
+          for attempt in $(seq 1 30); do
+            code="$(curl -sS -o "$probe" -w '%{http_code}' --max-time 5 \
+              "${HEALTH_URL}/api/health/version" || true)"
+            if [ "$code" = "200" ] && python3 -c 'import json,sys; assert isinstance(json.load(open(sys.argv[1])), dict)' "$probe" 2>/dev/null; then
+              ready=1; break
+            fi
+            echo "API pas encore prête (tentative ${attempt}, HTTP ${code})"
+            sleep 3
+          done
+          if [ "$ready" != "1" ]; then
+            echo "::error::/api/health/version n'a rendu aucun 200 JSON en 30 tentatives (au moins 90 s)."
+            echo "::error::Ce n'est plus le délai de routage après recréation (5 à 10 s mesurés) : l'API publique ne répond pas. La fin de « Exécuter l'opération » dit si kpb_api a été recréé, et sur quelle image."
+            exit 1
+          fi
+          python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print("API prête à la tentative", sys.argv[2], "| sha", d.get("sha"), "| processus démarré à", d.get("startedAt"))' "$probe" "$attempt"
+
           # La preuve ne vient pas du serveur qu'on vient de toucher : elle vient
           # de ce que l'app lira réellement.
-          curl -fsS "${HEALTH_URL}/api/config/app" \
-            | python3 -c 'import json,sys; d=json.load(sys.stdin); print("features:", json.dumps(d.get("features"), ensure_ascii=False)); print("eefCampaign:", json.dumps(d.get("eefCampaign"), ensure_ascii=False)); print("minVersion:", d.get("minVersion"), "| recommendedVersion:", d.get("recommendedVersion")); print("eefCatalog:", json.dumps(d.get("eefCatalog"), ensure_ascii=False))'
+          config="$(mktemp)"
+          curl -fsS --retry 10 --retry-delay 3 --retry-all-errors --max-time 10 \
+            -o "$config" "${HEALTH_URL}/api/config/app"
+          python3 -c 'import json,sys; d=json.load(sys.stdin); print("features:", json.dumps(d.get("features"), ensure_ascii=False)); print("eefCampaign:", json.dumps(d.get("eefCampaign"), ensure_ascii=False)); print("minVersion:", d.get("minVersion"), "| recommendedVersion:", d.get("recommendedVersion")); print("eefCatalog:", json.dumps(d.get("eefCatalog"), ensure_ascii=False))' < "$config"
 
       # L'ouverture ou la fermeture de l'espace se PROUVE depuis l'extérieur, pas
       # par le code de sortie du script : ce que l'app lira, c'est `/config/app`.
@@ -291,7 +335,17 @@ jobs:
           WANT_OPEN: ${{ inputs.action == 'eef-space-on' }}
         run: |
           set -euo pipefail
-          curl -fsS "${HEALTH_URL}/api/config/app" | python3 -c '
+          # L'étape précédente a attendu que l'API réponde ; les reprises couvrent un
+          # raté passager entre les deux, pas une valeur fausse. Fichier, pas tube :
+          # voir le commentaire de l'étape précédente.
+          config="$(mktemp)"
+          curl -fsS --retry 10 --retry-delay 3 --retry-all-errors --max-time 10 \
+            -o "$config" "${HEALTH_URL}/api/config/app"
+          # AUCUNE apostrophe dans le programme Python : bash le reçoit entre
+          # apostrophes, et la première qu'on y écrit le coupe. Deux élisions dans un
+          # commentaire ont rendu cette étape inexécutable jusqu'au 02/10/2026 — sans
+          # que personne le voie, l'étape précédente rougissant toujours avant elle.
+          python3 -c '
           import json, os, sys
           d = json.load(sys.stdin)
           features = d.get("features") or {}
@@ -301,9 +355,9 @@ jobs:
           assert got is want, "features.eefSpace=%r, attendu %r" % (got, want)
           assert features.get("eef") is False, "features.eef est vrai : la vitrine des builds 49 a 53 a disparu"
           if want:
-              # Ce que l'espace de la 54 affiche doit etre servi : sans la mention
-              # de paternite du catalogue, l'ouverture est incomplete.
+              # Ce que la 54 affiche dans son espace doit etre servi : sans la
+              # mention de paternite du catalogue, cette ouverture est incomplete.
               assert d.get("eefCatalog"), "eefCatalog absent : le backend ne porte pas la build 54 cote serveur"
               assert (d.get("eefCampaign") or {}).get("platformUrl"), "eefCampaign.platformUrl absent : aucun lien vers la plateforme officielle"
           print("eefSpace =", features["eefSpace"], "| eef =", features["eef"], "| eefTeaser =", features.get("eefTeaser"))
-          '
+          ' < "$config"
