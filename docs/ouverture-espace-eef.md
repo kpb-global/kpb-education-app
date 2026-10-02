@@ -49,8 +49,11 @@ Ce que fait l'outil (`backend/src/modules/etudes-en-france/catalog/eef-catalog.r
    défaut**, qui compte les différences par champ, par procédure et par établissement, et
    n'écrit rien ;
 3. il n'écrit qu'avec le **total saisi** (comme `eef-publish`), une transaction et une trace
-   d'audit (`eef.catalog.reconciled`) par établissement, en appliquant les listes exactes de
-   la simulation. Il ne touche ni au tampon de vérification, ni à `isActive`, ni à l'intitulé.
+   d'audit (`eef.catalog.reconciled`) par établissement. Le passage d'écriture refait sa
+   propre simulation, l'imprime, refuse si son total n'est pas celui saisi, puis applique
+   exactement SES listes : chaque formation n'est réécrite que si la base porte encore ce que
+   cette simulation a lu. Le journal de l'écriture dit donc ligne pour ligne ce qui a été
+   écrit. Il ne touche ni au tampon de vérification, ni à `isActive`, ni à l'intitulé.
    Une ligne **retouchée dans l'admin** est reconnue à sa prose — elle n'est plus, au
    caractère près, celle qu'un import a écrite — et **signalée, pas écrasée** ;
 4. le workflow prouve depuis l'extérieur que le catalogue général (69 / 634) **et** le total de
@@ -83,7 +86,7 @@ limite mémoire du conteneur.
 | Catalogue publié, recherche qui répond | ✅ 10 029 |
 | Héros du hub (`eef_hub_hero_body`) validé par le juridique | ⏳ |
 | « depuis cet écran » (retrait) | ⏳ validé tel quel, ou lien « Me retirer » ajouté dans la feuille (sans nouvelle version de consentement) |
-| #304 fusionnée | ⏳ |
+| #304 fusionnée — **avant `eef-space-on`** : sans elle, l'étape « Prouver l'état de l'espace » ne peut pas s'exécuter (une apostrophe coupe son programme Python), donc rien ne prouve l'ouverture | ⏳ |
 
 **Quand ouvrir ?** Ouvrir ne touche **que** la 54 : les 49 à 53 gardent la vitrine. Il n'y
 a donc pas besoin d'attendre que la 54 soit majoritaire pour **ouvrir** — seulement qu'elle

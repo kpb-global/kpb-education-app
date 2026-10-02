@@ -41,6 +41,10 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
   const INST_B = `eef-univ-${sfx}-b`;
   const prog = (suffix: string) => `eef-prog-${sfx}-${suffix}`;
   const ids = {
+    // A : une L1 non sélective en DAP, à réaligner — et ÉCRITE AVANT `aCorrected`
+    // (ordre des identifiants) : c'est elle qui prouve l'annulation du lot entier
+    // quand `aCorrected` est en conflit.
+    aBefore: prog('a-before'),
     // A : une 1re année de Sciences Po restée telle que l'import 1.2.0 l'a écrite.
     aCorrected: prog('a-corrected'),
     // A : retouchée dans l'admin (une ligne du texte réécrite à la main).
@@ -98,6 +102,7 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
   });
 
   const records: Record<string, EefProgramRecord> = {
+    aBefore: record(ids.aBefore, INST_A, { nameFr: 'L1 - Géographie' }),
     aCorrected: record(ids.aCorrected, INST_A, {
       nameFr: 'L1 - Histoire',
       procedureType: 'hors_eef',
@@ -130,13 +135,13 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
       generatedAt: '2026-09-20T00:00:00.000Z',
       countryId: COUNTRY,
       institutionCount: 2,
-      programCount: 5,
+      programCount: 6,
       sources: [],
     },
     universities: [
       {
         institution: institutionRecord(INST_A, '0753431X'),
-        programs: [records.aCorrected, records.aEdited, records.aCurrent],
+        programs: [records.aBefore, records.aCorrected, records.aEdited, records.aCurrent],
       },
       {
         institution: institutionRecord(INST_B, '0350000B'),
@@ -150,7 +155,7 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     rec: EefProgramRecord,
     procedureType = rec.procedureType,
   ): Pick<Prisma.ProgramUncheckedCreateInput, 'procedureType' | 'selectivity' | 'requirementsFr' | 'requirementsEn'> => {
-    const lines = programRequirements1_2({ ...rec, procedureType });
+    const lines = programRequirements1_2({ ...rec, procedureType })!;
     return {
       procedureType,
       selectivity: rec.selectivity,
@@ -223,6 +228,7 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     await prisma.adminAuditEvent.deleteMany({ where: { entityId: { in: [INST_A, INST_B] } } });
     await prisma.program.createMany({
       data: [
+        row(ids.aBefore, INST_A, asImported1_2(records.aBefore)),
         row(ids.aCorrected, INST_A, asImported1_2(records.aCorrected, 'dap_blanche')),
         row(ids.aEdited, INST_A, { ...asImported1_2(records.aEdited), requirementsFr: editedFr }),
         row(ids.aCurrent, INST_A, asImported1_2(records.aCurrent)),
@@ -284,14 +290,14 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     const planned = await planEefReconcile(prisma, catalog, only);
     const totals = reconcileTotals(planned.plans);
     expect(totals).toMatchObject({
-      programsExamined: 6,
-      programsToUpdate: 3,
-      programsToUpdatePublished: 2,
+      programsExamined: 7,
+      programsToUpdate: 4,
+      programsToUpdatePublished: 3,
       programsCurrent: 1,
       programsKeptEdited: 1,
       programsAbsentFromCatalog: 1,
       procedureTransitions: { 'dap_blanche→hors_eef': 1 },
-      byEdition: { '1.2.0': 3 },
+      byEdition: { '1.2.0': 4 },
     });
     // Restreint à ses établissements : le décompte hors catalogue n'a pas de sens.
     expect(planned.programsOutsideCatalogInstitutions).toBeNull();
@@ -303,8 +309,8 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     const before = await snapshot();
     const planned = await planEefReconcile(prisma, catalog, only);
     await expect(
-      applyEefReconcile(prisma, planned, { expectedPrograms: 2, requestId: randomUUID() }),
-    ).rejects.toThrow(/la simulation annonce 3/);
+      applyEefReconcile(prisma, planned, { expectedPrograms: 3, requestId: randomUUID() }),
+    ).rejects.toThrow(/la simulation annonce 4/);
     expect(await snapshot()).toEqual(before);
   });
 
@@ -313,12 +319,12 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     const planned = await planEefReconcile(prisma, catalog, only);
     const requestId = randomUUID();
     const applied = await applyEefReconcile(prisma, planned, {
-      expectedPrograms: 3,
+      expectedPrograms: 4,
       requestId,
       actor: 'operateur-github',
     });
     expect(applied.hasFailures).toBe(false);
-    expect(applied.programsUpdated).toBe(3);
+    expect(applied.programsUpdated).toBe(4);
 
     const after = new Map((await snapshot()).map((r) => [r.id, r]));
     const corrected = after.get(ids.aCorrected)!;
@@ -332,7 +338,7 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     );
 
     // Ni la publication, ni le tampon, ni l'intitulé.
-    for (const id of [ids.aCorrected, ids.bDap, ids.bEngineering]) {
+    for (const id of [ids.aBefore, ids.aCorrected, ids.bDap, ids.bEngineering]) {
       const was = before.get(id)!;
       const now = after.get(id)!;
       expect({
@@ -365,10 +371,10 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     const a = events.find((e) => e.entityId === INST_A)!.changes as Record<string, unknown>;
     expect(a).toMatchObject({
       catalogVersion: '1.3.0',
-      programsUpdated: 1,
-      programsPublished: 1,
+      programsUpdated: 2,
+      programsPublished: 2,
       procedureTransitions: { 'dap_blanche→hors_eef': 1 },
-      programIds: [ids.aCorrected],
+      programIds: [ids.aBefore, ids.aCorrected],
       launchedBy: 'operateur-github',
     });
 
@@ -387,7 +393,7 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     });
     const before = new Map((await snapshot()).map((r) => [r.id, r]));
     const applied = await applyEefReconcile(prisma, planned, {
-      expectedPrograms: 3,
+      expectedPrograms: 4,
       requestId: randomUUID(),
     });
     expect(applied.hasFailures).toBe(true);
@@ -405,8 +411,13 @@ describePostgres('eef:reconcile — intégration PostgreSQL', () => {
     expect(applied.programsUpdated).toBe(2);
 
     const after = new Map((await snapshot()).map((r) => [r.id, r]));
-    // A : rien d'écrit, pas même la correction de l'administrateur écrasée.
+    // A : rien d'écrit, pas même la correction de l'administrateur écrasée — et la
+    // formation réalignée AVANT le conflit, dans la même transaction, est annulée.
     expect(after.get(ids.aCorrected)).toEqual(before.get(ids.aCorrected));
+    expect(after.get(ids.aBefore)).toEqual(before.get(ids.aBefore));
+    expect(after.get(ids.aBefore)!.requirementsFr.join(' ')).not.toContain(
+      'Classée non sélective sur Parcoursup',
+    );
     expect(after.get(ids.aCorrected)!.requirementsFr).toEqual(['Corrigé à la main entre-temps.']);
     // Ni trace pour A ; une pour B.
     expect((await audits()).map((e) => e.entityId)).toEqual([INST_B]);

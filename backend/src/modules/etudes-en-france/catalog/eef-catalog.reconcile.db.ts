@@ -4,9 +4,9 @@
 //
 // DEUX GARANTIES, PRISES À LA PUBLICATION DÉLÉGUÉE
 //
-// 1. L'écriture applique les listes EXACTES de la simulation. Chaque formation
-//    n'est réécrite que si la base porte encore, au caractère près, ce que la
-//    simulation a lu (`updateMany` dont le `WHERE` répète les quatre champs) : une
+// 1. L'écriture applique les listes EXACTES du plan qu'on lui passe — celui que le
+//    script vient de calculer et d'imprimer. Chaque formation n'est réécrite que si
+//    la base porte encore, au caractère près, ce que ce plan a lu (`updateMany` dont le `WHERE` répète les quatre champs) : une
 //    retouche faite dans l'admin entre les deux fait échouer son établissement,
 //    sans rien écrire pour lui.
 // 2. Une transaction PAR ÉTABLISSEMENT, avec sa trace d'audit DEDANS : un
@@ -212,7 +212,9 @@ export async function applyEefReconcile(
           const before = program.before;
           const result = await tx.program.updateMany({
             where: {
-              id: program.id,
+              // Le préfixe est REPÉTÉ à l'écriture : un plan forgé à la main ne peut
+              // pas viser une ligne du catalogue général.
+              id: { equals: program.id, startsWith: EEF_PROGRAM_ID_PREFIX },
               institutionId: plan.institutionId,
               procedureType: before.procedureType,
               selectivity: before.selectivity,

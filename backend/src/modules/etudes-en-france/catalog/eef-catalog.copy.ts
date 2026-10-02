@@ -348,28 +348,28 @@ function mentionBrackets(cohort: EefAdmissionCohort): MentionBracket[] {
   return [
     {
       count: cohort.tresBienFelicitations,
-      fr: 'mention Très bien avec félicitations (18/20 et plus)',
+      fr: 'la mention Très bien avec félicitations (18/20 et plus)',
       en: 'highest honours (18/20 and above)',
     },
     {
       count: cohort.tresBien,
-      fr: 'mention Très bien (16 à moins de 18/20)',
+      fr: 'la mention Très bien (16 à moins de 18/20)',
       en: 'honours Très bien (16 to under 18/20)',
     },
     {
       count: cohort.bien,
-      fr: 'mention Bien (14 à moins de 16/20)',
+      fr: 'la mention Bien (14 à moins de 16/20)',
       en: 'honours Bien (14 to under 16/20)',
     },
     {
       count: cohort.assezBien,
-      fr: 'mention Assez bien (12 à moins de 14/20)',
+      fr: 'la mention Assez bien (12 à moins de 14/20)',
       en: 'honours Assez bien (12 to under 14/20)',
     },
     {
       count: cohort.sansMention,
-      fr: 'bac sans mention (10 à moins de 12/20)',
-      en: 'baccalauréat without honours (10 to under 12/20)',
+      fr: "l'absence de mention (10 à moins de 12/20)",
+      en: 'a pass without honours (10 to under 12/20)',
     },
   ];
 }
@@ -420,24 +420,25 @@ export function admissionGuidance(program: EefProgramRecord): Bilingual {
       ? ''
       : ` Parcoursup ${cohort.session} access rate, counting only applicants schooled `
         + `in France or holding EU nationality: ${cohort.accessRatePct}%.`;
+  // « Si c'est ton cas » : un élève d'un lycée français à l'étranger passe le bac
+  // français, figure dans ces chiffres et ne passe pas par la DAP.
   const outsideFr =
-    'Ces chiffres n\'incluent pas les candidats à bac étranger : ton dossier est '
-    + 'examiné à part, et ce repère n\'est pas un seuil pour toi.';
+    'Ces chiffres n\'incluent pas les candidats à bac étranger : si c\'est ton cas, '
+    + 'ton dossier est examiné à part';
   const outsideEn =
-    'These figures exclude applicants with a foreign baccalauréat: your '
-    + 'application is assessed separately, and this benchmark is not a threshold '
-    + 'for you.';
+    'These figures exclude applicants with a foreign baccalauréat: if that is your '
+    + 'case, your application is assessed separately';
 
   if (cohort.admittedNeobac < MIN_COHORT_FOR_TARGET) {
     return {
       fr:
         `Aucune moyenne minimale officielle n'est publiée. Sur Parcoursup ${cohort.session}, `
         + `on ne compte que ${cohort.admittedNeobac} admis issus de terminale française : l'effectif `
-        + `est trop petit pour en tirer un repère. ${outsideFr}${access}`,
+        + `est trop petit pour en tirer un repère. ${outsideFr}.${access}`,
       en:
         `No official minimum grade is published. On Parcoursup ${cohort.session}, only `
         + `${cohort.admittedNeobac} admitted students came from French final-year classes: `
-        + `the cohort is too small to draw a benchmark. ${outsideEn}${accessEn}`,
+        + `the cohort is too small to draw a benchmark. ${outsideEn}.${accessEn}`,
     };
   }
 
@@ -445,13 +446,14 @@ export function admissionGuidance(program: EefProgramRecord): Bilingual {
     fr:
       `Aucune moyenne minimale officielle n'est publiée. Repère de concurrence `
       + `uniquement : sur Parcoursup ${cohort.session}, chez les ${cohort.admittedNeobac} `
-      + `admis issus de terminale française, la mention la plus fréquente était : `
-      + `${dominant.fr}. ${outsideFr}${access}`,
+      + `admis issus de terminale française, le résultat le plus fréquent au bac était `
+      + `${dominant.fr}. ${outsideFr}, et ce repère n'est pas un seuil pour toi.${access}`,
     en:
       `No official minimum grade is published. Competition benchmark only: on `
       + `Parcoursup ${cohort.session}, among the ${cohort.admittedNeobac} admitted students `
-      + `from French final-year classes, the most common result was: ${dominant.en}. `
-      + `${outsideEn}${accessEn}`,
+      + `from French final-year classes, the most common baccalauréat result was `
+      + `${dominant.en}. ${outsideEn}, and this benchmark is not a threshold for you.`
+      + accessEn,
   };
 }
 

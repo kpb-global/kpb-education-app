@@ -27,7 +27,7 @@ const files = catalog.universities;
 function rowAsImported1_2(record: EefProgramRecord, isActive = true): ReconcilableProgramRow {
   const institution = institutionById.get(record.institutionId)!;
   const procedureType = procedureExceptionOf(record, institution) ? 'dap_blanche' : record.procedureType;
-  const lines = programRequirements1_2({ ...record, procedureType });
+  const lines = programRequirements1_2({ ...record, procedureType })!;
   return {
     id: record.id,
     institutionId: record.institutionId,

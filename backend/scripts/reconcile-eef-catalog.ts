@@ -42,6 +42,18 @@ function values(name: string): string[] {
 }
 const single = (name: string) => values(name)[0];
 
+// Un drapeau sans valeur, ou suivi d'un autre drapeau, est une faute de frappe :
+// « --institution » vide ne doit pas vouloir dire « tous les établissements ».
+for (const name of ['--institution', '--expect-programs', '--actor']) {
+  argv.forEach((arg, index) => {
+    const next = argv[index + 1];
+    if (arg === name && (next === undefined || next.startsWith('--'))) {
+      console.error(`${name} attend une valeur. Rien n'a été fait.`);
+      process.exit(2);
+    }
+  });
+}
+
 const dryRun = flag('--dry-run');
 const apply = flag('--apply');
 if (dryRun === apply) {

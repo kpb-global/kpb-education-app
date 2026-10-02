@@ -29,7 +29,7 @@ import type {
 /// L'édition dont ce module est la copie.
 export const EEF_COPY_EDITION_1_2 = '1.2.0';
 
-const CYCLE_LABELS: Readonly<Record<EefCycle, Bilingual>> = {
+const CYCLE_LABELS: Readonly<Partial<Record<EefCycle, Bilingual>>> = {
   licence1: { fr: 'Licence, 1re année', en: 'Bachelor, first year' },
   licence2: { fr: 'Licence, 2e année', en: 'Bachelor, second year' },
   licence3: { fr: 'Licence, 3e année', en: 'Bachelor, final year' },
@@ -51,11 +51,11 @@ const CYCLE_LABELS: Readonly<Record<EefCycle, Bilingual>> = {
     en: 'Five-year engineering programme',
   },
   master: { fr: 'Master', en: "Master's degree" },
-  // Ajouter un cycle ici sans lui donner de libellé casserait la compilation :
-  // le Record est exhaustif sur `EefCycle`, exprès.
+  // `Partial`, au contraire du module courant : un cycle ajouté APRÈS l'édition
+  // 1.2.0 n'a jamais eu de prose 1.2.0, et ce fichier ne doit pas avoir à changer.
 };
 
-const PROCEDURE_STEP: Readonly<Record<EefProcedureType, Bilingual>> = {
+const PROCEDURE_STEP: Readonly<Partial<Record<EefProcedureType, Bilingual>>> = {
   dap_blanche: {
     fr:
       "Candidature par Demande d'admission préalable (DAP, dossier blanc), "
@@ -97,7 +97,7 @@ const PROCEDURE_STEP: Readonly<Record<EefProcedureType, Bilingual>> = {
   },
 };
 
-const ENTRY_QUALIFICATION: Readonly<Record<EefCycle, Bilingual>> = {
+const ENTRY_QUALIFICATION: Readonly<Partial<Record<EefCycle, Bilingual>>> = {
   licence1: {
     fr:
       "Baccalauréat ou diplôme étranger donnant accès à l'enseignement "
@@ -156,7 +156,7 @@ const ENTRY_QUALIFICATION: Readonly<Record<EefCycle, Bilingual>> = {
   },
 };
 
-const FRENCH_LEVEL: Readonly<Record<EefProcedureType, Bilingual | null>> = {
+const FRENCH_LEVEL: Readonly<Partial<Record<EefProcedureType, Bilingual | null>>> = {
   dap_blanche: {
     fr:
       'Test de langue française exigé pour la DAP (TCF DAP), sauf dispense '
@@ -204,8 +204,7 @@ const SELECTIVITY_NOTE: Readonly<Record<EefSelectivity, Bilingual>> = {
  * Une phrase, pas une fiche. Elle ne dit que ce que la ligne sait déjà :
  * l'intitulé, le cycle, le campus, et si l'établissement classe les dossiers.
  */
-function programSummary(program: EefProgramRecord): Bilingual {
-  const cycle = CYCLE_LABELS[program.cycle];
+function programSummary(program: EefProgramRecord, cycle: Bilingual): Bilingual {
   const selective = program.selectivity === 'selective';
   return {
     fr:
@@ -350,13 +349,18 @@ function admissionGuidance(program: EefProgramRecord): Bilingual {
  * cette formation, avec SA procédure et SA sélectivité. L'appelant passe celles
  * que la ligne porte en base : c'est ce qui permet de reconnaître la prose d'une
  * ligne dont la procédure a changé depuis.
+ *
+ * `null` pour un cycle ou une procédure que l'édition 1.2.0 ne connaissait pas :
+ * elle n'a jamais écrit de prose pour eux, donc aucune ligne ne peut la porter.
  */
-export function programRequirements1_2(program: EefProgramRecord): Bilingual[] {
-  const out: Bilingual[] = [
-    programSummary(program),
-    PROCEDURE_STEP[program.procedureType],
-    ENTRY_QUALIFICATION[program.cycle],
-  ];
+export function programRequirements1_2(program: EefProgramRecord): Bilingual[] | null {
+  const cycle = CYCLE_LABELS[program.cycle];
+  const procedure = PROCEDURE_STEP[program.procedureType];
+  const entry = ENTRY_QUALIFICATION[program.cycle];
+  if (!cycle || !procedure || !entry || !(program.procedureType in FRENCH_LEVEL)) {
+    return null;
+  }
+  const out: Bilingual[] = [programSummary(program, cycle), procedure, entry];
   const french = FRENCH_LEVEL[program.procedureType];
   if (french) out.push(french);
   out.push(SELECTIVITY_NOTE[program.selectivity]);

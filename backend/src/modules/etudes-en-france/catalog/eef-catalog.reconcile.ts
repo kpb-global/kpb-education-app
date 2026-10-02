@@ -61,7 +61,8 @@ export type ReconciledProgramField = (typeof RECONCILED_PROGRAM_FIELDS)[number];
  */
 export const EEF_PROSE_EDITIONS: readonly {
   readonly edition: string;
-  readonly requirements: (program: EefProgramRecord) => Bilingual[];
+  /// `null` : cette édition n'a jamais écrit de prose pour une telle formation.
+  readonly requirements: (program: EefProgramRecord) => Bilingual[] | null;
 }[] = [
   { edition: EEF_COPY_EDITION_1_2, requirements: programRequirements1_2 },
   { edition: EEF_COPY_EDITION, requirements: programRequirements },
@@ -142,7 +143,8 @@ export function proseEditionOf(
   for (const { edition, requirements } of EEF_PROSE_EDITIONS) {
     const lines = requirements(asStored);
     if (
-      sameLines(row.requirementsFr, lines.map((line) => line.fr))
+      lines !== null
+      && sameLines(row.requirementsFr, lines.map((line) => line.fr))
       && sameLines(row.requirementsEn, lines.map((line) => line.en))
     ) {
       return edition;

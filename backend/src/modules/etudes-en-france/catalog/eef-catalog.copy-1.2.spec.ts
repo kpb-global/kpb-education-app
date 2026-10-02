@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { programRequirements1_2 } from './eef-catalog.copy-1.2';
 import { loadEefCatalog } from './eef-catalog.loader';
 import { procedureExceptionOf } from './eef-catalog.normalize';
+import type { EefCycle, EefProcedureType } from './eef-catalog.types';
 
 const EDITION_1_2_DIGEST =
   '15c16b3f7b62758b5401a7117f8ab8dfcf55e8b434df1433865eb083af89daf2';
@@ -35,12 +36,22 @@ describe('prose figée de l’édition 1.2.0', () => {
 
     const hash = createHash('sha256');
     for (const program of programs) {
-      const lines = programRequirements1_2(program);
+      const lines = programRequirements1_2(program)!;
       hash.update(
         `${program.id}\t${JSON.stringify(lines.map((line) => line.fr))}\t`
           + `${JSON.stringify(lines.map((line) => line.en))}\n`,
       );
     }
     expect(hash.digest('hex')).toBe(EDITION_1_2_DIGEST);
+  });
+
+  it('ne prétend rien pour un cycle ou une procédure qu’elle ne connaissait pas', () => {
+    // Un cycle ajouté APRÈS 1.2.0 n'a jamais eu de prose 1.2.0 : aucune ligne ne
+    // peut la porter, et ce module figé ne doit pas avoir à changer pour lui.
+    const [program] = loadEefCatalog().universities[0].programs;
+    expect(programRequirements1_2({ ...program, cycle: 'doctorat' as EefCycle })).toBeNull();
+    expect(
+      programRequirements1_2({ ...program, procedureType: 'nouvelle' as EefProcedureType }),
+    ).toBeNull();
   });
 });
