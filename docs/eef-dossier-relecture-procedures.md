@@ -4,6 +4,11 @@
 (conseiller·ère ou responsable de l'accompagnement) ; à défaut, le propriétaire du produit.
 Le code ne peut pas trancher ce qui suit : il l'applique.*
 
+> **Tranché le 02/10/2026.** Le propriétaire du produit a validé en bloc les réponses de
+> recherche (§ « Réponses de recherche », plus bas). Elles sont appliquées dans le code
+> (catalogue **1.3.0**) et atteignent la production par `eef-reconcile`
+> (`docs/ouverture-espace-eef.md` § 2.2). Les cases ci-dessous portent la décision.
+
 ## Pourquoi ce dossier, et pourquoi avant la première publication
 
 Chaque formation de l'import porte un `procedureType` — `dap_blanche`, `dap_jaune`, `eef`
@@ -52,7 +57,7 @@ des masters et une L3, en `eef`.
 DAP blanche, ou par la procédure propre de l'établissement ?
 **Si c'est faux :** 39 fiches promettent un dossier DAP à des candidats qui doivent déposer
 ailleurs.
-☐ confirmé  ☐ à corriger : ______________________
+☐ confirmé  ☒ à corriger : **`hors_eef`** (voie propre à Sciences Po) — 02/10/2026
 
 ### 2. Les autres familles rangées en 1re année de licence
 
@@ -65,7 +70,8 @@ conservée dans les fichiers).
 (diplôme de comptabilité) est cité par plusieurs pages pays de Campus France comme relevant
 de **Parcoursup** au même titre que le BTS et les CPGE (Congo-Brazzaville, Côte d'Ivoire).
 **Si c'est faux :** mauvais calendrier pour ces filières.
-☐ confirmé  ☐ à corriger : ______________________
+☐ confirmé  ☒ à corriger : **DCG → `parcoursup`** (1), **CUPGE → `eef`** (17) ; CMI, IAE, art,
+sport : DAP confirmée ; LPE : DAP conservée faute de source — 02/10/2026
 
 ### 3. Les 705 « Licences sélectives » en `dap_blanche`
 
@@ -79,7 +85,8 @@ l'import, et la L1 sélective est rangée avec la DAP.
 par la DAP blanche ou par Parcoursup ? Faut-il une quatrième valeur de procédure ?
 **Si c'est faux :** c'est la plus grosse zone de doute — jusqu'à 705 fiches, dont celles de
 la première liste ci-dessus.
-☐ confirmé  ☐ à corriger : ______________________
+☒ confirmé (DAP blanche conservée, sans quatrième valeur — confirmation téléphonique auprès
+de 3 ou 4 Espaces Campus France recommandée)  ☐ à corriger — 02/10/2026
 
 ### 4. Les 834 BUT en 1re année classés `eef`
 
@@ -90,7 +97,7 @@ M2, BUT) »), Maurice (« Procédure Études en France (Hors DAP - BUT, L2, L3, 
 Rwanda (« Études en France — Licence, Bachelor, Master et BUT »). Elle n'est donc
 appuyée que sur ces trois pays.
 **Question :** vaut-elle pour tous les pays où KPB accompagne des étudiants ?
-☐ confirmé  ☐ à corriger : ______________________
+☒ confirmé (`eef` ; au Maroc, par l'ADIUT — mention à ajouter plus tard)  ☐ à corriger — 02/10/2026
 
 ### 5. Les 650 PASS / L.AS en `dap_blanche`, non sélectives
 
@@ -100,7 +107,8 @@ Un candidat étranger qui lit « non sélective » sur un PASS peut en tirer une
 chances.
 **Question :** la procédure est-elle bien la DAP blanche, et l'app doit-elle afficher la
 mention « non sélective » pour les études de santé ?
-☐ confirmé  ☐ à corriger : ______________________
+☐ confirmé  ☒ à corriger : procédure DAP blanche confirmée ; **la ligne « non sélective » est
+reformulée pour toutes les L1 en DAP** (2 428), santé comprise — 02/10/2026
 
 ### 6. Les 80 cycles d'écoles d'ingénieurs en `hors_eef`
 
@@ -109,7 +117,8 @@ en France » (commentaire du code). Ces fiches n'ont donc ni DAP ni Études en F
 **Question :** que doit dire l'app à un étudiant qui ouvre une de ces fiches — un renvoi vers
 le site de l'école, un accompagnement KPB spécifique, ou ne pas les publier dans la première
 vague ?
-☐ garder  ☐ retirer de la vague 1  ☐ autre : ______________________
+☒ garder  ☐ retirer de la vague 1  ☒ autre : **phrase `hors_eef` reformulée** (admission propre
+à l'établissement, visa par Études en France) — 02/10/2026
 
 ### 7. Le « repère d'admission » (3 525 formations)
 
@@ -120,7 +129,8 @@ français, pas un seuil Études en France** (`data/README.md`). Un étudiant au 
 étranger n'appartient pas à la population qui a produit ce chiffre.
 **Question :** cette phrase aide-t-elle l'étudiant visé, ou l'induit-elle en erreur ? La garder,
 la reformuler, ou ne rien afficher ?
-☐ garder  ☐ reformuler : ______________________  ☐ retirer
+☐ garder  ☒ reformuler : **repère de concurrence, hors de la population du lecteur ; plus de
+« vise au moins X/20 »** (3 525)  ☐ retirer — 02/10/2026
 
 ## Ce qui change dans le code selon les réponses
 
@@ -135,6 +145,60 @@ Toute règle changée **avant** la première publication se répercute ainsi : r
 fichiers → `eef:purge-pending` (simulation d'abord) → `eef:import`, depuis l'action
 **VPS ops** du même nom. Le domaine des formations a été réaligné de cette façon le 29/09
 (`docs/eef-catalog-pipeline.md` § 2.7).
+
+## Réponses de recherche du 02/10/2026 — validées le 02/10/2026
+
+Recherche documentaire sur les sources officielles (Campus France national et pages pays,
+sites des établissements, documentation du jeu ouvert Parcoursup), pour un candidat **hors
+UE résidant dans un pays à procédure Études en France**, campagne 2027-2028.
+**parcoursup.gouv.fr et enseignementsup-recherche.gouv.fr n'ont pas pu être lus** (403) : la
+FAQ « Étudiants internationaux » de Parcoursup reste à relire dans un navigateur.
+
+**Validé en bloc par le propriétaire le 02/10/2026** (« tout valider »), points probables
+compris (2b, 3) et LPE laissée en DAP faute de source. Appliqué dans le code : catalogue
+**1.3.0** (`procedureExceptionOf` dans `eef-catalog.normalize.ts`, prose dans
+`eef-catalog.copy.ts`, 57 lignes des fichiers versionnés). Le catalogue **publié** porte
+encore l'édition 1.2.0 jusqu'au passage d'`eef-reconcile`.
+
+| # | Réponse | Confiance | Source principale | Correction recommandée | Lignes |
+|---|---|---|---|---|---:|
+| 1 | **Sciences Po Paris** (1re année) a sa **propre voie internationale**, sur son portail : ni DAP, ni Parcoursup. Études en France ne sert qu'après l'admission, pour le visa. (Les IEP de région recrutent par Parcoursup, mais n'ont que des masters et une L3 dans nos données.) | établi | sciencespo.fr/admissions/fr/bachelor/bacheliers-secondaires-etrangers (rentrée 2027) : « la procédure d'admission à Sciences Po n'est pas prévue dans le dispositif Campus France » | `dap_blanche` → **`hors_eef`** | 39 |
+| 2a | **DCG** : par **Parcoursup**, avec BTS, CPGE et IFSI | établi | senegal.campusfrance.org/inscription-sur-parcoursup (19/01/2026) ; mêmes listes Mali, Côte d'Ivoire | `dap_blanche` → **`parcoursup`** (valeur déjà connue de l'app) | 1 |
+| 2b | **CUPGE** : Études en France **hors DAP** (comme le BUT), selon les pays | probable | fiche Campus France Burkina 2024-2025 ; Université Paris Cité | `dap_blanche` → **`eef`** | 17 |
+| 2c | **CMI, STAPS, licences d'art / design, L1 d'IAE** : DAP, comme toute L1 universitaire. **LPE** : non établi (formation ouverte en 2026) | établi à probable ; LPE non établi | campusfrance.org/fr/candidature-enseignement-superieur-france (25/09/2026) ; pages STAPS Strasbourg, CMI Savoie | aucune ; LPE à confirmer | — |
+| 3 | **L1 sélectives** : aucune source ne les fait passer par Parcoursup pour un résident d'un pays Études en France ; la mention « Licence 1 sélective » de Madagascar n'a **pas** été retrouvée (la page cite BTS, BTSA, CPGE) | probable | universite-paris-saclay.fr (candidats d'un pays EEF renvoyés vers Études en France) ; madagascar.campusfrance.org | **garder** `dap_blanche` ; confirmer par téléphone auprès de 3–4 Espaces Campus France | 705 |
+| 4 | **BUT** : Études en France hors DAP (Maroc : via ADIUT Maroc). **DEUST** : même règle | BUT établi ; DEUST probable | cameroun.campusfrance.org (« exclusivement sur Etudes en France ») ; maroc.campusfrance.org ; univ-littoral.fr | **garder** `eef` ; ajouter plus tard la mention Maroc | 882 |
+| 5 | **PASS / L.AS** : bien la DAP blanche. Mais **« non sélective » est faux pour un candidat DAP** : l'université examine le dossier, exige son niveau de français (C1 à Bordeaux), et peut ne pas ouvrir de campagne DAP | établi | document MEAE publié par Campus France Mali (2026) ; sante.u-bordeaux.fr | **reformuler la ligne de sélectivité pour toutes les L1 en DAP** (pas seulement la santé) | 2 428 lignes « non sélective » en DAP, dont 650 santé |
+| 6 | **Cycles d'ingénieurs** : pas de règle unique (INSA : plateforme propre ; UT : Parcoursup + Campus France ; Polytech : Études en France pour 3 PeiP A). Le texte actuel « ne se demande pas par la procédure Études en France » est **faux pour Polytech et trompeur en général** (le visa passe toujours par Études en France) | établi pour INSA, UT, Polytech | polytech-reseau.org (guide international) ; insa-hautsdefrance.fr ; groupe-ut.fr | **reformuler la ligne `hors_eef`** ; aucune PeiP Polytech dans notre catalogue | 80 |
+| 7 | **Repère de mention** : le chiffre ne décrit que des élèves de **terminale française** ; les candidats DAP sont évalués à part et le taux d'accès les exclut. « Vise au moins X/20 » induit en erreur | établi | documentation du jeu fr-esr-parcoursup (« néo-bacheliers = élèves inscrits en terminale française… » ; taux d'accès « seuls les candidats scolarisés en France ou de nationalité européenne ») | **reformuler**, retirer « vise au moins X/20 » | 3 525 |
+
+**Formulations validées** (FR ; l'anglais suit le même sens). Telles qu'appliquées, à trois
+ajustements près, nécessaires et signalés : la ligne `hors_eef` dit « l'établissement » au lieu
+de « l'école », parce qu'elle couvre aussi Sciences Po ; le taux d'accès Parcoursup, quand il
+est cité, dit qu'il ne compte que les candidats scolarisés en France ou européens ; et la phrase
+Parcoursup (le DCG) ne la réserve plus aux résidents en France.
+
+- *Point 5 — ligne de sélectivité d'une L1 en DAP* : « Classée non sélective sur Parcoursup,
+  pour les élèves de terminale française. Pour une candidature par la demande d'admission
+  préalable, l'université examine ton dossier et peut le refuser ; le niveau de français
+  exigé et l'ouverture aux candidats DAP varient selon l'université. »
+- *Point 6 — ligne `hors_eef`* : « Admission propre à l'école (concours ou plateforme dédiée),
+  parfois en parallèle d'Études en France. Une fois admis, le visa passe par Études en France
+  (« Je suis déjà accepté »). Vérifie la page des admissions internationales de l'école. »
+- *Point 7 — repère* : « Aucune moyenne minimale officielle n'est publiée. Repère de
+  concurrence uniquement : sur Parcoursup {session}, la mention la plus fréquente chez les {n}
+  admis issus de terminale française était {mention}. Ces chiffres n'incluent pas les
+  candidats à bac étranger : ton dossier est examiné à part, et ce repère n'est pas un seuil
+  pour toi. »
+
+**Ce que ces corrections demandent.** Les textes et procédures sont calculés par le serveur
+(`eef-catalog.normalize.ts`, `eef-catalog.copy.ts`) et écrits sur chaque formation à
+l'import : **aucune build mobile n'est nécessaire**. Les formations étant déjà publiées, elles
+sont réalignées par **`eef:reconcile`** (`eef-catalog.reconcile.ts`) : simulation d'abord, total
+à saisir, une transaction et une trace d'audit par établissement, et aucune ligne retouchée dans
+l'admin réécrite. Sur le catalogue tel qu'importé, la simulation doit annoncer **3 834
+formations à réaligner**, dont **57** changent de procédure. Voir `docs/ouverture-espace-eef.md`
+§ 2.2.
 
 ## Annexe — lignes à contrôler, tirées des fichiers versionnés
 

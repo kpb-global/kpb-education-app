@@ -104,19 +104,24 @@ job sort en erreur (la publication, elle, est en base).
 - **Retirer** un établissement (admin → Publication → « Retirer ») ou des formations : oui. Les
   tampons restent (« vérifié par X le jour Y » est l'historique), et les étudiants qui avaient
   enregistré une formation la perdent de leur liste (le plan le chiffre avant d'écrire).
-- **Corriger une règle de procédure en masse après publication : non, pas avec les outils
-  actuels.** `eef:purge-pending` ne supprime que des lignes **jamais publiées et jamais
-  tamponnées** ; une ligne retirée garde son tampon, et `eef:reconcile` (qui réaligne les lignes
-  existantes sur le catalogue régénéré) n'existe pas encore (`docs/eef-catalog-pipeline.md`).
+- **Corriger une règle de procédure en masse après publication : oui, depuis le 02/10/2026,
+  par `eef-reconcile`** (#305), qui réaligne procédure, sélectivité et exigences des lignes
+  publiées ou en attente sur les règles du dépôt — simulation d'abord, total saisi, une
+  transaction et une trace d'audit par établissement, sans toucher ni à la publication ni au
+  tampon, et sans réécrire une ligne retouchée dans l'admin (`docs/ouverture-espace-eef.md`
+  § 2.2). `eef:purge-pending`, lui, ne supprime toujours que des lignes **jamais publiées et
+  jamais tamponnées**.
 
-D'où l'ordre recommandé : l'espace reste fermé (`eefSpace` faux) jusqu'à ce qu'une personne qui
-connaît Campus France ait répondu aux sept questions de procédure. Tant que l'espace est fermé,
-aucun étudiant ne voit le catalogue dans l'app, mais l'API publique le sert.
+D'où l'ordre recommandé : l'espace reste fermé (`eefSpace` faux) jusqu'à ce que les sept questions
+de procédure soient tranchées (fait le 02/10/2026) et leurs corrections appliquées en production
+(`eef-reconcile`). Tant que l'espace est fermé, aucun étudiant ne voit le catalogue dans l'app,
+mais l'API publique le sert.
 
 ## Les sept questions de procédure
 
-L'outil ne les tranche pas, et la publication ne les suppose pas tranchées : elles restent toutes
-à cocher dans `docs/eef-dossier-relecture-procedures.md`. Si l'on préfère ne pas publier d'emblée
+L'outil ne les tranche pas, et la publication ne les supposait pas tranchées. Elles l'ont été le
+02/10/2026 (`docs/eef-dossier-relecture-procedures.md`) ; les lignes publiées sont réalignées par
+`eef-reconcile`. Si l'on préfère ne pas publier d'emblée
 la famille la plus douteuse, `exclude_procedure` (workflow) écarte `hors_eef` (80 écoles
 d'ingénieurs), `dap_jaune` (29) ou `parcoursup` (aucune ligne aujourd'hui) de la vague : elles
 restent importées, inactives, et un nouveau passage les publiera plus tard.

@@ -36,6 +36,12 @@ export interface Bilingual {
   readonly en: string;
 }
 
+/// L'édition de cette prose. Elle suit `catalogVersion` du manifeste (le spec de
+/// `eef-catalog.reconcile` l'exige) : une phrase changée ici est une nouvelle
+/// édition, et l'édition précédente est figée à côté (`eef-catalog.copy-1.2.ts`)
+/// pour que `eef:reconcile` reconnaisse encore les lignes qu'elle a écrites.
+export const EEF_COPY_EDITION = '1.3.0';
+
 /// Le repère « Bac+n » est identique dans les deux langues, et c'est
 /// volontaire : c'est un marqueur du système français, pas une phrase. Le sens
 /// est porté par le libellé de cycle, qui, lui, est traduit — sinon
@@ -128,22 +134,44 @@ const PROCEDURE_STEP: Readonly<Record<EefProcedureType, Bilingual>> = {
       'Apply through the "Études en France" procedure, on the Campus France '
       + 'platform of your country of residence.',
   },
+  // Le DCG (décision du 02/10/2026) : Parcoursup vaut AUSSI pour un candidat
+  // d'un pays à procédure Études en France — c'est ce que disent les pages
+  // Campus France Sénégal, Mali et Côte d'Ivoire, au même titre que les BTS et
+  // les CPGE. L'ancienne phrase réservait Parcoursup aux résidents en France.
   parcoursup: {
     fr:
-      'Candidature sur Parcoursup — le chemin des candidats résidant en '
-      + 'France.',
-    en: 'Apply on Parcoursup — the route for applicants residing in France.',
+      "Candidature sur Parcoursup, y compris depuis l'étranger, comme pour les "
+      + "BTS et les CPGE : cette formation ne passe pas par la demande "
+      + "d'admission préalable. Le visa passe ensuite par Études en France : "
+      + 'renseigne-toi auprès de ton Espace Campus France.',
+    en:
+      'Apply on Parcoursup, including from abroad, as for BTS and CPGE '
+      + 'programmes: this programme does not use the Preliminary Admission '
+      + 'Application (DAP). The visa then goes through Études en France: ask '
+      + 'your Campus France office.',
   },
+  // Cycles d'ingénieurs et 1re année de Sciences Po (décision du 02/10/2026).
+  // L'ancienne phrase disait « ne se demande pas par la procédure Études en
+  // France » : faux pour certaines écoles (Polytech), et trompeur pour toutes,
+  // puisque le visa passe toujours par Études en France.
   hors_eef: {
     fr:
-      "Admission gérée directement par l'établissement ou par un concours : "
-      + 'cette formation ne se demande pas par la procédure Études en France.',
+      "Admission propre à l'établissement (concours ou plateforme dédiée), "
+      + "parfois en parallèle d'Études en France. Une fois admis, le visa passe "
+      + 'par Études en France (« Je suis déjà accepté »). Vérifie la page des '
+      + "admissions internationales de l'établissement.",
     en:
-      'Admission is handled by the institution itself or through a competitive '
-      + 'examination: this programme is not part of the Études en France '
-      + 'procedure.',
+      'Admission is handled by the institution itself (competitive exam or '
+      + 'dedicated platform), sometimes alongside Études en France. Once '
+      + 'admitted, the visa goes through Études en France ("Je suis déjà '
+      + 'accepté"). Check the institution\'s international admissions page.',
   },
 };
+
+/// Les deux procédures de la demande d'admission préalable.
+function isDapProcedure(procedure: EefProcedureType): boolean {
+  return procedure === 'dap_blanche' || procedure === 'dap_jaune';
+}
 
 const ENTRY_QUALIFICATION: Readonly<Record<EefCycle, Bilingual>> = {
   licence1: {
@@ -249,23 +277,58 @@ const SELECTIVITY_NOTE: Readonly<Record<EefSelectivity, Bilingual>> = {
 };
 
 /**
+ * « Non sélective » est la catégorie de Parcoursup, c'est-à-dire des élèves de
+ * terminale française. Elle ne dit RIEN de la demande d'admission préalable :
+ * l'université examine le dossier DAP, exige son niveau de français et peut ne
+ * pas ouvrir de campagne DAP (décision du 02/10/2026 ; sources : document du
+ * MEAE publié par Campus France Mali, pages santé de l'université de Bordeaux).
+ * Toutes les L1 non sélectives du catalogue sont en DAP, PASS et L.AS compris.
+ */
+const NON_SELECTIVE_DAP_NOTE: Bilingual = {
+  fr:
+    'Classée non sélective sur Parcoursup, pour les élèves de terminale '
+    + "française. Pour une candidature par la demande d'admission préalable, "
+    + "l'université examine ton dossier et peut le refuser ; le niveau de "
+    + "français exigé et l'ouverture aux candidats DAP varient selon "
+    + "l'université.",
+  en:
+    'Listed as non-selective on Parcoursup, for students in French final-year '
+    + 'classes. For an application through the Preliminary Admission '
+    + 'Application (DAP), the university reviews your file and may turn it '
+    + 'down; the required French level and whether DAP applicants are accepted '
+    + 'vary by university.',
+};
+
+function selectivityNote(program: EefProgramRecord): Bilingual {
+  if (program.selectivity === 'non_selective' && isDapProcedure(program.procedureType)) {
+    return NON_SELECTIVE_DAP_NOTE;
+  }
+  return SELECTIVITY_NOTE[program.selectivity];
+}
+
+/**
  * Une phrase, pas une fiche. Elle ne dit que ce que la ligne sait déjà :
  * l'intitulé, le cycle, le campus, et si l'établissement classe les dossiers.
  */
 export function programSummary(program: EefProgramRecord): Bilingual {
   const cycle = cycleLabel(program.cycle);
   const selective = program.selectivity === 'selective';
+  const dap = isDapProcedure(program.procedureType);
   return {
     fr:
       `${program.nameFr} — ${cycle.fr}, campus ${program.campusCity}. `
       + (selective
         ? "L'établissement classe les dossiers."
-        : "La capacité d'accueil limite les places, pas un classement."),
+        : dap
+          ? "Non sélective sur Parcoursup ; en DAP, l'université examine ton dossier."
+          : "La capacité d'accueil limite les places, pas un classement."),
     en:
       `${program.nameFr} — ${cycle.en}, ${program.campusCity} campus. `
       + (selective
         ? 'The institution ranks applications.'
-        : 'Intake capacity limits places, not a ranking of files.'),
+        : dap
+          ? 'Non-selective on Parcoursup; for a DAP application, the university reviews your file.'
+          : 'Intake capacity limits places, not a ranking of files.'),
   };
 }
 
@@ -274,7 +337,6 @@ const MIN_COHORT_FOR_TARGET = 15;
 
 interface MentionBracket {
   readonly count: number;
-  readonly floor: number;
   readonly fr: string;
   readonly en: string;
 }
@@ -286,33 +348,28 @@ function mentionBrackets(cohort: EefAdmissionCohort): MentionBracket[] {
   return [
     {
       count: cohort.tresBienFelicitations,
-      floor: 18,
-      fr: 'mention Très bien avec félicitations (18/20 et plus)',
+      fr: 'la mention Très bien avec félicitations (18/20 et plus)',
       en: 'highest honours (18/20 and above)',
     },
     {
       count: cohort.tresBien,
-      floor: 16,
-      fr: 'mention Très bien (16 à moins de 18/20)',
+      fr: 'la mention Très bien (16 à moins de 18/20)',
       en: 'honours Très bien (16 to under 18/20)',
     },
     {
       count: cohort.bien,
-      floor: 14,
-      fr: 'mention Bien (14 à moins de 16/20)',
+      fr: 'la mention Bien (14 à moins de 16/20)',
       en: 'honours Bien (14 to under 16/20)',
     },
     {
       count: cohort.assezBien,
-      floor: 12,
-      fr: 'mention Assez bien (12 à moins de 14/20)',
+      fr: 'la mention Assez bien (12 à moins de 14/20)',
       en: 'honours Assez bien (12 to under 14/20)',
     },
     {
       count: cohort.sansMention,
-      floor: 10,
-      fr: 'bac sans mention (10 à moins de 12/20)',
-      en: 'baccalauréat without honours (10 to under 12/20)',
+      fr: "l'absence de mention (10 à moins de 12/20)",
+      en: 'a pass without honours (10 to under 12/20)',
     },
   ];
 }
@@ -320,11 +377,17 @@ function mentionBrackets(cohort: EefAdmissionCohort): MentionBracket[] {
 /**
  * Le repère de moyenne, ou l'aveu qu'il n'y en a pas.
  *
- * Règle unique : aucun chiffre qui ne sorte des effectifs publiés. Le plancher
- * cité est la borne basse de la mention la plus fréquente parmi les
- * néo-bacheliers qui ont accepté une place — pas un seuil d'admission, et pas
- * une exigence Campus France. En dessous de 15 admis, on donne les effectifs
- * sans en tirer un objectif.
+ * Règle unique : aucun chiffre qui ne sorte des effectifs publiés. Et ces
+ * effectifs ne décrivent PAS le lecteur : les « néo-bacheliers » du jeu
+ * Parcoursup sont des élèves de terminale française, et son taux d'accès ne
+ * compte que les candidats scolarisés en France ou de nationalité européenne
+ * (documentation du jeu `fr-esr-parcoursup`). Un candidat à bac étranger est
+ * examiné à part.
+ *
+ * D'où la phrase validée le 02/10/2026 : un repère de CONCURRENCE, explicitement
+ * hors de sa population, et plus aucune consigne (« vise au moins X/20 ») tirée
+ * d'une population qui n'est pas la sienne. En dessous de 15 admis, on ne cite
+ * même pas la mention dominante.
  */
 export function admissionGuidance(program: EefProgramRecord): Bilingual {
   const cohort = program.admissionCohort;
@@ -345,51 +408,52 @@ export function admissionGuidance(program: EefProgramRecord): Bilingual {
   const dominant = brackets.reduce((best, bracket) =>
     bracket.count > best.count ? bracket : best,
   );
+  // Le taux d'accès reste un repère de concurrence, à condition de dire QUI il
+  // compte : sans cette précision, il se lit comme la chance du lecteur.
   const access =
     cohort.accessRatePct == null
       ? ''
-      : ` Taux d'accès Parcoursup ${cohort.session} : ${cohort.accessRatePct} %.`;
+      : ` Taux d'accès Parcoursup ${cohort.session}, calculé sur les seuls candidats `
+        + `scolarisés en France ou européens : ${cohort.accessRatePct} %.`;
   const accessEn =
     cohort.accessRatePct == null
       ? ''
-      : ` Parcoursup ${cohort.session} access rate: ${cohort.accessRatePct}%.`;
+      : ` Parcoursup ${cohort.session} access rate, counting only applicants schooled `
+        + `in France or holding EU nationality: ${cohort.accessRatePct}%.`;
+  // « Si c'est ton cas » : un élève d'un lycée français à l'étranger passe le bac
+  // français, figure dans ces chiffres et ne passe pas par la DAP.
+  const outsideFr =
+    'Ces chiffres n\'incluent pas les candidats à bac étranger : si c\'est ton cas, '
+    + 'ton dossier est examiné à part';
+  const outsideEn =
+    'These figures exclude applicants with a foreign baccalauréat: if that is your '
+    + 'case, your application is assessed separately';
 
   if (cohort.admittedNeobac < MIN_COHORT_FOR_TARGET) {
     return {
       fr:
-        `Aucune moyenne minimale officielle n'est publiée. Parcoursup ${cohort.session} `
-        + `ne compte que ${cohort.admittedNeobac} néo-bacheliers ayant accepté une place : `
-        + 'l\'effectif est trop petit pour en tirer un objectif de moyenne.'
-        + access,
+        `Aucune moyenne minimale officielle n'est publiée. Sur Parcoursup ${cohort.session}, `
+        + `on ne compte que ${cohort.admittedNeobac} admis issus de terminale française : l'effectif `
+        + `est trop petit pour en tirer un repère. ${outsideFr}.${access}`,
       en:
-        `No official minimum grade is published. Parcoursup ${cohort.session} records `
-        + `only ${cohort.admittedNeobac} new baccalauréat holders who accepted a place: `
-        + 'the cohort is too small to infer a grade target.'
-        + accessEn,
+        `No official minimum grade is published. On Parcoursup ${cohort.session}, only `
+        + `${cohort.admittedNeobac} admitted students came from French final-year classes: `
+        + `the cohort is too small to draw a benchmark. ${outsideEn}.${accessEn}`,
     };
   }
 
-  const share = Math.round((dominant.count / cohort.admittedNeobac) * 100);
-  const targetFr =
-    dominant.floor <= 10
-      ? 'Ce profil est le plus ouvert de la session. Pour te situer au-dessus, vise au moins 12/20 (mention Assez bien). Ce n\'est pas un seuil d\'admission.'
-      : `Pour te situer dans ce profil, vise au moins ${dominant.floor}/20. Ce n'est pas un seuil d'admission.`;
-  const targetEn =
-    dominant.floor <= 10
-      ? 'This is the most open profile in the session. To sit above it, aim for at least 12/20 (Assez bien). That is not an admission cutoff.'
-      : `To sit in this profile, aim for at least ${dominant.floor}/20. That is not an admission cutoff.`;
-
   return {
     fr:
-      `Aucune moyenne minimale officielle n'est publiée pour Études en France. `
-      + `Parmi les ${cohort.admittedNeobac} néo-bacheliers qui ont accepté une place `
-      + `sur Parcoursup ${cohort.session}, le profil le plus fréquent est ${dominant.fr} `
-      + `(${share} %). ${targetFr}${access}`,
+      `Aucune moyenne minimale officielle n'est publiée. Repère de concurrence `
+      + `uniquement : sur Parcoursup ${cohort.session}, chez les ${cohort.admittedNeobac} `
+      + `admis issus de terminale française, le résultat le plus fréquent au bac était `
+      + `${dominant.fr}. ${outsideFr}, et ce repère n'est pas un seuil pour toi.${access}`,
     en:
-      `No official minimum grade is published for Études en France. Among the `
-      + `${cohort.admittedNeobac} new baccalauréat holders who accepted a place on `
-      + `Parcoursup ${cohort.session}, the most common profile is ${dominant.en} `
-      + `(${share}%). ${targetEn}${accessEn}`,
+      `No official minimum grade is published. Competition benchmark only: on `
+      + `Parcoursup ${cohort.session}, among the ${cohort.admittedNeobac} admitted students `
+      + `from French final-year classes, the most common baccalauréat result was `
+      + `${dominant.en}. ${outsideEn}, and this benchmark is not a threshold for you.`
+      + accessEn,
   };
 }
 
@@ -406,7 +470,7 @@ export function programRequirements(program: EefProgramRecord): Bilingual[] {
   ];
   const french = FRENCH_LEVEL[program.procedureType];
   if (french) out.push(french);
-  out.push(SELECTIVITY_NOTE[program.selectivity]);
+  out.push(selectivityNote(program));
   out.push(admissionGuidance(program));
   if (program.recommendedBachelors.length > 0) {
     const list = program.recommendedBachelors.join(', ');

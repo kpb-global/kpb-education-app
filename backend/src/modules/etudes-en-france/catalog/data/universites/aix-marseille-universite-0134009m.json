@@ -5762,7 +5762,7 @@
       "fieldIsFallback": false,
       "durationYears": 3,
       "campusCity": "Marseille",
-      "procedureType": "dap_blanche",
+      "procedureType": "eef",
       "selectivity": "selective",
       "formationCode": "2675",
       "tracks": [],

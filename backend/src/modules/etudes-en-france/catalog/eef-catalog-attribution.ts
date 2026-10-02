@@ -68,5 +68,5 @@ export const EEF_CATALOG_ATTRIBUTION: EefCatalogAttribution = {
     EEF_ATTRIBUTION_SOURCE_NAMES['diplomes-prepares'],
   ],
   updatedAt: '2026-09-21',
-  catalogVersion: '1.2.0',
+  catalogVersion: '1.3.0',
 };

@@ -120,6 +120,31 @@ describe('buildParcoursupPrograms', () => {
     expect(records[0].campusCity).toBe('Rennes');
   });
 
+  it('applique à la collecte les exceptions de procédure du 02/10/2026', () => {
+    // Une recollecte ne doit pas remettre le DCG ni les CUPGE en DAP.
+    const { records } = buildParcoursupPrograms(
+      [
+        {
+          ...PARCOURSUP_ROW,
+          tf: ['Licence sélective', 'Licence'],
+          fl: ['DCG - Diplôme de Comptabilité et de Gestion'],
+          gta: 1,
+        },
+        {
+          ...PARCOURSUP_ROW,
+          tf: ['Licence sélective', 'Licence'],
+          fl: ["CUPGE - Sciences pour l'ingénieur"],
+          gta: 2,
+        },
+      ],
+      BY_PAYSAGE,
+    );
+    expect(records.map((record) => [record.cycle, record.procedureType])).toEqual([
+      ['licence1', 'parcoursup'],
+      ['licence1', 'eef'],
+    ]);
+  });
+
   it('déduplique les lignes répétées par bac d’origine', () => {
     const { records } = buildParcoursupPrograms(
       [PARCOURSUP_ROW, { ...PARCOURSUP_ROW }, { ...PARCOURSUP_ROW }],

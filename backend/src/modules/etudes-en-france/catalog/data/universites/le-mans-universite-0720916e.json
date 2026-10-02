@@ -528,7 +528,7 @@
       "fieldIsFallback": false,
       "durationYears": 3,
       "campusCity": "Le Mans",
-      "procedureType": "dap_blanche",
+      "procedureType": "eef",
       "selectivity": "selective",
       "formationCode": "20801",
       "tracks": [],
