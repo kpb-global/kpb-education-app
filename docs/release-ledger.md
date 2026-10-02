@@ -196,7 +196,8 @@ qu'aucune formation n'est publiée **ou** que le conteneur ne porte pas ce backe
 **Condition remplie le 01/10/2026** : backend `33c5a51` en production, catalogue
 publié par délégation (`eef-publish` : 10 029 formations, 473 en attente,
 `docs/eef-publication-deleguee.md`). Ce qui retient l'ouverture n'est plus
-technique : les 7 questions de procédure, le juridique, et une 54 en vente.
+technique : les 7 questions de procédure (tranchées le 02/10 ; corrections à appliquer par
+`eef-reconcile`, #305), le juridique, et une 54 en vente.
 
 ### Ce qui reste à faire par un humain avant la soumission
 

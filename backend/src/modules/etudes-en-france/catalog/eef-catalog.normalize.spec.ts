@@ -6,6 +6,8 @@ import {
   PARCOURSUP_FAMILIES,
   normalizeCityName,
   normalizeLabel,
+  procedureExceptionOf,
+  refineParcoursupProcedure,
   refineParcoursupShape,
   resolveFieldId,
   resolveParcoursupShape,
@@ -270,6 +272,72 @@ describe('refineParcoursupShape', () => {
     expect(refined.cycle).toBe('master');
     expect(refined.procedureType).toBe('eef');
     expect(refined.level).toBe('Master');
+  });
+});
+
+describe('procedureExceptionOf — décisions du 02/10/2026', () => {
+  const university = { uai: '0751717J' };
+  const sciencesPo = { uai: '0753431X' };
+
+  it('sort la 1re année de Sciences Po (Paris) de la DAP : voie propre à l’établissement', () => {
+    expect(
+      procedureExceptionOf({ cycle: 'licence1', nameFr: 'L1 - Histoire' }, sciencesPo),
+    ).toEqual({ key: 'sciences_po_paris_l1', procedureType: 'hors_eef' });
+    // Reconnue aussi quand l'UAI est une liste, ou en minuscules.
+    expect(
+      procedureExceptionOf({ cycle: 'licence1', nameFr: 'L1 - Lettres' }, { uai: '0000000A; 0753431x' })
+        ?.procedureType,
+    ).toBe('hors_eef');
+  });
+
+  it('ne touche ni un master de Sciences Po, ni un IEP de région', () => {
+    expect(procedureExceptionOf({ cycle: 'master', nameFr: 'Master — Droit' }, sciencesPo)).toBeNull();
+    expect(
+      procedureExceptionOf({ cycle: 'licence1', nameFr: 'L1 - Histoire' }, { uai: '0330192E' }),
+    ).toBeNull();
+  });
+
+  it('range le DCG sur Parcoursup et le CUPGE en Études en France', () => {
+    expect(
+      procedureExceptionOf(
+        { cycle: 'licence1', nameFr: 'DCG - Diplôme de Comptabilité et de Gestion' },
+        university,
+      ),
+    ).toEqual({ key: 'dcg', procedureType: 'parcoursup' });
+    expect(
+      procedureExceptionOf(
+        { cycle: 'licence1', nameFr: 'CUPGE - Sciences et technologies' },
+        university,
+      ),
+    ).toEqual({ key: 'cupge', procedureType: 'eef' });
+    expect(
+      procedureExceptionOf(
+        {
+          cycle: 'licence1',
+          nameFr: 'Cycle Universitaire Préparatoire aux Grandes Écoles de commerce',
+        },
+        university,
+      )?.key,
+    ).toBe('cupge');
+  });
+
+  it('laisse une L1 ordinaire, une L2 ou un intitulé voisin en dehors des exceptions', () => {
+    expect(procedureExceptionOf({ cycle: 'licence1', nameFr: 'L1 - Droit' }, university)).toBeNull();
+    // « dcg » doit être un mot : pas « DCGX », ni une L2 de comptabilité.
+    expect(procedureExceptionOf({ cycle: 'licence1', nameFr: 'DCGX - Autre' }, university)).toBeNull();
+    expect(
+      procedureExceptionOf({ cycle: 'licence2', nameFr: 'DCG - Diplôme de Comptabilité et de Gestion' }, university),
+    ).toBeNull();
+    expect(
+      procedureExceptionOf({ cycle: 'sante', nameFr: 'L1 - Sciences de la vie' }, sciencesPo),
+    ).toBeNull();
+  });
+
+  it('refineParcoursupProcedure ne change que la procédure', () => {
+    const shape = resolveParcoursupShape(['Licence sélective', 'Licence'])!;
+    const refined = refineParcoursupProcedure(shape, 'CUPGE - Informatique', university);
+    expect(refined).toEqual({ ...shape, procedureType: 'eef' });
+    expect(refineParcoursupProcedure(shape, 'L1 - Droit', university)).toBe(shape);
   });
 });
 

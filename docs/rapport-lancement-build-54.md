@@ -89,7 +89,7 @@ Google Play), `docs/runbook-ouverture-espace-reel.md`, `docs/device-qa-build54.m
 | 9 | **Consoles** : questionnaire d'âge, Data Safety / App Privacy (inchangées pour la 54), « Government apps », Wikimedia | `CONSOLE_ANSWERS.md` §0quater. |
 | 10 | **Soumettre** : « Nouveautés » et notes de revue du pack, publication progressive iOS, Play par paliers 5 / 20 / 100 % | Soumission le 02/10 ; approbation en 1 à 3 jours, non garantie. |
 | 11 | **Budget de performance** (taille AAB, démarrage à froid, octets) sur l'appareil de référence | `docs/STORE_READINESS.md`, 4 lignes « _TBD_ » ; commandes dans la fiche QA §C. |
-| 12 | **Ouvrir l'espace** — seulement après : 54 en vente et adoptée ; catalogue publié (**fait**) ; 7 questions de procédure tranchées ; juridique du héros validé | Runbook complet. Retour arrière : `eef-space-off`. |
+| 12 | **Ouvrir l'espace** — seulement après : 54 en vente et adoptée ; catalogue publié (**fait**) ; 7 questions de procédure tranchées (**fait** le 02/10) et corrections appliquées (`eef-reconcile`, #305) ; juridique du héros validé | Runbook complet. Retour arrière : `eef-space-off`. |
 
 ## 4. Ce que je n'ai PAS fait (et pourquoi)
 
@@ -132,8 +132,8 @@ attente** (page-source morte). Aucune ne disparaît : elles restent importées, 
 
 **À savoir avant d'ouvrir l'espace :** la recherche publique (`/etudes-en-france/search`) est lisible sans
 session dès la publication, même si aucune build n'affiche encore le catalogue. Et une règle de
-procédure fausse ne se corrige pas en masse après publication avec les outils actuels (pas de
-`eef:reconcile`) : voir `docs/eef-publication-deleguee.md` § « Retour arrière ».
+procédure fausse se corrige en masse après publication par `eef-reconcile` (#305, depuis le
+02/10) : voir `docs/eef-publication-deleguee.md` § « Retour arrière ».
 
 ## 6. Points d'attention connus
 
@@ -179,8 +179,8 @@ procédure fausse ne se corrige pas en masse après publication avec les outils 
 
 | # | Quoi | Qui | Pourquoi |
 |---|---|---|---|
-| 1 | **Faire trancher les 7 questions de procédure** (`docs/eef-dossier-relecture-procedures.md`) par une personne qui connaît Campus France | humain | Les lignes sont désormais publiées et tamponnées : une règle fausse ne se corrige plus en masse (`eef:reconcile` n'existe pas). Retirer un établissement reste possible. |
-| 2 | **Construire `eef:reconcile`** (réaligner les lignes publiées sur le catalogue régénéré, simulation d'abord) | code | Sans lui, la réponse au point 1 ne peut pas atteindre la production. |
+| 1 | ~~**Faire trancher les 7 questions de procédure**~~ — **fait** le 02/10 : réponses de recherche validées en bloc par le propriétaire (`docs/eef-dossier-relecture-procedures.md`) | humain | Cinq points du catalogue publié étaient faux ou trompeurs ; corrigés dans le code (catalogue 1.3.0, #305). |
+| 2 | ~~**Construire `eef:reconcile`**~~ — **fait** (#305). Reste : fusionner, déployer, `eef-reconcile` en simulation (3 834 attendues), puis application avec le total | code + toi | `docs/ouverture-espace-eef.md` § 2.2. Sans lui, le point 1 n'atteint pas la production. |
 | 3 | ~~**Fusionner les cartes d'aide WhatsApp**~~ — **fait** (#300, sur `main` le 01/10) ; à inclure dans l'archive de la 54 | code + toi | Elles ne s'affichent que dans l'espace réel : sans effet tant que `eefSpace` est faux. |
 | 4 | ~~**Synonymes de recherche**~~ — **fait** (#300 puis #301, déployés en `33c5a51`) : « médecine », « pharmacie », « kiné », « L.AS »… → une 1re année PASS ou L.AS **seulement** ; « santé » → toute la famille ; « PASS » → les PASS, par leur intitulé | code | Mesuré le 01/10 : `q=medecine` rendait 0 résultat. #300 (déployé le 01/10 à 22 h 20) l'a mené aux 650 formations du cycle `sante`, dont **61 diplômes paramédicaux** (orthophoniste, orthoptiste…) qui passaient EN TÊTE (tri par intitulé) : aucune PASS ni L.AS dans les 50 premiers résultats, et le badge « Accès santé » sur un certificat d'orthophoniste. Corrigé par #301 (`eef-health-access.ts`, champ `healthAccess`), en production depuis le 01/10 à 23 h 02. |
 | 5 | **Test sur appareil** (Xcode) de la 54 pointée sur la production, puis soumission | toi | `docs/device-qa-build54.md`, A et B (B-aide pour les cartes). |

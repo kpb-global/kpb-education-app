@@ -13,13 +13,16 @@
 | Catalogue | **Publié** : 10 029 formations, 84 établissements ; 473 en attente (page-source morte) |
 | Espace | **Fermé** (`eefSpace=false`, `eef=false`, `eefTeaser=true`) ; recette sur appareil faite le 02/10 (fenêtre 10 h 23 – 10 h 35 UTC) |
 | Actions `eef-space-on` / `-off` | Fonctionnent, mais **se marquent en échec** à tort (course au redémarrage) : corrigé par **#304**, à fusionner |
+| Questions de procédure | **Tranchées** le 02/10 (« tout valider ») ; appliquées dans le code, catalogue **1.3.0** (#305) ; **pas encore en production** |
 
 ## 2. Ce qui bloque l'ouverture
 
-### 2.1 Les 7 questions de procédure — **des corrections sont nécessaires**
+### 2.1 Les 7 questions de procédure — **tranchées, corrigées dans le code**
 
 La recherche du 02/10 (`docs/eef-dossier-relecture-procedures.md`, § « Réponses de
-recherche ») établit que **cinq points du catalogue publié sont faux ou trompeurs** :
+recherche ») établit que **cinq points du catalogue publié sont faux ou trompeurs**. Le
+propriétaire a tout validé le 02/10 ; les corrections sont dans le code (#305) et
+attendent `eef-reconcile` pour atteindre la production :
 
 | # | Ce qui est faux | Lignes | Correction |
 |---|---|---:|---|
@@ -29,35 +32,52 @@ recherche ») établit que **cinq points du catalogue publié sont faux ou tromp
 | 6 | « ne se demande pas par la procédure Études en France » (cycles d'ingénieurs) : faux pour certaines écoles, et le visa passe toujours par Études en France | 80 | reformuler la ligne |
 | 7 | « Vise au moins X/20 » : chiffre tiré des seuls élèves de terminale française | 3 525 | reformuler, retirer la consigne |
 
-Et deux points **probables**, à confirmer ou à accepter : 2b (CUPGE → `eef`, 17 lignes),
-3 (L1 sélectives : garder la DAP, 705 lignes).
+Les deux points **probables** sont acceptés : 2b (CUPGE → `eef`, 17 lignes), 3 (L1
+sélectives : la DAP est conservée, 705 lignes). La LPE reste en DAP faute de source. Un
+appel à 3 ou 4 Espaces Campus France reste recommandé pour les points 3 et 4.
 
-**Ces corrections sont serveur seulement** — aucune build mobile. Mais il faut d'abord
-construire l'outil qui manque :
+**Ces corrections sont serveur seulement** — aucune build mobile.
 
-### 2.2 `eef:reconcile` — l'outil à construire
+### 2.2 `eef:reconcile` — construit (#305), à lancer après le déploiement
 
-Les formations publiées ne se corrigent aujourd'hui qu'une par une dans l'admin : `eef:import`
-est en création seule, et les rattrapages (`eef:backfill:*`) ne comblent que des champs
-vides. `eef:reconcile` doit :
+Ce que fait l'outil (`backend/src/modules/etudes-en-france/catalog/eef-catalog.reconcile.ts`) :
 
-1. régénérer les fichiers versionnés avec les règles corrigées (`eef-catalog.normalize.ts`,
-   `eef-catalog.copy.ts`) ;
-2. comparer, pour chaque formation **publiée ou en attente**, `procedureType`,
-   `selectivity`, `requirementsFr/En` à ceux des fichiers — **simulation par défaut**, qui
-   compte les différences par champ et par établissement et n'écrit rien ;
-3. appliquer avec un **total attendu** (comme `eef-publish`), une transaction par
-   établissement, une trace d'audit par établissement, sans toucher ni au tampon de
-   vérification, ni à `isActive`, ni à une ligne modifiée à la main dans l'admin depuis
-   l'import (elle est signalée, pas écrasée) ;
-4. prouver depuis l'extérieur que le catalogue général n'a pas bougé (69 / 634).
+1. les fichiers versionnés portent les règles corrigées (catalogue 1.3.0 : 57 procédures
+   changées, prose réécrite) ;
+2. pour chaque formation de l'import **publiée ou en attente**, il compare `procedureType`,
+   `selectivity`, `requirementsFr/En` à ce que les règles donnent — **simulation par
+   défaut**, qui compte les différences par champ, par procédure et par établissement, et
+   n'écrit rien ;
+3. il n'écrit qu'avec le **total saisi** (comme `eef-publish`), une transaction et une trace
+   d'audit (`eef.catalog.reconciled`) par établissement, en appliquant les listes exactes de
+   la simulation. Il ne touche ni au tampon de vérification, ni à `isActive`, ni à l'intitulé.
+   Une ligne **retouchée dans l'admin** est reconnue à sa prose — elle n'est plus, au
+   caractère près, celle qu'un import a écrite — et **signalée, pas écrasée** ;
+4. le workflow prouve depuis l'extérieur que le catalogue général (69 / 634) **et** le total de
+   la recherche Études en France n'ont pas bougé, et affiche le décompte par procédure.
 
-Effort estimé : une journée de travail, plus la CI. Action `vps-ops` → `eef-reconcile`.
+**Le séquencement**, chaque étape sur ton feu vert :
+
+1. fusionner #305, puis déployer le backend (`deploy.yml`, `scope=full`) — c'est le code du
+   conteneur qui calcule le plan ;
+2. `vps-ops` → `eef-reconcile`, **`dry_run` coché** : la simulation doit annoncer **3 834
+   formations à réaligner** (dont 57 changements de procédure : 39 Sciences Po → `hors_eef`,
+   17 CUPGE → `eef`, 1 DCG → `parcoursup`) et **0 signalée**. Un autre nombre se lit dans les
+   lignes « signalées » : ce sont des retouches faites dans l'admin, à regarder avant d'écrire ;
+3. `vps-ops` → `eef-reconcile`, `dry_run` décoché, `expected_programs` = le total « À
+   RÉALIGNER » de la simulation ;
+4. contrôle : relancer la simulation → 0 à réaligner ; `GET
+   /api/etudes-en-france/search?procedureType=parcoursup` → le DCG s'il est publié.
+
+Essai possible sur un seul établissement : `institution_id` (ex. `eef-univ-0753431x`,
+Sciences Po). Mesuré sur une base de test chargée des 10 502 formations : 9 s, sous la
+limite mémoire du conteneur.
 
 ### 2.3 Les autres préconditions du runbook
 
 | Précondition | État |
 |---|---|
+| Corrections de procédure appliquées en production (`eef-reconcile`) | ⏳ code prêt (#305) |
 | 54 en vente sur les deux stores | ⏳ soumise |
 | Backend porteur de la build 54 (`eef-catalog-attribution.js`) | ✅ `47a1295` |
 | Catalogue publié, recherche qui répond | ✅ 10 029 |
@@ -121,11 +141,9 @@ déclarations d'intérêt dans l'admin ; à J+7, la part de recherches sans rés
 
 ## 6. Ce que le propriétaire doit trancher
 
-1. **Valider les réponses de recherche** (§ 2.1 et le dossier de relecture) : « tout
-   valider », ou point par point — en particulier les deux points probables (2b, 3) et la
-   LPE (non établie). Idéalement, un appel à un Espace Campus France pour les points 3 et 4.
-2. **Le feu vert pour construire `eef:reconcile`** et les corrections (une PR, CI, puis
-   simulation en production — l'application reste à ton feu vert).
+1. ~~Valider les réponses de recherche~~ — **fait** le 02/10 (« tout valider »).
+2. ~~Construire `eef:reconcile`~~ — **fait** (#305). Restent, chacun sur ton feu vert : fusionner
+   #305, déployer, simuler, appliquer (§ 2.2).
 3. **Fusionner #304.**
 4. **Le juridique** : la phrase du héros, « depuis cet écran », et l'audience de l'annonce.
 5. **Le moment** : ouvrir dès l'approbation de la 54 et les corrections appliquées

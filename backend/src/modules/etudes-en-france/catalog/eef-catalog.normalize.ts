@@ -517,6 +517,72 @@ export const PARCOURSUP_FAMILIES: Readonly<Record<string, ParcoursupShape>> = {
   },
 };
 
+/**
+ * Les formations que leur famille Parcoursup range en 1re année de licence, donc
+ * en DAP, et que les sources officielles font passer AILLEURS.
+ *
+ * Décisions validées le 02/10/2026 par le propriétaire du produit, sur la
+ * recherche consignée dans `docs/eef-dossier-relecture-procedures.md`
+ * (§ « Réponses de recherche ») :
+ *
+ *   • Sciences Po (Paris), 1re année : voie internationale propre, sur le portail
+ *     de l'établissement — « la procédure d'admission à Sciences Po n'est pas
+ *     prévue dans le dispositif Campus France ». Les IEP de région n'ont que des
+ *     masters et une L3 au catalogue : ils ne sont pas visés.
+ *   • DCG : par Parcoursup, au même titre que les BTS et les CPGE, y compris
+ *     depuis un pays à procédure Études en France (pages Campus France Sénégal,
+ *     Mali, Côte d'Ivoire).
+ *   • CUPGE : procédure Études en France hors DAP, comme le BUT.
+ *
+ * La famille Parcoursup n'est pas conservée dans les fichiers versionnés : la
+ * règle se lit donc sur ce que la ligne PORTE — l'UAI de l'établissement,
+ * l'intitulé. C'est la même fonction qui sert au générateur
+ * (`buildParcoursupPrograms`) et au contrôle des fichiers
+ * (`eef-catalog.data.spec.ts`) : une collecte future ne peut pas défaire la
+ * décision en silence.
+ */
+export type EefProcedureExceptionKey = 'sciences_po_paris_l1' | 'dcg' | 'cupge';
+
+export interface EefProcedureException {
+  readonly key: EefProcedureExceptionKey;
+  readonly procedureType: EefProcedureType;
+}
+
+/// L'UAI de Sciences Po (Paris) au référentiel du ministère.
+export const SCIENCES_PO_PARIS_UAI = '0753431X';
+
+export function procedureExceptionOf(
+  program: { readonly cycle: EefCycle; readonly nameFr: string },
+  institution: { readonly uai: string },
+): EefProcedureException | null {
+  if (program.cycle !== 'licence1') return null;
+  const uais = institution.uai.split(';').map((code) => code.trim().toUpperCase());
+  if (uais.includes(SCIENCES_PO_PARIS_UAI)) {
+    return { key: 'sciences_po_paris_l1', procedureType: 'hors_eef' };
+  }
+  const label = normalizeLabel(program.nameFr);
+  if (/^dcg\b/.test(label) || label.includes('diplome de comptabilite et de gestion')) {
+    return { key: 'dcg', procedureType: 'parcoursup' };
+  }
+  if (
+    /^cupge\b/.test(label)
+    || label.includes('cycle universitaire preparatoire aux grandes ecoles')
+  ) {
+    return { key: 'cupge', procedureType: 'eef' };
+  }
+  return null;
+}
+
+/// La forme, une fois l'exception de procédure appliquée.
+export function refineParcoursupProcedure(
+  shape: ParcoursupShape,
+  label: string,
+  institution: { readonly uai: string },
+): ParcoursupShape {
+  const exception = procedureExceptionOf({ cycle: shape.cycle, nameFr: label }, institution);
+  return exception ? { ...shape, procedureType: exception.procedureType } : shape;
+}
+
 /// La page qui fait foi sur le partage DAP / procédure Études en France.
 /// Elle est recopiée dans `sourceUrl` de rien du tout : elle justifie une
 /// RÈGLE, pas une ligne. Elle vit donc ici et dans le README des données.

@@ -163,6 +163,24 @@ C'est le point le plus sensible du lot : se tromper de procédure envoie un
 étudiant sur le mauvais calendrier. Il mérite une relecture métier avant la
 publication.
 
+**Relecture faite, et décisions prises le 02/10/2026** (catalogue 1.3.0,
+`docs/eef-dossier-relecture-procedures.md`). Trois familles que Parcoursup range en
+1re année de licence passent ailleurs : la 1re année de Sciences Po (Paris) en
+`hors_eef` (39), le DCG en `parcoursup` (1), les CUPGE en `eef` (17). La table des
+familles n'étant pas conservée dans les fichiers, la règle se lit sur l'UAI et
+l'intitulé (`procedureExceptionOf`), appliquée par le générateur ET vérifiée sur les
+fichiers par `eef-catalog.data.spec.ts`. La prose a suivi : « non sélective » n'est plus
+présentée comme une absence de sélection pour un candidat DAP, la ligne `hors_eef` renvoie
+vers l'établissement et rappelle le visa par Études en France, et le repère de mention
+n'est plus une consigne (« vise au moins X/20 ») tirée d'élèves de terminale française.
+
+Les lignes déjà publiées sont réalignées par **`eef:reconcile`** (`npm run eef:reconcile`,
+action `vps-ops` → `eef-reconcile`) : procédure, sélectivité, exigences, et rien d'autre ;
+simulation d'abord, total saisi, une transaction et une trace d'audit par établissement. Une
+ligne retouchée dans l'admin est reconnue à sa prose — elle n'est plus, au caractère près,
+celle d'une édition connue du générateur (`eef-catalog.copy-1.2.ts` fige l'édition 1.2.0) —
+et elle est signalée, jamais réécrite.
+
 ### 2.6bis Les logos : Wikimedia ne sert que des largeurs standard (corrigé le 29/09/2026)
 
 L'import transforme le SVG d'un logo en miniature PNG Commons (Flutter ne décode
@@ -281,8 +299,9 @@ source ; 44 ont trouvé un mot-clé, les autres gardent leur repli (seul `d05` �
 10 247 formations importées inactives gardent l'ancien domaine, et
 `eef:backfill` ne comble que des colonnes vides. Tant qu'aucune n'est publiée,
 personne ne les a relues ni enregistrées : les supprimer puis réimporter est le
-réalignement (§ 5, `eef:purge-pending`). Après la première publication, il
-faudra un `eef:reconcile` que personne n'a encore écrit.
+réalignement (§ 5, `eef:purge-pending`). Après la première publication, c'est
+`eef:reconcile` (§ 2.6, depuis le 02/10/2026) — pour la procédure, la sélectivité et
+les exigences ; un domaine (`fieldId`) changé n'est toujours pas réaligné.
 
 ---
 
@@ -565,7 +584,7 @@ supprimée, qu'un accord de partenariat référence ou qu'on a enregistré. Les
 correspondances (`Match`) d'une formation supprimée partent avec elle : ce sont
 des lignes de cache de 24 heures. **Après la première publication, ne pas
 l'utiliser** : ce qui est publié n'est jamais candidat, et le réalignement des
-lignes publiées demande `eef:reconcile`.
+lignes publiées passe par `eef:reconcile` (§ 2.6).
 
 **Publier** — écran **Admin → « Publication EEF »** (`/etudes-en-france/publication`,
 réservé à `admin` et `super_admin`), qui appelle l'API décrite dans
@@ -627,7 +646,7 @@ Le drapeau du client (`KPB_EEF_ENABLED`) ne protège PAS l'API : la recherche es
 publique, donc dès qu'un établissement est publié ses formations sont servies à
 qui interroge `/etudes-en-france/search`, l'espace fût-il éteint dans l'app.
 
-Il n'existe **pas encore** de `eef:reconcile` général, équivalent de
-`catalog:reconcile` pour les bourses. `eef:backfill` ne couvre que les champs
-nouveaux de cette version. Une correction d'intitulé ou de procédure dans le
-dépôt n'atteint toujours pas une ligne déjà créée.
+`eef:reconcile` (§ 2.6, depuis le 02/10/2026) réaligne la procédure, la
+sélectivité et les exigences des lignes déjà créées, publiées comprises. Il n'est
+pas général : une correction d'intitulé, de ville ou de domaine dans le dépôt
+n'atteint toujours pas une ligne déjà créée.

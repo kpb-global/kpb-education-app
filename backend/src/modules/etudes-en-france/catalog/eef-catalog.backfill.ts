@@ -71,7 +71,14 @@ export interface ProgramRequirementsPlan {
 const ADMISSION_NEEDLE_FR = 'Aucune moyenne minimale officielle';
 const ADMISSION_NEEDLE_EN = 'No official minimum grade';
 
-const PROCEDURE_NEEDLES_FR = ['Candidature par', 'Admission gérée'] as const;
+// Les débuts de phrase de TOUTES les éditions de la prose : 1.2.0 (« Admission
+// gérée ») comme 1.3.0 (« Admission propre », « Candidature sur Parcoursup »).
+const PROCEDURE_NEEDLES_FR = [
+  'Candidature par',
+  'Candidature sur Parcoursup',
+  'Admission gérée',
+  'Admission propre',
+] as const;
 const PROCEDURE_NEEDLES_EN = [
   'Apply through',
   'Apply on Parcoursup',

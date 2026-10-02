@@ -104,7 +104,11 @@ portent la règle et renvoient à la fiche officielle ; `tuitionMinEur` est
 - un **UAI** sur l'établissement, qui est la clé de re-vérification ;
 - une **procédure** explicite : `dap_blanche` pour une 1re année de licence et
   pour PASS, `dap_jaune` pour l'architecture, `eef` pour BUT / DEUST / licence
-  professionnelle / master, `hors_eef` pour les cycles d'ingénieur ;
+  professionnelle / master, `hors_eef` pour les cycles d'ingénieur. Trois
+  exceptions décidées le 02/10/2026 (catalogue 1.3.0, `procedureExceptionOf`) :
+  la 1re année de Sciences Po (Paris) en `hors_eef` (39), le DCG en `parcoursup`
+  (1), les CUPGE en `eef` (17). Elles ont été appliquées aux fichiers par la même
+  fonction que le générateur, et `eef-catalog.data.spec.ts` les vérifie ;
 - un **domaine** du référentiel `d01..d12`, avec `fieldIsFallback` qui avoue
   quand il vient du repli par grand domaine plutôt que d'un mot-clé de
   l'intitulé. Taux de repli actuel : **2,3 %**, plafonné à 8 % par le
@@ -143,11 +147,13 @@ faits.
 
 Pour 3 525 formations Parcoursup, le fait est le profil des néo-bacheliers qui
 ont accepté une place en **2025** (`admissionCohort` : effectifs par mention,
-taux d'accès). La phrase dit « aucune moyenne minimale officielle », puis, si
-au moins 15 admis, la borne basse de la mention la plus fréquente (12, 14, 16
-ou 18/20). Ce chiffre est le plancher de cette mention au bac français, pas un
-seuil Études en France. En dessous de 15 admis, ou pour un master et une L2/L3
-(aucune statistique publiée), la phrase s'arrête à « pas de seuil vérifiable ».
+taux d'accès). Ces néo-bacheliers sont des élèves de **terminale française**, et le
+taux d'accès ne compte que les candidats scolarisés en France ou européens. La
+phrase dit donc « aucune moyenne minimale officielle », puis, si au moins 15 admis,
+la mention la plus fréquente comme **repère de concurrence**, en disant qu'elle
+n'inclut pas les candidats à bac étranger et n'est pas un seuil pour eux — sans
+consigne de note (décision du 02/10/2026, catalogue 1.3.0). En dessous de 15 admis,
+ou pour un master et une L2/L3 (aucune statistique publiée), pas de repère.
 `minGpaRequired` reste vide : le scoring ne doit pas traiter ce repère comme
 une note plancher.
 
@@ -171,6 +177,8 @@ npm run eef:backfill:cycle      # comble les `cycle` NULL des lignes d'avant la 
 npm run eef:backfill:admission  # comble les signaux d'admission, idem
 npm run eef:backfill -- --dry-run  # logos + repère d'admission sur l'existant
 npm run eef:backfill -- --apply
+npm run eef:reconcile -- --dry-run # réaligne procédure, sélectivité, exigences
+npm run eef:reconcile -- --apply --expect-programs N   # des lignes DÉJÀ en base
 ```
 
 Les deux rattrapages ne comblent que les trous et sont **rejouables** : un
@@ -181,6 +189,15 @@ référentiel disparaît du dépôt. `eef:import` ne met **jamais** à jour une 
 existante — une correction faite dans l'admin ne doit pas être écrasée par une
 collecte. `eef:backfill` comble ensuite logo (colonnes encore nulles) et
 exigences (lignes encore inactives et non vérifiées) sans publier.
+
+`eef:reconcile` réaligne, sur les lignes DÉJÀ en base — publiées comprises —, les
+quatre champs que les règles calculent : `procedureType`, `selectivity`,
+`requirementsFr`, `requirementsEn`. Rien d'autre (ni publication, ni tampon, ni
+intitulé). Une ligne n'est réécrite que si sa prose est, au caractère près, celle
+qu'une édition connue du générateur a écrite (`eef-catalog.copy-1.2.ts` fige la
+1.2.0) : une ligne retouchée dans l'admin est signalée, jamais écrasée. Une phrase
+changée dans `eef-catalog.copy.ts` est donc une nouvelle édition : figer la
+précédente à côté avant de la modifier.
 
 ## Ce qui reste à faire sur ces données
 

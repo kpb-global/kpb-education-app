@@ -924,6 +924,46 @@ case "$ACTION" in
     fi
     ;;
 
+  eef-reconcile)
+    # Réaligne les formations « Études en France » DÉJÀ en base — publiées ou en
+    # attente — sur les règles du dépôt : procédure, sélectivité, exigences FR/EN.
+    # Voir `eef-catalog.reconcile.ts`. N'écrit ni la publication (`isActive`), ni le
+    # tampon de vérification, ni l'intitulé ; une formation retouchée dans l'admin
+    # est SIGNALÉE et laissée telle quelle. Une transaction et une trace d'audit par
+    # établissement ; l'écriture applique les listes exactes de la simulation.
+    #
+    # Le backend déployé doit porter les règles à appliquer : c'est le code du
+    # conteneur qui calcule le plan. Déployer la PR d'abord, puis simuler.
+    check_shape() { # nom valeur motif
+      if [ -n "$2" ] && ! [[ "$2" =~ $3 ]]; then
+        echo "::error::$1 n'a pas la forme attendue — refus."
+        exit 1
+      fi
+    }
+    check_shape EEF_EXPECTED_PROGRAMS "${EEF_EXPECTED_PROGRAMS:-}" '^[0-9]{1,6}$'
+    check_shape EEF_INSTITUTION_ID "${EEF_INSTITUTION_ID:-}" '^eef-univ-[A-Za-z0-9-]{1,60}$'
+    check_shape EEF_ACTOR "${EEF_ACTOR:-}" '^[A-Za-z0-9][A-Za-z0-9-]{0,38}(\[bot\])?$'
+    if ! docker compose exec -T api test -f scripts/reconcile-eef-catalog.ts; then
+      echo "::error::Le backend déployé ne porte pas eef:reconcile (scripts/reconcile-eef-catalog.ts absent) : déployer d'abord la PR qui l'apporte."
+      exit 1
+    fi
+    reconcile_args=()
+    [ -z "${EEF_INSTITUTION_ID:-}" ] || reconcile_args+=(--institution "$EEF_INSTITUTION_ID")
+    [ -z "${EEF_ACTOR:-}" ] || reconcile_args+=(--actor "$EEF_ACTOR")
+    # On n'écrit que sur un « false » explicite, comme `eef-publish`.
+    if [ "$DRY_RUN" != "false" ]; then
+      echo "── SIMULATION (rien n'est écrit) ──"
+      docker compose exec -T api npm run eef:reconcile -- --dry-run ${reconcile_args[@]+"${reconcile_args[@]}"}
+    else
+      if [ -z "${EEF_EXPECTED_PROGRAMS:-}" ]; then
+        echo "::error::expected_programs est obligatoire pour écrire : relancer la simulation, puis saisir le total « À RÉALIGNER » qu'elle annonce."
+        exit 1
+      fi
+      echo "── APPLICATION ──"
+      docker compose exec -T api npm run eef:reconcile -- --apply --expect-programs "$EEF_EXPECTED_PROGRAMS" ${reconcile_args[@]+"${reconcile_args[@]}"}
+    fi
+    ;;
+
   *)
     echo "::error::ACTION inconnue : $ACTION"
     exit 2
