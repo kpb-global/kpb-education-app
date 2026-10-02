@@ -27,6 +27,7 @@ import 'package:karatou/app/features/etudes_en_france/eef_catalog_screen.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_data_notice.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_help_card.dart';
 
+import '../../support/chip_paint.dart';
 import '../../support/eef_help_fakes.dart';
 import '../../support/raw_key_guard.dart';
 import '../../support/screen_harness.dart';
@@ -160,6 +161,7 @@ void main() {
     String country = 'Sénégal',
     KpbViewport viewport = iphone14,
     double textScale = 1.0,
+    ThemeMode themeMode = ThemeMode.light,
   }) async {
     await seedKpbController(
       apiClient: api,
@@ -174,6 +176,7 @@ void main() {
       screen: const EefCatalogScreen(),
       viewport: viewport,
       textScale: textScale,
+      themeMode: themeMode,
     );
   }
 
@@ -1009,6 +1012,116 @@ void main() {
           expect(report.overflows, isEmpty, reason: report.toString());
           expect(truncatedTexts(tester), isEmpty);
           expect(rawTranslationKeysOnScreen(tester), isEmpty);
+        });
+      }
+    }
+  });
+
+  // ── Puces de facettes ─────────────────────────────────────────────────────
+  //
+  // Capture du simulateur iOS : la puce « DAP dossier jaune · 29 » cochée
+  // n'était lisible que par sa coche — libellé gris-bleu (`caption`, textMuted)
+  // sur le remplissage actionPrimary, 1,09:1. Le `style:` explicite du `Text`
+  // écrasait le blanc que le chipTheme global prévoit à l'état sélectionné.
+  // Au repos le même style tombait à 4,34:1 sur surfaceMuted : sous AA aussi.
+  //
+  // Ces tests lisent les couleurs PEINTES (test/support/chip_paint.dart), sous
+  // le vrai thème, dans les deux thèmes.
+  group('puces de facettes', () {
+    // Libellés les plus longs que le serveur sert : « Études de santé » et
+    // « DAP dossier jaune » sont ceux qui coupent en premier à 360 × 1,3.
+    Map<String, dynamic> facets() => <String, dynamic>{
+          'cycle': [
+            {'value': 'master', 'count': 4210},
+            {'value': 'sante', 'count': 12},
+          ],
+          'procedureType': [
+            {'value': 'dap_jaune', 'count': 29},
+            {'value': 'eef', 'count': 9001},
+          ],
+        };
+
+    // `ensureVisible` d'abord : à 1,3 la rangée déborde de l'écran et la puce
+    // « DAP dossier jaune · 29 » est hors champ. Un `tap` hors champ ne touche
+    // rien (il n'avertit qu'en console) — le test mesurerait alors des puces
+    // jamais cochées. Le compte de puces cochées est donc asserté à chaque fois.
+    Future<void> check(WidgetTester tester, String label) async {
+      await tester.ensureVisible(find.text(label));
+      await settleBounded(tester);
+      await tester.tap(find.text(label));
+      await settleBounded(tester);
+    }
+
+    for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+      testWidgets('libellé lisible (≥ 4,5:1) au repos — ${mode.name}',
+          (tester) async {
+        stub((_) async => _page([_program('a')], facets: facets()));
+        await pump(tester, themeMode: mode);
+
+        expectChipsReadable(tester, selected: 0);
+      });
+
+      testWidgets('libellé lisible (≥ 4,5:1) une fois cochées — ${mode.name}',
+          (tester) async {
+        stub((_) async => _page([_program('a')], facets: facets()));
+        await pump(tester, themeMode: mode);
+
+        await check(tester, 'DAP dossier jaune · 29');
+        await check(tester, 'Études de santé · 12');
+
+        expectChipsReadable(tester, selected: 2);
+      });
+    }
+
+    for (final viewport in kpbPhoneViewports) {
+      for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+        testWidgets(
+            '${viewport.id} ×1,3 ${mode.name} — cochées : rien n\'est coupé',
+            (tester) async {
+          stub((_) async => _page([_program('a')], facets: facets()));
+          await pump(
+            tester,
+            viewport: viewport,
+            textScale: 1.3,
+            themeMode: mode,
+          );
+
+          // Les puces les plus larges, cochées : la coche s'ajoute à la largeur.
+          await check(tester, 'DAP dossier jaune · 29');
+          await check(tester, 'Études de santé · 12');
+          expect(tester.takeException(), isNull);
+
+          final chips = find.byType(RawChip);
+          expect(chips, findsNWidgets(4));
+          expect(paintedChips(tester).where((c) => c.selected), hasLength(2),
+              reason: 'les puces n\'ont pas été cochées : test à vide');
+
+          expect(clippedChipLabels(tester), isEmpty,
+              reason: 'un libellé de puce est rogné');
+          expect(truncatedTexts(tester), isEmpty);
+
+          // La rangée prend la hauteur de ses puces : aucune n'est rognée en
+          // haut ni en bas.
+          final bar = find.ancestor(
+            of: chips.first,
+            matching: find.byType(SingleChildScrollView),
+          );
+          for (var i = 0; i < 4; i++) {
+            expect(
+              tester.getSize(bar).height,
+              greaterThanOrEqualTo(tester.getSize(chips.at(i)).height),
+              reason: 'la puce $i dépasse la hauteur de la rangée',
+            );
+          }
+
+          // La rangée défile à l'horizontale ; au bout, la dernière puce est
+          // ENTIÈRE à l'écran, pas à demi cachée par le bord.
+          await tester.drag(bar, const Offset(-3000, 0));
+          await settleBounded(tester);
+          final last = tester.getRect(chips.last);
+          expect(last.right, lessThanOrEqualTo(viewport.size.width),
+              reason: 'la dernière puce reste coupée par le bord de l\'écran');
+          expect(last.left, greaterThanOrEqualTo(0));
         });
       }
     }

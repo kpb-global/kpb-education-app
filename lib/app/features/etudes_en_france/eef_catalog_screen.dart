@@ -209,9 +209,15 @@ class _FacetBar extends StatelessWidget {
             child: FilterChip(
               selected: controller.isSelected(facet.key, entry.value),
               onSelected: (_) => controller.toggleFacet(facet.key, entry.value),
+              // Taille seule, JAMAIS de couleur : le chipTheme global pose le
+              // libellé par état (blanc sur actionPrimary une fois cochée), et
+              // un `style:` qui porte une couleur — `KpbTextStyles.caption` a
+              // textMuted — l'écrase. La puce cochée devenait gris-bleu sur
+              // bleu (1,09:1), et au repos textMuted ne fait que 4,34:1 sur
+              // surfaceMuted (2,52:1 sur le thème sombre).
               label: Text(
                 '${_valueLabel(facet.key, entry.value)} · ${entry.count}',
-                style: KpbTextStyles.caption,
+                style: const TextStyle(fontSize: 12),
               ),
             ),
           ),
