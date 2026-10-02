@@ -37,12 +37,21 @@ function row(over: Partial<EefCandidateRow> = {}): EefCandidateRow {
     id: 'p-1',
     fieldId: 'd02',
     cycle: 'master',
-    selectivity: 'selective',
     recommendedBachelors: [],
     recommendedFieldIds: [],
     admissionModes: [],
     ...over,
   };
+}
+
+/// La même ligne, avec la sélectivité que la base lui donne aussi. Ni `tierOf`
+/// ni `reasonsFor` ne doivent la lire : les tests qui s'en servent la font
+/// varier pour le prouver.
+function rowWithSelectivity(
+  selectivity: string | null,
+  over: Partial<EefCandidateRow> = {},
+): EefCandidateRow {
+  return Object.assign(row(over), { selectivity });
 }
 
 // ─── Le ré-exécuteur de clause, à trois valeurs ──────────────────────────────
@@ -177,13 +186,27 @@ describe('tierOf — la lecture en mémoire', () => {
       .toBe('unranked');
   });
 
-  it('lit la sélectivité sur le chemin post-bac, et rien d’autre', () => {
-    expect(tierOf(row({ selectivity: 'non_selective' }), 'post_bac'))
-      .toBe('securite');
-    expect(tierOf(row({ selectivity: 'selective' }), 'post_bac'))
-      .toBe('ambition');
-    expect(tierOf(row({ selectivity: null }), 'post_bac')).toBe('unranked');
-  });
+  // La décision n° 5 du 02/10/2026 : « non sélective » est la catégorie
+  // Parcoursup des élèves de terminale française. Pour un candidat en DAP — et
+  // les 2 428 non sélectives du chemin le sont toutes —, l'université examine
+  // le dossier et peut le refuser. « Sécurité » promettait le contraire, et
+  // « ambition » pour les autres n'avait plus rien à quoi s'opposer.
+  it('ne range plus une L1 non sélective en « sécurité » : le post-bac n’a pas d’étage',
+    () => {
+      for (const selectivity of ['non_selective', 'selective', null]) {
+        for (const admissionModes of [[], ['Dossier'], ['Concours']]) {
+          const candidate = rowWithSelectivity(selectivity, {
+            cycle: 'licence1',
+            admissionModes,
+          });
+          expect({
+            selectivity,
+            admissionModes,
+            tier: tierOf(candidate, 'post_bac'),
+          }).toEqual({ selectivity, admissionModes, tier: 'unranked' });
+        }
+      }
+    });
 
   // Le constat qui a façonné toute la fonctionnalité : sur ce chemin, TOUTES
   // les lignes du catalogue sont `selective` et aucune ne publie de modalité.
@@ -192,7 +215,7 @@ describe('tierOf — la lecture en mémoire', () => {
     for (const modes of [[], ['Dossier'], ['Concours']]) {
       for (const selectivity of ['selective', 'non_selective', null]) {
         expect(
-          tierOf(row({ admissionModes: modes, selectivity }),
+          tierOf(rowWithSelectivity(selectivity, { admissionModes: modes }),
             'licence_continuation'),
         ).toBe('unranked');
       }
@@ -221,44 +244,37 @@ describe('tierWhere et tierOf disent la même chose', () => {
     }
   });
 
-  it('range chaque sélectivité dans exactement un étage, NULL comprise', () => {
-    for (const selectivity of ['selective', 'non_selective', 'inconnue', null]) {
-      const candidate = row({ selectivity });
-      const matched = EEF_SHORTLIST_TIERS.filter((tier) =>
-        matchesWhere(
-          tierWhere(tier, 'post_bac'),
-          candidate as unknown as Record<string, unknown>,
-        ),
-      );
-      expect({ selectivity, matched }).toEqual({
-        selectivity,
-        matched: [tierOf(candidate, 'post_bac')],
-      });
+  // Les étages classés sont interdits PAR LA REQUÊTE, pas par la confiance
+  // dans l'appelant ; et « non classé » rend tout, sans quoi une ligne
+  // disparaîtrait de la liste sans avoir été classée nulle part. Ni la
+  // sélectivité — NULL comprise — ni les modalités n'y changent rien.
+  it('met tout dans « non classé » sur les chemins sans axe', () => {
+    for (const path of ['post_bac', 'licence_continuation'] as const) {
+      for (const selectivity of ['selective', 'non_selective', 'inconnue', null]) {
+        for (const admissionModes of [[], ['Dossier'], ['Entretien', 'Concours']]) {
+          const candidate = rowWithSelectivity(selectivity, { admissionModes });
+          const matched = EEF_SHORTLIST_TIERS.filter((tier) =>
+            matchesWhere(
+              tierWhere(tier, path),
+              candidate as unknown as Record<string, unknown>,
+            ),
+          );
+          expect({
+            path,
+            selectivity,
+            admissionModes,
+            matched,
+            inMemory: tierOf(candidate, path),
+          }).toEqual({
+            path,
+            selectivity,
+            admissionModes,
+            matched: ['unranked'],
+            inMemory: 'unranked',
+          });
+        }
+      }
     }
-  });
-
-  it('ne laisse tomber aucune ligne dans « cible » sur l’axe sélectivité', () => {
-    // « cible » n'a pas de socle publié sur ce chemin : la requête doit le
-    // garantir, pas la confiance dans l'appelant.
-    for (const selectivity of ['selective', 'non_selective', null]) {
-      expect(
-        matchesWhere(
-          tierWhere('cible', 'post_bac'),
-          row({ selectivity }) as unknown as Record<string, unknown>,
-        ),
-      ).toBe(false);
-    }
-  });
-
-  it('met tout dans « non classé » sur le chemin sans axe', () => {
-    const candidate = row({ admissionModes: ['Dossier'] });
-    const matched = EEF_SHORTLIST_TIERS.filter((tier) =>
-      matchesWhere(
-        tierWhere(tier, 'licence_continuation'),
-        candidate as unknown as Record<string, unknown>,
-      ),
-    );
-    expect(matched).toEqual(['unranked']);
   });
 });
 
@@ -293,6 +309,7 @@ describe('buildShortlistWhere', () => {
       isActive: true,
       countryId: 'france',
       cycle: 'master',
+      procedureType: 'eef',
       fieldId: 'd02',
       recommendedFieldIds: [],
       recommendedBachelors: ['Toutes licences'],
@@ -429,6 +446,115 @@ describe('buildShortlistWhere', () => {
     ).toEqual({ in: ['licence1', 'but1', 'deust', 'sante'] });
   });
 
+  // ── La procédure de l'espace ──────────────────────────────────────────────
+  //
+  // Le cycle ne dit pas la procédure. Depuis les décisions du 02/10/2026, la 1re
+  // année de Sciences Po (Paris) est une `licence1` en `hors_eef`, le DCG une
+  // `licence1` en `parcoursup` : sans clause de procédure, les deux entraient
+  // dans le chemin post-bac, rangées parmi des formations qui se demandent par
+  // la DAP.
+  describe('la procédure de l’espace', () => {
+    /// Une ligne que tout le reste de la clause laisse passer : publiée, en
+    /// France, de l'import, sous un établissement publié, dans le domaine
+    /// déclaré. Seule sa procédure varie.
+    const candidate = {
+      id: 'eef-prog-0387ffdcaab99c8a',
+      isActive: true,
+      countryId: 'france',
+      institutionId: PUBLISHED,
+      fieldId: 'd02',
+      selectivity: 'selective',
+      recommendedFieldIds: [],
+      recommendedBachelors: [],
+      admissionModes: [],
+    };
+    /// Un cycle de chaque chemin.
+    const CYCLE_OF: Record<EefEntryPath, string> = {
+      post_bac: 'licence1',
+      licence_continuation: 'licence2',
+      master: 'master',
+    };
+    const servedBy = (
+      procedureType: unknown,
+      path: EefEntryPath = 'post_bac',
+    ) => {
+      const served: string[] = [];
+      for (const tier of EEF_SHORTLIST_TIERS) {
+        for (const stratum of ['linked', 'open', 'any'] as const) {
+          const where = buildShortlistWhere({ ...base, path, tier, stratum });
+          if (
+            matchesWhere(where, {
+              ...candidate,
+              cycle: CYCLE_OF[path],
+              procedureType,
+            })
+          ) {
+            served.push(`${tier}/${stratum}`);
+          }
+        }
+      }
+      return served;
+    };
+
+    it('pose la liste fermée sur chaque requête, chemin, étage et strate', () => {
+      for (const path of Object.keys(CYCLE_OF) as EefEntryPath[]) {
+        for (const tier of EEF_SHORTLIST_TIERS) {
+          for (const stratum of ['linked', 'open', 'any'] as const) {
+            expect(
+              buildShortlistWhere({ ...base, path, tier, stratum })
+                .procedureType,
+            ).toEqual({ in: ['dap_blanche', 'dap_jaune', 'eef'] });
+          }
+        }
+      }
+    });
+
+    it('sert les trois procédures de l’espace', () => {
+      // Le témoin : sans lui, une clause qui n'écarterait rien passerait pour
+      // une clause qui écarte bien. Le post-bac n'a pas d'étage, donc seule la
+      // colonne « non classé » la rend — par la strate liée, et au total.
+      for (const procedure of ['dap_blanche', 'dap_jaune', 'eef']) {
+        expect({ procedure, served: servedBy(procedure) }).toEqual({
+          procedure,
+          served: ['unranked/linked', 'unranked/any'],
+        });
+      }
+    });
+
+    it('écarte la 1re année de Sciences Po (`hors_eef`) et le DCG (`parcoursup`)',
+      () => {
+        for (const procedure of ['hors_eef', 'parcoursup']) {
+          expect({ procedure, served: servedBy(procedure) }).toEqual({
+            procedure,
+            served: [],
+          });
+        }
+      });
+
+    it('écarte une ligne sans procédure, comme la recherche', () => {
+      // `NULL IN (…)` vaut NULL, donc faux : c'est la clause qui le dit, pas un
+      // effet de bord d'une négation.
+      expect(servedBy(null)).toEqual([]);
+      expect(servedBy(undefined)).toEqual([]);
+    });
+
+    it('écarte une procédure que la liste ne connaît pas encore', () => {
+      // Une valeur ajoutée demain au catalogue n'entre pas d'elle-même dans
+      // une recommandation : il faut l'ajouter à la liste, donc le décider.
+      expect(servedBy('campus_connecte')).toEqual([]);
+    });
+
+    it('applique la même règle sur chaque chemin', () => {
+      for (const path of Object.keys(CYCLE_OF) as EefEntryPath[]) {
+        expect({ path, served: servedBy('hors_eef', path) }).toEqual({
+          path,
+          served: [],
+        });
+        expect(servedBy('eef', path).length).toBeGreaterThan(0);
+      }
+    });
+  });
+
   // La branche qui fait l'intérêt de la fonctionnalité : un master dont le
   // domaine n'est PAS celui déclaré, mais qui conseille une licence qui l'est.
   it('accepte le lien par le domaine de la formation OU par ses licences conseillées',
@@ -448,6 +574,7 @@ describe('buildShortlistWhere', () => {
             isActive: true,
             countryId: 'france',
             institutionId: PUBLISHED,
+            procedureType: 'eef',
             admissionModes: ['Dossier'],
           } as unknown as Record<string, unknown>),
         ).toBe(true);
@@ -458,6 +585,7 @@ describe('buildShortlistWhere', () => {
           isActive: true,
           countryId: 'france',
           institutionId: PUBLISHED,
+          procedureType: 'eef',
           admissionModes: ['Dossier'],
         } as unknown as Record<string, unknown>),
       ).toBe(false);
@@ -472,6 +600,7 @@ describe('buildShortlistWhere', () => {
       countryId: 'france',
       institutionId: PUBLISHED,
       cycle: 'master',
+      procedureType: 'eef',
       fieldId: 'd02',
       recommendedFieldIds: [],
       recommendedBachelors: ['Toutes licences'],
@@ -509,6 +638,7 @@ describe('buildShortlistWhere', () => {
         countryId: 'france',
         institutionId: PUBLISHED,
         cycle: 'master',
+        procedureType: 'eef',
         fieldId: 'd11',
         recommendedFieldIds: [],
         recommendedBachelors: ['Toutes licences'],
@@ -541,6 +671,7 @@ describe('buildShortlistWhere', () => {
           countryId: 'france',
           institutionId: PUBLISHED,
           cycle: 'master',
+          procedureType: 'eef',
           fieldId: 'd02',
           recommendedFieldIds: [],
           recommendedBachelors: ['Toutes licences'],
@@ -571,6 +702,7 @@ describe('buildShortlistWhere', () => {
       countryId: 'france',
       institutionId: PUBLISHED,
       cycle: 'master',
+      procedureType: 'eef',
       fieldId: 'd11',
       recommendedFieldIds: [],
       recommendedBachelors: ['Toutes licences'],
@@ -626,15 +758,21 @@ describe('reasonsFor', () => {
     expect(reasons).toEqual([]);
   });
 
-  // La sélectivité vaut `selective` pour les 3 112 masters : c'est la loi du
-  // 23 décembre 2016, pas une caractéristique de l'établissement. L'émettre
-  // partout ajouterait à chaque fiche une justification qui ne justifie rien.
-  it('n’émet la sélectivité que là où elle distingue', () => {
-    const candidate = row({ selectivity: 'selective', admissionModes: [] });
-    expect(reasonsFor(candidate, [], 'master')).toEqual([]);
-    expect(reasonsFor(candidate, [], 'post_bac')).toEqual([
-      { code: 'selectivity_arbitrated', value: 'selective' },
-    ]);
+  // Sur un master, la sélectivité vaut `selective` pour chaque ligne : c'est la
+  // loi du 23 décembre 2016, pas une caractéristique de l'établissement. Sur le
+  // chemin post-bac, « non sélective » est la catégorie Parcoursup des élèves
+  // de terminale française, et ne dit rien d'un candidat en DAP. Dans les deux
+  // cas, le motif justifierait ce qu'il ne justifie pas.
+  it('n’émet aucun motif de sélectivité, sur aucun chemin', () => {
+    for (const path of ['master', 'post_bac', 'licence_continuation'] as const) {
+      for (const selectivity of ['selective', 'non_selective', null]) {
+        expect({
+          path,
+          selectivity,
+          reasons: reasonsFor(rowWithSelectivity(selectivity), [], path),
+        }).toEqual({ path, selectivity, reasons: [] });
+      }
+    }
   });
 
   it('rend deux fois la même liste pour la même formation', () => {

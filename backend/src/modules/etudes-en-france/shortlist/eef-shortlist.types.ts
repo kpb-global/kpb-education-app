@@ -19,29 +19,39 @@
 //
 // LES TROIS ÉTAGES N'EXISTENT PAS TOUJOURS
 //
-// C'est le constat qui a façonné tout le reste. Sur les 10 247 formations,
+// C'est le constat qui a façonné tout le reste. Sur les 10 502 formations,
 // `selectivity` est CONSTANTE à l'intérieur d'un cycle : tous les masters,
 // toutes les L2, toutes les L3, tous les BUT, tous les DEUST sont
-// `selective` ; seule la L1 varie (1 723 non sélectives, 663 sélectives).
+// `selective`, toutes les lignes `sante` `non_selective` ; seule la L1 varie
+// (1 778 non sélectives, 734 sélectives).
+//
+// Et là où elle varie, elle ne parle pas du lecteur. « Non sélective » est la
+// catégorie de Parcoursup, donc des élèves de terminale française : pour un
+// candidat en demande d'admission préalable, l'université examine le dossier
+// et peut le refuser (décision n° 5 du 02/10/2026,
+// `docs/eef-dossier-relecture-procedures.md`). Les 2 428 lignes non
+// sélectives du chemin post-bac sont toutes en DAP : les ranger en
+// « sécurité » promettait précisément ce que la décision dément.
 //
 // Conséquence, chemin par chemin :
 //
 //   master               → trois étages, fondés sur la modalité de candidature
-//                          publiée (1 221 / 1 442 / 251, plus 198 sans
+//                          publiée (1 259 / 1 474 / 262, plus 249 sans
 //                          modalité publiée).
-//   post-bac             → deux étages, fondés sur la sélectivité publiée.
-//                          Il n'existe pas de troisième valeur : en fabriquer
-//                          un « milieu » serait une invention.
+//   post-bac             → AUCUN étage. Le seul fait qui varie décrit une
+//                          autre population que celle de l'étudiant.
 //   L2/L3 (continuation) → AUCUN étage. Toutes ces lignes sont `selective` et
 //                          aucune ne publie de modalité ni de licence
-//                          conseillée. La liste le DIT (`basis: null`) au lieu
-//                          de rendre trois colonnes dont deux seraient vides
-//                          ou arbitraires.
+//                          conseillée.
+//
+// Sur ces deux chemins, la liste le DIT (`basis: null`) au lieu de rendre
+// trois colonnes dont deux seraient vides ou arbitraires.
 //
 // Une colonne « cible » vide se lit comme « nous n'avons rien trouvé pour
 // toi ». C'est faux, et c'est pire qu'une liste qui assume de n'avoir qu'un
 // seul étage.
 // ─────────────────────────────────────────────────────────────────────────────
+import type { EefProcedureType } from '../catalog/eef-catalog.types';
 
 /**
  * Le chemin d'entrée, déduit de ce que l'étudiant a DÉCLARÉ.
@@ -57,10 +67,18 @@ export type EefEntryPath = 'post_bac' | 'licence_continuation' | 'master';
  *
  * Table FERMÉE. Un cycle qui n'y figure pas n'est pas « probablement
  * accessible » : il est hors de ce chemin, et la formation n'entre pas dans la
- * liste. `ingenieur` n'apparaît nulle part, non par oubli — ces 74 lignes sont
- * `hors_eef`, leur sélection appartient à l'école ou au concours commun, et
- * les ranger parmi des formations qui se demandent par la procédure les ferait
- * passer pour ce qu'elles ne sont pas.
+ * liste.
+ *
+ * Elle ne dit pas la procédure, et ce n'est pas elle qui écarte les
+ * formations hors procédure : c'est [EEF_SHORTLIST_PROCEDURES]. `licence1` le
+ * montre. Les décisions du 02/10/2026 (catalogue 1.3.0) y laissent la 1re
+ * année de Sciences Po (Paris) en `hors_eef` et le DCG en `parcoursup`, à côté
+ * des L1 en DAP et des CUPGE en `eef` : retirer le cycle pour écarter ces 40
+ * formations en aurait écarté 2 512.
+ *
+ * `ingenieur` n'apparaît nulle part. Ses 80 lignes sont toutes `hors_eef` —
+ * admission propre à l'école, par concours ou plateforme dédiée — et le
+ * filtre de procédure les écarterait de toute façon.
  */
 export const EEF_PATH_CYCLES: Readonly<Record<EefEntryPath, readonly string[]>> =
   {
@@ -70,13 +88,44 @@ export const EEF_PATH_CYCLES: Readonly<Record<EefEntryPath, readonly string[]>> 
   };
 
 /**
+ * Les procédures que la shortlist recommande : celles de l'espace, la demande
+ * d'admission préalable (dossier blanc ou jaune) et la procédure Études en
+ * France.
+ *
+ * Liste FERMÉE, comme les cycles : une procédure qui n'y figure pas n'entre
+ * pas dans la liste, y compris une valeur que le catalogue ajouterait demain.
+ * Ce qu'elle écarte, et pourquoi :
+ *
+ *   hors_eef    admission propre à l'établissement : la 1re année de Sciences
+ *               Po (Paris), 39 lignes, et les cycles d'ingénieurs, 80. Les
+ *               ranger parmi des formations qui se demandent par la procédure
+ *               les ferait passer pour ce qu'elles ne sont pas.
+ *   parcoursup  le DCG, une ligne. Autre plateforme, autre calendrier, et
+ *               `/config/app` ne sert que celui de la campagne Études en
+ *               France : `campaign_dates_served_separately` serait faux pour
+ *               lui (décision du 02/10/2026).
+ *   NULL        une formation sans procédure, saisie à la main sous une
+ *               université de l'import. La recherche ne la sert pas non plus :
+ *               on ne recommande pas ce qu'on ne sait pas dire comment
+ *               demander.
+ *
+ * Les formations `hors_eef` et `parcoursup` restent trouvables par la
+ * recherche, avec la phrase de leur procédure.
+ */
+export const EEF_SHORTLIST_PROCEDURES: readonly EefProcedureType[] = [
+  'dap_blanche',
+  'dap_jaune',
+  'eef',
+];
+
+/**
  * L'étage d'admission.
  *
  * `unranked` n'est pas un quatrième étage : c'est l'aveu qu'il n'y en a pas
  * pour ces lignes-là. Il sert dans deux cas — un chemin où aucune donnée ne
- * classe (L2/L3), et les 198 masters qui ne publient pas leur modalité de
- * candidature. Les glisser dans « sécurité » les aurait fait passer pour
- * évalués ; les supprimer aurait caché des formations réelles.
+ * classe (post-bac, L2/L3), et les 249 masters qui ne publient pas leur
+ * modalité de candidature. Les glisser dans « sécurité » les aurait fait
+ * passer pour évalués ; les supprimer aurait caché des formations réelles.
  */
 export type EefShortlistTier = 'securite' | 'cible' | 'ambition' | 'unranked';
 
@@ -93,13 +142,18 @@ export const EEF_SHORTLIST_TIERS: readonly EefShortlistTier[] = [
  *
  * `null` veut dire qu'aucune donnée ouverte ne classe ce chemin. C'est une
  * réponse, pas une panne.
+ *
+ * La sélectivité n'est pas un axe, bien qu'elle varie sur le chemin post-bac :
+ * « non sélective » y est une catégorie Parcoursup qui ne dit rien d'un
+ * candidat en DAP (voir l'en-tête). Le fait reste écrit dans les exigences
+ * d'admission de chaque formation, que le catalogue 1.3.0 formule pour la DAP.
  */
-export type EefShortlistBasis = 'admission_effort' | 'selectivity' | null;
+export type EefShortlistBasis = 'admission_effort' | null;
 
 export const EEF_PATH_BASIS: Readonly<
   Record<EefEntryPath, EefShortlistBasis>
 > = {
-  post_bac: 'selectivity',
+  post_bac: null,
   licence_continuation: null,
   master: 'admission_effort',
 };
@@ -130,16 +184,12 @@ export type EefShortlistReasonCode =
   /// La candidature comporte un entretien.
   | 'admission_interview'
   /// La candidature comporte un examen ou un concours.
-  | 'admission_exam'
-  /// La capacité d'accueil est la seule limite publiée.
-  | 'selectivity_open'
-  /// L'établissement arbitre entre les dossiers.
-  | 'selectivity_arbitrated';
+  | 'admission_exam';
 
 export interface EefShortlistReason {
   readonly code: EefShortlistReasonCode;
-  /// La valeur attestée : un identifiant de domaine, une modalité publiée, une
-  /// sélectivité. Jamais une phrase.
+  /// La valeur attestée : un identifiant de domaine, une modalité publiée, le
+  /// libellé « Toutes licences ». Jamais une phrase.
   readonly value: string;
 }
 
@@ -164,8 +214,8 @@ export type EefShortlistDisclosure =
   /// L'étudiant n'a déclaré aucun domaine : la liste n'est donc resserrée sur
   /// aucune filière, et le dit plutôt que de laisser croire à un ciblage.
   | 'no_field_declared'
-  /// Le chemin d'entrée ne porte aucune donnée de classement : les formations
-  /// sont servies sans étage.
+  /// Le chemin d'entrée ne porte aucune donnée qui classe le candidat
+  /// (post-bac, L2/L3) : les formations sont servies sans étage.
   | 'no_ranking_data';
 
 /**

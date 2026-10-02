@@ -21,6 +21,7 @@ import {
 import {
   EEF_PATH_BASIS,
   EEF_PATH_CYCLES,
+  EEF_SHORTLIST_PROCEDURES,
   type EefEntryPath,
   type EefShortlistReason,
   type EefShortlistTier,
@@ -55,7 +56,6 @@ export interface EefCandidateRow {
   readonly id: string;
   readonly fieldId: string;
   readonly cycle: string | null;
-  readonly selectivity: string | null;
   readonly recommendedBachelors: readonly string[];
   readonly recommendedFieldIds: readonly string[];
   readonly admissionModes: readonly string[];
@@ -64,8 +64,9 @@ export interface EefCandidateRow {
 /**
  * L'étage d'une formation, pour un chemin donné.
  *
- * Trois lectures distinctes, parce que les trois chemins ne disposent pas des
- * mêmes faits — et prétendre le contraire aurait été la facilité qui rend la
+ * Deux lectures, parce que les chemins ne disposent pas des mêmes faits : le
+ * master publie sa modalité de candidature, les autres ne publient rien qui
+ * parle du candidat. Prétendre le contraire aurait été la facilité qui rend la
  * liste fausse.
  */
 export function tierOf(
@@ -73,14 +74,6 @@ export function tierOf(
   path: EefEntryPath,
 ): EefShortlistTier {
   const basis = EEF_PATH_BASIS[path];
-
-  if (basis === 'selectivity') {
-    // Deux valeurs publiées, donc deux étages. Pas de « cible » : il n'existe
-    // aucune troisième valeur à lui donner pour socle.
-    if (row.selectivity === 'non_selective') return 'securite';
-    if (row.selectivity === 'selective') return 'ambition';
-    return 'unranked';
-  }
 
   if (basis === 'admission_effort') {
     // On garde l'épreuve la PLUS exigeante parmi celles qu'on sait lire. Une
@@ -112,12 +105,13 @@ export function tierOf(
 /**
  * Pourquoi cette formation est là, en codes fermés et valeurs attestées.
  *
- * Les motifs de sélectivité ne sont émis que là où la sélectivité DISTINGUE
- * (le chemin post-bac). Sur un master, elle vaut `selective` pour les 3 112
- * lignes — la loi du 23 décembre 2016 en fait une règle, pas une
- * caractéristique de l'établissement. L'émettre partout aurait ajouté à chaque
- * fiche une justification qui ne justifie rien ; le fait, lui, reste écrit
- * dans les exigences d'admission de la formation.
+ * Aucun motif de sélectivité, sur aucun chemin. Sur un master, elle vaut
+ * `selective` pour chaque ligne — la loi du 23 décembre 2016 en fait une
+ * règle, pas une caractéristique de l'établissement. Sur le chemin post-bac,
+ * « non sélective » est la catégorie Parcoursup des élèves de terminale
+ * française, et un candidat en DAP voit son dossier examiné dans tous les cas.
+ * Dans les deux cas, le motif aurait justifié ce qu'il ne justifie pas ; le
+ * fait, lui, reste écrit dans les exigences d'admission de la formation.
  */
 export function reasonsFor(
   row: EefCandidateRow,
@@ -156,14 +150,6 @@ export function reasonsFor(
       // Une modalité hors table n'est PAS servie comme motif : la ligne est
       // déjà dans `unranked`, et inventer un libellé pour un mot qu'on ne sait
       // pas lire donnerait à l'écran une phrase qu'il ne sait pas traduire.
-    }
-  }
-
-  if (basis === 'selectivity') {
-    if (row.selectivity === 'non_selective') {
-      reasons.push({ code: 'selectivity_open', value: row.selectivity });
-    } else if (row.selectivity === 'selective') {
-      reasons.push({ code: 'selectivity_arbitrated', value: row.selectivity });
     }
   }
 
@@ -223,6 +209,11 @@ export interface BuildShortlistWhereOptions {
  * formation publiée sous une université que personne n'a relue était
  * recommandée, avec pour établissement une fiche non vérifiée. Le champ est
  * obligatoire pour qu'un appel qui l'oublie ne compile pas.
+ *
+ * Et seulement si elle se demande par la procédure de l'espace
+ * ([EEF_SHORTLIST_PROCEDURES]). Le cycle ne suffit pas à le dire : la 1re
+ * année de Sciences Po (Paris) est une `licence1` en `hors_eef`, et elle
+ * entrait dans le chemin post-bac.
  */
 export function buildShortlistWhere(
   options: BuildShortlistWhereOptions,
@@ -277,13 +268,19 @@ export function buildShortlistWhere(
   //
   // La PROVENANCE est le QUATRIÈME, pour la même raison : elle porte un `OR`
   // (identifiant de la formation, ou de son établissement) qui n'a pas à
-  // partager de clé avec l'étage ni la strate. `cycle` ci-dessus filtre sur des
-  // valeurs qu'une formation partenaire pourrait aussi porter ; c'est cette
-  // clause, et elle seule, qui dit « cette ligne vient de l'import ».
+  // partager de clé avec l'étage ni la strate. `cycle` et `procedureType`
+  // ci-dessous filtrent sur des valeurs qu'une formation partenaire pourrait
+  // aussi porter ; c'est cette clause, et elle seule, qui dit « cette ligne
+  // vient de l'import ».
   return {
     isActive: true,
     countryId,
     cycle: { in: [...EEF_PATH_CYCLES[path]] },
+    // Un `IN` sur la liste fermée, pas un `NOT` sur ce qu'on écarte. Prisma
+    // traduit `NOT`, `not` et `notIn` en `NOT … =`, `<>` et `NOT IN` : les
+    // trois écartent aussi une procédure NULL, mais en silence, par la logique
+    // à trois valeurs de SQL. Ici l'exclusion est écrite.
+    procedureType: { in: [...EEF_SHORTLIST_PROCEDURES] },
     AND: [
       tierWhere(tier, path),
       stratumClause,
@@ -317,26 +314,6 @@ export function tierWhere(
   const fileModes = knownModes.filter(
     (mode) => ADMISSION_MODE_EFFORT[mode] === 'file',
   );
-
-  if (basis === 'selectivity') {
-    if (tier === 'securite') return { selectivity: 'non_selective' };
-    if (tier === 'ambition') return { selectivity: 'selective' };
-    if (tier === 'unranked') {
-      // `NOT IN` seul laisserait échapper les `NULL` : en SQL, `NULL IN (…)`
-      // vaut NULL, donc sa négation aussi, et la ligne ne serait rendue par
-      // AUCUN étage. Une formation qui disparaît de la liste sans être classée
-      // nulle part est précisément la panne qu'`unranked` existe pour éviter.
-      return {
-        OR: [
-          { selectivity: null },
-          { NOT: { selectivity: { in: ['non_selective', 'selective'] } } },
-        ],
-      };
-    }
-    // `cible` n'existe pas sur cet axe : aucune ligne ne doit y tomber, et
-    // c'est la requête qui doit le garantir, pas la confiance dans l'appelant.
-    return { id: { in: [] } };
-  }
 
   if (basis === 'admission_effort') {
     // Les quatre branches partitionnent : l'épreuve la plus exigeante gagne,
