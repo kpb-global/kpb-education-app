@@ -4,6 +4,20 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/app_config.dart';
 
+/// Origin of the Socket.IO server, derived from the REST base URL.
+///
+/// Only a trailing `/api` segment and trailing `/` characters are dropped.
+/// Nest's `setGlobalPrefix('api')` applies to HTTP routes only: the `/cases`
+/// gateway namespace lives at the host root, so the socket URL is
+/// `<origin>/cases`.
+///
+/// Never use `replaceFirst('/api', '')` here: the first match in a production
+/// base URL is the `//api.` that starts the host name, not the path suffix, so
+/// the scheme and host come out mangled.
+@visibleForTesting
+String socketBaseUrl(String apiBaseUrl) =>
+    apiBaseUrl.replaceFirst(RegExp(r'(?:/api)?/*$'), '');
+
 class CaseSocketService {
   io.Socket? _socket;
   String? _currentCaseId;
@@ -26,7 +40,7 @@ class CaseSocketService {
     final token =
         Supabase.instance.client.auth.currentSession?.accessToken ?? '';
 
-    final baseUrl = AppConfig.apiBaseUrl.replaceFirst('/api', '');
+    final baseUrl = socketBaseUrl(AppConfig.apiBaseUrl);
 
     _socket = io.io(
       '$baseUrl/cases',
