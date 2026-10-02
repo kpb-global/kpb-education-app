@@ -12,7 +12,8 @@
 | Backend | `ebec041` en production (#305, déployé le 02/10 à 13 h 29 UTC) |
 | Catalogue | **Publié** : 10 029 formations, 84 établissements ; 473 en attente (page-source morte) |
 | Espace | **Fermé** (`eefSpace=false`, `eef=false`, `eefTeaser=true`) ; recette sur appareil faite le 02/10 (fenêtre 10 h 23 – 10 h 35 UTC) |
-| Actions `eef-space-on` / `-off` | Fonctionnent, mais **se marquent en échec** à tort (course au redémarrage) : corrigé par **#304**, à fusionner |
+| Actions `eef-space-on` / `-off` | Corrigées par **#304**, fusionnée le 02/10 (`bf750c2`) : le job attend que l'API recréée réponde, et « Prouver l'état de l'espace » s'exécute enfin. Aucun déploiement requis (workflow seulement) |
+| Préflight de release | ✅ 02/10, run 37016398211 (`ref=main` = `ebec041`, `requires-new`, dérogation 24 h). Le run sur `47a1295` échoue par construction : la production est EN AVANCE, cas que le préflight ne modélise pas ; aucun fichier d'app ne diffère entre les deux commits |
 | Questions de procédure | **Tranchées** le 02/10 (« tout valider ») et **appliquées en production** le 02/10 : `eef-reconcile` a réaligné 3 834 formations publiées dans 70 établissements (run 37014663792), dont 57 changements de procédure ; simulation de contrôle : 0 à réaligner |
 
 ## 2. Ce qui bloque l'ouverture
@@ -86,7 +87,7 @@ limite mémoire du conteneur.
 | Catalogue publié, recherche qui répond | ✅ 10 029 |
 | Héros du hub (`eef_hub_hero_body`) validé par le juridique | ⏳ |
 | « depuis cet écran » (retrait) | ⏳ validé tel quel, ou lien « Me retirer » ajouté dans la feuille (sans nouvelle version de consentement) |
-| #304 fusionnée — **avant `eef-space-on`** : sans elle, l'étape « Prouver l'état de l'espace » ne peut pas s'exécuter (une apostrophe coupe son programme Python), donc rien ne prouve l'ouverture | ⏳ |
+| #304 fusionnée — **avant `eef-space-on`** : sans elle, l'étape « Prouver l'état de l'espace » ne peut pas s'exécuter (une apostrophe coupe son programme Python), donc rien ne prouve l'ouverture | ✅ 02/10 (`bf750c2`) |
 
 **Quand ouvrir ?** Ouvrir ne touche **que** la 54 : les 49 à 53 gardent la vitrine. Il n'y
 a donc pas besoin d'attendre que la 54 soit majoritaire pour **ouvrir** — seulement qu'elle
@@ -101,9 +102,9 @@ qui doit attendre l'adoption (§ 4).
    curl -fsS https://api.kpbeducation.cloud/api/config/app | jq '.features | {eef, eefTeaser, eefSpace}'   # false, true, false
    ```
 2. `vps-ops` → `eef-space-on`, **`dry_run` coché** : les contrôles passent, rien n'est écrit.
-3. `vps-ops` → `eef-space-on`, **`dry_run` décoché**. Avec #304, le job attend que l'API
-   ait redémarré puis prouve `eefSpace=true` ; sans #304 il se marque en échec à tort —
-   relire alors la commande du point 1 (`eefSpace` → `true`).
+3. `vps-ops` → `eef-space-on`, **`dry_run` décoché**. Le job attend que l'API ait redémarré
+   puis prouve `eefSpace=true` (#304). S'il rougit malgré tout, relire la commande du point 1
+   (`eefSpace` → `true`) avant toute autre action.
 4. Sur un téléphone avec la **54 du store** (pas TestFlight) : tuer et relancer l'app → le
    hub s'affiche ; sur une 53 → la vitrine. Chercher « médecine » (badge « Accès santé »).
 5. Pendant l'heure qui suit : pas d'erreur `eef_catalog_failed` dans l'analytique (le
@@ -147,7 +148,7 @@ déclarations d'intérêt dans l'admin ; à J+7, la part de recherches sans rés
 1. ~~Valider les réponses de recherche~~ — **fait** le 02/10 (« tout valider »).
 2. ~~Construire `eef:reconcile` et appliquer les corrections~~ — **fait** le 02/10 : #305
    fusionnée, déployée (`ebec041`), simulée puis appliquée (3 834 formations), contrôle à 0.
-3. **Fusionner #304.**
+3. ~~Fusionner #304~~ — **fait** le 02/10 (`bf750c2`).
 4. **Le juridique** : la phrase du héros, « depuis cet écran », et l'audience de l'annonce.
 5. **Le moment** : ouvrir dès l'approbation de la 54 et les corrections appliquées
    (recommandé), annoncer quand elle est largement installée.
