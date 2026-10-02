@@ -36,8 +36,9 @@ export type EefProcedureType =
   /// Procédure « Études en France » sur la plateforme Campus France :
   /// tout le reste de l'offre universitaire (BUT, L2, L3, master, doctorat).
   | 'eef'
-  /// Parcoursup : le chemin des candidats résidant en France. Servi pour
-  /// information — un candidat depuis Abidjan ne passe pas par là.
+  /// Parcoursup, y compris depuis un pays à procédure « Études en France » :
+  /// c'est le cas du DCG (décision du 02/10/2026). Pas de demande d'admission
+  /// préalable ; le visa passe ensuite par Études en France.
   | 'parcoursup'
   /// Hors du champ de la procédure (formation non ouverte aux candidatures
   /// internationales individuelles, ou procédure propre à l'établissement).
