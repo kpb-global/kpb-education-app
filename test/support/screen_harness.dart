@@ -143,6 +143,7 @@ Future<KpbScreenReport> pumpKpbScreen(
   double textScale = 1.0,
   bool inDrawerShell = false,
   bool ownsScaffold = true,
+  ThemeMode themeMode = ThemeMode.light,
 }) async {
   await tester.binding.setSurfaceSize(viewport.size);
   addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -213,7 +214,11 @@ Future<KpbScreenReport> pumpKpbScreen(
           GlobalCupertinoLocalizations.delegate,
         ],
         theme: AppTheme.buildTheme(),
-        themeMode: ThemeMode.light,
+        // Posé pour que [themeMode] puisse éprouver le thème sombre : la
+        // production verrouille le clair (lib/main.dart, « MVP launch lock »),
+        // donc le défaut reste `light` — le thème sombre n'est que tenu prêt.
+        darkTheme: AppTheme.buildDarkTheme(),
+        themeMode: themeMode,
         // `navigatorObservers` et `getPages` sont volontairement omis : le
         // premier atteint Firebase, le second n'a pas de sens pour un écran monté
         // seul.

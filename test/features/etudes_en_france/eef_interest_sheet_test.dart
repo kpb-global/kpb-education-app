@@ -17,8 +17,12 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:karatou/app/core/repositories/app_api_client.dart';
 import 'package:karatou/app/core/translations/app_translations.dart';
+import 'package:karatou/app/core/ui/app_theme.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_interest_controller.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_interest_sheet.dart';
+import 'package:karatou/app/features/etudes_en_france/eef_profile_prefill.dart';
+
+import '../../support/chip_paint.dart';
 
 class _MockApiClient extends Mock implements AppApiClient {}
 
@@ -32,6 +36,7 @@ Future<EefInterestController> _pumpSheet(
   WidgetTester tester,
   AppApiClient api, {
   required void Function(bool?) onClosed,
+  ThemeMode themeMode = ThemeMode.light,
 }) async {
   final controller = EefInterestController(apiClient: api);
   addTearDown(controller.dispose);
@@ -51,6 +56,11 @@ Future<EefInterestController> _pumpSheet(
       translations: AppTranslations(),
       locale: const Locale('fr'),
       fallbackLocale: const Locale('fr'),
+      // Le thème de production : sans lui, les puces portent le chipTheme par
+      // défaut de Material et aucune mesure de couleur ne dit rien de l'app.
+      theme: AppTheme.buildTheme(),
+      darkTheme: AppTheme.buildDarkTheme(),
+      themeMode: themeMode,
       home: Builder(
         builder: (context) => Scaffold(
           body: Center(
@@ -198,4 +208,26 @@ void main() {
           wantsPremium: any(named: 'wantsPremium'),
         ));
   });
+
+  // Les puces « domaines d'études » : même piège que le catalogue — un `style:`
+  // à couleur fixe (`KpbTextStyles.caption`, textMuted) écrasait le blanc que le
+  // chipTheme pose sur la puce cochée (1,09:1 sur actionPrimary).
+  for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+    testWidgets('puces de domaine lisibles au repos — ${mode.name}',
+        (tester) async {
+      await _pumpSheet(tester, api, onClosed: (_) {}, themeMode: mode);
+
+      expectChipsReadable(tester, selected: 0);
+    });
+
+    testWidgets('puces de domaine lisibles une fois cochée — ${mode.name}',
+        (tester) async {
+      await _pumpSheet(tester, api, onClosed: (_) {}, themeMode: mode);
+
+      await _tapVisible(tester, eefFieldLabel(kEefFieldIds.first));
+
+      expectChipsReadable(tester, selected: 1);
+      expect(clippedChipLabels(tester), isEmpty);
+    });
+  }
 }
