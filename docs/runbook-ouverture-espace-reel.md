@@ -1,5 +1,9 @@
 # Runbook — ouvrir l'espace « Études en France » réel aux étudiants
 
+> **État et blocages au 02/10/2026 : `docs/ouverture-espace-eef.md`.** La 54 est soumise ;
+> cinq points du catalogue publié sont à corriger avant d'ouvrir (outil `eef:reconcile` à
+> construire), voir ce dossier.
+
 > **Ce que ce runbook couvre.** Le passage de l'état de lancement (vitrine
 > « en préparation » + notifications) à l'espace réel (hub, catalogue, profil) pour
 > la build **2.3.0 (54)** et suivantes. Il complète `docs/cutover-build49.md`

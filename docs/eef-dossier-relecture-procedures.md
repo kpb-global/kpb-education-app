@@ -136,6 +136,50 @@ fichiers → `eef:purge-pending` (simulation d'abord) → `eef:import`, depuis l
 **VPS ops** du même nom. Le domaine des formations a été réaligné de cette façon le 29/09
 (`docs/eef-catalog-pipeline.md` § 2.7).
 
+## Réponses de recherche du 02/10/2026 — à valider
+
+Recherche documentaire sur les sources officielles (Campus France national et pages pays,
+sites des établissements, documentation du jeu ouvert Parcoursup), pour un candidat **hors
+UE résidant dans un pays à procédure Études en France**, campagne 2027-2028.
+**parcoursup.gouv.fr et enseignementsup-recherche.gouv.fr n'ont pas pu être lus** (403) : la
+FAQ « Étudiants internationaux » de Parcoursup reste à relire dans un navigateur. Rien de ce
+qui suit n'est encore appliqué : le catalogue publié porte toujours les règles du tableau
+« Ce que le code affirme aujourd'hui ».
+
+| # | Réponse | Confiance | Source principale | Correction recommandée | Lignes |
+|---|---|---|---|---|---:|
+| 1 | **Sciences Po Paris** (1re année) a sa **propre voie internationale**, sur son portail : ni DAP, ni Parcoursup. Études en France ne sert qu'après l'admission, pour le visa. (Les IEP de région recrutent par Parcoursup, mais n'ont que des masters et une L3 dans nos données.) | établi | sciencespo.fr/admissions/fr/bachelor/bacheliers-secondaires-etrangers (rentrée 2027) : « la procédure d'admission à Sciences Po n'est pas prévue dans le dispositif Campus France » | `dap_blanche` → **`hors_eef`** | 39 |
+| 2a | **DCG** : par **Parcoursup**, avec BTS, CPGE et IFSI | établi | senegal.campusfrance.org/inscription-sur-parcoursup (19/01/2026) ; mêmes listes Mali, Côte d'Ivoire | `dap_blanche` → **`parcoursup`** (valeur déjà connue de l'app) | 1 |
+| 2b | **CUPGE** : Études en France **hors DAP** (comme le BUT), selon les pays | probable | fiche Campus France Burkina 2024-2025 ; Université Paris Cité | `dap_blanche` → **`eef`** | 17 |
+| 2c | **CMI, STAPS, licences d'art / design, L1 d'IAE** : DAP, comme toute L1 universitaire. **LPE** : non établi (formation ouverte en 2026) | établi à probable ; LPE non établi | campusfrance.org/fr/candidature-enseignement-superieur-france (25/09/2026) ; pages STAPS Strasbourg, CMI Savoie | aucune ; LPE à confirmer | — |
+| 3 | **L1 sélectives** : aucune source ne les fait passer par Parcoursup pour un résident d'un pays Études en France ; la mention « Licence 1 sélective » de Madagascar n'a **pas** été retrouvée (la page cite BTS, BTSA, CPGE) | probable | universite-paris-saclay.fr (candidats d'un pays EEF renvoyés vers Études en France) ; madagascar.campusfrance.org | **garder** `dap_blanche` ; confirmer par téléphone auprès de 3–4 Espaces Campus France | 705 |
+| 4 | **BUT** : Études en France hors DAP (Maroc : via ADIUT Maroc). **DEUST** : même règle | BUT établi ; DEUST probable | cameroun.campusfrance.org (« exclusivement sur Etudes en France ») ; maroc.campusfrance.org ; univ-littoral.fr | **garder** `eef` ; ajouter plus tard la mention Maroc | 882 |
+| 5 | **PASS / L.AS** : bien la DAP blanche. Mais **« non sélective » est faux pour un candidat DAP** : l'université examine le dossier, exige son niveau de français (C1 à Bordeaux), et peut ne pas ouvrir de campagne DAP | établi | document MEAE publié par Campus France Mali (2026) ; sante.u-bordeaux.fr | **reformuler la ligne de sélectivité pour toutes les L1 en DAP** (pas seulement la santé) | 2 428 lignes « non sélective » en DAP, dont 650 santé |
+| 6 | **Cycles d'ingénieurs** : pas de règle unique (INSA : plateforme propre ; UT : Parcoursup + Campus France ; Polytech : Études en France pour 3 PeiP A). Le texte actuel « ne se demande pas par la procédure Études en France » est **faux pour Polytech et trompeur en général** (le visa passe toujours par Études en France) | établi pour INSA, UT, Polytech | polytech-reseau.org (guide international) ; insa-hautsdefrance.fr ; groupe-ut.fr | **reformuler la ligne `hors_eef`** ; aucune PeiP Polytech dans notre catalogue | 80 |
+| 7 | **Repère de mention** : le chiffre ne décrit que des élèves de **terminale française** ; les candidats DAP sont évalués à part et le taux d'accès les exclut. « Vise au moins X/20 » induit en erreur | établi | documentation du jeu fr-esr-parcoursup (« néo-bacheliers = élèves inscrits en terminale française… » ; taux d'accès « seuls les candidats scolarisés en France ou de nationalité européenne ») | **reformuler**, retirer « vise au moins X/20 » | 3 525 |
+
+**Formulations proposées** (à valider, FR ; l'anglais suivra le même sens) :
+
+- *Point 5 — ligne de sélectivité d'une L1 en DAP* : « Classée non sélective sur Parcoursup,
+  pour les élèves de terminale française. Pour une candidature par la demande d'admission
+  préalable, l'université examine ton dossier et peut le refuser ; le niveau de français
+  exigé et l'ouverture aux candidats DAP varient selon l'université. »
+- *Point 6 — ligne `hors_eef`* : « Admission propre à l'école (concours ou plateforme dédiée),
+  parfois en parallèle d'Études en France. Une fois admis, le visa passe par Études en France
+  (« Je suis déjà accepté »). Vérifie la page des admissions internationales de l'école. »
+- *Point 7 — repère* : « Aucune moyenne minimale officielle n'est publiée. Repère de
+  concurrence uniquement : sur Parcoursup {session}, la mention la plus fréquente chez les {n}
+  admis issus de terminale française était {mention}. Ces chiffres n'incluent pas les
+  candidats à bac étranger : ton dossier est examiné à part, et ce repère n'est pas un seuil
+  pour toi. »
+
+**Ce que ces corrections demandent.** Les textes et procédures sont calculés par le serveur
+(`eef-catalog.normalize.ts`, `eef-catalog.copy.ts`) et écrits sur chaque formation à
+l'import : **aucune build mobile n'est nécessaire**. Mais les formations sont déjà
+publiées, et les rattrapages existants ne comblent que des champs vides : il faut d'abord
+construire **`eef:reconcile`** (réaligner `procedureType` et les textes des lignes publiées
+sur les fichiers régénérés, simulation d'abord). Voir `docs/ouverture-espace-eef.md`.
+
 ## Annexe — lignes à contrôler, tirées des fichiers versionnés
 
 **Point 1 — Sciences Po Paris, 1re année**
