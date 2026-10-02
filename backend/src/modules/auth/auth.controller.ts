@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 
+import { ADMIN_LOGIN_THROTTLE } from '../../common/throttler-options';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 import {
   ADMIN_REFRESH_COOKIE,
@@ -17,7 +18,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @Throttle({ auth: { limit: 10, ttl: 60000 } })
+  @Throttle(ADMIN_LOGIN_THROTTLE)
   async login(
     @Body() input: AdminLoginDto,
     @Res({ passthrough: true }) res: Response,
