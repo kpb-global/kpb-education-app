@@ -905,8 +905,17 @@ void main() {
         expect(fineprints(tester), 1);
         final texts = helpTexts(tester);
         expect(openAFile.hasMatch(texts), isFalse, reason: texts);
-        // Une carte invisible n'est pas « vue ».
-        expect(helpAnalytics.shownSteps, ['catalog_results']);
+        // Une carte invisible n'est pas « vue » : la ligne de PROCÉDURE, elle,
+        // n'est pas mesurée. Build 55 : ce compte voit désormais la ligne
+        // neutre « Tu hésites entre ces formations ? » (décision du propriétaire,
+        // 03/10/2026 — un étudiant dont le pays est suspendu peut passer par un
+        // autre pays, on ne bloque personne), et elle, VISIBLE, est mesurée. Cette
+        // assertion disait seulement `['catalog_results']` : elle encodait la règle
+        // de la build 54 (aucune ligne compacte pour un pays suspendu), que la
+        // build 55 étend explicitement ; voir eef_catalog_help_test.dart.
+        expect(helpAnalytics.shownSteps,
+            unorderedEquals(['catalog_results', 'catalog_filters']));
+        expect(helpAnalytics.shownSteps, isNot(contains('catalog_procedure')));
       });
     });
   });

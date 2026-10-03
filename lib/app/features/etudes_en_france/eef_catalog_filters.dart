@@ -30,6 +30,7 @@ import '../../core/models/eef_search.dart';
 import '../../core/ui/kpb_components.dart';
 import 'eef_catalog_controller.dart';
 import 'eef_filter_options.dart';
+import 'eef_help_line.dart';
 
 /// Rend le nom d'un domaine (`d07`) dans la langue active, ou `null` quand le
 /// référentiel de l'app ne le connaît pas.
@@ -348,6 +349,91 @@ class EefActiveFilters extends StatelessWidget {
             child: Text('eef_catalog_active_clear_all'.tr),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Les filtres posés, en clair, pour le message d'aide : « Niveau : Master ;
+/// Ville : Lyon, Paris ».
+///
+/// Les mêmes libellés que les puces ([eefFamilyOptions]), dans l'ordre des
+/// familles — niveau, domaine, ville, procédure — et, dans une famille, dans
+/// l'ordre de la feuille. Au plus [EefHelpMessages.maxFilterValuesPerFamily]
+/// valeurs par famille, puis « … » ; chaque libellé est borné. La borne du
+/// résumé entier est posée par `EefHelpMessages.forFilters`.
+///
+/// La procédure s'y ajoute aux trois familles de la demande (niveau, domaine,
+/// ville) : c'est ce qui dit au conseiller de quelle voie on parle — SAUF pour un
+/// compte dont le pays est suspendu ([suspended]). Le nom d'une procédure y est
+/// parfois « DAP dossier jaune » : le message d'un compte suspendu ne contient
+/// jamais le mot « dossier », et il n'a pas à dire de quelle voie on parle quand
+/// il dit que la procédure est suspendue. Sans autre filtre, le résumé est alors
+/// vide, et [EefHelpMessages.forFilters] sait écrire un message sans rien citer.
+String eefFiltersHelpSummary(
+  EefCatalogController controller,
+  EefFieldNameResolver fieldName, {
+  bool suspended = false,
+}) {
+  const maxValues = EefHelpMessages.maxFilterValuesPerFamily;
+  final parts = <String>[];
+  for (final family in EefFilterFamily.values) {
+    if (suspended && family == EefFilterFamily.procedure) continue;
+    final labels = [
+      for (final option in eefFamilyOptions(family, controller, fieldName))
+        if (controller.isSelected(family.facetKey, option.value)) option.label,
+    ];
+    if (labels.isEmpty) continue;
+    final shown = [
+      for (final label in labels.take(maxValues))
+        EefHelpMessages.clip(label, EefHelpMessages.maxFilterLabelChars),
+    ].join(', ');
+    parts.add('eef_help_filters_family'.trParams({
+      'family': family.labelKey.tr,
+      'values': labels.length > maxValues ? '$shown, …' : shown,
+    }));
+  }
+  return parts.join(' ; ');
+}
+
+/// La ligne « Tu hésites entre ces formations ? », sous les filtres actifs.
+///
+/// ## Où elle est montée
+///
+/// Par l'ÉCRAN, en tête de la liste des résultats — sous les puces et « Tout
+/// effacer » (l'en-tête épinglé), puis sous le compteur « N formations », au-dessus
+/// de la première formation —, et non dans [EefActiveFilters] lui-même : l'en-tête
+/// des filtres est ÉPINGLÉ au-dessus de la liste, et une ligne de plus y mangerait
+/// de la hauteur en permanence sur les petits téléphones. Dans la liste, elle
+/// défile avec elle. Et la règle « une seule ligne d'aide à la fois, la ligne
+/// de procédure d'abord » ([eefCatalogHelpLineFor]) se décide au MÊME endroit que
+/// la ligne de procédure, qui est dans cette liste.
+///
+/// Elle ne s'affiche pas quand l'écran montre une carte pleine à la place de la
+/// liste (aucun résultat, catalogue non publié) : au plus une carte pleine par
+/// écran, et deux invitations côte à côte seraient une de trop.
+class EefFiltersHelpLine extends StatelessWidget {
+  const EefFiltersHelpLine({
+    super.key,
+    required this.controller,
+    required this.fieldName,
+  });
+
+  final EefCatalogController controller;
+  final EefFieldNameResolver fieldName;
+
+  @override
+  Widget build(BuildContext context) {
+    return EefHelpLine(
+      trigger: EefHelpTrigger.catalogFilters,
+      // Lu AU TAP : les filtres posés à ce moment-là, pas à la construction.
+      prefill: (suspended) => EefHelpMessages.forFilters(
+        summary: eefFiltersHelpSummary(
+          controller,
+          fieldName,
+          suspended: suspended,
+        ),
+        suspended: suspended,
       ),
     );
   }

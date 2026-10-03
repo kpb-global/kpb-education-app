@@ -91,7 +91,11 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
 
   Future<void> _declare() async {
     _track('profil');
-    await showEefInterestSheet(context, controller: _interest);
+    await showEefInterestSheet(
+      context,
+      controller: _interest,
+      onWithdraw: _confirmWithdraw,
+    );
   }
 
   Future<void> _edit() async {
@@ -100,6 +104,10 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
       context,
       controller: _interest,
       mode: EefSheetMode.edit,
+      // Le même flux que le bouton « Me retirer de la liste » du profil : la
+      // feuille de modification le propose aussi, là où le consentement promet
+      // un retrait « depuis cet écran ».
+      onWithdraw: _confirmWithdraw,
     );
   }
 
@@ -183,6 +191,12 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
             const EefHelpCard(step: EefHelpStep.hub),
             // Les trois outils IA suivent le même masque que la boîte à outils
             // (`AppConfig.aiToolsEnabled`) : deux portes, une règle.
+            //
+            // Ouverts d'ici, ils reçoivent `fromEefHub: true` (build 55) : chacun
+            // montre alors sa ligne « Besoin d'aide pour… ? » vers le conseiller.
+            // Ces écrans servent aussi à la boîte à outils et au tiroir « Outils
+            // KPB », où rien ne change : c'est l'APPELANT qui le décide, par un
+            // paramètre, pas un état global que l'écran irait lire.
             if (AppConfig.aiToolsEnabled) ...[
               const SizedBox(height: KpbSpacing.lg),
               Text('eef_hub_tools_heading'.tr, style: KpbTextStyles.titleSm),
@@ -192,7 +206,10 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
                 color: KpbColors.blue,
                 title: 'cv_generator_title'.tr,
                 subtitle: 'student_tools_cv_subtitle'.tr,
-                onTap: () => _openTool('cv', () => const CvGeneratorScreen()),
+                onTap: () => _openTool(
+                  'cv',
+                  () => const CvGeneratorScreen(fromEefHub: true),
+                ),
               ),
               const SizedBox(height: KpbSpacing.sm),
               _HubTile(
@@ -202,7 +219,7 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
                 subtitle: 'student_tools_letters_subtitle'.tr,
                 onTap: () => _openTool(
                   'lettres',
-                  () => const MotivationLettersScreen(),
+                  () => const MotivationLettersScreen(fromEefHub: true),
                 ),
               ),
               const SizedBox(height: KpbSpacing.sm),
@@ -213,7 +230,7 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
                 subtitle: 'student_tools_interview_subtitle'.tr,
                 onTap: () => _openTool(
                   'entretien',
-                  () => const InterviewSimulatorScreen(),
+                  () => const InterviewSimulatorScreen(fromEefHub: true),
                 ),
               ),
               // Les pièces du dossier : la section n'existe que si les outils

@@ -47,16 +47,24 @@ import 'package:karatou/app/features/tools/student_tools_screen.dart';
 import '../widget_test_helpers.dart';
 
 /// Les quatre écrans dont le serveur ne vérifie aucun consentement.
-///
-/// Le motif porte les parenthèses fermantes exprès : `CvGeneratorScreen(` seul
-/// attraperait aussi la déclaration `const CvGeneratorScreen({super.key})` du
-/// fichier de définition, et l'inventaire compterait des fantômes.
-const _aiScreenConstructors = <String>[
-  'CvGeneratorScreen()',
-  'MotivationLettersScreen()',
-  'InterviewSimulatorScreen()',
-  'DocumentReviewScreen()',
+const _aiScreenNames = <String>[
+  'CvGeneratorScreen',
+  'MotivationLettersScreen',
+  'InterviewSimulatorScreen',
+  'DocumentReviewScreen',
 ];
+
+/// Le motif d'une INSTANCIATION : le nom suivi d'une parenthèse ouvrante, sauf
+/// quand cette parenthèse ouvre la DÉCLARATION `({super.key…})` du fichier de
+/// définition (`(` puis `{`) — sans quoi l'inventaire compterait des fantômes.
+///
+/// Il acceptait à l'origine `CvGeneratorScreen()` seulement, c'est-à-dire un appel
+/// SANS paramètre. Depuis la build 55 le hub passe `fromEefHub: true` : un motif
+/// qui exigeait les parenthèses vides ne voyait plus ces trois appels, et
+/// l'inventaire aurait baissé en silence (ou, pire, laissé passer un appel avec
+/// paramètre ajouté ailleurs). Le motif voit donc l'appel avec ou sans paramètre ;
+/// les comptes figés ci-dessous n'ont pas bougé, et un test plus bas le mord.
+final _aiScreenCall = RegExp('\\b(${_aiScreenNames.join('|')})\\((?!\\{)');
 
 /// L'inventaire figé : fichier hôte → nombre d'instanciations.
 ///
@@ -103,10 +111,9 @@ Map<String, int> _measuredCallSites() {
     if (!file.existsSync()) continue;
     for (final line in file.readAsLinesSync()) {
       if (line.trimLeft().startsWith('//')) continue;
-      for (final constructor in _aiScreenConstructors) {
-        if (line.contains(constructor)) {
-          counts[relativePath] = (counts[relativePath] ?? 0) + 1;
-        }
+      final calls = _aiScreenCall.allMatches(line).length;
+      if (calls > 0) {
+        counts[relativePath] = (counts[relativePath] ?? 0) + calls;
       }
     }
   }
@@ -176,6 +183,28 @@ void main() {
   });
 
   group('(a) l\'inventaire des points d\'entrée', () {
+    // La contre-épreuve du motif : un inventaire dont le détecteur est aveugle
+    // reste vert en ne mesurant rien.
+    test('le motif voit un appel avec ou sans paramètre, pas la déclaration',
+        () {
+      for (final line in [
+        'builder: () => const CvGeneratorScreen(),',
+        '() => const CvGeneratorScreen(fromEefHub: true),',
+        'child: const InterviewSimulatorScreen(',
+        'const DocumentReviewScreen(apiClient: client)',
+      ]) {
+        expect(_aiScreenCall.hasMatch(line), isTrue, reason: line);
+      }
+      for (final line in [
+        'const CvGeneratorScreen({super.key, this.fromEefHub = false});',
+        'const DocumentReviewScreen({super.key, this.apiClient});',
+        'State<CvGeneratorScreen> createState() => _CvGeneratorScreenState();',
+        'class MotivationLettersScreen extends StatefulWidget {',
+      ]) {
+        expect(_aiScreenCall.hasMatch(line), isFalse, reason: line);
+      }
+    });
+
     test('aucun appelant hors des fichiers hôtes déclarés', () {
       final measured = _measuredCallSites();
       final undeclared = measured.keys

@@ -7,6 +7,7 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/utils/ai_error_message.dart';
 import '../ai_advisor/ai_consent.dart';
 import '../ai_advisor/ai_disclosure_banner.dart';
+import '../etudes_en_france/eef_help_line.dart';
 import 'motivation_letter_templates.dart';
 import '../../core/ui/app_tokens.dart';
 
@@ -17,7 +18,14 @@ const _cardShadow = <BoxShadow>[
 
 /// Motivation Letters — browse templates, personalise with AI (FR + EN).
 class MotivationLettersScreen extends StatefulWidget {
-  const MotivationLettersScreen({super.key});
+  const MotivationLettersScreen({super.key, this.fromEefHub = false});
+
+  /// `true` UNIQUEMENT quand l'écran est ouvert depuis le hub de l'espace « Études
+  /// en France » : une ligne « Besoin d'aide pour ta lettre de motivation ? »
+  /// ouvre alors WhatsApp vers le conseiller, en tête de la liste des modèles.
+  /// Ailleurs (boîte à outils, tiroir, coach), rien ne change. Un paramètre
+  /// explicite plutôt qu'un état global.
+  final bool fromEefHub;
 
   @override
   State<MotivationLettersScreen> createState() =>
@@ -108,9 +116,22 @@ class _MotivationLettersScreenState extends State<MotivationLettersScreen> {
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                itemCount: _filtered.length,
+                // La ligne d'aide est le PREMIER élément de la liste, pas une
+                // bande fixe au-dessus : elle défile avec les modèles au lieu de
+                // manger de la hauteur en permanence.
+                itemCount: _filtered.length + (widget.fromEefHub ? 1 : 0),
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (ctx, i) => _LetterCard(template: _filtered[i]),
+                itemBuilder: (ctx, i) {
+                  if (widget.fromEefHub) {
+                    if (i == 0) {
+                      return const EefHelpLine(
+                        trigger: EefHelpTrigger.toolLetters,
+                      );
+                    }
+                    return _LetterCard(template: _filtered[i - 1]);
+                  }
+                  return _LetterCard(template: _filtered[i]);
+                },
               ),
             ),
           ],

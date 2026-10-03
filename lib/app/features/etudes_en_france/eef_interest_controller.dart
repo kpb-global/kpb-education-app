@@ -75,6 +75,29 @@ class EefInterestController extends ChangeNotifier {
       _phase == EefInterestPhase.loading ||
       _phase == EefInterestPhase.submitting;
 
+  /// Oublie un échec ANCIEN : [failure] redevient `null` et la phase `failed`
+  /// repasse à `ready`. La déclaration, elle, n'est pas touchée.
+  ///
+  /// ## Pourquoi la feuille l'appelle à l'ouverture
+  ///
+  /// [failure] et la phase `failed` décrivent le DERNIER envoi, et la feuille de
+  /// déclaration les affiche comme « Envoi impossible… Rien n'a été enregistré » en
+  /// remplaçant « Valider » par « Réessayer ». Or un RETRAIT en échec (depuis le
+  /// lien de la feuille ou le bouton du hub) les laisse posés : rouvrir « Modifier
+  /// mon profil » annonçait alors l'échec d'un envoi que personne n'avait tenté.
+  /// L'erreur d'une feuille ne vit que tant que cette feuille est ouverte ; la
+  /// suivante repart d'un état propre.
+  ///
+  /// Sans effet pendant un envoi ou une lecture : couper la phase `submitting`
+  /// laisserait un second tap relancer un appel déjà en vol.
+  void clearFailure() {
+    if (busy) return;
+    if (_failure == null && _phase != EefInterestPhase.failed) return;
+    _failure = null;
+    if (_phase == EefInterestPhase.failed) _phase = EefInterestPhase.ready;
+    notifyListeners();
+  }
+
   /// Lit l'état existant, pour ne pas reposer la question à qui a déjà répondu.
   ///
   /// Un échec de LECTURE n'est pas un échec d'envoi : on retombe silencieusement

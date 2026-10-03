@@ -1980,6 +1980,66 @@ class AppTranslations extends Translations {
           'eef_help_step_catalog_empty': 'recherche de formation sans résultat',
           'eef_help_step_catalog_unpublished':
               'catalogue pas encore disponible',
+          // ── Build 55 : déclencheurs d'aide (EefHelpLine) ─────────────────
+          // Sous chaque formation, sous les filtres actifs, dans les trois
+          // outils du dossier. Mêmes règles que ci-dessus : aucune promesse,
+          // aucun prix, jamais le nom de l'opérateur de l'État ; et pour un
+          // pays suspendu un libellé et un message NEUTRES — jamais « dossier »,
+          // jamais un pays, jamais un pays de remplacement.
+          'eef_help_line_cta': 'Demander de l\'aide',
+          'eef_help_line_neutral_cta': 'Parler à un conseiller',
+          'eef_help_line_subject':
+              'Demander de l\'aide à propos de « @subject »',
+          'eef_help_line_neutral_subject':
+              'Parler à un conseiller à propos de « @subject »',
+          'eef_help_catalog_filters_question':
+              'Tu hésites entre ces formations ?',
+          'eef_help_tool_cv_question': 'Besoin d\'aide pour rédiger ton CV ?',
+          'eef_help_tool_letters_question':
+              'Besoin d\'aide pour ta lettre de motivation ?',
+          'eef_help_tool_interview_question':
+              'Besoin d\'aide pour préparer ton entretien ?',
+          'eef_help_tool_cv_label': 'CV',
+          'eef_help_tool_letters_label': 'lettre de motivation',
+          'eef_help_tool_interview_label': 'préparation d\'entretien',
+          'eef_help_filters_family': '@family : @values',
+          'eef_help_prefill_program':
+              'Bonjour KPB Education, je regarde la formation « @program »'
+                  '@place dans l\'espace Études en France de l\'app et '
+                  'j\'aimerais de l\'aide pour mon dossier.',
+          'eef_help_prefill_program_suspended':
+              'Bonjour KPB Education, je regarde la formation « @program »'
+                  '@place dans l\'espace Études en France de l\'app. La '
+                  'procédure est suspendue dans mon pays : j\'aimerais savoir '
+                  'quelles options existent.',
+          'eef_help_prefill_filters':
+              'Bonjour KPB Education, je regarde les formations de l\'espace '
+                  'Études en France de l\'app (@filters) et j\'hésite. '
+                  'J\'aimerais de l\'aide pour choisir.',
+          'eef_help_prefill_filters_suspended':
+              'Bonjour KPB Education, je regarde les formations de l\'espace '
+                  'Études en France de l\'app (@filters). La procédure est '
+                  'suspendue dans mon pays : j\'aimerais savoir quelles options '
+                  'existent.',
+          // Aucun filtre à citer (un identifiant que l'app ne sait pas nommer, ou
+          // — pour un pays suspendu — une procédure seule) : jamais de
+          // parenthèses vides.
+          'eef_help_prefill_filters_none':
+              'Bonjour KPB Education, je regarde les formations de l\'espace '
+                  'Études en France de l\'app et j\'hésite. J\'aimerais de '
+                  'l\'aide pour choisir.',
+          'eef_help_prefill_filters_none_suspended':
+              'Bonjour KPB Education, je regarde les formations de l\'espace '
+                  'Études en France de l\'app. La procédure est suspendue dans '
+                  'mon pays : j\'aimerais savoir quelles options existent.',
+          'eef_help_prefill_tool':
+              'Bonjour KPB Education, je suis dans l\'espace Études en France '
+                  'de l\'app, sur l\'outil « @tool ». J\'aimerais de l\'aide.',
+          'eef_help_prefill_tool_suspended':
+              'Bonjour KPB Education, je regarde l\'outil « @tool » dans '
+                  'l\'espace Études en France de l\'app. La procédure est '
+                  'suspendue dans mon pays : j\'aimerais savoir quelles options '
+                  'existent.',
           'eef_hub_guest_body':
               'Crée ton compte pour enregistrer ton profil et demander à être '
                   'rappelé par un conseiller.',
@@ -5179,6 +5239,64 @@ class AppTranslations extends Translations {
               'application procedure of a programme',
           'eef_help_step_catalog_empty': 'programme search with no result',
           'eef_help_step_catalog_unpublished': 'catalogue not yet available',
+          // ── Build 55: help triggers (EefHelpLine) ─────────────────────────
+          // Under each programme, under the active filters, in the three file
+          // tools. Same rules as above: no promise, no price, never the name of
+          // the State operator; and for a suspended country a NEUTRAL label and
+          // message — never "file", never a country, never a replacement
+          // country.
+          'eef_help_line_cta': 'Ask for help',
+          'eef_help_line_neutral_cta': 'Talk to an advisor',
+          'eef_help_line_subject': 'Ask for help about “@subject”',
+          'eef_help_line_neutral_subject':
+              'Talk to an advisor about “@subject”',
+          'eef_help_catalog_filters_question': 'Torn between these programmes?',
+          'eef_help_tool_cv_question': 'Need help writing your CV?',
+          'eef_help_tool_letters_question':
+              'Need help with your motivation letter?',
+          'eef_help_tool_interview_question':
+              'Need help preparing for your interview?',
+          'eef_help_tool_cv_label': 'CV',
+          'eef_help_tool_letters_label': 'motivation letter',
+          'eef_help_tool_interview_label': 'interview preparation',
+          'eef_help_filters_family': '@family: @values',
+          'eef_help_prefill_program':
+              'Hello KPB Education, I am looking at the programme “@program”'
+                  '@place in the Études en France space of the app and I would '
+                  'like some help with my file.',
+          'eef_help_prefill_program_suspended':
+              'Hello KPB Education, I am looking at the programme “@program”'
+                  '@place in the Études en France space of the app. The '
+                  'procedure is suspended in my country: I would like to know '
+                  'which options exist.',
+          'eef_help_prefill_filters':
+              'Hello KPB Education, I am looking at the programmes in the '
+                  'Études en France space of the app (@filters) and I cannot '
+                  'decide. I would like some help choosing.',
+          'eef_help_prefill_filters_suspended':
+              'Hello KPB Education, I am looking at the programmes in the '
+                  'Études en France space of the app (@filters). The procedure '
+                  'is suspended in my country: I would like to know which '
+                  'options exist.',
+          // No filter to quote (an id the app cannot name, or — for a suspended
+          // country — a procedure on its own): never empty parentheses.
+          'eef_help_prefill_filters_none':
+              'Hello KPB Education, I am looking at the programmes in the '
+                  'Études en France space of the app and I cannot decide. I '
+                  'would like some help choosing.',
+          'eef_help_prefill_filters_none_suspended':
+              'Hello KPB Education, I am looking at the programmes in the '
+                  'Études en France space of the app. The procedure is '
+                  'suspended in my country: I would like to know which options '
+                  'exist.',
+          'eef_help_prefill_tool':
+              'Hello KPB Education, I am in the Études en France space of the '
+                  'app, on the “@tool” tool. I would like some help.',
+          'eef_help_prefill_tool_suspended':
+              'Hello KPB Education, I am looking at the “@tool” tool in the '
+                  'Études en France space of the app. The procedure is '
+                  'suspended in my country: I would like to know which options '
+                  'exist.',
           'eef_hub_guest_body':
               'Create your account to save your profile and ask to be called '
                   'back by an advisor.',

@@ -6,6 +6,7 @@ import '../../core/ui/app_tokens.dart';
 import '../../core/utils/ai_error_message.dart';
 import '../ai_advisor/ai_consent.dart';
 import '../ai_advisor/ai_disclosure_banner.dart';
+import '../etudes_en_france/eef_help_line.dart';
 
 // Couleurs : tokens sémantiques centraux (KpbColors/KpbShadow — architecture §10.2).
 const _cardShadow = <BoxShadow>[
@@ -24,7 +25,15 @@ class _IvTurn {
 /// AI Interview Simulator — visa / admission / scholarship mock interviews
 /// with per-answer scoring and feedback (powered by Groq).
 class InterviewSimulatorScreen extends StatefulWidget {
-  const InterviewSimulatorScreen({super.key});
+  const InterviewSimulatorScreen({super.key, this.fromEefHub = false});
+
+  /// `true` UNIQUEMENT quand l'écran est ouvert depuis le hub de l'espace « Études
+  /// en France » : une ligne « Besoin d'aide pour préparer ton entretien ? »
+  /// ouvre alors WhatsApp vers le conseiller, au début de l'écran (le choix du
+  /// type d'entretien) — pas pendant l'exercice, qu'elle interromprait. Ailleurs
+  /// (boîte à outils, tiroir, dossier d'un étudiant), rien ne change. Un
+  /// paramètre explicite plutôt qu'un état global.
+  final bool fromEefHub;
 
   @override
   State<InterviewSimulatorScreen> createState() =>
@@ -304,6 +313,10 @@ class _InterviewSimulatorScreenState extends State<InterviewSimulatorScreen> {
           style: const TextStyle(
               fontSize: 13, height: 1.5, color: KpbColors.textMuted),
         ),
+        if (widget.fromEefHub) ...[
+          const SizedBox(height: 12),
+          const EefHelpLine(trigger: EefHelpTrigger.toolInterview),
+        ],
         const SizedBox(height: 16),
         _typeCard(
           'visa',
