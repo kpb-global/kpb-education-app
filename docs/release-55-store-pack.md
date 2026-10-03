@@ -213,8 +213,8 @@ This version adds a section to prepare an application to French public universit
 NOT AFFILIATED WITH ANY GOVERNMENT. KPB Education is a private guidance service, not affiliated with Campus France or any French administration, and does not process applications. The demo account is a test account: its declarations are excluded from our advisors' call lists.
 ```
 
-**À contrôler avant de coller** (le texte décrit la build finale ; la branche
-`feat/eef-aide-dossier-55` n'était pas fusionnée le 03/10) :
+**À contrôler avant de coller** (le texte décrit la build finale ; les aides au dossier, #315, sont
+fusionnées depuis le 03/10 : relire ces points sur le SHA à archiver) :
 
 1. « a prefilled message naming what the student was looking at (programme, university, city,
    filters or tool) — never their name, email, phone or country name » : relevé sur la branche

@@ -13,8 +13,11 @@
 > **État de départ au 03/10/2026** : production = `0641601` (en ligne depuis 17 h 06 UTC),
 > `features` = `eef=false`, `eefTeaser=true`, `eefSpace=false`, catalogue publié (10 029
 > formations). **Aucune build 2.3.0 n'existe dans les boutiques** : dernier envoi iOS
-> `2.2.0 (53)`, dernier bundle Android 53. La branche `feat/eef-aide-dossier-55` n'est pas
-> fusionnée : le SHA à archiver n'existe pas encore (étape 0).
+> `2.2.0 (53)`, dernier bundle Android 53. Les PR #314 (filtres), #315 (aides au dossier, lien
+> « Me retirer »), #316 (préparation de la 55), #310 (adresse du socket du chat des dossiers),
+> #317 (domaine coché lisible dans « Ça m'intéresse ») et celle du `Podfile` (Xcode 27) sont à
+> fusionner : le SHA à archiver est le dernier commit de `main` après elles, dont les quatre CI
+> sont vertes (étape 0).
 >
 > **🔒 = étape de distribution.** Archive, AAB importé, IPA envoyée, soumission : **aucune
 > ne se fait sans le feu vert explicite du propriétaire, donné pour cette étape.** Le reste
@@ -81,8 +84,12 @@ git show "$RELEASE:pubspec.yaml" | grep '^version:'        # version: 2.3.0+55
 git log --oneline 0641601.."$RELEASE"                        # la branche d'aide et la préparation y figurent
 
 # Ni dépendance native ni manifeste n'a bougé depuis la production :
-git diff --stat 0641601 "$RELEASE" -- pubspec.lock ios/Podfile.lock ios/Runner/Info.plist \
+git diff --stat 0641601 "$RELEASE" -- pubspec.lock ios/Runner/Info.plist \
   ios/Runner/PrivacyInfo.xcprivacy android/app/src/main/AndroidManifest.xml android/app/build.gradle   # ne doit RIEN afficher
+# Podfile.lock : SEULE la somme de contrôle du Podfile change (le Podfile relève les cibles des Pods
+# à iOS 15.0 pour Xcode 27, voir l'étape 1) ; aucune version de Pod ne bouge :
+git diff -U0 0641601 "$RELEASE" -- ios/Podfile.lock | grep '^[+-]' | grep -v '^+++\|^---'
+#   exactement deux lignes : -PODFILE CHECKSUM: 4a45804a…  puis  +PODFILE CHECKSUM: 1ee049d4…
 git ls-tree -r --name-only "$RELEASE" | grep -c '^pubspec_overrides.yaml$'   # 0 : le fichier ne doit pas être suivi
 git diff -U0 0641601 "$RELEASE" -- pubspec.yaml | grep '^[+-]' | grep -v '^[+-]#' | grep -v '^+++\|^---'
 #   exactement deux lignes : -version: 2.3.0+54  puis  +version: 2.3.0+55
@@ -121,7 +128,28 @@ xcodebuild -version
   appelle `python3` : sans licence acceptée, il échouerait. Le même défaut bloque `flutter test`
   (le hook natif du paquet `objective_c` appelle `xcrun` : « Building native assets failed ») et
   bloquerait `flutter build ios`. **Accepter la licence est une action du propriétaire, dans un
-  Terminal** (`sudo xcodebuild -license`) ; elle n'a pas été faite.
+  Terminal** (`sudo xcodebuild -license accept`). *Faite depuis : `python3 --version` répond sur ce
+  Mac. Si la commande ci-dessus répond encore « You have not agreed… », la refaire avant d'archiver.*
+
+  **Xcode 27 (installé le 03/10/2026) et ce projet — constats mesurés, build 55 :**
+  - **Cibles de déploiement des Pods.** Xcode 27 n'accepte que les cibles iOS 15.0 à 27.0.x : un
+    Pod resté à 9.0, 11.0, 12.0 ou 13.0 fait échouer le build (« error: The iOS … deployment target
+    … range of supported deployment target versions is 15.0 to 27.0.x »). L'app est déjà à 15.0
+    (Runner, `platform :ios`) ; **le `ios/Podfile` relève donc au plancher de l'app tout Pod en
+    dessous de 15.0** (`post_install`, 264 cibles à 15.0 après `pod install`). Si ce message
+    apparaît à l'étape 3, l'arbre n'a pas cette correction : ne pas contourner dans Xcode, la
+    ramener depuis `RELEASE`.
+  - **Build pour appareil : passe.** Compilation non signée de la 55 sous Xcode 27 le 03/10/2026
+    (`flutter build ios --release --no-codesign`) : `** BUILD SUCCEEDED **`, `Runner.app` en
+    `2.3.0` (`CFBundleVersion` 55), `MinimumOSVersion` 15.0, architecture `arm64`.
+  - **Simulateur : ne passe pas avec Flutter 3.44.1.** Flutter appelle `lipo -verify_arch arm64
+    x86_64` ; le `lipo` d'Xcode 27 refuse deux architectures d'un coup (exit 1) et accepte une
+    seule : `Binary …/Flutter.framework/Flutter does not contain architectures "arm64 x86_64"`.
+    Sans effet sur l'archive (une seule architecture, `arm64`). Pour la recette, installer la
+    build depuis TestFlight / Play Internal, pas depuis le simulateur.
+  - Si un autre échec propre à Xcode 27 survient à l'archive, le recours est d'archiver avec
+    Xcode 26.x installé à côté (developer.apple.com/download/all, puis `xcode-select`), sans
+    changer le code.
 
 **Copie propre de `RELEASE`** — à créer maintenant : le préflight de l'AAB (étape 2, point 5) et
 l'archive iOS (étape 3) se font **dans cette copie**, pas dans le dossier de travail habituel. Les
