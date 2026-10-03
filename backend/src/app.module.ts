@@ -19,6 +19,7 @@ import { AppointmentsService } from './modules/appointments/appointments.service
 import { AdminAuthGuard } from './common/guards/admin-auth.guard';
 import { StudentAuthGuard } from './common/guards/student-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { buildThrottlerOptions } from './common/throttler-options';
 import { AdminCasesController } from './modules/cases/admin-cases.controller';
 import { CasesController } from './modules/cases/cases.controller';
 import { CaseLeadMailService } from './modules/cases/case-lead-mail.service';
@@ -173,14 +174,9 @@ import { SalonService } from './modules/salon/salon.service';
       })(),
       signOptions: { expiresIn: '1h' },
     }),
-    ThrottlerModule.forRoot([
-      {
-        name: 'global',
-        ttl: 60000,
-        limit: process.env.NODE_ENV === 'production' ? 60 : 600,
-      },
-      { name: 'auth', ttl: 60000, limit: 10 },
-    ]),
+    // Un seul limiteur, par construction : tout limiteur déclaré ici s'applique à
+    // TOUTES les routes (voir `throttler-options.ts`).
+    ThrottlerModule.forRoot(buildThrottlerOptions()),
     ScheduleModule.forRoot(),
     CountriesModule,
     CompetitionReadinessModule,
