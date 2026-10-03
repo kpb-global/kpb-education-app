@@ -384,7 +384,9 @@ décriraient deux instants différents, « 1 240 résultats » au-dessus d'une l
 qui en montre d'autres.
 
 `campusCity` et `institutionId` ont des dizaines de valeurs : les 20 plus
-fournies sont rendues, et `facetsTruncated` le dit.
+fournies sont rendues, et `facetsTruncated` le dit. Pour la liste COMPLÈTE des
+villes — un filtre « Ville » avec recherche —, voir la section « Villes de
+campus » plus bas (`GET /etudes-en-france/cities`).
 
 ### Pas de repli sur les jeux de démonstration
 
@@ -415,6 +417,125 @@ l'import (identifiant `eef-prog-…`, ou établissement `eef-univ-…`) — la c
 dont le catalogue général est le contraire. Une formation partenaire, même
 qualifiée d'une procédure et d'un cycle, n'y entre donc jamais et reste dans
 `/catalog/programs` : une ligne, un espace. La shortlist suit la même règle.
+
+## Villes de campus « Études en France »
+
+- `GET /etudes-en-france/cities`
+
+**Publique** et **en lecture seule**, pour la même raison que la recherche : un
+étudiant filtre avant de créer un compte. Elle vit dans le même contrôleur
+(`EefSearchController`), jamais sous un contrôleur gardé.
+
+### Pourquoi elle existe
+
+La facette `campusCity` de `/search` s'arrête à 20 valeurs (`facetsTruncated`) :
+les 20 premières villes ne couvrent que 4 201 formations sur 10 029. Un filtre
+« Ville » avec recherche a besoin de la liste entière. La servir par la
+recherche aurait obligé à relever le plafond de la facette, donc à alourdir
+**chaque** réponse de recherche de toutes les villes, alors que l'écran ne les
+lit qu'à l'ouverture du filtre.
+
+### Paramètres
+
+| Paramètre | Forme | Notes |
+|---|---|---|
+| `q` | texte | comme `/search` : mots normalisés sans accents, établissement et niveau compris. Il porte aussi sur le nom de la ville : `q=epinal` ne laisse que Épinal |
+| `procedureType` | CSV | `dap_blanche`, `dap_jaune`, `eef`, `parcoursup`, `hors_eef` |
+| `cycle` | CSV | `licence1`, `licence2`, `licence3`, `licence_pro`, `but1`, `deust`, `sante`, `ingenieur`, `master` |
+| `fieldId` | CSV | `d01`..`d12` |
+| `institutionId` | CSV | vocabulaire ouvert, 20 valeurs au plus |
+| `selectivity` | CSV | `selective`, `non_selective` |
+
+Les six filtres sont **ceux de `/search`**, avec le même validateur : mêmes
+formes (CSV ou paramètre répété, ou les deux), mêmes valeurs admises, même
+plafond de 20 valeurs, même **400 `EEF_SEARCH_BAD_PARAM`** sur une valeur
+inconnue.
+
+**`campusCity` est ignoré**, ainsi que `cursor` et `limit` : ils ne sont pas lus,
+donc les envoyer n'est pas une erreur — un client qui rejoue telle quelle l'URL
+de sa recherche obtient la liste. `campusCity` est ignoré parce que le compteur
+d'une ville répond à « combien en aurais-je si je choisissais **cette** ville ? » :
+avec la ville déjà choisie dans la clause, toutes les autres tomberaient à zéro
+et l'étudiant ne pourrait plus en changer. C'est le même principe que pour les
+facettes de `/search`, comptées sans leur propre filtre.
+
+### Réponse
+
+```jsonc
+{
+  "cities": [
+    { "value": "Paris", "count": 783 },
+    { "value": "Toulouse", "count": 297 },
+    "…"
+  ],
+  "total": 10502,
+  "catalogPublished": true,
+  "source": "database"
+}
+```
+
+| Champ | Sens |
+|---|---|
+| `cities[].value` | la ville **telle que le catalogue l'écrit** — la chaîne exacte à renvoyer dans `campusCity` de `/search`, apostrophes et accents compris (`Saint-Martin-d'Hères`, `Épinal`) |
+| `cities[].count` | le nombre de formations que `/search` rendrait avec `campusCity=<value>` **et** les autres filtres de la requête : c'est son `total`, ni plus ni moins |
+| `total` | le nombre de formations qui correspondent aux filtres **hors ville**, y compris celles qui n'ont pas de ville |
+| `catalogPublished` | comme `/search` : vrai si le catalogue publié contient au moins une formation, **quel que soit le filtre**. Zéro ville avec `catalogPublished: true` se dit « aucune ville pour ces filtres », pas « le catalogue arrive » |
+| `source` | toujours `database` |
+
+### Ce que la route garantit
+
+- **Aucune troncature.** Toutes les villes rendues, pas de plafond, pas de
+  `facetsTruncated`.
+- **Ordre.** Nombre de formations **décroissant**, puis nom **croissant sans
+  tenir compte des accents ni de la casse** (« Épinal » se range avec les E, pas
+  après « Zola »). Deux graphies ex æquo une fois les accents ôtés sont
+  départagées par la valeur brute : l'ordre ne dépend pas de celui où la base
+  les a rendues. Le client qui filtre au clavier peut reclasser par nom ; il
+  doit comparer des textes normalisés de la même façon (minuscules, sans
+  accents, ponctuation en espaces).
+- **Même périmètre que la recherche.** C'est le même constructeur de clause
+  (`buildEefSearchWhere`) : seules les formations **publiées** (`isActive`,
+  établissement publié, provenance de l'import, procédure qualifiée), la même
+  normalisation de `q`, la même résolution des noms d'établissement. Une règle de
+  publication écrite deux fois finit par ne plus être la même des deux côtés, et
+  c'est un compteur qui ment. Une liste d'établissements publiés vide donne
+  **zéro** ville, jamais « toutes ».
+- **Une formation sans ville n'apparaît dans aucune ville** (valeur nulle ou
+  blanche), mais reste dans `total`. La somme des `count` peut donc être
+  inférieure à `total`.
+- **Un seul instantané.** Les villes, le total et la sonde de `catalogPublished`
+  sont lus dans une transaction `RepeatableRead`, comme la recherche.
+- **Pas de repli.** Base indisponible ⇒ **503 `CATALOG_UNAVAILABLE`**
+  (`details.resource` : `eef-cities`), dans tous les environnements ; `source`
+  vaut donc toujours `database`. Aucun échantillon : il servirait des villes sans
+  formation.
+
+### Poids de la réponse
+
+Mesuré le 02/10/2026 sur les 10 502 formations du catalogue 1.3.0, toutes
+publiées dans une base jetable chargée par `npm run eef:import` : **276 villes
+distinctes, 9 336 octets** de JSON compact (2,4 Ko sur le fil, compression
+active), **29 ms** de médiane côté base, contre 83 ms pour une page de
+`/search`. Le calcul sur les fichiers versionnés donne exactement la même
+réponse. Chaque filtre la réduit (`cycle=master` : 64 villes, 2,1 Ko). Tant que
+les villes viennent de l'import versionné, aucun catalogue publié ne peut donner
+plus que ces 9,3 Ko : le plus gros cas est le catalogue entier, sans filtre.
+Aucune réduction n'est nécessaire (seuil de réflexion : environ 60 Ko).
+
+### Limites connues
+
+- **Une ville peut y figurer sous deux graphies.** Le catalogue vient de deux
+  jeux ouverts qui n'écrivent pas les communes de la même façon : 14 villes
+  apparaissent deux fois (« Saint-Denis » 157 et « St Denis » 82, « Créteil » 118
+  et « Creteil » 68, « Clermont-Ferrand » et « Clermont Ferrand »…), soit 1 457
+  formations. La route les rend telles quelles — chaque entrée est exacte :
+  `campusCity=Créteil` ne rend pas les formations de « Creteil ». Le correctif
+  vit à l'import (écrire une graphie canonique), pas dans ce point d'accès.
+- **`value` ne contient ni virgule ni espace de tête ou de queue aujourd'hui**
+  (vérifié sur les 10 502 formations), ce que le filtre de `/search` suppose :
+  il découpe sur la virgule et rogne les espaces. Une commune dont le nom en
+  porterait ne pourrait pas être choisie — son compteur serait rendu, mais
+  `campusCity=<value>` ne la retrouverait pas.
 
 ## Shortlist « Études en France » (Phase 2)
 

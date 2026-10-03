@@ -315,9 +315,18 @@ const DOORS: Readonly<Record<string, Door>> = {
   'modules/etudes-en-france/search/eef-search.service.ts': {
     reason:
       'La recherche de l’espace EEF : elle sert les lignes de l’import, à '
-      + 'condition que leur établissement soit publié.',
-    scoped: { search: ['loadPublishedInstitutions'] },
-    accesses: 4,
+      + 'condition que leur établissement soit publié. `cities` en est la '
+      + 'liste complète des villes : mêmes clauses (`buildEefSearchWhere`), même '
+      + 'liste d’établissements publiés — un compteur de ville doit être le total '
+      + 'de la recherche qui la choisit.',
+    scoped: {
+      search: ['loadPublishedInstitutions'],
+      cities: ['loadPublishedInstitutions'],
+    },
+    // Accès écrits dans le source. `search` : `findMany`, `count`, `groupBy` (une
+    // fois, rejoué par facette), `findFirst`. `cities` : `groupBy`, `count`,
+    // `findFirst`.
+    accesses: 7,
   },
   'modules/etudes-en-france/shortlist/eef-shortlist.service.ts': {
     reason:
