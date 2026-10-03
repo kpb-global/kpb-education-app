@@ -488,6 +488,390 @@ describePostgres('Recherche EEF — intégration PostgreSQL', () => {
     });
   });
 
+  // ── Les villes : la liste COMPLÈTE, avec des compteurs croisés ──────────────
+  //
+  // `GET /etudes-en-france/cities`. La facette `campusCity` de la recherche
+  // s'arrête à 20 villes ; celle-ci les rend toutes, chacune avec ce que la
+  // recherche rendrait SI ON LA CHOISISSAIT, les autres filtres restant ceux de
+  // l'écran. Les doublures du service disent QUELLE question est posée ; seule
+  // une base réelle dit ce qu'elle répond : les accents, l'apostrophe, les
+  // ex æquo, et surtout que le compteur d'une ville égale le total de la
+  // recherche qui la choisit.
+  //
+  // Ce bloc a SES établissements, SES formations et SON jeton, et chaque lecture
+  // est bornée à ses établissements (`institutionId`) : une base qui contient
+  // déjà le vrai catalogue — ou les lignes des autres blocs — ne change aucune
+  // réponse attendue.
+  describe('villes — la liste complète, avec compteurs croisés', () => {
+    const ctok = `cc${sfx}`;
+    const cityIds = {
+      inst1: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-c1`,
+      inst2: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-c2`,
+      /// Établissement EN ATTENTE : ses formations, actives, ne doivent donner
+      /// aucune ville.
+      instPending: `${EEF_INSTITUTION_ID_PREFIX}${sfx}-cp`,
+      /// Établissement partenaire, ACTIF mais hors import : ses formations,
+      /// qualifiées d'une procédure, ne sont pas de cet espace.
+      instPartner: `partner-${sfx}-c`,
+    };
+    const scope = [
+      cityIds.inst1,
+      cityIds.inst2,
+      cityIds.instPending,
+      cityIds.instPartner,
+    ];
+
+    interface CityRow {
+      key: string;
+      inst: string;
+      city: string | null;
+      name?: string;
+      procedureType?: string | null;
+      cycle?: string;
+      selectivity?: string;
+      fieldId?: string;
+      isActive?: boolean;
+      /// Un identifiant hors du préfixe de l'import.
+      partnerId?: boolean;
+    }
+
+    const FILLERS = Array.from({ length: 25 }, (_, i) => `Filler ${String(i).padStart(2, '0')}`);
+
+    /// Tout est écrit ici : chaque compteur attendu plus bas se relit sur cette
+    /// table. Par défaut une ligne est « eef · master · sélective · d07 ».
+    const cityRows: CityRow[] = [
+      // Paris : 3 formations actives, plus une INACTIVE qui ne compte pas.
+      { key: 'p-a', inst: cityIds.inst1, city: 'Paris', name: 'Master - Droit' },
+      { key: 'p-b', inst: cityIds.inst1, city: 'Paris', procedureType: 'dap_blanche', cycle: 'licence1', selectivity: 'non_selective' },
+      { key: 'p-c', inst: cityIds.inst2, city: 'Paris', fieldId: 'd01' },
+      { key: 'p-x', inst: cityIds.inst1, city: 'Paris', isActive: false },
+      // Trois villes à 2 : l'ordre des ex æquo ne tient qu'aux accents ôtés.
+      { key: 'e-a', inst: cityIds.inst2, city: 'Épinal', cycle: 'licence2' },
+      { key: 'e-b', inst: cityIds.inst2, city: 'Épinal', procedureType: 'dap_blanche', cycle: 'licence1', selectivity: 'non_selective' },
+      { key: 'v-a', inst: cityIds.inst1, city: 'Evry', name: 'Master - Droit' },
+      { key: 'v-b', inst: cityIds.inst1, city: 'Evry' },
+      // L'apostrophe : la valeur doit revenir intacte dans `campusCity`.
+      { key: 's-a', inst: cityIds.inst1, city: "Saint-Martin-d'Hères", cycle: 'licence3', name: 'L3 - Droit' },
+      { key: 's-b', inst: cityIds.inst2, city: "Saint-Martin-d'Hères", cycle: 'licence3', selectivity: 'non_selective' },
+      // Deux graphies d'une même ville, comme dans le catalogue réel (deux jeux
+      // ouverts) : deux entrées, chacune avec son propre compteur.
+      { key: 'b-a', inst: cityIds.inst1, city: 'Besançon' },
+      { key: 'b-b', inst: cityIds.inst1, city: 'Besancon' },
+      { key: 'z-a', inst: cityIds.inst2, city: 'Zola-sur-Mer', procedureType: 'dap_blanche', cycle: 'licence1' },
+      // Vingt-cinq villes de plus : 32 en tout, la facette en rend 20.
+      ...FILLERS.map((city, i) => ({
+        key: `f-${i}`,
+        inst: cityIds.inst2,
+        city,
+      })),
+      // Sans ville : dans `total`, dans aucune ville.
+      { key: 'n-a', inst: cityIds.inst1, city: null },
+      { key: 'n-b', inst: cityIds.inst2, city: null, procedureType: 'dap_blanche', cycle: 'licence1' },
+      // Ce qui ne doit JAMAIS donner de ville.
+      { key: 'x-inactive', inst: cityIds.inst1, city: 'Fantôme', isActive: false },
+      { key: 'x-pending', inst: cityIds.instPending, city: 'Pendante' },
+      { key: 'x-partner', inst: cityIds.instPartner, city: 'Partenaire', partnerId: true },
+      { key: 'x-noproc', inst: cityIds.inst1, city: 'Sansprocedure', procedureType: null },
+    ];
+    const cityProgramId = (row: CityRow) =>
+      row.partnerId
+        ? `partner-prog-${sfx}-c-${row.key}`
+        : `${EEF_PROGRAM_ID_PREFIX}${sfx}-c-${row.key}`;
+
+    /// Les villes et leurs compteurs sous la forme `[valeur, nombre]`, dans
+    /// l'ordre rendu : ce qu'un test compare à une liste écrite à la main.
+    async function citiesOf(filters: Record<string, string | string[]> = {}) {
+      const result = await search.cities({ institutionId: scope, ...filters });
+      return {
+        pairs: result.cities.map((entry) => [entry.value, entry.count] as const),
+        result,
+      };
+    }
+    const fillerPairs = (count = 1) =>
+      FILLERS.map((city) => [city, count] as [string, number]);
+
+    beforeAll(async () => {
+      await prisma.institution.createMany({
+        data: [
+          institution(cityIds.inst1, {
+            nameFr: `Université Villes Un ${ctok}`,
+            isActive: true,
+          }),
+          institution(cityIds.inst2, {
+            nameFr: `Université Villes Deux ${ctok}b`,
+            isActive: true,
+          }),
+          institution(cityIds.instPending, {
+            nameFr: `Université Villes Attente ${ctok}p`,
+            isActive: false,
+          }),
+          institution(cityIds.instPartner, {
+            nameFr: `École partenaire ${ctok}q`,
+            isActive: true,
+          }),
+        ],
+      });
+      await prisma.program.createMany({
+        data: cityRows.map((row) => {
+          const nameFr = row.name ?? `Formation ${row.key}`;
+          return program(cityProgramId(row), row.inst, nameFr, row.city ?? '', {
+            campusCity: row.city,
+            procedureType: row.procedureType === undefined ? 'eef' : row.procedureType,
+            cycle: row.cycle ?? 'master',
+            selectivity: row.selectivity ?? 'selective',
+            fieldId: row.fieldId ?? 'd07',
+            isActive: row.isActive ?? true,
+            searchText: programSearchText(nameFr, row.city),
+          });
+        }),
+      });
+    });
+
+    afterAll(async () => {
+      await prisma.program.deleteMany({ where: { id: { in: cityRows.map(cityProgramId) } } });
+      await prisma.institution.deleteMany({ where: { id: { in: scope } } });
+    }, 60_000);
+
+    it('rend TOUTES les villes — accents et apostrophe compris — dans l’ordre promis', async () => {
+      const { pairs } = await citiesOf();
+      expect(pairs).toEqual([
+        ['Paris', 3],
+        // Trois villes à 2, sans tenir compte des accents : Épinal avant Evry.
+        ['Épinal', 2],
+        ['Evry', 2],
+        ["Saint-Martin-d'Hères", 2],
+        // À 1 : deux graphies d'une même ville, départagées de façon stable
+        // (« Besancon » avant « Besançon »), puis les 25 autres, puis Zola.
+        ['Besancon', 1],
+        ['Besançon', 1],
+        ...fillerPairs(),
+        ['Zola-sur-Mer', 1],
+      ]);
+      expect(pairs).toHaveLength(32);
+    });
+
+    it('en rend plus que la facette de la recherche, qui s’arrête à 20 et le dit', async () => {
+      const searched = await search.search({ institutionId: scope, limit: '1' });
+      expect(searched.facets.campusCity).toHaveLength(20);
+      expect(searched.facetsTruncated).toContain('campusCity');
+
+      const { result } = await citiesOf();
+      expect(result.cities).toHaveLength(32);
+      // La facette et la liste décrivent le même catalogue : chaque ville que
+      // la facette montre y a le même compteur. (L'ordre des ex æquo de la
+      // facette est celui de la base, donc on ne compare pas les rangs.)
+      for (const facet of searched.facets.campusCity) {
+        expect(result.cities).toContainEqual(facet);
+      }
+    });
+
+    it('`total` compte les formations correspondant aux filtres HORS ville — sans ville comprises', async () => {
+      const { result, pairs } = await citiesOf();
+      const withCity = pairs.reduce((sum, [, count]) => sum + count, 0);
+      expect(withCity).toBe(37);
+      // 37 avec ville + 2 sans : les lignes inactives, en attente, partenaires et
+      // sans procédure n'y sont pas.
+      expect(result.total).toBe(39);
+      expect(result.catalogPublished).toBe(true);
+      expect(result.source).toBe('database');
+
+      const searched = await search.search({ institutionId: scope, limit: '1' });
+      expect(searched.total).toBe(39);
+    });
+
+    it('ne rend jamais la ville d’une ligne inactive, en attente, partenaire ou sans procédure', async () => {
+      const { pairs } = await citiesOf();
+      const names = pairs.map(([value]) => value);
+      for (const absent of ['Fantôme', 'Pendante', 'Partenaire', 'Sansprocedure']) {
+        expect(names).not.toContain(absent);
+      }
+      // Et la ligne inactive de Paris n'est pas comptée : 3, pas 4.
+      expect(pairs.find(([value]) => value === 'Paris')).toEqual(['Paris', 3]);
+    });
+
+    it('une ligne sans ville n’apparaît dans aucune ville', async () => {
+      const { pairs } = await citiesOf();
+      for (const [value] of pairs) expect(value.trim()).not.toBe('');
+      expect(pairs.some(([value]) => value === 'null')).toBe(false);
+    });
+
+    describe('compteurs croisés avec les autres filtres', () => {
+      it('cycle=master : les villes sans master disparaissent, les autres sont recomptées', async () => {
+        const { pairs, result } = await citiesOf({ cycle: 'master' });
+        expect(pairs).toEqual([
+          ['Evry', 2],
+          ['Paris', 2],
+          ['Besancon', 1],
+          ['Besançon', 1],
+          ...fillerPairs(),
+        ]);
+        // Dont n-a, sans ville.
+        expect(result.total).toBe(32);
+      });
+
+      it('procedureType=dap_blanche', async () => {
+        const { pairs, result } = await citiesOf({ procedureType: 'dap_blanche' });
+        expect(pairs).toEqual([
+          ['Épinal', 1],
+          ['Paris', 1],
+          ['Zola-sur-Mer', 1],
+        ]);
+        expect(result.total).toBe(4);
+      });
+
+      it('selectivity=non_selective', async () => {
+        const { pairs, result } = await citiesOf({ selectivity: 'non_selective' });
+        expect(pairs).toEqual([
+          ['Épinal', 1],
+          ['Paris', 1],
+          ["Saint-Martin-d'Hères", 1],
+        ]);
+        expect(result.total).toBe(3);
+      });
+
+      it('fieldId + cycle, en plusieurs valeurs et sous les deux formes', async () => {
+        const csv = await citiesOf({ cycle: 'licence1,licence2', fieldId: 'd07' });
+        const repeated = await citiesOf({ cycle: ['licence1', 'licence2'], fieldId: ['d07'] });
+        expect(csv.pairs).toEqual([
+          ['Épinal', 2],
+          ['Paris', 1],
+          ['Zola-sur-Mer', 1],
+        ]);
+        expect(repeated.pairs).toEqual(csv.pairs);
+        expect(repeated.result.total).toBe(csv.result.total);
+        expect(csv.result.total).toBe(5);
+      });
+
+      it('fieldId=d01 : une seule formation, donc une seule ville', async () => {
+        const { pairs, result } = await citiesOf({ fieldId: 'd01' });
+        expect(pairs).toEqual([['Paris', 1]]);
+        expect(result.total).toBe(1);
+      });
+
+      it('institutionId : un seul établissement', async () => {
+        const { pairs, result } = await citiesOf({ institutionId: cityIds.inst2 });
+        expect(pairs).toEqual([
+          ['Épinal', 2],
+          ...fillerPairs(),
+          ['Paris', 1],
+          ["Saint-Martin-d'Hères", 1],
+          ['Zola-sur-Mer', 1],
+        ]);
+        // 30 avec ville + n-b sans ville.
+        expect(result.total).toBe(31);
+      });
+
+      it('q : les mots sont ceux de la recherche (texte, sans accents)', async () => {
+        const droit = await citiesOf({ q: 'droit' });
+        expect(droit.pairs).toEqual([
+          ['Evry', 1],
+          ['Paris', 1],
+          ["Saint-Martin-d'Hères", 1],
+        ]);
+        expect(droit.result.total).toBe(3);
+
+        // « epinal » sans accent trouve Épinal — le même texte normalisé que la
+        // recherche.
+        const epinal = await citiesOf({ q: 'epinal' });
+        expect(epinal.pairs).toEqual([['Épinal', 2]]);
+        expect(epinal.result.total).toBe(2);
+      });
+
+      it('q : un mot de niveau désigne des cycles, un nom d’établissement ses formations', async () => {
+        const licence = await citiesOf({ q: 'licence' });
+        expect(licence.pairs).toEqual([
+          ['Épinal', 2],
+          ["Saint-Martin-d'Hères", 2],
+          ['Paris', 1],
+          ['Zola-sur-Mer', 1],
+        ]);
+        // Le jeton de l'établissement n°2 (le mot « Deux ») : ses formations.
+        const byInstitution = await citiesOf({ q: `deux ${ctok}b` });
+        expect(byInstitution.result.total).toBe(31);
+      });
+
+      it('des filtres sans résultat rendent une liste vide — et le catalogue reste « publié »', async () => {
+        const { pairs, result } = await citiesOf({ q: `introuvable${sfx}` });
+        expect(pairs).toEqual([]);
+        expect(result.total).toBe(0);
+        // Zéro ville ne veut pas dire catalogue vide : l'écran dit « aucune ville
+        // pour ces filtres », pas « le catalogue arrive ».
+        expect(result.catalogPublished).toBe(true);
+      });
+
+      it('un établissement non publié, demandé seul, ne donne rien', async () => {
+        const { pairs, result } = await citiesOf({ institutionId: cityIds.instPending });
+        expect(pairs).toEqual([]);
+        expect(result.total).toBe(0);
+      });
+
+      it('campusCity est ignoré : le même résultat avec ou sans', async () => {
+        const without = await citiesOf({ cycle: 'master' });
+        const withCity = await search.cities({
+          institutionId: scope,
+          cycle: 'master',
+          campusCity: 'Paris',
+        } as never);
+        expect(withCity.cities).toEqual(without.result.cities);
+        expect(withCity.total).toBe(without.result.total);
+      });
+    });
+
+    describe('le compteur d’une ville EST le total de la recherche qui la choisit', () => {
+      // La promesse du point d'accès : « combien en aurais-je si je choisissais
+      // cette ville, avec les autres filtres actuels ? ». Prouvée pour CHAQUE ville
+      // rendue, en posant la vraie recherche avec `campusCity` — pas en relisant la
+      // même clause : les deux chemins pourraient se tromper ensemble.
+      const filterSets: [string, Record<string, string | string[]>][] = [
+        ['aucun filtre', {}],
+        ['cycle=master', { cycle: 'master' }],
+        ['cycle=licence1,licence2', { cycle: 'licence1,licence2' }],
+        ['procedureType=dap_blanche', { procedureType: 'dap_blanche' }],
+        ['selectivity=non_selective', { selectivity: 'non_selective' }],
+        ['fieldId=d01', { fieldId: 'd01' }],
+        ['q=droit', { q: 'droit' }],
+        ['q=licence + cycle répété', { q: 'licence', cycle: ['licence1', 'licence3'] }],
+      ];
+
+      it.each(filterSets)('%s', async (_label, filters) => {
+        const { result } = await citiesOf(filters);
+        const base = { institutionId: scope, ...filters };
+
+        const searched = await search.search({ ...base, limit: '1' });
+        expect(result.total).toBe(searched.total);
+
+        for (const entry of result.cities) {
+          const chosen = await search.search({
+            ...base,
+            campusCity: entry.value,
+            limit: '1',
+          });
+          expect({ city: entry.value, count: chosen.total }).toEqual({
+            city: entry.value,
+            count: entry.count,
+          });
+        }
+      });
+
+      it('la valeur rendue est la chaîne EXACTE à renvoyer : apostrophe et accent compris', async () => {
+        const { result } = await citiesOf();
+        const apostrophe = result.cities.find((entry) => entry.value.includes("'"));
+        expect(apostrophe).toEqual({ value: "Saint-Martin-d'Hères", count: 2 });
+        const chosen = await search.search({
+          institutionId: scope,
+          campusCity: apostrophe!.value,
+        });
+        expect(chosen.total).toBe(2);
+        // Et sous la forme répétée que produisent les clients HTTP.
+        const repeated = await search.search({
+          institutionId: scope,
+          campusCity: ['Épinal', apostrophe!.value],
+        });
+        expect(repeated.total).toBe(4);
+      });
+    });
+  });
+
   // Doit rester le DERNIER bloc : il renomme p3.
   describe('une formation renommée depuis l’admin reste cherchée sous son nouveau nom', () => {
     it('le nouveau mot la trouve, l’ancien non — le texte cherchable suit la ligne', async () => {

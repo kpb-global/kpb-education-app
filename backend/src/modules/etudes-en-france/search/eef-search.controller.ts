@@ -53,4 +53,42 @@ export class EefSearchController {
       limit,
     });
   }
+
+  /**
+   * Toutes les villes de campus, avec leur compteur (voir
+   * `EefSearchService.cities`) : de quoi remplir un filtre « Ville » avec
+   * recherche, là où la facette de `search` s'arrête à 20.
+   *
+   * Publique, pour la même raison que la recherche — et c'est pourquoi elle est
+   * ICI et non dans un contrôleur voisin gardé.
+   *
+   * Les six paramètres sont ceux de `search`, sous les mêmes formes. Il n'y a PAS
+   * de `campusCity`, de `cursor` ni de `limit` : le premier est exclu de la
+   * clause (le compteur d'une ville dit ce que donnerait CE choix, pas ce qui
+   * reste après lui), les deux autres n'ont pas de sens sans pagination. Les
+   * envoyer n'est pas une erreur, ils ne sont simplement pas lus — un client qui
+   * rejoue l'URL de sa recherche telle quelle doit obtenir la liste.
+   *
+   * La route est LITTÉRALE : aucune route de ce préfixe n'est paramétrée
+   * (`:id`), donc rien ne peut répondre à « cities » avant elle.
+   * `eef-search.controller.spec.ts` le prouve par HTTP.
+   */
+  @Get('cities')
+  cities(
+    @Query('q') q?: QueryValue,
+    @Query('procedureType') procedureType?: QueryValue,
+    @Query('cycle') cycle?: QueryValue,
+    @Query('fieldId') fieldId?: QueryValue,
+    @Query('institutionId') institutionId?: QueryValue,
+    @Query('selectivity') selectivity?: QueryValue,
+  ) {
+    return this.eefSearchService.cities({
+      q,
+      procedureType,
+      cycle,
+      fieldId,
+      institutionId,
+      selectivity,
+    });
+  }
 }

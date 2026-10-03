@@ -30,6 +30,7 @@ import {
   type PublishedInstitution,
 } from '../catalog/eef-published-institutions';
 import { mapEefProgram } from '../catalog/eef-program-view';
+import { normalizeSearchText } from '../catalog/eef-search-text';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   EEF_SEARCH_FACETS,
@@ -43,6 +44,7 @@ import {
   type EefSearchFacet,
   type EefSearchInput,
   type EefSearchParams,
+  type QueryValue,
 } from './eef-search.query';
 import { buildSearchTerms, resolveTermInstitutions } from './eef-search.terms';
 
@@ -78,29 +80,52 @@ export interface EefSearchResult {
   readonly source: 'database';
 }
 
+export interface EefCitiesInput {
+  readonly q?: QueryValue;
+  readonly procedureType?: QueryValue;
+  readonly cycle?: QueryValue;
+  readonly fieldId?: QueryValue;
+  readonly institutionId?: QueryValue;
+  readonly selectivity?: QueryValue;
+}
+
+export interface EefCitiesResult {
+  readonly cities: EefFacetValue[];
+  readonly total: number;
+  readonly catalogPublished: boolean;
+  readonly source: 'database';
+}
+
+/**
+ * Les villes dans l'ordre promis : nombre de formations DÉCROISSANT, puis nom
+ * CROISSANT sans tenir compte des accents ni de la casse.
+ *
+ * Le tri par nom passe par `normalizeSearchText` — la normalisation de la
+ * recherche — et non par un tri de chaînes brut : au point de code, « Épinal » se
+ * range après « Zola », et l'étudiant qui cherche Épinal dans une liste
+ * alphabétique le chercherait à la fin. Les deux graphies d'une même ville
+ * (« Créteil » et « Creteil » coexistent dans le catalogue) sont ex æquo une fois
+ * les accents ôtés : elles sont départagées par la valeur brute, de sorte que
+ * l'ordre ne dépende jamais de celui où la base les a rendues.
+ */
+function sortCities(cities: EefFacetValue[]): EefFacetValue[] {
+  return cities
+    .map((city) => ({ city, key: normalizeSearchText(city.value) }))
+    .sort((a, b) => {
+      if (a.city.count !== b.city.count) return b.city.count - a.city.count;
+      if (a.key !== b.key) return a.key < b.key ? -1 : 1;
+      if (a.city.value !== b.city.value) return a.city.value < b.city.value ? -1 : 1;
+      return 0;
+    })
+    .map(({ city }) => city);
+}
+
 @Injectable()
 export class EefSearchService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async search(input: EefSearchInput): Promise<EefSearchResult> {
-    let params: EefSearchParams;
-    try {
-      params = parseEefSearchInput(input);
-    } catch (error) {
-      if (
-        error instanceof EefSearchParamError
-        || error instanceof EefSearchCursorError
-      ) {
-        // 400 et non 500 : c'est la requête qui est fautive, et le message
-        // nomme le paramètre ET les valeurs admises pour que le client
-        // corrige au lieu de réessayer à l'identique.
-        throw new BadRequestException({
-          code: 'EEF_SEARCH_BAD_PARAM',
-          message: error.message,
-        });
-      }
-      throw error;
-    }
+    const params = this.parseParams(input);
 
     if (!this.prismaService.isEnabled) throw catalogUnavailable('eef-search');
 
@@ -241,30 +266,182 @@ export class EefSearchService {
   }
 
   /**
+   * Toutes les villes de campus du catalogue publié, avec — pour chacune — le
+   * nombre de formations qu'on obtiendrait EN LA CHOISISSANT, les autres filtres
+   * restant ceux de l'écran.
+   *
+   * ## Pourquoi un point d'accès, et pas la facette de `search`
+   *
+   * La facette `campusCity` de la recherche s'arrête à `OPEN_FACET_LIMIT` valeurs
+   * et le dit (`facetsTruncated`) : les 20 premières villes ne couvrent que 4 201
+   * formations sur 10 029. Un filtre « Ville » avec recherche a besoin de la
+   * liste entière ; la lui servir par la recherche aurait voulu relever le
+   * plafond de la facette, donc alourdir CHAQUE réponse de recherche de toutes
+   * les villes — alors que l'écran n'en lit qu'à l'ouverture du filtre.
+   *
+   * ## Ce qui est partagé avec la recherche, et pourquoi
+   *
+   * Le même constructeur de clause (`buildEefSearchWhere`), les mêmes règles de
+   * publication, la même normalisation de `q`, le même validateur de paramètres
+   * — appelés, pas recopiés : une règle de publication écrite deux fois finit
+   * par ne plus être la même des deux côtés, et c'est un compteur qui ment.
+   * `campusCity` est EXCLU de la clause (`excludeFacet`), exactement comme pour
+   * la facette du même nom : le compteur d'une ville répond à « combien en
+   * aurais-je si je choisissais cette ville ? », donc la ville déjà choisie ne
+   * doit pas faire tomber les autres à zéro.
+   *
+   * ## Ce que la réponse dit d'une formation sans ville
+   *
+   * Elle n'est dans aucune ville, mais elle est dans `total` (« formations qui
+   * correspondent aux filtres, hors ville ») : la somme des villes peut donc être
+   * inférieure à `total`, et l'écran sait dire combien n'ont pas de ville.
+   *
+   * Pas de repli : base indisponible ⇒ 503, comme la recherche. `source` est
+   * donc toujours « database ».
+   */
+  async cities(input: EefCitiesInput): Promise<EefCitiesResult> {
+    // On ne passe au validateur QUE les six filtres, nommés un à un — pas
+    // `input` tel quel. `campusCity` (que le client peut envoyer), le curseur et
+    // la taille de page n'ont aucun sens ici : un spread les laisserait valider,
+    // et faire rendre 400 à une requête dont ces paramètres sont ignorés.
+    const params = this.parseParams({
+      q: input.q,
+      procedureType: input.procedureType,
+      cycle: input.cycle,
+      fieldId: input.fieldId,
+      institutionId: input.institutionId,
+      selectivity: input.selectivity,
+    });
+
+    if (!this.prismaService.isEnabled) throw catalogUnavailable('eef-cities');
+
+    const countryId = await this.resolveCountryId('eef-cities');
+    const result = await this.run(async (prisma) => {
+      // Lus UNE fois, avant la transaction : le total, le comptage des villes et
+      // la sonde décrivent le même ensemble d'établissements (voir `search`).
+      const institutions = await loadPublishedInstitutions(prisma, countryId);
+      const publishedIds = publishedInstitutionIds(institutions);
+      const termInstitutionIds = resolveTermInstitutions(
+        buildSearchTerms(params.terms),
+        institutions,
+      );
+      // La clause des formations « hors ville » : celle que la recherche pose au
+      // comptage de sa facette `campusCity`. Une seule pour les deux lectures, de
+      // sorte que `total` est bien le nombre de formations dont les villes se
+      // répartissent les compteurs.
+      const where = buildEefSearchWhere(params, countryId, publishedIds, {
+        excludeFacet: 'campusCity',
+        termInstitutionIds,
+      });
+      const needsProbe = isRestricted(params) && publishedIds.length > 0;
+
+      const fetched = await prisma.$transaction([
+        // Aucun `take` : c'est TOUT l'objet de ce point d'accès.
+        prisma.program.groupBy({
+          by: ['campusCity'],
+          where,
+          _count: { _all: true },
+        } as never),
+        prisma.program.count({ where }),
+        ...(needsProbe
+          ? [
+              prisma.program.findFirst({
+                where: buildEefSearchWhere(
+                  parseEefSearchInput({}),
+                  countryId,
+                  publishedIds,
+                ),
+                select: { id: true },
+              }) as never,
+            ]
+          : []),
+      ], {
+        // Même isolation que la recherche, pour la même raison : sans elle, une
+        // publication survenue entre le comptage des villes et le total rendrait
+        // une réponse qui se contredit.
+        isolationLevel: 'RepeatableRead',
+      });
+
+      const [cityRows, total, ...rest] = fetched;
+      return {
+        cityRows: cityRows as unknown as Record<string, unknown>[],
+        total: total as number,
+        catalogPublished:
+          (total as number) > 0 || (needsProbe && rest[0] != null),
+      };
+    }, 'eef-cities');
+
+    return {
+      cities: sortCities(
+        result.cityRows
+          .map((row) => ({
+            value: typeof row.campusCity === 'string' ? row.campusCity : '',
+            count: Number((row._count as { _all: number } | undefined)?._all ?? 0),
+          }))
+          // Une valeur nulle ou blanche n'est pas une ville : c'est l'absence de
+          // réponse, et la proposer comme un choix inviterait à filtrer sur
+          // « rien ». Ces formations restent comptées dans `total`.
+          .filter((entry) => entry.value.trim() !== '' && entry.count > 0),
+      ),
+      total: result.total,
+      catalogPublished: result.catalogPublished,
+      source: 'database',
+    };
+  }
+
+  /**
+   * Les paramètres, validés. 400 et non 500 : c'est la requête qui est fautive, et
+   * le message nomme le paramètre ET les valeurs admises pour que le client
+   * corrige au lieu de réessayer à l'identique. Partagé par `search` et `cities`
+   * pour qu'un même paramètre fautif reçoive la même réponse des deux côtés.
+   */
+  private parseParams(input: EefSearchInput): EefSearchParams {
+    try {
+      return parseEefSearchInput(input);
+    } catch (error) {
+      if (
+        error instanceof EefSearchParamError
+        || error instanceof EefSearchCursorError
+      ) {
+        throw new BadRequestException({
+          code: 'EEF_SEARCH_BAD_PARAM',
+          message: error.message,
+        });
+      }
+      throw error;
+    }
+  }
+
+  /**
    * Le pays, résolu par son CODE et non écrit en dur — et par la règle
    * PARTAGÉE avec l'import (`eef-country.ts`), qui accepte alpha-2 comme
    * alpha-3. La règle vivait ici en double de l'import, et c'est pour cela que
    * l'erreur — ne chercher que « FR » alors que le référentiel écrit « FRA » —
    * existait en double.
    */
-  private async resolveCountryId(): Promise<string> {
-    const rows = await this.run((prisma) =>
-      prisma.country.findMany({
-        where: { isActive: true },
-        select: { id: true, code: true },
-      }),
+  private async resolveCountryId(resource = 'eef-search'): Promise<string> {
+    const rows = await this.run(
+      (prisma) =>
+        prisma.country.findMany({
+          where: { isActive: true },
+          select: { id: true, code: true },
+        }),
+      resource,
     );
     try {
       return resolveFranceCountryId(rows);
     } catch {
       // Le catalogue n'a nulle part où se rattacher : c'est une indisponibilité
       // de service, pas une requête fautive.
-      throw catalogUnavailable('eef-search-country');
+      throw catalogUnavailable(`${resource}-country`);
     }
   }
 
+  /// `resource` ne sert qu'à NOMMER la panne (`details.resource` du 503) : les
+  /// journaux et l'app distinguent ainsi la recherche des villes.
   private async run<T>(
     operation: (prisma: PrismaClient) => Promise<T>,
+    resource = 'eef-search',
   ): Promise<T> {
     let result: T | null;
     try {
@@ -272,9 +449,9 @@ export class EefSearchService {
     } catch {
       // `PrismaService.execute()` a déjà journalisé le code d'erreur borné et
       // sans données personnelles avant de relancer.
-      throw catalogUnavailable('eef-search');
+      throw catalogUnavailable(resource);
     }
-    if (result === null) throw catalogUnavailable('eef-search');
+    if (result === null) throw catalogUnavailable(resource);
     return result;
   }
 }

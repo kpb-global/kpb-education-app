@@ -59,10 +59,56 @@ class _ServiceEefCatalogAnalytics implements EefCatalogAnalytics {
       unawaited(AnalyticsService.instance.logEefCatalogFailed(reason));
 }
 
-/// Les facettes que l'écran propose, dans l'ordre d'affichage.
+/// Les familles de filtre que l'écran propose — les noms de colonne du serveur
+/// (`facets[...]` en réponse, paramètre de même nom en requête).
 const kEefFacetCycle = 'cycle';
 const kEefFacetProcedure = 'procedureType';
 const kEefFacetField = 'fieldId';
+const kEefFacetCity = 'campusCity';
+
+/// Où en est le chargement de la liste des villes — voir
+/// [EefCatalogController.loadCities].
+enum EefCitiesStatus {
+  /// La liste ENTIÈRE, servie par `GET /etudes-en-france/cities`.
+  loaded,
+
+  /// Le point d'accès n'existe pas (backend plus ancien que l'app) ou est en
+  /// panne côté serveur : on propose les villes de la facette `campusCity` de la
+  /// dernière recherche — les plus fournies, pas toutes. L'écran doit le DIRE.
+  fallback,
+
+  /// Rien n'a pu être demandé, ou la réponse est refusée : « Réessayer ».
+  failed,
+}
+
+/// Ce que la feuille « Ville » reçoit. Un résultat, pas un état du contrôleur :
+/// la liste des villes ne vit que le temps de la feuille.
+class EefCitiesOutcome {
+  const EefCitiesOutcome._(this.status, this.cities, this.total, this.failure);
+
+  const EefCitiesOutcome.loaded(List<EefFacetValue> cities, int? total)
+      : this._(EefCitiesStatus.loaded, cities, total, null);
+
+  const EefCitiesOutcome.fallback(List<EefFacetValue> cities)
+      : this._(EefCitiesStatus.fallback, cities, null, null);
+
+  const EefCitiesOutcome.failed(EefCatalogFailure failure)
+      : this._(
+          EefCitiesStatus.failed,
+          const <EefFacetValue>[],
+          null,
+          failure,
+        );
+
+  final EefCitiesStatus status;
+  final List<EefFacetValue> cities;
+
+  /// Le nombre EXACT de formations correspondant aux filtres hors ville — rendu
+  /// par le serveur, donc seulement quand [status] est `loaded`. En repli il
+  /// vaut `null` : la facette est tronquée, sa somme n'est pas le total.
+  final int? total;
+  final EefCatalogFailure? failure;
+}
 
 /// L'état de la recherche du catalogue, séparé de son rendu.
 ///
@@ -180,6 +226,9 @@ class EefCatalogController extends ChangeNotifier {
 
   /// Bascule une valeur de facette. Un filtre est un geste délibéré : il part
   /// tout de suite, sans anti-rebond.
+  ///
+  /// C'est le geste d'une puce de filtre actif qu'on retire : UNE valeur, UNE
+  /// requête. Choisir plusieurs valeurs passe par [setFacetSelection].
   void toggleFacet(String facet, String value) {
     final current = _selected.putIfAbsent(facet, () => <String>{});
     if (!current.remove(value)) current.add(value);
@@ -188,6 +237,38 @@ class EefCatalogController extends ChangeNotifier {
     refresh();
   }
 
+  /// REMPLACE d'un coup la sélection d'une famille — `values` vide la famille.
+  ///
+  /// C'est ce que la feuille de filtre appelle à « Voir N formations » : l'étudiant
+  /// a coché trois villes dans la feuille, et trois bascules partiraient en trois
+  /// requêtes — dont deux jetées par la règle n° 1, mais payées en octets sur
+  /// un réseau lent. Ici : une seule requête, la règle n° 1 tient (c'est
+  /// [refresh], donc [_load], qui numérote).
+  ///
+  /// Sans effet quand la sélection est déjà celle-là : la feuille rouverte puis
+  /// validée telle quelle ne doit pas refaire une recherche. (Une frappe en
+  /// attente d'anti-rebond n'est pas touchée : elle part à son heure.)
+  Future<void> setFacetSelection(String facet, Iterable<String> values) {
+    // Une COPIE : la feuille garde son brouillon, et le cocher après coup ne
+    // doit pas filtrer le catalogue dans le dos de l'étudiant.
+    final next = <String>{
+      for (final value in values)
+        if (value.trim().isNotEmpty) value,
+    };
+    final current = _selected[facet] ?? const <String>{};
+    if (next.length == current.length && next.containsAll(current)) {
+      return Future<void>.value();
+    }
+    if (next.isEmpty) {
+      _selected.remove(facet);
+    } else {
+      _selected[facet] = next;
+    }
+    _debounceTimer?.cancel();
+    return refresh();
+  }
+
+  /// Vide TOUS les filtres et le texte, en une requête.
   void clearFilters() {
     _selected.clear();
     _query = '';
@@ -232,6 +313,63 @@ class EefCatalogController extends ChangeNotifier {
     return _load(append: true);
   }
 
+  /// Les villes de la feuille « Ville », sous les filtres déjà posés — hors
+  /// ville, puisque le serveur l'ignore et qu'on veut pouvoir en cocher une
+  /// autre.
+  ///
+  /// ## Trois issues, et la raison de chacune
+  ///
+  ///  · **loaded** — le serveur a rendu la liste entière.
+  ///  · **fallback** — `404`/`405` (backend plus ancien que l'app, ou
+  ///    déploiement différé) ou `5xx` : on propose les villes de la facette
+  ///    `campusCity` de la dernière recherche. Une feuille « Ville » bloquée
+  ///    parce qu'un point d'accès manque serait pire que 20 villes honnêtement
+  ///    annoncées comme « principales ».
+  ///  · **failed** — coupure réseau, délai dépassé, `4xx` autre : le serveur n'a
+  ///    pas pu être interrogé, ou refuse la demande. Le repli ne vaut pas ici :
+  ///    on montrerait des villes d'une recherche dont rien ne dit qu'elle a été
+  ///    faite sur les mêmes filtres, sans le dire. « Réessayer » est plus
+  ///    honnête.
+  ///
+  /// Ne touche à aucun état de la recherche (ni phase, ni liste, ni séquence) et
+  /// ne mesure rien : une feuille qui s'ouvre n'est pas une recherche, et sa
+  /// panne n'est pas celle du catalogue (`eef_catalog_failed`).
+  ///
+  /// La garde contre une réponse périmée est celle de la FEUILLE, qui seule sait
+  /// si elle a été fermée ou rouverte entre-temps.
+  Future<EefCitiesOutcome> loadCities() async {
+    try {
+      final body = await _apiClient.fetchEefCities(
+        query: _query,
+        cycles: _selected[kEefFacetCycle]?.toList() ?? const <String>[],
+        procedureTypes:
+            _selected[kEefFacetProcedure]?.toList() ?? const <String>[],
+        fieldIds: _selected[kEefFacetField]?.toList() ?? const <String>[],
+      );
+      final list = EefCityList.tryParse(body);
+      // Une réponse qui n'a pas la forme du contrat est celle d'un backend qui
+      // ne connaît pas la route : même repli que le 404.
+      if (list == null) return _citiesFallback();
+      return EefCitiesOutcome.loaded(list.cities, list.total);
+    } on DioException catch (error) {
+      if (_citiesEndpointUnavailable(error)) return _citiesFallback();
+      return EefCitiesOutcome.failed(_classify(error));
+    } catch (_) {
+      return const EefCitiesOutcome.failed(EefCatalogFailure.server);
+    }
+  }
+
+  EefCitiesOutcome _citiesFallback() => EefCitiesOutcome.fallback(
+        List<EefFacetValue>.unmodifiable(
+          _facets[kEefFacetCity] ?? const <EefFacetValue>[],
+        ),
+      );
+
+  static bool _citiesEndpointUnavailable(DioException error) {
+    final status = error.response?.statusCode;
+    return status == 404 || status == 405 || (status != null && status >= 500);
+  }
+
   Future<void> _load({required bool append}) async {
     final sequence = ++_sequence;
     _phase = append ? EefCatalogPhase.loadingMore : EefCatalogPhase.loading;
@@ -251,6 +389,7 @@ class EefCatalogController extends ChangeNotifier {
         procedureTypes:
             _selected[kEefFacetProcedure]?.toList() ?? const <String>[],
         fieldIds: _selected[kEefFacetField]?.toList() ?? const <String>[],
+        campusCities: _selected[kEefFacetCity]?.toList() ?? const <String>[],
         cursor: append ? _cursor : null,
       );
       // La garde de la règle n° 1. Elle est ici et pas dans l'appelant : une
