@@ -1,14 +1,14 @@
 # Fiches boutique — texte prêt à coller (build 49)
 
-> **⚠️ Ce fichier date de la build 49. Pour la 54 (`2.3.0`), lire d'abord
-> [`release-54-store-pack.md`](release-54-store-pack.md)** — notes de version,
+> **⚠️ Ce fichier date de la build 49. Pour la 55 (`2.3.0`), lire d'abord
+> [`release-55-store-pack.md`](release-55-store-pack.md)** — notes de version,
 > addendum « Notes for Review » (activation à distance de l'espace, non-affiliation),
 > phrases de la fiche Google Play (source officielle + « ne représente aucune
 > entité gouvernementale »). **Le §3 ci-dessous est PÉRIMÉ sur un point :** CV,
 > lettres de motivation, simulateur d'entretien et relecture IA sont **actifs depuis
 > la 52** (`aiToolsEnabled` vaut `true` par défaut ; surfaces d'IA générative : 6 —
 > `CONSOLE_ANSWERS.md` §0ter). Les autres interdits du §3 restent vrais. Les
-> citations `fichier:ligne` de ce fichier ne sont pas revérifiées pour la 54.
+> citations `fichier:ligne` de ce fichier ne sont pas revérifiées pour la 55.
 
 > **Périmètre.** Textes des fiches Google Play (`com.karatou.android`) et App Store
 > (`Karatou.karatou`, id `1128659292`) pour l'app **déjà publiée** qui se renomme

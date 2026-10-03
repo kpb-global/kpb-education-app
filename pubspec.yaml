@@ -19,9 +19,11 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # 2.3.0 : la 2.2.0 est EN VENTE sur l'App Store depuis le 13/09/2026, et App
 # Store Connect refuse le téléversement d'une build dont la
 # CFBundleShortVersionString n'est pas supérieure à la dernière version
-# approuvée (ITMS-90062). La build 54 ne peut donc pas rester en 2.2.0. Elle
+# approuvée (ITMS-90062). La build ne peut donc pas rester en 2.2.0. Elle
 # prend 2.3.0 plutôt que 2.2.1 : elle ajoute un espace entier (« Études en
-# France »), et c'est un numéro de version mineure qui le dit.
+# France »), et c'est un numéro de version mineure qui le dit. Le nom 2.3.0 a
+# été posé pour la build 54, jamais envoyée aux boutiques (constat du
+# 03/10/2026) ; la build 55 la remplace et garde ce nom, supérieur à la 2.2.0.
 #
 # (Historique : la fiche existante était en 2.0.9 quand la 2.2.0 a été posée —
 # la CFBundleShortVersionString doit toujours être supérieure à la publiée.) Le NUMÉRO de build vit
@@ -40,7 +42,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # un écran plein (`PopScope(canPop: false)`) qui renvoie vers une version qui
 # n'existe pas encore. Pour inviter à mettre à jour SANS bloquer, le serveur
 # sert `recommendedVersion` (voir `AppVersionGate`).
-version: 2.3.0+54
+version: 2.3.0+55
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

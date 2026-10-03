@@ -1,5 +1,20 @@
 # Mise à jour 2.3.0 (54) — la checklist du 02/10/2026 au matin
 
+> **⚠️ 03/10/2026 — ne pas suivre cette checklist.**
+>
+> La build 54 n'a **jamais été envoyée aux boutiques**. Les captures de App Store
+> Connect (TestFlight → Build Uploads) et de Google Play Console montrées le 03/10/2026
+> ne la contiennent pas : dernier envoi iOS `2.2.0 (53)` du 04/09, dernier bundle Android
+> 53 / 2.2.0 (importé le 04/09, en production depuis le 11/09). Décision du propriétaire
+> du 03/10 : on envoie **une seule build, `2.3.0 (55)`**, qui remplace la 54 et en
+> porte tout le contenu.
+>
+> Le numéro 54 est abandonné (`docs/release-ledger.md`) et l'AAB signé de la CI du 02/10
+> (run 36945000021, commit `47a1295`) est obsolète : ne pas l'importer. Suivre
+> **`docs/mise-a-jour-55-checklist.md`** ; les textes à coller sont dans
+> `docs/release-55-store-pack.md`. Ce fichier reste comme historique de ce qui était prévu
+> le 02/10 : rien de ce qu'il décrit comme « à soumettre » n'a été fait.
+
 > **Ce que ce fichier est.** L'ordre exact des opérations pour archiver, vérifier et
 > soumettre la 54, avec les commandes. Les textes à coller sont dans
 > `docs/release-54-store-pack.md` ; la recette appareil dans
