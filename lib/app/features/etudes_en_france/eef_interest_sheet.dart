@@ -261,9 +261,13 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
                   children: [
                     for (final id in kEefFieldIds)
                       FilterChip(
+                        // Taille seule : une couleur dans `style:` écraserait
+                        // le libellé par état du chipTheme (blanc sur la puce
+                        // cochée) — `caption` y mettait textMuted, 1,09:1 sur
+                        // actionPrimary.
                         label: Text(
                           eefFieldLabel(id),
-                          style: KpbTextStyles.caption,
+                          style: const TextStyle(fontSize: 12),
                         ),
                         selected: _fieldIds.contains(id),
                         onSelected: busy
