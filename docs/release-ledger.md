@@ -94,8 +94,9 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   (`docs/runbook-ouverture-espace-reel.md`), sans nouvelle soumission.
 
   **Statut au 03/10/2026** : non archivée, non soumise, absente de TestFlight et
-  de Play. La branche `feat/eef-aide-dossier-55` n'est pas fusionnée : le SHA à
-  archiver n'existe pas encore (`docs/mise-a-jour-55-checklist.md`, étape 0).
+  de Play. Les aides au dossier (#315) sont fusionnées ; le SHA à archiver est le dernier
+  commit de `main` après les correctifs de la liste de contrôle, dont les quatre CI
+  sont vertes (`docs/mise-a-jour-55-checklist.md`, étape 0).
   Production : backend `0641601` (en ligne depuis le 03/10 à 17 h 06 UTC),
   `features` = `eefTeaser=true`, `eef=false`, `eefSpace=false`. Catalogue publié :
   10 029 formations dans 84 établissements, 473 en attente (mesuré le 01/10,
@@ -197,8 +198,7 @@ par #302 le 01/10).
   retombe sur les 20 villes de la facette `campusCity`, avec la mention « Villes
   principales », sans écran bloquant. Derrière `eefSpace`. Recette :
   `docs/device-qa-build54.md` §B-filtres.
-- **Aide à la demande de dossier (branche `feat/eef-aide-dossier-55`, EN COURS DE
-  FINITION, non fusionnée au 03/10).** Un bouton « Demander de l'aide » sur chaque
+- **Aide à la demande de dossier (#315, fusionnée le 03/10).** Un bouton « Demander de l'aide » sur chaque
   formation ; une ligne d'aide sous les filtres actifs ; une aide à l'étape
   « Préparer mon dossier » (CV, lettre, entretien), **uniquement depuis le hub de
   l'espace** ; les comptes du Niger voient ces aides en **variante neutre**.
@@ -206,15 +206,29 @@ par #302 le 01/10).
   (formation, université et ville ; filtres posés ; ou outil), jamais son nom, son
   e-mail, son téléphone ni le nom de son pays ; pour un pays suspendu il dit que la
   procédure est suspendue « dans mon pays », sans le nommer — d'après
-  `EefHelpMessages` sur la branche, **à vérifier sur le SHA final**
+  `EefHelpMessages`, **à vérifier sur le SHA final**
   (`docs/device-qa-build55.md`, Aide-19 à Aide-31).
-- **Lien « Me retirer » dans la feuille de déclaration d'intérêt** (même branche).
+- **Lien « Me retirer » dans la feuille de déclaration d'intérêt** (#315).
   Décision juridique du 03/10/2026 : le texte consenti et `eef-consent-v1` ne
   changent pas. ⚠️ À vérifier à la recette (Aide-39 à Aide-42 de
   `docs/device-qa-build55.md`) : cette feuille est aussi ouverte par la vitrine
   (`eef_teaser_screen.dart`), donc ce lien peut être visible à l'approbation, espace
   éteint — mais seulement pour un étudiant qui a déjà déclaré son intérêt (« Modifier
   ma réponse ») : la feuille d'une première déclaration ne l'affiche pas.
+- **Correctifs ajoutés avant l'archive (03/10/2026).** #310 : l'adresse du socket
+  Socket.IO de la messagerie des dossiers n'était valide qu'en local (la
+  dérivation `replaceFirst('/api', '')` coupait le premier « /api » de
+  `https://api…`). #317 : le domaine coché dans la feuille « Ça m'intéresse » était
+  illisible (gris sur bleu, 1,09:1) ; visible dès l'approbation, la vitrine ouvrant
+  cette feuille. **`ios/Podfile` : les Pods sous iOS 15.0 sont relevés à 15.0**
+  (`post_install`) parce que Xcode 27, installé sur le Mac du propriétaire le
+  03/10, refuse les cibles de déploiement hors de 15.0 à 27.0.x et fait échouer
+  le build ; l'app est déjà à 15.0, aucun appareil pris en charge ne change. Seule
+  la somme de contrôle du Podfile bouge dans `ios/Podfile.lock`, aucune version
+  de Pod. Compilation non signée pour appareil sous Xcode 27 vérifiée
+  (`Runner.app` 2.3.0 (55), iOS minimum 15.0, `arm64`) ; le simulateur ne passe
+  pas avec Flutter 3.44.1 (`lipo -verify_arch` à deux architectures, voir la
+  checklist, étape 1).
 - **Autres décisions juridiques du 03/10/2026** (`docs/ouverture-espace-eef.md`
   §6) : la phrase du héros sur Campus France est validée telle quelle ; l'annonce
   d'ouverture part vers tous les étudiants, Niger compris, avec un texte neutre
