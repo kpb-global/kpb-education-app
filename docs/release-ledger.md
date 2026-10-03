@@ -52,28 +52,59 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   53 ne repart pas, et le train « 2.2.0 » est fermé : App Store Connect refuse
   toute build dont la version marketing n'est pas supérieure à 2.2.0.
 
+- `54` — **jamais envoyée aux boutiques (constat du 03/10/2026) ; numéro
+  abandonné, la 55 la remplace.** Le numéro a porté le dépôt (`2.3.0+54`) et un AAB
+  signé de la CI (Flutter CI, run 36945000021, le 02/10/2026, commit `47a1295`),
+  jamais importé dans Play et sans les nouveautés de la 55 : cet AAB est OBSOLÈTE.
+  Le 03/10, ni App Store Connect (TestFlight → Build Uploads : dernier envoi
+  `2.2.0 (53)` du 04/09) ni Google Play Console (dernier bundle 53 / 2.2.0,
+  importé le 04/09, en production « déploiement complet » depuis le 11/09) ne la
+  contiennent, et aucune archive Xcode d'octobre n'existe sur le Mac du
+  propriétaire. Les documents qui écrivaient « soumise le 02/10 » ou « en attente
+  d'approbation » étaient faux. Son contenu monte intégralement dans la 55
+  (`### Ce que 55 embarque`). Brûlée plutôt que réutilisée, comme la 51 : « build
+  54 » désigne déjà des documents et un artefact de CI précis.
+
 ## Courant
 
-- `54` — **`2.3.0 (54)`. La build « ouverture sûre » de l'espace Études en
-  France.** Le dépôt livrait `2.2.0+53` ; la 53 est en vente depuis le 13/09/2026,
-  donc App Store Connect refuse toute build dont la version marketing n'est pas
+- `55` — **`2.3.0 (55)`. La build « ouverture sûre » de l'espace Études en
+  France, et la SEULE build 2.3.0 : elle remplace la 54, jamais envoyée.** Le
+  dépôt livrait `2.2.0+53` ; la 53 est en vente depuis le 13/09/2026, donc
+  App Store Connect refuse toute build dont la version marketing n'est pas
   **strictement supérieure** à 2.2.0 (ITMS-90062). D'où `2.3.0`, et non `2.2.1` :
-  c'est une build de fonctionnalités, pas un correctif.
+  c'est une build de fonctionnalités, pas un correctif. Le nom `2.3.0` est gardé ;
+  le numéro 54, jamais envoyé, est sauté pour éviter toute ambiguïté (voir sa
+  ligne sous **Consommés**).
 
-  **Elle part avec l'espace réel ÉTEINT.** Tout ce que la 54 ajoute pour
-  « Études en France » est derrière `features.eefSpace`, une clé que seul le
-  serveur allume : à l'approbation, un utilisateur de la 54 voit la vitrine de la
-  53 (avec en plus ses liens vers les sources officielles et un sélecteur de
-  domaines dans la déclaration). L'ouverture est une opération serveur séparée
+  **Pourquoi une seule build (décision du propriétaire, 03/10/2026, appelée « option B » dans
+  l'échange — sans rapport avec l'« état B » du pack de soumission, qui désigne l'espace
+  allumé).**
+  Les captures de App Store Connect et de Google Play Console montrées le
+  03/10/2026 ne contiennent pas la 54 : on ne l'envoie pas. On envoie UNE build,
+  qui porte tout ce que ce registre attribuait à la 54, plus les filtres du
+  catalogue (#314, fusionnée) et, en cours de finition sur la branche
+  `feat/eef-aide-dossier-55`, les aides à la demande de dossier.
+
+  **Elle part avec l'espace réel ÉTEINT** (décision XC-03, état A de
+  `docs/release-55-store-pack.md`). Tout ce que la 55 ajoute pour « Études en
+  France » est derrière `features.eefSpace`, une clé que seul le serveur allume :
+  à l'approbation, un utilisateur de la 55 voit la vitrine de la 53 (avec en plus
+  ses liens vers les sources officielles et un sélecteur de domaines dans la
+  déclaration). L'ouverture est une opération serveur séparée
   (`docs/runbook-ouverture-espace-reel.md`), sans nouvelle soumission.
 
-  **Statut dans la nuit du 01 au 02/10/2026** : non archivée, non soumise ;
-  archivage et soumission prévus le 02/10 (`docs/mise-a-jour-54-checklist.md`).
-  `main` porte #299 à #302 ; le backend est déployé sur le dernier commit de `main`.
-  Catalogue publié : 10 029 formations dans 84 établissements, 473 en attente —
-  mais l'espace reste fermé (`eefSpace=false`).
+  **Statut au 03/10/2026** : non archivée, non soumise, absente de TestFlight et
+  de Play. La branche `feat/eef-aide-dossier-55` n'est pas fusionnée : le SHA à
+  archiver n'existe pas encore (`docs/mise-a-jour-55-checklist.md`, étape 0).
+  Production : backend `0641601` (en ligne depuis le 03/10 à 17 h 06 UTC),
+  `features` = `eefTeaser=true`, `eef=false`, `eefSpace=false`. Catalogue publié :
+  10 029 formations dans 84 établissements, 473 en attente (mesuré le 01/10,
+  total inchangé après `eef-reconcile` le 02/10) — mais l'espace reste fermé.
 
-### Ce que 54 embarque
+### Ce que 55 embarque
+
+Les points 1 à 4 sont ce que ce registre attribuait à la 54 avant l'abandon de son
+numéro ; le point 5 est ce que la décision du 03/10 y ajoute.
 
 **1. Le hub de l'espace « Études en France » (derrière `eefSpace`).**
 - Hub : héros (où se dépose la candidature, suspension qui remplace la date, lien
@@ -81,12 +112,12 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   `aiToolsEnabled` que la boîte à outils), conseiller WhatsApp. Plus aucun module
   « en préparation ».
 - Catalogue (serveur, #280 puis cette build) : recherche par nom d'université,
-  sigle, ville, sans accents ; filtres Niveau et Procédure ; carte qui nomme
-  l'université, la ville et la procédure (DAP blanche / jaune, Études en France,
-  Parcoursup, hors procédure) ; « le catalogue arrive » distinct de « ta
-  recherche est trop étroite » ; une page suivante en panne garde la liste ;
-  « Tout effacer » vide aussi le champ ; la barre de facettes n'a plus de hauteur
-  fixe.
+  sigle, ville, sans accents ; filtres Niveau, Domaine, Ville et Procédure (#314,
+  point 5) ; carte qui nomme l'université, la ville et la procédure (DAP blanche /
+  jaune, Études en France, Parcoursup, hors procédure) ; « le catalogue arrive »
+  distinct de « ta recherche est trop étroite » ; une page suivante en panne garde
+  la liste ; « Tout effacer » vide aussi le champ ; la barre de facettes n'a plus
+  de hauteur fixe.
 - Mentions : paternité de la Licence Ouverte 2.0 (producteur, licence, date de
   mise à jour **servis** par `/config/app`), non-affiliation avec lien vers la
   plateforme officielle, mise en garde de suspension avec sa source.
@@ -121,12 +152,12 @@ Le numéro sous **Courant** est le seul autorisé. Le test
 
 **2. Le socle qui rend les builds suivantes pilotables.**
 - **En-têtes `X-KPB-App-Version` / `X-KPB-App-Build`** sur chaque requête (CAT-03) :
-  avant, le serveur ne pouvait pas distinguer une 53 d'une 54. Ils ne cassent
+  avant, le serveur ne pouvait pas distinguer une 53 d'une 55. Ils ne cassent
   jamais une requête (lecture mémorisée, échec = pas d'en-tête).
 - **Bandeau doux « une mise à jour est disponible »** piloté par
   `recommendedVersion` (XC-09), fermable, masqué sans lien de store. C'est le
-  levier des passages 54 → 55 → forum sans relever `minVersion` (qui bloque l'app).
-  `vps-ops` → `recommended-version-set`.
+  levier des passages suivants (55 → build suivante → forum) sans relever
+  `minVersion` (qui bloque l'app). `vps-ops` → `recommended-version-set`.
 - **Liens officiels servis** (XC-05) : `eefCampaign.platformUrl`,
   `suspendedSources` (https seulement, sans identifiants) ; `eefCatalog`
   (attribution, gardée contre `manifest.json` par un spec).
@@ -148,7 +179,7 @@ par #302 le 01/10).
 - #288 : génération IA (CV, lettres, entretien, relecture, orientation,
   diagnostic) avec un délai de **90 s** au lieu de 15 ; un délai dépassé dit
   « plus long que prévu », plus « vérifiez votre connexion ». Côté serveur
-  (à déployer) : raisonnement caché désactivé sur OpenRouter, **503** au lieu d'un
+  (déployé) : raisonnement caché désactivé sur OpenRouter, **503** au lieu d'un
   modèle de lettre vierge présenté comme personnalisé, le nom de l'étudiant n'est
   plus envoyé à la personnalisation.
 - FOR-M05 : « Un espace communautaire » retiré des CGU (web et app) tant que le
@@ -157,54 +188,99 @@ par #302 le 01/10).
 - Wikimedia déclaré comme destinataire dans les réponses de console
   (`CONSOLE_ANSWERS.md` §5).
 
-**Ce que la 54 ne contient PAS** (et qu'aucun texte de fiche ne doit vanter) : la
+**5. Ajouté par la décision du 03/10/2026.**
+- **Filtres du catalogue (#314, fusionnée, backend `0641601` en production).** La
+  rangée de puces est remplacée par quatre boutons — Niveau, Domaine, Ville,
+  Procédure — qui ouvrent chacun une feuille de choix ; filtres actifs en puces
+  supprimables. La liste des villes vient de `GET /etudes-en-france/cities` ; si
+  la route manque (404, 405, 5xx : backend plus ancien que l'app), le client
+  retombe sur les 20 villes de la facette `campusCity`, avec la mention « Villes
+  principales », sans écran bloquant. Derrière `eefSpace`. Recette :
+  `docs/device-qa-build54.md` §B-filtres.
+- **Aide à la demande de dossier (branche `feat/eef-aide-dossier-55`, EN COURS DE
+  FINITION, non fusionnée au 03/10).** Un bouton « Demander de l'aide » sur chaque
+  formation ; une ligne d'aide sous les filtres actifs ; une aide à l'étape
+  « Préparer mon dossier » (CV, lettre, entretien), **uniquement depuis le hub de
+  l'espace** ; les comptes du Niger voient ces aides en **variante neutre**.
+  Derrière `eefSpace`. Le message prérempli nomme ce que l'étudiant regardait
+  (formation, université et ville ; filtres posés ; ou outil), jamais son nom, son
+  e-mail, son téléphone ni le nom de son pays ; pour un pays suspendu il dit que la
+  procédure est suspendue « dans mon pays », sans le nommer — d'après
+  `EefHelpMessages` sur la branche, **à vérifier sur le SHA final**
+  (`docs/device-qa-build55.md`, Aide-19 à Aide-31).
+- **Lien « Me retirer » dans la feuille de déclaration d'intérêt** (même branche).
+  Décision juridique du 03/10/2026 : le texte consenti et `eef-consent-v1` ne
+  changent pas. ⚠️ À vérifier à la recette (Aide-39 à Aide-42 de
+  `docs/device-qa-build55.md`) : cette feuille est aussi ouverte par la vitrine
+  (`eef_teaser_screen.dart`), donc ce lien peut être visible à l'approbation, espace
+  éteint — mais seulement pour un étudiant qui a déjà déclaré son intérêt (« Modifier
+  ma réponse ») : la feuille d'une première déclaration ne l'affiche pas.
+- **Autres décisions juridiques du 03/10/2026** (`docs/ouverture-espace-eef.md`
+  §6) : la phrase du héros sur Campus France est validée telle quelle ; l'annonce
+  d'ouverture part vers tous les étudiants, Niger compris, avec un texte neutre
+  (l'audience `eef_interest` reste inutilisée) ; la question EEF-UX-15 ne se pose
+  pas pour cette build, aucune sélection de formations n'exigeant de profil
+  déclaré.
+
+**Ce que la 55 ne contient PAS** (et qu'aucun texte de fiche ne doit vanter) : la
 fiche formation, l'onglet Universités, la sélection en trois étages, la checklist,
-le projet d'études, les favoris synchronisés (build 55) ; le forum (build dédiée) ;
-aucun logo (la carte du catalogue n'en dessine pas) ; et, à l'approbation, l'espace
-ouvert : le catalogue est publié (10 029 formations, 84 établissements, le 01/10)
-mais reste derrière `eefSpace`.
+le projet d'études, les favoris synchronisés (une build ultérieure, numéro non
+décidé : le « build 55 » qu'on leur donnait dans les documents antérieurs est
+caduc, la 55 est celle-ci) ; le forum (build dédiée) ; aucun logo sur la carte du
+catalogue (la fiche d'un établissement d'Explorer en dessine un, avec son crédit de
+licence, quand l'établissement en a un : #281, point 3 ci-dessus ; aucun des 69
+établissements servis n'en avait le 03/10) ; une nouvelle version de consentement
+(`eef-consent-v1` est inchangé) ; et, à l'approbation, l'espace ouvert : le
+catalogue est publié (10 029 formations, 84 établissements) mais reste derrière
+`eefSpace`.
 
-### Couplage backend de la 54 : `tolerates-old`
+### Couplage backend de la 55 : `tolerates-old`
 
-La 54 ne **dépend** d'aucun backend récent pour fonctionner : chaque appel neuf est
+La 55 ne **dépend** d'aucun backend récent pour fonctionner : chaque appel neuf est
 soit derrière `eefSpace` (que seul un backend récent peut allumer), soit tolérant à
-une clé absente (`recommendedVersion`, `eefCatalog`, `platformUrl`,
-`suspendedSources`, `catalogPublished` — lue « publié » quand elle manque). Un
-backend en retard se traduit par **moins de choses affichées**, jamais par une
-erreur : c'est la définition de `tolerates-old`. Le préflight se lance donc avec
-`backend_coupling=tolerates-old`. Dans la nuit du 01 au 02/10, le backend a été
-déployé sur le dernier commit de `main` (avec le serveur de #288) : si `main` n'a pas
-bougé depuis, la production **est** la release et `requires-new` passe. Relire
-`GET /api/health/version` juste avant de lancer le préflight.
+une clé ou une route absente (`recommendedVersion`, `eefCatalog`, `platformUrl`,
+`suspendedSources`, `catalogPublished` — lue « publié » quand elle manque ;
+`GET /etudes-en-france/cities` — liste de repli quand la route est indisponible).
+Un backend en retard se traduit par **moins de choses affichées**, jamais par une
+erreur : c'est la définition de `tolerates-old`.
 
-⚠️ **Mais l'OUVERTURE de l'espace exige le backend de cette build** — le commit de
-fusion de la branche, **pas `95440db`** (qui porte la recherche et le `PATCH`
-mais ni la mention de paternité `eefCatalog`, ni les liens officiels, ni les
-audiences de campagne) : `PATCH /etudes-en-france/interest`, `catalogPublished`,
-la recherche par `searchText`, la migration
-`20260930120000_eef_search_text_and_acronym`, l'import indexé, `eefCatalog`,
-`platformUrl`, `suspendedSources`. Si l'espace doit être allumé À L'APPROBATION
-(état B du pack de soumission), ce backend doit être en ligne AVANT la soumission
-et le préflight se lance en `requires-new` : le catalogue ne doit jamais s'afficher
-sans sa mention. L'ordre — déploiement backend `scope=full`, `eef-import`,
-publication du pilote, **puis** `eef-space-on` — est dans
-`docs/runbook-ouverture-espace-reel.md`. `eef-space-on` refuse d'écrire tant
-qu'aucune formation n'est publiée **ou** que le conteneur ne porte pas ce backend
-(`eef-catalog-attribution.js`), et le workflow vérifie après coup que
-`/config/app` sert `eefCatalog` et `platformUrl`.
+Le préflight se lance avec `backend_coupling=tolerates-old`, et la raison est de
+mécanique, pas de contenu : `requires-new` exige que la production serve le SHA de
+release (12 premiers caractères), or la production sert `0641601` et le SHA de
+release sera celui de `main` après la fusion de la branche et de la préparation
+de la 55. `tolerates-old` exige que la production soit un **ancêtre** du SHA de
+release : `git merge-base --is-ancestor 0641601 <RELEASE>`. Pour que ce « en retard »
+ne cache rien, `git diff --stat 0641601 <RELEASE> -- backend admin docker-compose.yml`
+**ne doit rien afficher** : sinon le backend de la release n'est pas en production,
+il faut déployer (`deploy.yml`, `scope=full`) puis revoir le couplage.
 
-**Condition remplie le 01/10/2026** : backend `33c5a51` en production, catalogue
+⚠️ **L'OUVERTURE de l'espace exige un backend qui porte le hub**, et c'est le cas :
+`0641601` contient `PATCH /etudes-en-france/interest`, `catalogPublished`, la
+recherche par `searchText`, la migration `20260930120000_eef_search_text_and_acronym`
+(la dernière du dépôt, rien depuis), `eefCatalog`, `platformUrl`,
+`suspendedSources` et `GET /etudes-en-france/cities`. `eef-space-on` refuse
+d'écrire tant qu'aucune formation n'est publiée **ou** que le conteneur ne porte
+pas ce backend (`eef-catalog-attribution.js`), et le workflow vérifie après coup
+que `/config/app` sert `eefCatalog` et `platformUrl`. L'ordre —
+déploiement backend `scope=full`, `eef-import`, publication du pilote, **puis**
+`eef-space-on` — est dans `docs/runbook-ouverture-espace-reel.md`.
+
+**Conditions techniques remplies au 03/10/2026** : backend `0641601` ; catalogue
 publié par délégation (`eef-publish` : 10 029 formations, 473 en attente,
-`docs/eef-publication-deleguee.md`). Ce qui retient l'ouverture n'est plus
-technique : les 7 questions de procédure (tranchées le 02/10 ; corrections à appliquer par
-`eef-reconcile`, #305), le juridique, et une 54 en vente.
+`docs/eef-publication-deleguee.md`) ; corrections de procédure appliquées le
+02/10 (`eef-reconcile`, 3 834 formations réalignées, `docs/ouverture-espace-eef.md`
+§1) ; questions juridiques tranchées le 03/10. Ce qui retient l'ouverture n'est
+plus technique : **une 55 en vente et adoptée**, car aucune build des boutiques ne
+contient le hub.
 
 ### Ce qui reste à faire par un humain avant la soumission
 
-Voir `docs/release-54-store-pack.md` (notes de version, notes de revue, décision
-XC-03), `docs/device-qa-build54.md` (QA appareil, budget de performance),
-`docs/CONSOLE_ANSWERS.md` §0quater (déclarations de console) et
-`docs/eef-consent-v1.md` (questions juridiques ouvertes).
+Voir `docs/mise-a-jour-55-checklist.md` (l'ordre exact, avec les commandes),
+`docs/release-55-store-pack.md` (notes de version, notes de revue, décision XC-03),
+`docs/device-qa-build54.md` §A et §B, dont le §B-filtres (QA appareil, toujours
+valable : lire « 55 » là où la fiche écrit « 54 ») et `docs/device-qa-build55.md`
+(aides, retrait, Niger, anglais), `docs/CONSOLE_ANSWERS.md` §0quater (déclarations de
+console ; lire « 55 » pour « 54 ») et `docs/eef-consent-v1.md` (questions juridiques).
 
 ### Ce que 52 embarque
 
@@ -596,3 +672,26 @@ réécriture de table, aucun index, aucune extension.
 champs côté Flutter, afficher l'établissement sur la carte, l'état vide « le
 catalogue arrive » (`catalogPublished`), l'appel au `PATCH`, et lire `eefSpace`
 dans `RemoteFeatureFlags` / `EefEntry`.
+
+### 03/10/2026 — backend `0641601` : filtres du catalogue, limiteur unique
+
+**État : EN PRODUCTION depuis le 03/10/2026 à 17 h 06 UTC.** Aucune migration
+nouvelle : la dernière du dépôt reste `20260930120000_eef_search_text_and_acronym`.
+
+**Couplage : `tolerates-old` côté mobile.** Les builds 49 à 53 n'appellent rien de
+ce qui suit.
+
+- **`GET /etudes-en-france/cities`** (#314) : la liste complète des villes du
+  catalogue publié (la facette `campusCity` de `/search` est plafonnée à 20 valeurs,
+  qui ne couvrent que 4 201 formations sur 10 029). Mêmes règles de publication et de
+  filtres que `/search` ; `campusCity`, `cursor` et `limit` ignorés. Route publique,
+  en lecture seule. Contrat : `docs/api-contracts.md`.
+- **Un seul limiteur de débit** (#313). Avec `@nestjs/throttler` 6.x, le limiteur
+  `auth` (10 requêtes par minute) déclaré à côté de `global` s'appliquait à TOUTES
+  les routes : `GET /config/app` et la recherche publique recevaient un 429 à la
+  11e requête par minute et par IP (constaté en production, en-tête
+  `x-ratelimit-limit-auth: 10`). Il ne reste que `global` — 60 par minute et par IP
+  et par route en production, 600 ailleurs — et la connexion admin garde 10 par
+  minute par surcharge nommée.
+- **Shortlist** (#307) : ne recommande que la procédure de l'espace de l'étudiant, et
+  le post-bac n'a plus d'étage « sécurité ». L'app, à `0641601`, ne l'appelle pas.

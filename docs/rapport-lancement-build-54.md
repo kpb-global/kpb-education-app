@@ -1,5 +1,26 @@
 # Rapport — Études en France, build 54 : ce qui est fait, ce qui reste
 
+> **⚠️ 03/10/2026 — la 54 n'a jamais été soumise.**
+>
+> La build 54 n'a **jamais été envoyée aux boutiques**. Les captures de App Store
+> Connect (TestFlight → Build Uploads) et de Google Play Console montrées le 03/10/2026
+> ne la contiennent pas : dernier envoi iOS `2.2.0 (53)` du 04/09, dernier bundle Android
+> 53 / 2.2.0 (importé le 04/09, en production depuis le 11/09). Décision du propriétaire
+> du 03/10 : on envoie **une seule build, `2.3.0 (55)`**, qui remplace la 54 et en
+> porte tout le contenu.
+>
+> Ce rapport décrit le contenu de la 54, qui est désormais celui de la 55 (plus les filtres
+> du catalogue et les aides à la demande de dossier) ; les lignes qui prévoient une
+> « soumission le 02/10 » décrivent un plan **jamais exécuté**. Pour l'état de la 55 :
+> `docs/release-ledger.md` (section « Courant ») ; pour les opérations :
+> `docs/mise-a-jour-55-checklist.md` ; pour les textes : `docs/release-55-store-pack.md`.
+>
+> **Numérotation et audience.** Dans la suite de ce rapport, « build 55 » (§4) est l'ancienne
+> numérotation : la build qui suivra la 2.3.0 (55), numéro non décidé. Le point 7 du §7
+> (audience de l'annonce : `eef_interest` / `all_students_except_countries` +
+> `eef_suspended`) est **remplacé** par la décision juridique du 03/10 : tous les étudiants,
+> Niger compris, texte neutre (`docs/ouverture-espace-eef.md` § 4).
+
 > Mis à jour le 01/10/2026 à 23 h 45 (production vérifiée à 23 h 05).
 >
 > **Pour la mise à jour du 02/10 au matin : `docs/mise-a-jour-54-checklist.md`** — la
@@ -87,7 +108,7 @@ Google Play), `docs/runbook-ouverture-espace-reel.md`, `docs/device-qa-build54.m
 | 7 | **Archiver** : Android par Flutter CI `release_android=true` (**pas** de tag `v2.3.0`) ; iOS dans Xcode avec la vraie clé `phc_…` + `scripts/preflight-ios-archive.sh` + dSYM | Pas à pas : `docs/mise-a-jour-54-checklist.md`. |
 | 8 | **Préflight de release** : `backend_coupling=requires-new` si la production sert le commit archivé, sinon `tolerates-old` ; le heartbeat de sauvegarde ne se rafraîchit pas à la main (toutes les 6 h à h+23) | LIV-06. |
 | 9 | **Consoles** : questionnaire d'âge, Data Safety / App Privacy (inchangées pour la 54), « Government apps », Wikimedia | `CONSOLE_ANSWERS.md` §0quater. |
-| 10 | **Soumettre** : « Nouveautés » et notes de revue du pack, publication progressive iOS, Play par paliers 5 / 20 / 100 % | Soumission le 02/10 ; approbation en 1 à 3 jours, non garantie. |
+| 10 | **Soumettre** : « Nouveautés » et notes de revue du pack, publication progressive iOS, Play par paliers 5 / 20 / 100 % | Soumission **prévue** le 02/10, **jamais faite** : la 54 n'est jamais partie (voir l'encadré en tête) ; la 55 la remplace. |
 | 11 | **Budget de performance** (taille AAB, démarrage à froid, octets) sur l'appareil de référence | `docs/STORE_READINESS.md`, 4 lignes « _TBD_ » ; commandes dans la fiche QA §C. |
 | 12 | **Ouvrir l'espace** — seulement après : 54 en vente et adoptée ; catalogue publié (**fait**) ; 7 questions de procédure tranchées (**fait** le 02/10) et corrections appliquées (`eef-reconcile`, #305) ; juridique du héros validé | Runbook complet. Retour arrière : `eef-space-off`. |
 

@@ -14,7 +14,8 @@
 
 ## Version `eef-consent-v1`
 
-En vigueur depuis la vitrine de la build 49. **Inchangée en build 54.**
+En vigueur depuis la vitrine de la build 49. **Inchangée dans la 2.3.0 (55)** (la 54, jamais
+envoyée aux boutiques, est abandonnée : `docs/release-ledger.md`).
 
 ### Ce qui est affiché au moment du consentement
 
@@ -32,11 +33,11 @@ bouton « Valider » :
   (et le fait que la réponse serve à préparer l'accompagnement) ;
 - la case facultative « La version Premium m'intéresserait aussi »
   (`wantsPremium`) ;
-- les niveaux (`currentLevel`, `targetLevel`) et, depuis la build 54, les
+- les niveaux (`currentLevel`, `targetLevel`) et, depuis la 2.3.0 (55), les
   domaines (`fieldIds`, codes d01–d12) — des **réponses**, pas un consentement
   supplémentaire.
 
-## Ce que la build 54 change *sans* changer le texte
+## Ce que la 2.3.0 (55) change *sans* changer le texte
 
 | Changement | Pourquoi ce n'est pas une nouvelle version |
 |---|---|
@@ -47,13 +48,24 @@ bouton « Valider » :
 
 ## Questions juridiques encore ouvertes
 
-1. **EEF-UX-15 — découpler ou assumer le couplage.** En build 54 il n'y a *pas*
+> **Mise à jour du 03/10/2026 — décisions juridiques.** (1) **EEF-UX-15** ne se pose pas pour
+> la build 55 : aucune sélection de formations n'exige de profil déclaré ; elle se posera
+> avant toute build dont la sélection l'exigera. (2) **« depuis cet écran »** : un lien
+> « Me retirer » est ajouté dans la feuille de déclaration (build 55) ; le texte consenti et
+> `eef-consent-v1` ne changent pas. (3) **La phrase du héros** sur Campus France est validée
+> telle quelle. (4) **L'annonce d'ouverture** part vers **tous les étudiants, Niger compris**,
+> avec un texte neutre ; la question 4 ci-dessous **reste ouverte pour l'audience
+> `eef_interest`**, qui n'est pas utilisée tant qu'elle n'est pas tranchée. Le texte
+> d'origine des questions est conservé ci-dessous. Détail : `docs/ouverture-espace-eef.md` § 6.
+
+1. **EEF-UX-15 — découpler ou assumer le couplage.** Dans la 2.3.0 (55) il n'y a *pas*
    de sélection de formations : la déclaration n'est donc la condition d'aucune
    fonction gratuite, et le consentement au rappel reste optionnel. La question
-   se pose **avant la build 55**, quand la sélection exigera un profil
-   déclaré : soit on découple (profil de sélection sans consentement commercial,
-   case de rappel séparée, `eef-consent-v2`), soit on assume le couplage et on le
-   dit à l'écran.
+   se pose **avant la prochaine build dont la sélection exigera un profil
+   déclaré** (« build 55 » dans l'ancienne numérotation, écrite avant que la 54 soit
+   abandonnée ; la 2.3.0 (55) n'a pas de sélection) : soit on découple (profil de
+   sélection sans consentement commercial, case de rappel séparée, `eef-consent-v2`),
+   soit on assume le couplage et on le dit à l'écran.
 2. **« depuis cet écran ».** Le texte promet un retrait « depuis cet écran ». Le
    retrait est dans l'écran DERRIÈRE la feuille de consentement — la vitrine
    (« Me retirer de la liste », état de lancement) ou le hub (« Mon profil Études en
@@ -72,11 +84,14 @@ bouton « Valider » :
    promet « on te préviendra dès l'ouverture » (`eef_cta_body`) — un texte que le
    test d'empreinte ne fige pas. Un push ou un e-mail automatisé de type « l'espace
    est ouvert » à l'audience `eef_interest` est-il couvert ? À trancher AVANT le
-   premier envoi à cette audience. Alternative sans risque : n'envoyer qu'aux
-   étudiants par `all_students_except_countries` (message d'information général).
+   premier envoi à cette audience. ~~Alternative sans risque : n'envoyer qu'aux
+   étudiants par `all_students_except_countries` (message d'information général).~~ **Écartée le
+   03/10/2026 pour l'annonce d'ouverture** : elle part vers **tous les étudiants** (`all_students`,
+   Niger compris, texte neutre), sans exclure les pays suspendus ; jamais `eef_interest` tant que
+   cette question n'est pas tranchée (`docs/ouverture-espace-eef.md` § 4).
 
 ## Export
 
 `GET /admin/etudes-en-france/interest/export.csv` (CSV) inclut `consentVersion`. Les
-lignes antérieures à la build 54 portent `eef-consent-v1` ; elles ne sont pas
+lignes antérieures à la 2.3.0 (55) portent `eef-consent-v1` ; elles ne sont pas
 modifiées par le `PATCH`.

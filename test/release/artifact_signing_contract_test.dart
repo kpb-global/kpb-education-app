@@ -212,7 +212,8 @@ void main() {
   // Passé à 2.3.0 pour la build 54, délibérément : la 2.2.0 est en vente sur
   // l'App Store depuis le 13/09/2026, et App Store Connect refuse le
   // téléversement d'une build dont la version marketing n'est pas supérieure à
-  // la dernière approuvée (ITMS-90062).
+  // la dernière approuvée (ITMS-90062). La 54 n'a jamais été envoyée aux
+  // boutiques (constat du 03/10/2026) ; la 55 la remplace et garde ce nom.
   //
   // Passé à 2.2.0 le 03/09/2026, délibérément : `AppVersionGate` compare la
   // version MARKETING au `minVersion` du serveur et `isVersionBelow` ignore le

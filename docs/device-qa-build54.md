@@ -1,5 +1,29 @@
 # Fiche de QA appareil — build 54 (`2.3.0`)
 
+> **⚠️ 03/10/2026 — fiche écrite pour la 54, qui n'a jamais été envoyée.**
+>
+> La build 54 n'a **jamais été envoyée aux boutiques**. Les captures de App Store
+> Connect (TestFlight → Build Uploads) et de Google Play Console montrées le 03/10/2026
+> ne la contiennent pas : dernier envoi iOS `2.2.0 (53)` du 04/09, dernier bundle Android
+> 53 / 2.2.0 (importé le 04/09, en production depuis le 11/09). Décision du propriétaire
+> du 03/10 : on envoie **une seule build, `2.3.0 (55)`**, qui remplace la 54 et en
+> porte tout le contenu.
+>
+> Les §A, §B, §B-aide, §C et §D **restent valables pour la 55** : lire `2.3.0 (55)` là où
+> la fiche écrit `2.3.0 (54)` (A1 : TestFlight, ou `versionCode` 55 sur Android). Ce qui
+> s'ajoute avec la 55 — aides à la demande de dossier, lien « Me retirer » dans la feuille,
+> variante neutre pour le Niger, anglais — est dans **`docs/device-qa-build55.md`**. Les
+> opérations d'envoi sont dans `docs/mise-a-jour-55-checklist.md`.
+>
+> **Les filtres du catalogue ont leur recette ici : §B-filtres, plus bas.** #314 (fusionnée ;
+> côté serveur, en production depuis le 03/10) a remplacé la rangée de puces « Niveau et
+> Procédure avec compteurs » par quatre boutons — Niveau, Domaine, Ville, Procédure — qui
+> ouvrent chacun une feuille de choix. **B3 et B13 décrivaient cette rangée : elles ont été
+> réécrites** et renvoient au §B-filtres. B14 (la carte : procédure, badge, niveau) n'est pas
+> touchée. Dans Aide-7 et Aide-15, « filtre Parcoursup » (ou « DAP dossier jaune », « Hors
+> procédure ») se pose maintenant par la feuille « Procédure », puis « Voir N formations ».
+> `docs/device-qa-build55.md` ne couvre pas les filtres : il renvoie à B3 de cette fiche.
+
 > **Pour qui.** Le propriétaire, sur **un iPhone et un Android physiques**, avec la
 > **build soumise** (TestFlight / Play Internal) — pas un build de debug : le
 > contrat de soumission exige que la preuve vienne de l'artefact, et que
@@ -10,7 +34,8 @@
 > **Ce que la prod ne permet PAS de tester** : l'état « Le catalogue arrive » (B5,
 > second cas d'Aide-6) — le catalogue de production est publié depuis le 01/10
 > (10 029 formations, 84 établissements) — et les logos (B10 : la carte du
-> catalogue n'en dessine pas). Le reste du §B se teste **contre la production**
+> catalogue n'en dessine pas, et aucun des 69 établissements servis par Explorer n'avait
+> de logo le 03/10). Le reste du §B se teste **contre la production**
 > (voie 2).
 
 ## A. Sur la build soumise, contre la production
@@ -86,7 +111,7 @@ Puis, sur le hub :
 |---|---|---|
 | B1 | Héros | « Prépare ta candidature aux universités françaises » ; le corps dit où se dépose la candidature ; date ou mise en garde selon le pays |
 | B2 | Tuiles | Formations, CV, Lettres, Entretien : **chacune ouvre un écran qui marche** ; aucune mention « en préparation ». Le conseiller n'est plus une tuile : c'est la carte d'aide (§B-aide) |
-| B3 | Catalogue | Recherche par nom d'université / sigle / ville (sans accents) ; filtres Niveau et Procédure avec compteurs ; chaque carte nomme l'université, la ville, la procédure |
+| B3 | Catalogue | Recherche par nom d'université / sigle / ville (sans accents) ; chaque carte nomme l'université, la ville, la procédure ; les filtres Niveau, Domaine, Ville et Procédure : §B-filtres |
 | B4 | Cas vide | Recherche sans résultat → « Aucune formation ne correspond » + « Tout effacer » **qui vide aussi le champ** |
 | B5 | Catalogue non publié | (base sans publication) « Le catalogue arrive », **sans** « Tout effacer » |
 | B6 | Panne | Réseau coupé → « Pas de connexion » ; une page suivante qui échoue **garde la liste** et propose « Réessayer » |
@@ -96,8 +121,34 @@ Puis, sur le hub :
 | B10 | Logos (recette seulement) | Dans la fiche d'un établissement qui en a un : logo **et** crédit de licence ; un logo SVG qui ne charge pas ne casse pas la fiche (MISS-01) |
 | B11 | « médecine » | ≈ 589 résultats, tous « L1 - … » (PASS / L.AS), chacun avec le badge « Accès santé » ; aucun diplôme paramédical en première page. Idem « pharmacie », « kiné », « dentaire », « L.AS », « medicine » ; « PASS » → ≈ 205, seulement des PASS |
 | B12 | « orthophoniste » / « santé » | Certificat d'orthophoniste **sans** badge. « santé » → ≈ 924 : badge sur les PASS / L.AS seulement. « las » ne ramène aucun « Arts plastiques » |
-| B13 | Filtre Niveau | La puce du cycle santé dit « Études de santé » (pas « Accès santé ») : elle compte aussi les 61 diplômes paramédicaux, sans badge |
+| B13 | Filtre Niveau | Dans la feuille « Niveau » (Filtres-2), la ligne du cycle santé dit « Études de santé » (pas « Accès santé ») : elle compte aussi les 61 diplômes paramédicaux, sans badge |
 | B14 | EN, ×1,3, iPhone SE / Android 360 dp | Badge « Health studies access » ; la rangée procédure + badge + niveau passe à la ligne sans rien couper |
+
+## B-filtres. Filtres du catalogue (même build que le §B)
+
+Écrite le 03/10/2026 d'après le code de #314 (`eef_catalog_filters.dart`,
+`eef_filter_options.dart`, `eef_catalog_controller.dart`) et **jamais jouée sur appareil** : un
+« attendu » qui se révèle faux se corrige ici, on ne plie pas la recette à la build.
+
+Le catalogue se filtre par **quatre boutons** — Niveau, Domaine, Ville, Procédure — qui ouvrent
+chacun une **feuille de choix** (une case par valeur, avec son compteur). Rien n'est demandé au
+serveur avant « Voir N formations » : une seule requête, quel que soit le nombre de cases
+cochées ; fermer la feuille sans valider (balayage, retour, fond) ne change rien. Les filtres
+sont dans le catalogue, donc derrière `features.eefSpace` : mêmes conditions de recette que le §B.
+
+| # | À vérifier | Attendu |
+|---|---|---|
+| Filtres-1 | Les quatre boutons | Au-dessus de la liste : « Niveau », « Domaine », « Ville », « Procédure » dans cet ordre (EN : Level, Field, City, Procedure). « Ville » est toujours là ; les trois autres s'affichent quand le serveur a servi des valeurs à y choisir (ou qu'une est déjà posée). Aucun bouton quand le serveur n'a rien servi à filtrer (panne, catalogue non publié) et qu'aucun filtre n'est posé. Chaque bouton fait 48 dp de haut au moins ; ils passent à la ligne quand ils ne tiennent pas sur une. |
+| Filtres-2 | Feuille « Niveau » | Une case par niveau servi, avec son compteur, du plus bas au plus haut : Licence 1re année, Licence 2e année, Licence 3e année, BUT 1re année, DEUST, Études de santé, Cycle ingénieur, Master. Cocher n'envoie rien : le bouton du bas devient « Voir N formations » (N = somme des cases cochées ; « Voir 0 formation » possible ; sans case cochée, il annonce le total courant) ; « Effacer » (en haut de la feuille, seulement quand une case est cochée) décoche tout dans la feuille. Après « Voir N formations » : le bouton devient « Niveau · 2 » (fond bleu plein, texte blanc) et la liste se recharge. |
+| Filtres-3 | Feuille « Domaine » | Les domaines servis, par ordre alphabétique, chacun avec son compteur et son nom dans la langue de l'app ; **jamais** un code (« d07 ») à la place du nom ; un nom long (« Énergie, Environnement & Développement durable ») passe à la ligne. |
+| Filtres-4 | Feuille « Procédure » | « DAP dossier blanc », « DAP dossier jaune », « Études en France », « Parcoursup », « Hors procédure » (EN : « DAP, white form », « DAP, yellow form », « Études en France », « Parcoursup », « Outside the procedure »), chacune avec son compteur. Repère au 02/10, sans autre filtre (`docs/ouverture-espace-eef.md` § 2.3) : 3 076 · 29 · 6 804 · 1 · 119, total 10 029 — un ordre de grandeur, le catalogue peut avoir bougé. |
+| Filtres-5 | Feuille « Ville » | « Chargement des villes… », puis un champ « Chercher une ville » et la liste, triée par nombre de formations décroissant ; la recherche ignore accents et majuscules ; une saisie sans résultat → « Aucune ville ne correspond ». **La liste est complète** (276 villes mesurées sur le catalogue 1.3.0, d'après #314), pas seulement les 20 plus fournies, qui ne couvrent que 4 201 formations sur 10 029 : chercher une ville peu fournie (absente des 20 premières lignes), la cocher, « Voir N formations » → seules ses formations s'affichent, chaque carte nomme cette ville. |
+| Filtres-6 | Compteurs et « Voir N formations » | Poser Niveau = Master, puis ouvrir « Procédure » et « Ville » : leurs compteurs ne comptent que les masters, pas le catalogue entier. Cocher deux valeurs d'une même famille **élargit** la liste (le N de « Voir N formations » est la somme des deux compteurs). Le N annoncé par le bouton doit être le total que la liste affiche ensuite (« N formations ») : noter tout écart, pour Niveau, Procédure, Ville puis Domaine. |
+| Filtres-7 | « Ville » hors ligne | Mode avion **avant** de toucher « Ville » : la feuille dit « Impossible de charger les villes » et « Pas de connexion. Vérifie-la, puis réessaie. », avec « Réessayer » — jamais une liste vide ni un écran bloqué (on peut fermer la feuille). Réseau rétabli, « Réessayer » charge la liste. |
+| Filtres-8 | « Ville », repli (backend sans la route) | Si `GET /etudes-en-france/cities` répond 404, 405 ou 5xx (backend plus ancien que l'app), la feuille propose les villes de la facette de la recherche — les plus fournies, 20 au plus — avec la mention « Villes principales — pour une autre ville, tape-la dans la recherche », sans rien bloquer. **Ne se teste pas contre la production** (la route y répond depuis le 03/10, 17 h 06 UTC, backend `0641601`) : voie 3 du §B avec une règle du mandataire qui répond 404 à `/api/etudes-en-france/cities`, ou voie 1 avec un backend local au commit `a7b3fcf` (celui d'avant #314). |
+| Filtres-9 | Filtres actifs | Après validation : une puce par valeur choisie sous les boutons, plus « Tout effacer ». Un tap sur une puce retire ce seul filtre ; « Tout effacer » les retire tous **et vide le champ de recherche**. Cibles de 48 dp au moins. |
+| Filtres-10 | Texte agrandi, petit écran, anglais | ×1,3 sur Android 360 dp **et** iPhone SE : les quatre boutons passent à la ligne, aucun n'est coupé ; la feuille « Ville » avec le clavier ouvert garde « Voir N formations » visible au-dessus du clavier ; avec dix villes choisies, la zone des filtres défile dans sa propre hauteur et la liste garde de la place. En anglais : « Show N programmes », « Clear all », « Search a city ». |
+| Filtres-11 | Lecteur d'écran | Chaque bouton annonce son nom puis « Aucun choix » ou « N choix » (EN : « N selected ») ; chaque case annonce « <libellé>, N formation(s) » et son état coché ; chaque puce « Retirer le filtre <libellé> » (EN : « Remove filter … »). |
 
 ## B-aide. Cartes d'aide « C'est flou ? » (même build que le §B)
 

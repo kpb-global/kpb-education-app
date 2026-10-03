@@ -1,5 +1,19 @@
 # Build 54 (`2.3.0`) — pack de soumission : notes de version, notes de revue, textes de fiche
 
+> **⚠️ 03/10/2026 — pack de la 54, jamais soumise.**
+>
+> La build 54 n'a **jamais été envoyée aux boutiques**. Les captures de App Store
+> Connect (TestFlight → Build Uploads) et de Google Play Console montrées le 03/10/2026
+> ne la contiennent pas : dernier envoi iOS `2.2.0 (53)` du 04/09, dernier bundle Android
+> 53 / 2.2.0 (importé le 04/09, en production depuis le 11/09). Décision du propriétaire
+> du 03/10 : on envoie **une seule build, `2.3.0 (55)`**, qui remplace la 54 et en
+> porte tout le contenu.
+>
+> Pour la 55, **coller les textes de `docs/release-55-store-pack.md`**, pas ceux-ci. Ce pack
+> reste comme historique : la décision XC-03 (état A, espace éteint) et les notes sur la fin
+> des pourcentages d'admission et le délai IA sont reprises dans le pack de la 55 ; ce qui
+> change, c'est le numéro et ce qui s'y ajoute.
+
 > **À quoi sert ce fichier.** Tout ce qu'il faut *coller* dans les consoles pour la
 > 54, au même endroit : notes de version (« Nouveautés » / « What to Test »),
 > addendum aux « Notes for Review » Apple, phrases de non-affiliation pour la
@@ -242,5 +256,5 @@ gouvernementale (réponse reportée dans `CONSOLE_ANSWERS.md` §0quater).
 | Finalités commerciales à déclarer (Marketing) | Juridique | `CONSOLE_ANSWERS.md` §0quater, XC-06 |
 | Phrase sur Campus France dans le héros du hub | Juridique | `docs/eef-consent-v1.md` |
 | Tranche d'âge (décision D2) | Propriétaire + juridique | `store-listing-copy.md` §9 |
-| Revue accélérée Apple : soumission le 02/10, approbation en 1 à 3 jours, **non garantie**. En état A l'espace reste fermé après l'approbation : l'urgence est faible | Propriétaire | LIV-10 |
+| Revue accélérée Apple : soumission **prévue le 02/10, jamais faite** (la 54 n'a jamais été envoyée ; la 55 la remplace). En état A l'espace reste fermé après l'approbation : l'urgence est faible | Propriétaire | LIV-10 |
 | Exclure le compte de démonstration des listes d'appel (la note de revue le promet) | Propriétaire | §3 |
