@@ -24,22 +24,62 @@ enum EefSheetMode {
   edit,
 }
 
+/// Comment la feuille s'est refermée.
+enum _SheetResult {
+  /// Le serveur a confirmé l'enregistrement.
+  confirmed,
+
+  /// « Annuler » : rien n'a été envoyé.
+  cancelled,
+
+  /// « Me retirer de la liste » : la feuille se referme, puis l'écran porteur
+  /// lance son flux de retrait.
+  withdraw,
+}
+
 /// Ouvre la feuille de déclaration d'intérêt.
 ///
 /// Rend `true` si le serveur a confirmé l'enregistrement.
+///
+/// ## Le retrait, depuis la feuille
+///
+/// Le texte de consentement promet « tu peux te retirer à tout moment, depuis cet
+/// écran ». Quand une déclaration EXISTE (modification, ou nouvelle réponse d'une
+/// vitrine déjà déclarée), la feuille propose donc « Me retirer de la liste ».
+/// Elle ne fait rien elle-même : [onWithdraw] est le flux de retrait de l'écran
+/// porteur — la confirmation « Te retirer de la liste ? », la méthode du
+/// contrôleur, les messages `eef_withdraw_*` —, qu'on ne réécrit pas ici. Il est
+/// lancé APRÈS la fermeture de la feuille : ses messages (retiré, ou échec avec
+/// l'adresse de recours) se lisent alors sur l'écran porteur, au lieu d'être cachés
+/// derrière elle. Sans [onWithdraw], pas de lien : un lien qu'aucun écran ne tient
+/// serait muet.
 Future<bool> showEefInterestSheet(
   BuildContext context, {
   required EefInterestController controller,
   EefSheetMode mode = EefSheetMode.declare,
+  Future<void> Function()? onWithdraw,
 }) async {
-  final confirmed = await showModalBottomSheet<bool>(
+  // Une feuille repart d'un état propre : l'échec d'un retrait (ou d'un envoi
+  // abandonné) ne doit pas s'afficher comme l'échec d'un envoi qu'on n'a pas
+  // tenté. Voir `EefInterestController.clearFailure`.
+  controller.clearFailure();
+  final result = await showModalBottomSheet<_SheetResult>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (sheetContext) =>
-        _EefInterestSheet(controller: controller, mode: mode),
+    builder: (sheetContext) => _EefInterestSheet(
+      controller: controller,
+      mode: mode,
+      canWithdraw: onWithdraw != null,
+    ),
   );
-  return confirmed ?? false;
+  if (result == _SheetResult.withdraw) {
+    // L'écran porteur a pu disparaître pendant la fermeture : on ne lui parle
+    // plus.
+    if (context.mounted) await onWithdraw?.call();
+    return false;
+  }
+  return result == _SheetResult.confirmed;
 }
 
 /// Le formulaire de déclaration.
@@ -62,10 +102,17 @@ Future<bool> showEefInterestSheet(
 /// Ici la feuille RESTE ouverte, l'erreur s'affiche À L'INTÉRIEUR et ne
 /// s'efface pas, et le bouton redevient actionnable pour réessayer.
 class _EefInterestSheet extends StatefulWidget {
-  const _EefInterestSheet({required this.controller, required this.mode});
+  const _EefInterestSheet({
+    required this.controller,
+    required this.mode,
+    required this.canWithdraw,
+  });
 
   final EefInterestController controller;
   final EefSheetMode mode;
+
+  /// L'écran porteur tient un flux de retrait : le lien peut exister.
+  final bool canWithdraw;
 
   @override
   State<_EefInterestSheet> createState() => _EefInterestSheetState();
@@ -79,9 +126,18 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
 
   bool get _isEdit => widget.mode == EefSheetMode.edit;
 
+  /// Une déclaration EXISTAIT-elle à l'ouverture de la feuille ? Figé dans
+  /// [initState] : `controller.declared` devient vrai dès que le serveur confirme
+  /// une PREMIÈRE déclaration — pendant que la feuille se referme (~200 ms) —, et
+  /// un lien lu sur ce drapeau vivant apparaissait dans la feuille qui se ferme, en
+  /// la faisant grandir. En première déclaration il n'y a rien à retirer : c'est
+  /// l'écran porteur qui tient la promesse, une fois la feuille fermée.
+  late final bool _hadDeclaration;
+
   @override
   void initState() {
     super.initState();
+    _hadDeclaration = widget.controller.declared;
     // Une redéclaration part des réponses précédentes : c'est le cas d'usage
     // principal du bouton « modifier » (cocher l'intérêt Premium après avoir lu
     // le découpage).
@@ -139,7 +195,7 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
     if (!mounted) return;
     // On ne referme QUE sur confirmation du serveur. Sur échec, la feuille reste
     // et affiche la raison.
-    if (ok) Navigator.of(context).pop(true);
+    if (ok) Navigator.of(context).pop(_SheetResult.confirmed);
   }
 
   @override
@@ -255,6 +311,27 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
                   ),
                 ],
 
+                // Le retrait, LÀ où une déclaration existe — et seulement là. En
+                // première déclaration il n'y a rien à retirer avant « Valider » :
+                // la promesse du consentement y est tenue par l'écran porteur, qui
+                // montre « Me retirer de la liste » dès que le serveur a confirmé.
+                // Sous le consentement qui le promet, au-dessus du bouton qui
+                // valide. En `tertiary`, comme sur le hub : se retirer d'une liste
+                // d'intérêt n'est pas supprimer un compte.
+                if (widget.canWithdraw && _hadDeclaration) ...[
+                  const SizedBox(height: KpbSpacing.sm),
+                  KpbButton(
+                    key: const ValueKey('eef-sheet-withdraw'),
+                    label: 'eef_withdraw_cta'.tr,
+                    variant: KpbButtonVariant.tertiary,
+                    fullWidth: true,
+                    onTap: busy
+                        ? null
+                        : () =>
+                            Navigator.of(context).pop(_SheetResult.withdraw),
+                  ),
+                ],
+
                 if (failure != null) ...[
                   const SizedBox(height: KpbSpacing.md),
                   _FailureNotice(failure: failure),
@@ -274,7 +351,9 @@ class _EefInterestSheetState extends State<_EefInterestSheet> {
                   label: 'eef_sheet_cancel'.tr,
                   variant: KpbButtonVariant.tertiary,
                   fullWidth: true,
-                  onTap: busy ? null : () => Navigator.of(context).pop(false),
+                  onTap: busy
+                      ? null
+                      : () => Navigator.of(context).pop(_SheetResult.cancelled),
                 ),
               ],
             ),

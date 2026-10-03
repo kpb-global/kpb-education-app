@@ -149,9 +149,35 @@ class _ServiceEefHelpAnalytics implements EefHelpAnalytics {
       ));
 }
 
+/// Cette étape a-t-elle déjà été comptée pendant la visite de l'écran ? La
+/// première fois, rend `false` ET la note ; ensuite, `true`.
+///
+/// Pas d'`AutomaticKeepAliveClientMixin` : tenir la carte vivante dans sa
+/// liste est la réponse habituelle, mais la carte vit aussi dans des listes
+/// que l'écran remplace d'un état à l'autre (résultats, vide, non publié), et
+/// le mixin y levait « Incorrect use of ParentDataWidget » (mesuré par le
+/// test « tout effacer »). Le `PageStorage` n'a pas ce défaut.
+///
+/// Partagée avec les lignes d'aide de la build 55 (`EefHelpLine`) : une seule
+/// mémoire, une seule définition de « une fois par visite ».
+bool eefHelpAlreadyCountedThisVisit(BuildContext context, String stepKey) {
+  final bucket = PageStorage.maybeOf(context);
+  if (bucket == null) return false;
+  final identifier = 'eef_help_shown_$stepKey';
+  if (bucket.readState(context, identifier: identifier) == true) return true;
+  bucket.writeState(context, true, identifier: identifier);
+  return false;
+}
+
 /// Les règles de la carte d'aide qui ne tiennent pas dans un widget : à qui
 /// elle parle, et ce qu'elle écrit à WhatsApp.
 abstract final class EefHelp {
+  /// La porte vers la mesure, celle de la carte — remplaçable par un test via
+  /// [EefHelpCard.analytics]. Les lignes d'aide de la build 55 (`EefHelpLine`)
+  /// passent par ici : une seule porte, donc un seul endroit où un test regarde ce
+  /// qui est mesuré.
+  static EefHelpAnalytics get analytics => EefHelpCard.analytics;
+
   /// L'étudiant est-il dans un pays où la procédure est suspendue ?
   ///
   /// ## Pourquoi la carte le lit elle-même
@@ -252,21 +278,8 @@ class _EefHelpCardState extends State<EefHelpCard> {
 
   String get _variant => widget.step.compact ? 'compact' : 'card';
 
-  /// Cette étape a-t-elle déjà été comptée pendant la visite de l'écran ?
-  ///
-  /// Pas d'`AutomaticKeepAliveClientMixin` : tenir la carte vivante dans sa
-  /// liste est la réponse habituelle, mais la carte vit aussi dans des listes
-  /// que l'écran remplace d'un état à l'autre (résultats, vide, non publié), et
-  /// le mixin y levait « Incorrect use of ParentDataWidget » (mesuré par le
-  /// test « tout effacer »). Le `PageStorage` n'a pas ce défaut.
-  bool _alreadyCountedThisVisit() {
-    final bucket = PageStorage.maybeOf(context);
-    if (bucket == null) return false;
-    final identifier = 'eef_help_shown_${widget.step.key}';
-    if (bucket.readState(context, identifier: identifier) == true) return true;
-    bucket.writeState(context, true, identifier: identifier);
-    return false;
-  }
+  bool _alreadyCountedThisVisit() =>
+      eefHelpAlreadyCountedThisVisit(context, widget.step.key);
 
   void _logShownOnce() {
     if (_shownLogged) return;

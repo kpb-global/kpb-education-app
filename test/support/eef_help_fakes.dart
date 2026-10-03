@@ -34,6 +34,20 @@ class RecordingUrlLauncher extends Fake
       : Uri.parse(launched.last).queryParameters['text'] ?? '';
 }
 
+/// WhatsApp n'est pas installé : tout lancement ÉCHOUE (`launchUrl` rend `false`).
+///
+/// Sert à prouver qu'un déclencheur d'aide n'est jamais un bouton muet : quand
+/// l'ouverture échoue, l'étudiant lit « Impossible d'ouvrir WhatsApp… ». Les
+/// tentatives sont journalisées comme dans [RecordingUrlLauncher] : un déclencheur
+/// qui n'essaierait même pas de lancer ne se distinguerait pas d'un échec propre.
+class FailingUrlLauncher extends RecordingUrlLauncher {
+  @override
+  Future<bool> launchUrl(String url, LaunchOptions options) async {
+    launched.add(url);
+    return false;
+  }
+}
+
 /// Un événement de la carte d'aide, tel qu'il part vers l'analytique.
 class RecordedHelpEvent {
   const RecordedHelpEvent(this.step, this.surface, this.variant);

@@ -10,11 +10,19 @@ import '../../core/utils/ai_error_message.dart';
 import '../../core/utils/study_level.dart';
 import '../ai_advisor/ai_consent.dart';
 import '../ai_advisor/ai_disclosure_banner.dart';
+import '../etudes_en_france/eef_help_line.dart';
 import 'pdf_text.dart';
 
 /// CV Generator — pre-filled from profile, AI-enhanced summary, PDF export.
 class CvGeneratorScreen extends StatefulWidget {
-  const CvGeneratorScreen({super.key});
+  const CvGeneratorScreen({super.key, this.fromEefHub = false});
+
+  /// `true` UNIQUEMENT quand l'écran est ouvert depuis le hub de l'espace « Études
+  /// en France » : il montre alors une ligne « Besoin d'aide pour rédiger ton CV ? »
+  /// vers le conseiller. Cet écran sert aussi à la boîte à outils et au tiroir
+  /// « Outils KPB » : là, rien ne change. Un paramètre explicite plutôt qu'un
+  /// état global, pour que l'appelant — et lui seul — décide.
+  final bool fromEefHub;
 
   @override
   State<CvGeneratorScreen> createState() => _CvGeneratorScreenState();
@@ -638,6 +646,10 @@ class _CvGeneratorScreenState extends State<CvGeneratorScreen> {
           ),
           const SizedBox(height: KpbSpacing.md),
           const AiDisclosureBanner(),
+          if (widget.fromEefHub) ...[
+            const SizedBox(height: KpbSpacing.sm),
+            const EefHelpLine(trigger: EefHelpTrigger.toolCv),
+          ],
           const SizedBox(height: KpbSpacing.lg),
 
           // ── Form fields ────────────────────────────────────────────────────

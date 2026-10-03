@@ -7,6 +7,8 @@
 // un « c'est noté » pour une ligne qui n'existe nulle part — et ces tests sont
 // la contre-épreuve.
 
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -127,6 +129,61 @@ void main() {
 
       expect(second, isFalse);
       verify(() => api.withdrawEefInterest()).called(1);
+    });
+  });
+
+  // Un échec de RETRAIT (ou d'un envoi abandonné) laissait `failure` et la phase
+  // `failed` au contrôleur : rouvrir « Modifier mon profil » affichait aussitôt
+  // « Envoi impossible… Rien n'a été enregistré » et remplaçait « Valider » par
+  // « Réessayer » — une erreur d'ENVOI pour un envoi que personne n'a tenté. Le
+  // lien « Me retirer » de la feuille (build 55) rend ce parcours naturel : feuille
+  // → Me retirer → réseau coupé → on rouvre la feuille.
+  group('clearFailure — un échec ancien ne survit pas à la feuille suivante',
+      () {
+    test(
+        'oublie l\'échec et la phase « failed », sans toucher à la déclaration',
+        () async {
+      when(() => api.getEefInterest()).thenAnswer((_) async => _declaredBody);
+      when(() => api.withdrawEefInterest())
+          .thenThrow(_dio(type: DioExceptionType.connectionError));
+      await controller.load();
+      await controller.withdraw();
+      expect(controller.phase, EefInterestPhase.failed);
+      expect(controller.failure, EefInterestFailure.network);
+
+      var notified = 0;
+      controller.addListener(() => notified++);
+      controller.clearFailure();
+
+      expect(controller.failure, isNull);
+      expect(controller.phase, EefInterestPhase.ready);
+      expect(controller.declared, isTrue,
+          reason: 'oublier une erreur ne retire ni ne déclare rien');
+      expect(notified, 1, reason: 'la feuille ouverte doit se redessiner');
+    });
+
+    test('sans échec à oublier, rien ne bouge et personne n\'est notifié', () {
+      var notified = 0;
+      controller.addListener(() => notified++);
+      controller.clearFailure();
+
+      expect(controller.phase, EefInterestPhase.initial);
+      expect(controller.failure, isNull);
+      expect(notified, 0);
+    });
+
+    test('pendant un envoi, il ne coupe pas la phase « submitting »', () async {
+      final pending = Completer<Map<String, dynamic>>();
+      when(() => api.withdrawEefInterest()).thenAnswer((_) => pending.future);
+
+      final running = controller.withdraw();
+      controller.clearFailure();
+      expect(controller.phase, EefInterestPhase.submitting,
+          reason: 'sinon un second tap relancerait un envoi en vol');
+
+      pending.complete(<String, dynamic>{'declared': false});
+      await running;
+      expect(controller.phase, EefInterestPhase.ready);
     });
   });
 

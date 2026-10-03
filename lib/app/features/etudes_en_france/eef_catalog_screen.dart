@@ -13,6 +13,7 @@ import 'eef_catalog_controller.dart';
 import 'eef_catalog_filters.dart';
 import 'eef_data_notice.dart';
 import 'eef_help_card.dart';
+import 'eef_help_line.dart';
 import 'eef_official_links.dart';
 
 /// Le catalogue « Études en France », cherché SUR LE SERVEUR.
@@ -160,7 +161,11 @@ class _EefCatalogViewState extends State<_EefCatalogView> {
               const LinearProgressIndicator(minHeight: 2),
             const _SuspensionBanner(),
             Expanded(
-              child: _Results(controller: _controller, scroll: _scroll),
+              child: _Results(
+                controller: _controller,
+                scroll: _scroll,
+                fieldName: _fieldName,
+              ),
             ),
             const SafeArea(top: false, child: EefSourcesRow()),
           ],
@@ -263,10 +268,15 @@ class _SuspensionBanner extends StatelessWidget {
 }
 
 class _Results extends StatelessWidget {
-  const _Results({required this.controller, required this.scroll});
+  const _Results({
+    required this.controller,
+    required this.scroll,
+    required this.fieldName,
+  });
 
   final EefCatalogController controller;
   final ScrollController scroll;
+  final EefFieldNameResolver fieldName;
 
   /// Un état plein écran (vide, pas publié) reste dans une liste : la mention
   /// des données et la non-affiliation doivent rester atteignables partout.
@@ -355,7 +365,15 @@ class _Results extends StatelessWidget {
     }
 
     final items = controller.items;
-    final showProcedureHelp = _showProcedureHelp;
+    // UNE ligne d'aide à la fois sous le compteur : la ligne de procédure garde
+    // la priorité sur celle des filtres (voir `eefCatalogHelpLineFor`). Les deux
+    // lignes sont décidées ICI, au même endroit, pour qu'aucune ne s'empile sur
+    // l'autre.
+    final helpLine = eefCatalogHelpLineFor(
+      confusingProcedure: _showProcedureHelp,
+      filtersActive: controller.activeFilterCount > 0,
+      suspended: EefHelp.isSuspended(),
+    );
     // La carte « sous les résultats » n'existe que quand la liste est ENTIÈRE :
     // tant qu'il reste des pages, le défilement la repousse à chaque chargement,
     // et elle n'apparaîtrait qu'une demi-seconde sous les yeux de l'étudiant.
@@ -386,8 +404,33 @@ class _Results extends StatelessWidget {
                   style: KpbTextStyles.caption
                       .copyWith(color: context.kpb.textMuted),
                 ),
-                if (showProcedureHelp)
+                if (helpLine == EefCatalogHelpLine.procedure)
                   const EefHelpCard(step: EefHelpStep.catalogProcedure),
+                if (helpLine == EefCatalogHelpLine.filters)
+                  EefFiltersHelpLine(
+                    controller: controller,
+                    fieldName: fieldName,
+                  ),
+                // « Un accompagnement n'est pas une garantie » : UNE mention par
+                // état de la liste. Quand elle est entière, la carte pleine du bas
+                // la porte ; tant qu'il reste des pages — le catalogue par défaut,
+                // des milliers de formations —, cette carte n'existe pas alors que
+                // chaque formation propose déjà « Demander de l'aide » : la mention
+                // vit alors ici, avant la liste, pour que l'aide ne soit jamais
+                // proposée sans elle. Jamais les deux à la fois.
+                //
+                // `textSecondary` et non `textMuted` : un jeton « à réserver au texte
+                // de 18 px et plus » (voir app_tokens.dart) ne tient pas 4,5:1 sur ce
+                // fond en sombre (3,67:1 mesuré) — et c'est un texte de légende.
+                if (!showResultsHelp)
+                  Padding(
+                    padding: const EdgeInsets.only(top: KpbSpacing.xs),
+                    child: Text(
+                      'eef_help_fineprint'.tr,
+                      style: KpbTextStyles.caption
+                          .copyWith(color: context.kpb.textSecondary),
+                    ),
+                  ),
               ],
             ),
           );
@@ -475,6 +518,7 @@ class _ProgramCard extends StatelessWidget {
     // en ferait une seconde source de vérité, qui finirait par diverger.
     final locale = Get.locale?.languageCode ?? 'fr';
     final program = item.program;
+    final programName = program.name.resolve(locale);
 
     // L'université d'abord : « L1 - Droit » existe dans une quarantaine
     // d'établissements, et une carte qui n'en nomme aucun est inutilisable pour
@@ -505,7 +549,7 @@ class _ProgramCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(program.name.resolve(locale), style: KpbTextStyles.titleSm),
+          Text(programName, style: KpbTextStyles.titleSm),
           if (where.isNotEmpty) ...[
             const SizedBox(height: KpbSpacing.xs),
             Row(
@@ -581,6 +625,24 @@ class _ProgramCard extends StatelessWidget {
           // endroits et l'un des deux finirait par diverger.
           const SizedBox(height: KpbSpacing.sm),
           KpbSourceLink(url: program.sourceUrl),
+          // « Demander de l'aide » : un bouton de texte, pas une carte. Il nomme
+          // la formation, l'université et la ville dans le message, et rien d'autre
+          // de personnel. Pas de « vue » par carte affichée (voir
+          // `EefHelpTrigger.catalogProgram`), et la mention de non-garantie n'est
+          // pas répétée sous chaque carte : elle est portée UNE fois par l'écran,
+          // par la carte du bas de liste ou, tant que la liste est paginée, par
+          // l'en-tête (voir `_Results`).
+          EefHelpLine(
+            key: ValueKey('eef-help-program-${item.id}'),
+            trigger: EefHelpTrigger.catalogProgram,
+            subject: programName,
+            prefill: (suspended) => EefHelpMessages.forProgram(
+              program: programName,
+              institution: institutionName,
+              city: city,
+              suspended: suspended,
+            ),
+          ),
         ],
       ),
     );

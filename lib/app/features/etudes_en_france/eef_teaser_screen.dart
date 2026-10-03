@@ -84,7 +84,13 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
   }
 
   Future<void> _openSheet() async {
-    await showEefInterestSheet(context, controller: _controller);
+    // « Modifier ma réponse » rouvre la feuille d'une vitrine déjà déclarée : le
+    // même flux de retrait que le bouton de la carte « C'est noté » y est proposé.
+    await showEefInterestSheet(
+      context,
+      controller: _controller,
+      onWithdraw: _confirmWithdraw,
+    );
   }
 
   /// Confirme puis exécute le retrait.

@@ -94,8 +94,8 @@ steady points at the feed itself, not at the content.
 | `eef_catalog_viewed` | `source` (`hub` quand l'étudiant vient du hub, `deep_link` sinon — lien profond ou notification) | Le catalogue ouvert, et par quelle porte |
 | `eef_catalog_searched` | `has_query` (`1`/`0`), `filter_count`, `result_count`, `catalog_published` (`1`/`0`) | Une recherche aboutie. **Jamais le texte tapé** : une requête libre peut contenir un nom, une ville, un établissement |
 | `eef_catalog_failed` | `reason` (`network`/`server`) | Le catalogue n'a pas pu répondre |
-| `eef_help_card_shown` | `help_step` (`hub`/`procedure`/`documents`/`catalog_results`/`catalog_procedure`/`catalog_empty`/`catalog_unpublished`), `surface` (`hub`/`catalog`), `variant` (`card`/`compact`) | Une carte d'aide (« c'est flou ? tu veux de l'aide ? ») a été montée : la portée de CHAQUE emplacement |
-| `eef_help_cta_tapped` | mêmes trois propriétés | Le bouton ou le lien de la carte d'aide a été tapé — part AVANT l'ouverture de WhatsApp |
+| `eef_help_card_shown` | `help_step` (`hub`/`procedure`/`documents`/`catalog_results`/`catalog_procedure`/`catalog_empty`/`catalog_unpublished`, et depuis la build 55 `catalog_filters`/`tool_cv`/`tool_letters`/`tool_interview`), `surface` (`hub`/`catalog`, et depuis la build 55 `tools`), `variant` (`card`/`compact`) | Une carte d'aide (« c'est flou ? tu veux de l'aide ? ») a été montée : la portée de CHAQUE emplacement |
+| `eef_help_cta_tapped` | mêmes trois propriétés (et, depuis la build 55, `help_step` = `catalog_program` aussi) | Le bouton ou le lien de la carte d'aide a été tapé — part AVANT l'ouverture de WhatsApp |
 
 ### Lire la carte d'aide sans se tromper (build 54)
 
@@ -109,6 +109,8 @@ steady points at the feed itself, not at the content.
 - **Une carte invisible n'est pas « vue »** : pour un pays suspendu, les formes
   compactes (`procedure`, `documents`, `catalog_procedure`) disparaissent et ne
   partent pas ; seule une carte pleine (au libellé neutre « autres options ») reste.
+  La build 55 y ajoute des déclencheurs qui, eux, RESTENT visibles pour ces comptes
+  (voir la section suivante).
   On ne mesure volontairement PAS le pays, ni un drapeau « suspendu » qui le
   désignerait presque : l'écart de clic entre pays se lirait sinon sur une donnée
   personnelle.
@@ -118,6 +120,46 @@ steady points at the feed itself, not at the content.
   WhatsApp, pas un étudiant qui hésite.
 - **Aucune donnée personnelle** : trois identifiants fermés écrits dans le code. Le
   test `analytics_event_contract_test.dart` rougit si une propriété est ajoutée.
+
+### Les déclencheurs d'aide de la build 55 (`EefHelpLine`)
+
+Cinq valeurs de `help_step` s'ajoutent, **sans nouvelle propriété** : `help_step`,
+`surface` et `variant` restent les trois seules clés (le test
+`analytics_event_contract_test.dart` rougit si une quatrième apparaît).
+
+| `help_step` | `surface` | `variant` | Où | `eef_help_card_shown` | `eef_help_cta_tapped` |
+|---|---|---|---|---|---|
+| `catalog_program` | `catalog` | `compact` | Le bouton « Demander de l'aide » sous **chaque** formation du catalogue | **jamais** (une par carte affichée serait du bruit) | oui |
+| `catalog_filters` | `catalog` | `compact` | La ligne « Tu hésites entre ces formations ? » sous les filtres actifs (dès qu'un filtre est posé, et seulement si la ligne de procédure n'est pas affichée) | une fois par visite du catalogue | oui |
+| `tool_cv` | `tools` | `compact` | La ligne « Besoin d'aide pour rédiger ton CV ? » de l'écran CV, **ouvert depuis le hub** | une fois par visite de l'écran | oui |
+| `tool_letters` | `tools` | `compact` | Idem, écran des lettres de motivation | idem | oui |
+| `tool_interview` | `tools` | `compact` | Idem, écran de l'entretien (choix du type d'entretien) | idem | oui |
+
+`surface` = **`tools`** est nouveau : les écrans d'outils ne sont ni le hub ni le
+catalogue. Ils n'émettent rien quand ils sont ouverts ailleurs (boîte à outils,
+tiroir « Outils KPB », dossier d'un étudiant, coach).
+
+- **Le taux de clic de `catalog_program` ne se lit PAS comme les autres.** Il n'a pas
+  de dénominateur `eef_help_card_shown` : on le lit contre `eef_catalog_searched`
+  (une recherche affiche des formations) ou, mieux, en **nombre de taps par visite**
+  du catalogue. Les autres valeurs gardent `tapped ÷ shown`.
+- **Ce qui n'est JAMAIS mesuré** : l'intitulé d'une formation, l'université, la ville,
+  un libellé de filtre, l'outil autrement que par sa valeur de `help_step`. Le
+  message WhatsApp les porte, l'analytique non : la seule porte (`EefHelpAnalytics`)
+  n'accepte que trois identifiants fermés. `catalog_filters` ne dit donc pas QUELS
+  filtres : seul `filter_count` d'`eef_catalog_searched` les compte.
+- **Un compte dont le pays est suspendu VOIT ces cinq déclencheurs** (décision du
+  03/10/2026), au libellé et au message neutres, et ils sont mesurés comme les
+  autres : on ne mesure toujours ni le pays ni un drapeau « suspendu ». C'est
+  l'inverse de la build 54, où les formes compactes disparaissaient pour ces
+  comptes (voir ci-dessus).
+- **`whatsapp_handoff`** : `source` = `eef_help_<help_step>` (par exemple
+  `eef_help_catalog_program`), `context_type` = `eef_help`, `success` 0/1.
+- **Une seule ligne d'aide à la fois sous les filtres** : `catalog_procedure` (build 54)
+  a la priorité sur `catalog_filters` — pour une ligne qu'on VOIT : la ligne de
+  procédure est invisible (donc non mesurée) pour un pays suspendu. Deux lignes ne
+  sont donc jamais affichées ensemble ; mais l'étudiant qui change de filtres dans la
+  même visite peut les produire l'une après l'autre.
 
 ### Lire le catalogue sans se tromper (build 54)
 
