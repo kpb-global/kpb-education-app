@@ -2016,6 +2016,33 @@ class AppTranslations extends Translations {
           'eef_catalog_search_hint': 'Formation, ville…',
           'eef_catalog_facet_cycle': 'Niveau',
           'eef_catalog_facet_procedure': 'Procédure',
+          'eef_catalog_facet_field': 'Domaine',
+          'eef_catalog_facet_city': 'Ville',
+          // Filtres : boutons, feuille de choix, filtres actifs.
+          'eef_catalog_filter_clear': 'Effacer',
+          'eef_catalog_filter_semantics_none': 'Aucun choix',
+          'eef_catalog_filter_semantics_count': '@count choix',
+          'eef_catalog_filter_semantics_hint': 'Ouvre la liste des choix',
+          'eef_catalog_option_semantics': '@label, @count formation(s)',
+          'eef_catalog_sheet_apply_zero': 'Voir 0 formation',
+          'eef_catalog_sheet_apply_one': 'Voir 1 formation',
+          'eef_catalog_sheet_apply_many': 'Voir @count formations',
+          'eef_catalog_sheet_apply_generic': 'Voir les formations',
+          'eef_catalog_active_filters': 'Filtres actifs',
+          'eef_catalog_active_clear_all': 'Tout effacer',
+          'eef_catalog_active_remove': 'Retirer le filtre @label',
+          'eef_catalog_city_search_hint': 'Chercher une ville',
+          'eef_catalog_city_loading': 'Chargement des villes…',
+          'eef_catalog_city_error_title': 'Impossible de charger les villes',
+          'eef_catalog_city_error_network':
+              'Pas de connexion. Vérifie-la, puis réessaie.',
+          'eef_catalog_city_error_server':
+              'Le serveur n\'a pas répondu. Réessaie dans un instant.',
+          'eef_catalog_city_retry': 'Réessayer',
+          'eef_catalog_city_empty': 'Aucune ville ne correspond',
+          'eef_catalog_city_fallback':
+              'Villes principales — pour une autre ville, tape-la dans la '
+                  'recherche',
           'eef_catalog_result_count': '@count formation(s)',
           'eef_catalog_empty_title': 'Aucune formation ne correspond',
           'eef_catalog_empty_body':
@@ -5188,6 +5215,32 @@ class AppTranslations extends Translations {
           'eef_catalog_search_hint': 'Programme, city…',
           'eef_catalog_facet_cycle': 'Level',
           'eef_catalog_facet_procedure': 'Procedure',
+          'eef_catalog_facet_field': 'Field',
+          'eef_catalog_facet_city': 'City',
+          // Filters: buttons, choice sheet, active filters.
+          'eef_catalog_filter_clear': 'Clear',
+          'eef_catalog_filter_semantics_none': 'None selected',
+          'eef_catalog_filter_semantics_count': '@count selected',
+          'eef_catalog_filter_semantics_hint': 'Opens the list of choices',
+          'eef_catalog_option_semantics': '@label, @count programme(s)',
+          'eef_catalog_sheet_apply_zero': 'Show 0 programmes',
+          'eef_catalog_sheet_apply_one': 'Show 1 programme',
+          'eef_catalog_sheet_apply_many': 'Show @count programmes',
+          'eef_catalog_sheet_apply_generic': 'Show programmes',
+          'eef_catalog_active_filters': 'Active filters',
+          'eef_catalog_active_clear_all': 'Clear all',
+          'eef_catalog_active_remove': 'Remove filter @label',
+          'eef_catalog_city_search_hint': 'Search a city',
+          'eef_catalog_city_loading': 'Loading cities…',
+          'eef_catalog_city_error_title': "Couldn't load the cities",
+          'eef_catalog_city_error_network':
+              'No connection. Check it, then try again.',
+          'eef_catalog_city_error_server':
+              "The server didn't respond. Try again in a moment.",
+          'eef_catalog_city_retry': 'Retry',
+          'eef_catalog_city_empty': 'No city matches',
+          'eef_catalog_city_fallback':
+              'Main cities — for another city, type it in the search',
           'eef_catalog_result_count': '@count programme(s)',
           'eef_catalog_empty_title': 'No programme matches',
           'eef_catalog_empty_body':

@@ -177,6 +177,37 @@ void main() {
     );
   }
 
+  /// Pose un filtre comme l'étudiant le fait : ouvre la feuille de [facet],
+  /// coche [values], valide. Depuis la refonte des filtres, c'est le SEUL chemin :
+  /// il n'y a plus de puce à plat sous le champ de recherche (le détail des
+  /// feuilles est éprouvé dans `eef_catalog_filters_test.dart`).
+  Future<void> choose(
+    WidgetTester tester,
+    String facet,
+    List<String> values,
+  ) async {
+    final button = find.byKey(ValueKey('eef-filter-button-$facet'));
+    await tester.ensureVisible(button);
+    await tester.tap(button);
+    await settleBounded(tester);
+    for (final value in values) {
+      await tester.tap(find.byKey(ValueKey('eef-filter-option-$value')));
+      await tester.pump();
+    }
+    await tester.tap(find.byKey(const ValueKey('eef-filter-sheet-apply')));
+    await settleBounded(tester);
+  }
+
+  /// Retire un filtre actif en tapant sa puce.
+  Future<void> removeChip(
+    WidgetTester tester,
+    String facet,
+    String value,
+  ) async {
+    await tester.tap(find.byKey(ValueKey('eef-active-chip-$facet-$value')));
+    await settleBounded(tester);
+  }
+
   Future<void> scrollToEnd(WidgetTester tester) async {
     await tester.drag(find.byType(ListView).last, const Offset(0, -6000));
     await tester.pumpAndSettle();
@@ -310,8 +341,10 @@ void main() {
             },
           ));
       await pump(tester);
+      await tester.tap(find.byKey(const ValueKey('eef-filter-button-cycle')));
+      await settleBounded(tester);
 
-      expect(find.textContaining('Études de santé'), findsWidgets);
+      expect(find.text('Études de santé'), findsOneWidget);
       expect(find.text('Accès santé'), findsNothing);
       expect(rawTranslationKeysOnScreen(tester), isEmpty);
     });
@@ -758,16 +791,13 @@ void main() {
         // Aucun filtre : pas de ligne permanente.
         expect(find.text(procedureQuestion), findsNothing);
 
-        await tester.tap(find.text('Parcoursup · 3'));
-        await settleBounded(tester);
+        await choose(tester, 'procedureType', ['parcoursup']);
         expect(find.text(procedureQuestion), findsOneWidget);
         expect(find.text(askForHelp), findsOneWidget);
 
         // On retire Parcoursup et on prend la procédure qu'on ne confond pas.
-        await tester.tap(find.text('Parcoursup · 3'));
-        await settleBounded(tester);
-        await tester.tap(find.text('Études en France · 9'));
-        await settleBounded(tester);
+        await removeChip(tester, 'procedureType', 'parcoursup');
+        await choose(tester, 'procedureType', ['eef']);
         expect(find.text(procedureQuestion), findsNothing);
       });
 
@@ -776,8 +806,7 @@ void main() {
           (tester) async {
         stub((_) async => _page([_program('a')], facets: procedureFacets()));
         await pump(tester);
-        await tester.tap(find.text('Parcoursup · 3'));
-        await settleBounded(tester);
+        await choose(tester, 'procedureType', ['parcoursup']);
 
         await tester.tap(find.text(askForHelp));
         await tester.pumpAndSettle();
@@ -818,8 +847,7 @@ void main() {
       // Un écran assez haut pour que TOUT soit construit et visible d'un coup :
       // c'est le pire cas pour « au plus une carte ».
       await pump(tester, viewport: _tall);
-      await tester.tap(find.text('Parcoursup · 3'));
-      await settleBounded(tester);
+      await choose(tester, 'procedureType', ['parcoursup']);
 
       // La ligne de procédure (compacte) + la carte du bas (pleine).
       expect(find.byType(EefHelpCard), findsNWidgets(2));
@@ -867,8 +895,7 @@ void main() {
         serveSuspension();
         stub((_) async => _page([_program('a')], facets: procedureFacets()));
         await pump(tester, country: 'Niger');
-        await tester.tap(find.text('Parcoursup · 3'));
-        await settleBounded(tester);
+        await choose(tester, 'procedureType', ['parcoursup']);
         await scrollToEnd(tester);
 
         expect(find.text(procedureQuestion), findsNothing);
@@ -1003,8 +1030,7 @@ void main() {
             viewport: tall360,
             textScale: scale,
           );
-          await tester.tap(find.text('Parcoursup · 3'));
-          await settleBounded(tester);
+          await choose(tester, 'procedureType', ['parcoursup']);
           expect(find.byType(EefHelpCard), findsWidgets);
           expect(report.overflows, isEmpty, reason: report.toString());
           expect(truncatedTexts(tester), isEmpty);
@@ -1050,8 +1076,7 @@ void main() {
       expect(scrollable.position.pixels, greaterThan(0));
 
       // …puis on pose un filtre : la liste redevient courte.
-      await tester.tap(find.textContaining('Master'));
-      await settleBounded(tester);
+      await choose(tester, 'cycle', ['master']);
 
       expect(scrollable.position.pixels, 0,
           reason: 'le compteur et le premier résultat doivent être visibles');
@@ -1077,8 +1102,7 @@ void main() {
       await pump(tester);
       expect(find.byType(LinearProgressIndicator), findsNothing);
 
-      await tester.tap(find.textContaining('Master'));
-      await tester.pump();
+      await choose(tester, 'cycle', ['master']);
 
       // L'ancienne liste est encore là, et on VOIT que la réponse est en route.
       expect(find.text('Formation 0'), findsOneWidget);

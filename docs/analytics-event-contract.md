@@ -129,6 +129,16 @@ steady points at the feed itself, not at the content.
   un défaut de recherche), `1` ⇒ la recherche était trop étroite.
 - **Une recherche par requête, pas par page** : `eef_catalog_searched` ne part
   pas au défilement.
+- **`filter_count` compte les VALEURS choisies de toutes les familles** — niveau,
+  domaine, ville et procédure : un niveau, deux villes et un domaine font `4`.
+  Les filtres se posent par feuille (« Voir N formations ») : cocher dix cases puis
+  valider est UNE recherche, donc UN événement, avec `filter_count = 10`. Ni le nom
+  d'une ville, ni un identifiant de domaine, ni un libellé de filtre ne part
+  jamais : une ville est une donnée de profil, au même titre que le texte tapé
+  (le test `eef_catalog_controller_test.dart` lit les sources pour le garantir).
+  L'ouverture d'une feuille, la recherche locale d'une ville et l'échec du
+  chargement des villes ne produisent AUCUN événement — en particulier pas
+  `eef_catalog_failed`, qui dit « le catalogue n'a pas pu répondre ».
 - **Les booléens partent en `1`/`0`**, pas en `true`/`false`
   (`FirebaseAnalytics.logEvent` n'accepte que `String` ou `num`).
 

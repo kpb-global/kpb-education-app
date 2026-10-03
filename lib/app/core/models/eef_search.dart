@@ -18,6 +18,53 @@ class EefFacetValue {
       );
 }
 
+/// La réponse de `GET /etudes-en-france/cities` : les villes où une formation
+/// publiée correspond aux filtres posés (hors ville), avec leur compte.
+///
+/// Même forme de ligne que les facettes ([EefFacetValue]) — `value` est la
+/// chaîne EXACTE à renvoyer dans `campusCity`, ce qui est la seule raison pour
+/// laquelle l'écran n'a pas besoin d'un modèle de ville : un libellé qu'il
+/// retoucherait ne retrouverait plus rien côté serveur.
+class EefCityList {
+  const EefCityList({required this.cities, required this.total});
+
+  /// Triées par le serveur (compte décroissant, puis ordre alphabétique) ;
+  /// l'écran retrie quand même, pour ne pas dépendre de cette promesse.
+  final List<EefFacetValue> cities;
+
+  /// Le nombre de formations correspondant aux filtres, hors ville — pas la
+  /// somme des villes : une formation sans ville n'apparaît dans aucune, mais
+  /// compte ici. `null` quand le serveur ne le dit pas.
+  ///
+  /// (`catalogPublished` figure aussi dans la réponse ; la feuille n'en a pas
+  /// l'usage — un catalogue vide n'a pas de ville, et l'écran des résultats le
+  /// dit déjà — donc on ne le lit pas.)
+  final int? total;
+
+  /// `null` quand la réponse n'a pas la forme du contrat — pas de liste
+  /// `cities`. L'appelant la lit comme « backend plus ancien que l'app » et se
+  /// replie, plutôt que de montrer « aucune ville » sur une réponse qu'il ne
+  /// comprend pas.
+  static EefCityList? tryParse(Map<String, dynamic> json) {
+    final raw = json['cities'];
+    if (raw is! List) return null;
+    final cities = <EefFacetValue>[];
+    for (final entry in raw) {
+      if (entry is! Map) continue;
+      final value = entry['value'];
+      if (value is! String || value.trim().isEmpty) continue;
+      cities.add(EefFacetValue(
+        value: value,
+        count: (entry['count'] as num?)?.toInt() ?? 0,
+      ));
+    }
+    return EefCityList(
+      cities: cities,
+      total: (json['total'] as num?)?.toInt(),
+    );
+  }
+}
+
 /// L'établissement, en résumé : ce qu'il faut pour le nommer sur une carte et le
 /// situer. La présentation et l'effectif restent sur la fiche (build 55).
 ///

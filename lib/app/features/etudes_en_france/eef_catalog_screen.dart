@@ -10,6 +10,7 @@ import '../../core/services/analytics_service.dart';
 import '../../core/services/remote_feature_flags.dart';
 import '../../core/ui/kpb_components.dart';
 import 'eef_catalog_controller.dart';
+import 'eef_catalog_filters.dart';
 import 'eef_data_notice.dart';
 import 'eef_help_card.dart';
 import 'eef_official_links.dart';
@@ -122,24 +123,48 @@ class _EefCatalogViewState extends State<_EefCatalogView> {
     super.dispose();
   }
 
+  /// Le nom d'un domaine (`d07`), dans la langue active, depuis le référentiel
+  /// que l'app charge déjà (`AppController.fields`, synchronisé avec le
+  /// catalogue) — les mêmes noms que partout ailleurs dans l'app. `null` quand le
+  /// référentiel ne connaît pas ce domaine : la valeur est alors ignorée plutôt
+  /// qu'affichée sous son code.
+  String? _fieldName(String id) {
+    final locale = Get.locale?.languageCode ?? 'fr';
+    return eefLocalizedName(
+      Get.find<AppController>().fieldByIdOrNull(id)?.name,
+      locale,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('eef_catalog_title'.tr)),
-      body: Column(
-        children: [
-          _SearchField(controller: _controller, field: _queryField),
-          _FacetBar(controller: _controller),
-          // Une recherche AFFINÉE garde l'ancienne liste à l'écran le temps de la
-          // réponse : sans signe de chargement, l'étudiant lit des résultats
-          // périmés alors que sa puce est déjà cochée.
-          if (_controller.phase == EefCatalogPhase.loading &&
-              _controller.items.isNotEmpty)
-            const LinearProgressIndicator(minHeight: 2),
-          const _SuspensionBanner(),
-          Expanded(child: _Results(controller: _controller, scroll: _scroll)),
-          const SafeArea(top: false, child: EefSourcesRow()),
-        ],
+      // `LayoutBuilder` : l'en-tête des filtres se borne sur la hauteur RÉELLEMENT
+      // libre du corps (clavier ouvert compris), que ni la taille de l'écran ni
+      // un `MediaQuery` ne donnent — le `Scaffold` consomme le clavier.
+      body: LayoutBuilder(
+        builder: (context, constraints) => Column(
+          children: [
+            _SearchField(controller: _controller, field: _queryField),
+            EefFilterHeader(
+              controller: _controller,
+              fieldName: _fieldName,
+              maxHeight: constraints.maxHeight * 0.34,
+            ),
+            // Une recherche AFFINÉE garde l'ancienne liste à l'écran le temps de
+            // la réponse : sans signe de chargement, l'étudiant lit des résultats
+            // périmés alors que sa puce est déjà cochée.
+            if (_controller.phase == EefCatalogPhase.loading &&
+                _controller.items.isNotEmpty)
+              const LinearProgressIndicator(minHeight: 2),
+            const _SuspensionBanner(),
+            Expanded(
+              child: _Results(controller: _controller, scroll: _scroll),
+            ),
+            const SafeArea(top: false, child: EefSourcesRow()),
+          ],
+        ),
       ),
     );
   }
@@ -171,62 +196,6 @@ class _SearchField extends StatelessWidget {
           prefixIcon: Icons.search_rounded,
         ),
       ),
-    );
-  }
-}
-
-/// Les sélecteurs. Chaque puce porte son compte, et ce compte est calculé
-/// SANS le filtre de sa propre famille : il répond donc à « combien en
-/// aurais-je si je choisissais celle-ci ? », ce qui est la seule question
-/// qu'on se pose devant un filtre.
-class _FacetBar extends StatelessWidget {
-  const _FacetBar({required this.controller});
-
-  final EefCatalogController controller;
-
-  static const _facets = <({String key, String labelKey})>[
-    (key: kEefFacetCycle, labelKey: 'eef_catalog_facet_cycle'),
-    (key: kEefFacetProcedure, labelKey: 'eef_catalog_facet_procedure'),
-  ];
-
-  String _valueLabel(String facet, String value) {
-    final key = 'eef_catalog_value_${facet}_$value';
-    final translated = key.tr;
-    // `.tr` rend la CLÉ quand elle manque. Servir « eef_catalog_value_cycle_x »
-    // à un étudiant serait pire que servir la valeur brute du serveur.
-    return translated == key ? value : translated;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final chips = <Widget>[];
-    for (final facet in _facets) {
-      final values = controller.facets[facet.key] ?? const <EefFacetValue>[];
-      for (final entry in values) {
-        chips.add(
-          Padding(
-            padding: const EdgeInsets.only(right: KpbSpacing.xs),
-            child: FilterChip(
-              selected: controller.isSelected(facet.key, entry.value),
-              onSelected: (_) => controller.toggleFacet(facet.key, entry.value),
-              label: Text(
-                '${_valueLabel(facet.key, entry.value)} · ${entry.count}',
-                style: KpbTextStyles.caption,
-              ),
-            ),
-          ),
-        );
-      }
-    }
-    if (chips.isEmpty) return const SizedBox.shrink();
-
-    // Pas de hauteur fixe : à l'échelle de texte 1,3 d'un téléphone dont la
-    // police est agrandie, une barre de 48 px coupait les puces. Elle prend la
-    // hauteur de son contenu, et défile à l'horizontale si elle est trop large.
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: KpbSpacing.pagePad),
-      child: Row(children: chips),
     );
   }
 }

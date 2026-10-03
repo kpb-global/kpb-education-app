@@ -136,6 +136,17 @@ TextScaler kpbClampedScaler(double requested) =>
 /// (les 8 outils du tiroir, France, Logement, Profil, Universités, Bourses).
 /// Trois ne le font pas et ont besoin d'un Scaffold ambiant : HomeScreen,
 /// CasesScreen et le prompt invité. Passez `false` pour ceux-là.
+///
+/// [themeMode] et [locale] valent clair et français par défaut — l'emballage de
+/// production. Un test qui éprouve le thème sombre ou l'anglais les passe
+/// explicitement ; les ~20 fichiers existants n'ont rien à changer.
+///
+/// [viewInsets] est ce que le clavier retire : un écran à champ de saisie doit
+/// tenir quand il monte, et le harnais ne le simulait pas.
+///
+/// [routesShareMediaQuery] étend la taille, les encoches, le clavier ET le clamp
+/// de police aux routes modales (feuilles, boîtes) poussées sur l'écran — comme
+/// en production. Voir le commentaire du `builder:` plus bas.
 Future<KpbScreenReport> pumpKpbScreen(
   WidgetTester tester, {
   required Widget screen,
@@ -143,7 +154,17 @@ Future<KpbScreenReport> pumpKpbScreen(
   double textScale = 1.0,
   bool inDrawerShell = false,
   bool ownsScaffold = true,
+  ThemeMode themeMode = ThemeMode.light,
+  Locale locale = const Locale('fr'),
+  EdgeInsets viewInsets = EdgeInsets.zero,
+  bool routesShareMediaQuery = false,
 }) async {
+  final mediaQuery = MediaQueryData(
+    size: viewport.size,
+    padding: viewport.padding,
+    viewInsets: viewInsets,
+    textScaler: kpbClampedScaler(textScale),
+  );
   await tester.binding.setSurfaceSize(viewport.size);
   addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -172,7 +193,7 @@ Future<KpbScreenReport> pumpKpbScreen(
   // utile : c'est cette panne qui a prouvé que l'assertion « aucune clé brute »
   // sait mordre.)
   Get.addTranslations(AppTranslations().keys);
-  Get.locale = const Locale('fr');
+  Get.locale = locale;
   Get.fallbackLocale = const Locale('fr');
 
   // Un Scaffold est ajouté quand l'écran n'en a pas, ou quand on veut la
@@ -200,7 +221,7 @@ Future<KpbScreenReport> pumpKpbScreen(
         debugShowCheckedModeBanner: false,
         // L'emballage de production, ligne pour ligne (lib/main.dart:229-245).
         translations: AppTranslations(),
-        locale: const Locale('fr'),
+        locale: locale,
         fallbackLocale: const Locale('fr'),
         supportedLocales: const [Locale('fr'), Locale('en')],
         // Sans ces délégués, Material rend ses propres libellés en anglais et
@@ -213,19 +234,36 @@ Future<KpbScreenReport> pumpKpbScreen(
           GlobalCupertinoLocalizations.delegate,
         ],
         theme: AppTheme.buildTheme(),
-        themeMode: ThemeMode.light,
+        // Le thème sombre existe dans le dépôt sans être branché sur `main.dart`
+        // (light-only) : on le passe tout de même pour qu'un écran qui lit ses
+        // couleurs dans le thème soit éprouvé dans les deux.
+        darkTheme: AppTheme.buildDarkTheme(),
+        themeMode: themeMode,
         // `navigatorObservers` et `getPages` sont volontairement omis : le
         // premier atteint Firebase, le second n'a pas de sens pour un écran monté
         // seul.
+        // En production, le clamp de police vit dans le `builder:` de
+        // GetMaterialApp, AU-DESSUS du Navigator : une feuille, une boîte de
+        // dialogue ou un snackbar le voient donc. Le `MediaQuery` de `home:`
+        // ci-dessous, lui, ne couvre que l'écran — une feuille modale poussée
+        // dessus reprend alors la taille, la police (1,0) et les encoches de la
+        // VUE de test, pas celles du téléphone éprouvé. Un test de feuille doit
+        // passer [routesShareMediaQuery] : sinon son « ×1,3 » ne mesure que
+        // l'écran, et la feuille est mesurée à 1,0.
+        //
+        // Désactivé par défaut : les ~20 fichiers existants ont des feuilles et
+        // des boîtes dont les seuils ont été posés sans cette couverture.
+        builder: routesShareMediaQuery
+            ? (context, child) => MediaQuery(
+                  data: mediaQuery,
+                  child: child ?? const SizedBox.shrink(),
+                )
+            : null,
         home: MediaQuery(
           // Le clamp de main.dart:256-266, appliqué ici parce que le `builder:`
           // de GetMaterialApp s'exécute AU-DESSUS de ce MediaQuery et clamperait
           // l'échelle de la vue (1,0), pas celle qu'on veut éprouver.
-          data: MediaQueryData(
-            size: viewport.size,
-            padding: viewport.padding,
-            textScaler: kpbClampedScaler(textScale),
-          ),
+          data: mediaQuery,
           child: body,
         ),
       ),
