@@ -19,9 +19,11 @@ import 'package:karatou/app/features/etudes_en_france/eef_home_screen.dart';
 import 'package:karatou/app/features/etudes_en_france/eef_teaser_screen.dart';
 
 import '../../support/screen_harness.dart';
+import '../../support/eef_tour_fakes.dart';
 
 void main() {
   setUp(() {
+    useSeenTour();
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;

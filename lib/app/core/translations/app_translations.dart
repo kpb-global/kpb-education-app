@@ -2040,6 +2040,42 @@ class AppTranslations extends Translations {
                   'l\'espace Études en France de l\'app. La procédure est '
                   'suspendue dans mon pays : j\'aimerais savoir quelles options '
                   'existent.',
+          // ── La visite guidée du hub (build 56) ───────────────────────────────
+          // Trois ou quatre cartes à la première ouverture, rejouables par le
+          // « ? ». Les étapes 2 à 4 sont les mêmes pour tout le monde ; seule
+          // l'étape 1 a une variante NEUTRE (compte dont le pays est suspendu) :
+          // ni « candidature » ni « dossier », aucun pays nommé. La visite ne
+          // parle jamais des écoles privées, ne chiffre rien et ne promet rien.
+          'eef_tour_title': 'Visite de l\'espace',
+          'eef_tour_counter': 'Étape @n sur @total',
+          'eef_tour_skip': 'Passer',
+          'eef_tour_next': 'Suivant',
+          'eef_tour_done': 'Compris',
+          'eef_tour_replay': 'Revoir la visite',
+          'eef_tour_1_title': 'Bienvenue dans Études en France',
+          'eef_tour_1_body':
+              'Ici, tu explores des formations et tu prépares ton projet. Ta '
+                  'candidature, elle, se dépose auprès des services officiels : '
+                  'KPB est un service privé d\'accompagnement, pas un service '
+                  'de l\'État.',
+          'eef_tour_1_neutral_body':
+              'Ici, tu explores des formations et tu prépares ton projet '
+                  'd\'études. Les démarches officielles se font sur les '
+                  'plateformes de l\'État : KPB est un service privé '
+                  'd\'accompagnement, pas un service de l\'État.',
+          'eef_tour_2_title': 'Trouve une formation',
+          'eef_tour_2_body':
+              'Cherche parmi les formations des universités publiques, puis '
+                  'filtre par niveau, domaine, ville et procédure d\'admission.',
+          'eef_tour_3_title': 'Prépare tes documents',
+          'eef_tour_3_body':
+              'Un CV, des lettres de motivation et un simulateur d\'entretien '
+                  't\'aident à te préparer.',
+          'eef_tour_4_title': 'Une question ? Écris-nous',
+          'eef_tour_4_body':
+              'Le bouton vert en bas à droite te met en contact avec l\'équipe '
+                  'KPB sur WhatsApp. Le message est déjà écrit et tu peux le '
+                  'modifier avant de l\'envoyer.',
           // ── La bulle verte WhatsApp (build 56) ───────────────────────────────
           // Le cercle, puis la feuille de sujets. Chaque message porte `@place`
           // (où l'étudiant se trouve) et RIEN d'autre : ni nom, ni pays, ni
@@ -5384,6 +5420,40 @@ class AppTranslations extends Translations {
                   'Études en France space of the app. The procedure is '
                   'suspended in my country: I would like to know which options '
                   'exist.',
+          // ── The hub tour (build 56) ───────────────────────────────────────────
+          // Three or four cards on first open, replayable from the "?". Steps 2
+          // to 4 are the same for everyone; only step 1 has a NEUTRAL variant
+          // (account whose country is suspended): no "application" or "file",
+          // no country named. The tour never mentions private schools, quotes
+          // no price and promises nothing.
+          'eef_tour_title': 'Space tour',
+          'eef_tour_counter': 'Step @n of @total',
+          'eef_tour_skip': 'Skip',
+          'eef_tour_next': 'Next',
+          'eef_tour_done': 'Got it',
+          'eef_tour_replay': 'Replay the tour',
+          'eef_tour_1_title': 'Welcome to Études en France',
+          'eef_tour_1_body':
+              'Here you explore programmes and prepare your plans. Your '
+                  'application itself is submitted to the official services: '
+                  'KPB is a private support service, not a government service.',
+          'eef_tour_1_neutral_body':
+              'Here you explore programmes and prepare your study plans. '
+                  'Official procedures take place on the State\'s platforms: '
+                  'KPB is a private support service, not a government service.',
+          'eef_tour_2_title': 'Find a programme',
+          'eef_tour_2_body':
+              'Search public university programmes, then filter by level, '
+                  'field, city and admission procedure.',
+          'eef_tour_3_title': 'Prepare your documents',
+          'eef_tour_3_body':
+              'A CV builder, motivation letters and an interview simulator '
+                  'help you get ready.',
+          'eef_tour_4_title': 'A question? Write to us',
+          'eef_tour_4_body':
+              'The green button at the bottom right connects you with the KPB '
+                  'team on WhatsApp. The message is already written and you can '
+                  'edit it before sending.',
           // ── The green WhatsApp bubble (build 56) ─────────────────────────────
           // The circle, then the topic sheet. Every message carries `@place`
           // (where the student is) and NOTHING else: no name, country or

@@ -42,6 +42,7 @@ import '../../support/eef_help_fakes.dart';
 import '../../support/raw_key_guard.dart';
 import '../../support/screen_harness.dart';
 import '../../widget_test_helpers.dart';
+import '../../support/eef_tour_fakes.dart';
 
 /// Un outil : son écran, avec et sans le paramètre du hub, et ce qu'il dit.
 class _Tool {
@@ -140,6 +141,7 @@ void main() {
   late RecordingHelpAnalytics analytics;
 
   setUp(() {
+    useSeenTour();
     api = MockApiClient();
     previousLauncher = UrlLauncherPlatform.instance;
     launcher = RecordingUrlLauncher();

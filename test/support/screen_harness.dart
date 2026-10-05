@@ -144,6 +144,10 @@ TextScaler kpbClampedScaler(double requested) =>
 /// [viewInsets] est ce que le clavier retire : un écran à champ de saisie doit
 /// tenir quand il monte, et le harnais ne le simulait pas.
 ///
+/// [disableAnimations] reproduit le réglage « réduire les animations » de l'OS
+/// (`MediaQuery.disableAnimationsOf`). Il vaut faux par défaut : les fichiers
+/// existants n'ont rien à changer.
+///
 /// [routesShareMediaQuery] étend la taille, les encoches, le clavier ET le clamp
 /// de police aux routes modales (feuilles, boîtes) poussées sur l'écran — comme
 /// en production. Voir le commentaire du `builder:` plus bas.
@@ -158,12 +162,15 @@ Future<KpbScreenReport> pumpKpbScreen(
   Locale locale = const Locale('fr'),
   EdgeInsets viewInsets = EdgeInsets.zero,
   bool routesShareMediaQuery = false,
+  bool disableAnimations = false,
 }) async {
   final mediaQuery = MediaQueryData(
     size: viewport.size,
     padding: viewport.padding,
     viewInsets: viewInsets,
     textScaler: kpbClampedScaler(textScale),
+    // « Réduire les animations » de l'OS : faux par défaut, comme avant.
+    disableAnimations: disableAnimations,
   );
   await tester.binding.setSurfaceSize(viewport.size);
   addTearDown(() => tester.binding.setSurfaceSize(null));

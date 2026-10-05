@@ -24,6 +24,7 @@ import '../../support/eef_help_fakes.dart';
 import '../../support/raw_key_guard.dart';
 import '../../support/screen_harness.dart';
 import '../../widget_test_helpers.dart';
+import '../../support/eef_tour_fakes.dart';
 
 /// Un écran assez haut pour construire TOUTE la liste paresseuse d'un coup : les
 /// tests de contenu cherchent des tuiles, pas la position du pli.
@@ -52,6 +53,7 @@ void main() {
   late RecordingHelpAnalytics helpAnalytics;
 
   setUp(() {
+    useSeenTour();
     api = MockApiClient();
     previousLauncher = UrlLauncherPlatform.instance;
     launcher = RecordingUrlLauncher();

@@ -138,6 +138,20 @@ abstract final class AnalyticsEventName {
   /// message part » (ici `help_step` = `private_sheet`, `variant` = `sheet`).
   static const eefPrivateInfoOpened = 'eef_private_info_opened';
 
+  /// La visite guidée du hub (build 56) : `eef_tour_shown` part quand la feuille
+  /// s'affiche (propriété `tour_trigger` = `first_open` ou `replay`),
+  /// `eef_tour_completed` quand elle se ferme (`tour_exit` = `finished` ou
+  /// `skipped`, `tour_cards_seen` = le nombre de cartes atteintes, un entier).
+  ///
+  /// Propriétés FERMÉES : aucun pays, aucun profil, aucun identifiant qui
+  /// désigne une suspension (le nombre de cartes ne dit rien de la variante
+  /// neutre de la première). Les rapports se lisent ainsi : portée =
+  /// `eef_tour_shown` (`first_open`), taux de « Compris » =
+  /// `eef_tour_completed` (`finished`) ÷ `eef_tour_shown`, usage du « ? » =
+  /// `eef_tour_shown` (`replay`).
+  static const eefTourShown = 'eef_tour_shown';
+  static const eefTourCompleted = 'eef_tour_completed';
+
   /// Liste d'attente Karatou Premium. `premium_waitlist_joined` est la seule
   /// mesure directe de la demande pour le Pass — celle qui dira s'il vaut la
   /// peine d'être construit, et pour combien d'étudiants.
@@ -228,6 +242,13 @@ abstract final class AnalyticsParamKey {
   /// Par quelle porte la feuille des écoles privées a été ouverte : `bubble` ou
   /// `catalog_empty`. Un identifiant fermé, jamais un texte saisi.
   static const entry = 'entry';
+
+  /// La visite guidée du hub : ce qui l'a ouverte (`first_open`, `replay`), la
+  /// façon dont elle s'est fermée (`finished`, `skipped`), et le nombre de
+  /// cartes atteintes (un entier). Des identifiants fermés, jamais un texte.
+  static const tourTrigger = 'tour_trigger';
+  static const tourExit = 'tour_exit';
+  static const tourCardsSeen = 'tour_cards_seen';
   static const surface = 'surface';
   static const variant = 'variant';
 

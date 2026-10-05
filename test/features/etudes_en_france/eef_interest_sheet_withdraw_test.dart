@@ -41,6 +41,7 @@ import '../../support/pixel_contrast.dart';
 import '../../support/raw_key_guard.dart';
 import '../../support/screen_harness.dart';
 import '../../widget_test_helpers.dart';
+import '../../support/eef_tour_fakes.dart';
 
 const _declaredBody = <String, dynamic>{
   'declared': true,
@@ -63,6 +64,7 @@ void main() {
   late MockApiClient api;
 
   setUp(() {
+    useSeenTour();
     api = MockApiClient();
     RemoteFeatureFlags.resetForTest();
     AppConfig.eefSpaceEnabledOverride = true;

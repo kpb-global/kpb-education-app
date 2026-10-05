@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,6 +21,7 @@ import 'eef_interest_controller.dart';
 import 'eef_interest_sheet.dart';
 import 'eef_official_links.dart';
 import 'eef_profile_prefill.dart';
+import 'eef_tour.dart';
 
 /// L'espace « Études en France » : le hub.
 ///
@@ -53,25 +56,86 @@ class EefHomeScreen extends StatefulWidget {
   State<EefHomeScreen> createState() => _EefHomeScreenState();
 }
 
-class _EefHomeScreenState extends State<EefHomeScreen> {
+class _EefHomeScreenState extends State<EefHomeScreen>
+    with SingleTickerProviderStateMixin {
   late final EefInterestController _interest;
   late final AppController _app;
+
+  /// L'entrée de la bulle après la visite : au repos à 1,0 (la bulle à sa taille),
+  /// elle repart de 0,8 UNE fois, quand la visite se ferme. Créé dans
+  /// `initState` et non paresseusement : la bulle peut être absente, et un
+  /// `dispose` ne doit pas fabriquer un `Ticker` sur un élément déjà désactivé.
+  late final AnimationController _bubbleEntrance;
+  late final Animation<double> _bubbleScale;
 
   @override
   void initState() {
     super.initState();
+    _bubbleEntrance = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+      value: 1,
+    );
+    _bubbleScale = Tween<double>(begin: 0.8, end: 1).animate(
+      CurvedAnimation(parent: _bubbleEntrance, curve: Curves.easeOut),
+    );
     _app = Get.find<AppController>();
     // `AppApiClient` n'est pas enregistré dans GetX : il vit sur AppController.
     _interest = EefInterestController(apiClient: _app.apiClient);
     AnalyticsService.instance.logEefSpaceViewed(widget.source);
     // Un invité n'a pas de session : l'appel partirait pour revenir en 401.
     if (!_app.isGuestMode) _interest.load();
+    // La visite guidée : à la PREMIÈRE ouverture du hub réel seulement (ce
+    // widget n'est jamais monté par la vitrine ni par l'écran des parents).
+    // Après le premier cadre : la feuille a besoin d'un écran déjà posé.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_runFirstOpenTour());
+    });
   }
 
   @override
   void dispose() {
+    _bubbleEntrance.dispose();
     _interest.dispose();
     super.dispose();
+  }
+
+  /// Vrai de la lecture du drapeau jusqu'à la fermeture de la visite : une
+  /// seconde porte (le « ? » activé deux fois d'affilée, ou pendant la lecture de
+  /// la première ouverture) n'ouvre pas une seconde feuille par-dessus la
+  /// première. Posé de façon SYNCHRONE.
+  bool _tourActive = false;
+
+  Future<void> _runFirstOpenTour() async {
+    if (_tourActive) return;
+    _tourActive = true;
+    try {
+      final shown = await EefTour.showIfFirstOpen(context);
+      if (shown) _playBubbleEntrance();
+    } finally {
+      _tourActive = false;
+    }
+  }
+
+  /// Le bouton « ? » : rejoue la visite, sans toucher au drapeau « vue ».
+  Future<void> _replayTour() async {
+    if (_tourActive) return;
+    _tourActive = true;
+    try {
+      await EefTour.show(context, trigger: EefTourTrigger.replay);
+      _playBubbleEntrance();
+    } finally {
+      _tourActive = false;
+    }
+  }
+
+  /// Une entrée en échelle de la bulle (0,8 à 1,0 en 250 ms), jouée UNE fois à
+  /// la fermeture de la visite. Aucune étiquette, pulsation ni pastille ; et
+  /// aucune animation du tout quand l'OS demande de réduire les animations.
+  void _playBubbleEntrance() {
+    if (!mounted) return;
+    if (MediaQuery.disableAnimationsOf(context)) return;
+    unawaited(_bubbleEntrance.forward(from: 0));
   }
 
   void _track(String tile) =>
@@ -171,12 +235,22 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
 
   Widget _scaffold({required String? country, required bool bubbleShown}) {
     return Scaffold(
-      appBar: AppBar(title: Text('eef_title'.tr)),
+      appBar: AppBar(
+        title: Text('eef_title'.tr),
+        actions: [
+          // Revoir la visite guidée. Seulement dans le hub réel.
+          _ReplayTourButton(onPressed: _replayTour),
+        ],
+      ),
       // La bulle verte WhatsApp : l'emplacement standard d'un bouton flottant, en
       // bas à droite. Le `Scaffold` gère la zone sûre et remonte la bulle quand un
       // `SnackBar` (le retrait de la liste) s'affiche.
       floatingActionButton: bubbleShown
-          ? const EefHelpBubble(surface: EefBubbleSurface.hub)
+          ? ScaleTransition(
+              key: const ValueKey('eef-help-bubble-entrance'),
+              scale: _bubbleScale,
+              child: const EefHelpBubble(surface: EefBubbleSurface.hub),
+            )
           : null,
       body: ListenableBuilder(
         listenable: _interest,
@@ -272,6 +346,39 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
             const EefAffiliationNotice(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Le bouton « ? » de la barre : rejoue la visite guidée. Une cible de 48 dp, un
+/// nom lu par les lecteurs d'écran (« Revoir la visite »).
+class _ReplayTourButton extends StatelessWidget {
+  const _ReplayTourButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = 'eef_tour_replay'.tr;
+    return Semantics(
+      // Un nœud à lui, nommé : l'arbre visuel (bouton + infobulle) dit la même
+      // chose, on ne l'expose pas deux fois.
+      container: true,
+      button: true,
+      enabled: true,
+      label: label,
+      onTap: onPressed,
+      excludeSemantics: true,
+      child: IconButton(
+        key: const ValueKey('eef-tour-replay'),
+        tooltip: label,
+        onPressed: onPressed,
+        style: IconButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          tapTargetSize: MaterialTapTargetSize.padded,
+        ),
+        icon: const Icon(Icons.help_outline_rounded),
       ),
     );
   }

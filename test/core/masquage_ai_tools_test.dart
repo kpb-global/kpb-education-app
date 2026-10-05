@@ -45,6 +45,7 @@ import 'package:karatou/app/features/tools/motivation_letters_screen.dart';
 import 'package:karatou/app/features/tools/student_tools_screen.dart';
 
 import '../widget_test_helpers.dart';
+import '../support/eef_tour_fakes.dart';
 
 /// Les quatre écrans dont le serveur ne vérifie aucun consentement.
 const _aiScreenNames = <String>[
@@ -175,7 +176,10 @@ void main() {
     await initializeDateFormatting('fr');
   });
 
-  setUp(resetGetxSingleton);
+  setUp(() {
+    resetGetxSingleton();
+    useSeenTour();
+  });
   tearDown(() {
     AppConfig.aiToolsEnabledOverride = null;
     AppConfig.enableRemoteSyncOverride = null;
