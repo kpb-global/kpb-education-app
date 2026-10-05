@@ -180,7 +180,7 @@ procédure soit ouverte pour le lecteur)** :
 Le brouillon du 02/10 est repris, **à valider** : il ne dit rien de la procédure d'un pays,
 mais « prépare ton dossier » est la formule à relire avec le critère du 03/10 (ne pas
 promettre que la procédure est ouverte pour le lecteur). Dans l'espace, un compte du Niger
-voit la mise en garde et les aides en variante neutre (« autres options ») ; l'annonce,
+voit les aides en variante neutre et plus d'avertissement jaune dans le hub ni le catalogue (retiré le 05/10/2026 ; la vitrine garde le sien) (« autres options ») ; l'annonce,
 elle, n'en dit rien.
 
 ## 5. Après l'ouverture

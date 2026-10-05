@@ -109,7 +109,7 @@ Puis, sur le hub :
 
 | # | À vérifier | Attendu |
 |---|---|---|
-| B1 | Héros | « Prépare ta candidature aux universités françaises » ; le corps dit où se dépose la candidature ; date ou mise en garde selon le pays |
+| B1 | Héros | « Prépare ta candidature aux universités françaises » ; le corps dit où se dépose la candidature ; date selon le pays (compte du Niger : mise en garde dans la 54 et la 55, rien dans la 56) |
 | B2 | Tuiles | Formations, CV, Lettres, Entretien : **chacune ouvre un écran qui marche** ; aucune mention « en préparation ». Le conseiller n'est plus une tuile : c'est la carte d'aide (§B-aide) |
 | B3 | Catalogue | Recherche par nom d'université / sigle / ville (sans accents) ; chaque carte nomme l'université, la ville, la procédure ; les filtres Niveau, Domaine, Ville et Procédure : §B-filtres |
 | B4 | Cas vide | Recherche sans résultat → « Aucune formation ne correspond » + « Tout effacer » **qui vide aussi le champ** |

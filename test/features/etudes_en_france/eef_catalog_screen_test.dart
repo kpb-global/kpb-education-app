@@ -564,14 +564,20 @@ void main() {
           );
     }
 
-    testWidgets('un étudiant nigérien est prévenu AVANT la liste',
+    // 05/10/2026 — décision du propriétaire : plus d'avertissement jaune en tête
+    // du catalogue. Un étudiant du Niger peut mener sa procédure depuis un autre
+    // pays, et l'avertissement lui disait le contraire. Le catalogue reste
+    // consultable ; l'aide, elle, reste en variante neutre (voir plus bas).
+    testWidgets(
+        'un étudiant nigérien ne voit AUCUN avertissement de suspension',
         (tester) async {
       serveSuspension();
       stub((_) async => _page([_program('a')]));
       await pump(tester, country: 'Niger');
 
-      expect(find.text('eef_suspended_notice'.tr), findsOneWidget);
-      expect(find.text('Voir la source officielle'), findsOneWidget);
+      expect(find.text('eef_suspended_notice'.tr), findsNothing);
+      expect(find.text('Voir la source officielle'), findsNothing);
+      expect(find.byIcon(Icons.report_problem_outlined), findsNothing);
       // Le catalogue reste consultable.
       expect(find.text('Licence Droit'), findsOneWidget);
     });

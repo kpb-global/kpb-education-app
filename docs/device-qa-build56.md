@@ -179,7 +179,7 @@ encodé et **291** pour le lien complet `https://wa.me/33768674292?text=…` (ca
 | # | À vérifier | Attendu |
 |---|---|---|
 | Compte-1 | **Étudiant hors Niger** (Sénégal) | La version standard complète : visite (carte 1 standard), bulle à 5 (ou 4) sujets, ligne et option « écoles privées » (drapeau allumé). |
-| Compte-2 | **Étudiant du Niger** | Bulle **présente** à 2 lignes neutres ; **aucune** école privée nulle part ; visite : seule la carte 1 est neutre ; la mise en garde du hub et les aides neutres de la fiche 55 inchangées. |
+| Compte-2 | **Étudiant du Niger** | Bulle **présente** à 2 lignes neutres ; **aucune** école privée nulle part ; visite : seule la carte 1 est neutre ; **plus aucun avertissement jaune de suspension** dans le hub ni dans le catalogue (retiré le 05/10/2026 à la demande du propriétaire : le héros ne montre alors ni la date ni la mise en garde) ; les aides neutres de la fiche 55 inchangées. La vitrine, elle, garde sa mise en garde. |
 | Compte-3 | **Invité** (app ouverte sans compte) | Visite, bulle et ligne « écoles privées » (si allumées) : version standard. Aucun message ne parle de procédure ni de suspension. |
 | Compte-4 | **Parent / partenaire** (lien profond `kpb://etudes-en-france`) | « Un espace pour les étudiants » et son bouton conseiller **seulement** : ni bulle, ni visite, ni ligne. |
 | Compte-5 | **Autre pays** (Côte d'Ivoire, Cameroun, France…) | Version standard. |

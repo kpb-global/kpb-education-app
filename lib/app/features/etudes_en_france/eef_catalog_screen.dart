@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/controllers/app_controller.dart';
-import '../../core/data/eef_calendar.dart';
 import '../../core/models/eef_search.dart';
 import '../../core/services/analytics_service.dart';
 import '../../core/services/remote_feature_flags.dart';
@@ -16,7 +15,6 @@ import 'eef_data_notice.dart';
 import 'eef_help_bubble.dart';
 import 'eef_help_card.dart';
 import 'eef_help_line.dart';
-import 'eef_official_links.dart';
 import 'eef_private_schools_sheet.dart';
 
 /// Le catalogue « Études en France », cherché SUR LE SERVEUR.
@@ -173,14 +171,13 @@ class _EefCatalogViewState extends State<_EefCatalogView> {
             if (_controller.phase == EefCatalogPhase.loading &&
                 _controller.items.isNotEmpty)
               const LinearProgressIndicator(minHeight: 2),
-            const _SuspensionBanner(),
             // La bulle vit dans un `Stack` qui enveloppe la SEULE liste : elle est
             // donc toujours AU-DESSUS de la rangée des sources, qui reste fixe, en
             // bas, et n'est pas déplacée. 16 dp du bord droit et de la rangée ;
             // la zone sûre est déjà consommée par la `SafeArea` de cette rangée.
             //
             // Sous [EefHelpBubble.minHostHeight] de liste (champ de recherche,
-            // filtres et mise en garde de suspension occupent déjà tout l'écran),
+            // filtres occupent déjà tout l'écran),
             // le `Stack` rognerait la bulle et elle ne se laisserait plus toucher :
             // elle est alors retirée, et la liste reprend sa marge ordinaire.
             Expanded(
@@ -241,68 +238,6 @@ class _SearchField extends StatelessWidget {
           context,
           label: 'eef_catalog_search_hint'.tr,
           prefixIcon: Icons.search_rounded,
-        ),
-      ),
-    );
-  }
-}
-
-/// La mise en garde de suspension, en tête du catalogue.
-///
-/// Le catalogue reste consultable — il informe aussi un étudiant qui se
-/// renseigne pour plus tard, ou pour un proche. Mais un étudiant dont le pays est
-/// suspendu doit le savoir AVANT de choisir une formation : l'officiel dit que
-/// son dossier ne sera pas traité, et la liste ci-dessous, elle, a l'air d'une
-/// offre ouverte. Même texte, même source que la vitrine (`EefCalendar`).
-class _SuspensionBanner extends StatelessWidget {
-  const _SuspensionBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    final country = Get.isRegistered<AppController>()
-        ? Get.find<AppController>().profile?.countryOfResidence
-        : null;
-    if (!EefCalendar.isSuspendedFor(country)) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        KpbSpacing.pagePad,
-        KpbSpacing.xs,
-        KpbSpacing.pagePad,
-        KpbSpacing.xs,
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(KpbSpacing.md),
-        decoration: BoxDecoration(
-          color: context.kpb.warningLight,
-          borderRadius: KpbRadius.mdBr,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(
-              Icons.report_problem_outlined,
-              size: 18,
-              color: KpbColors.warning,
-            ),
-            const SizedBox(width: KpbSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'eef_suspended_notice'.tr,
-                    style: KpbTextStyles.bodySm
-                        .copyWith(color: context.kpb.textPrimary),
-                  ),
-                  EefOfficialLink(
-                    url: EefCalendar.suspensionSourceFor(country),
-                    labelKey: 'eef_official_suspension_link',
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
