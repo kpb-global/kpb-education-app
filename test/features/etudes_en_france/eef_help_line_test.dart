@@ -627,6 +627,15 @@ void main() {
           'eef_help_tool_cv_question',
           'eef_help_tool_letters_question',
           'eef_help_tool_interview_question',
+          // La bulle de la build 56 : son jeu neutre (comptes suspendus) et ce
+          // qu'elle partage avec le jeu standard (voir eef_help_bubble_test.dart
+          // pour le détail).
+          'eef_help_bubble_assistance_label_neutral',
+          'eef_help_bubble_assistance_message_neutral',
+          'eef_help_bubble_question_label',
+          'eef_help_bubble_question_message_neutral',
+          'eef_help_bubble_place_hub',
+          'eef_help_bubble_place_catalog',
         ]) {
           expect(_openAFileWording.hasMatch(keys[locale]![key]!), isFalse,
               reason: '$key ($locale) : ${keys[locale]![key]}');
@@ -689,7 +698,12 @@ void main() {
         for (final trigger in EefHelpTrigger.values) ...keysFor(trigger),
         ...shared,
         'eef_help_catalog_filters_question',
+        // Tous les textes de la bulle de la build 56 (préfixe `eef_help_bubble_`) :
+        // un texte de plus y est balayé sans qu'on ait à y penser.
+        ...keys['fr']!.keys.where((k) => k.startsWith('eef_help_bubble_')),
       };
+      expect(ours.where((k) => k.startsWith('eef_help_bubble_')), isNotEmpty,
+          reason: 'le balayage de la bulle ne doit pas être vide');
       for (final locale in ['fr', 'en']) {
         for (final key in ours) {
           final value = keys[locale]![key]!;
@@ -766,6 +780,19 @@ void main() {
       expect(doc, contains('`tools`'), reason: 'surface `tools` absente');
       expect(doc, contains('eef_help_card_shown'));
       expect(doc, contains('eef_help_cta_tapped'));
+      // La build 56 : la bulle. Ses sujets sont des valeurs de `help_step`
+      // (enum à part, `EefBubbleOption`), sa vue est `bubble`, et l'ouverture du
+      // menu est un événement neuf.
+      for (final needle in [
+        '`bubble`',
+        '`bubble_assistance`',
+        '`bubble_dossier`',
+        '`bubble_choose`',
+        '`bubble_question`',
+        '`eef_bubble_opened`',
+      ]) {
+        expect(doc, contains(needle), reason: '$needle absent du contrat');
+      }
     });
 
     test('le suivi WhatsApp attribue `eef_help_<étape>` et le type `eef_help`',

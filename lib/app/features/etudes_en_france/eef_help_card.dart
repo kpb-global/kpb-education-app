@@ -119,6 +119,10 @@ abstract interface class EefHelpAnalytics {
     required String surface,
     required String variant,
   });
+
+  /// Le menu de la bulle d'aide a été ouvert (`eef_bubble_opened`). Une seule
+  /// propriété : l'écran porteur (`hub` ou `catalog`).
+  void bubbleOpened({required String surface});
 }
 
 class _ServiceEefHelpAnalytics implements EefHelpAnalytics {
@@ -147,6 +151,10 @@ class _ServiceEefHelpAnalytics implements EefHelpAnalytics {
         surface: surface,
         variant: variant,
       ));
+
+  @override
+  void bubbleOpened({required String surface}) =>
+      unawaited(AnalyticsService.instance.logEefBubbleOpened(surface: surface));
 }
 
 /// Cette étape a-t-elle déjà été comptée pendant la visite de l'écran ? La

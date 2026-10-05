@@ -2040,6 +2040,52 @@ class AppTranslations extends Translations {
                   'l\'espace Études en France de l\'app. La procédure est '
                   'suspendue dans mon pays : j\'aimerais savoir quelles options '
                   'existent.',
+          // ── La bulle verte WhatsApp (build 56) ───────────────────────────────
+          // Le cercle, puis la feuille de sujets. Chaque message porte `@place`
+          // (où l'étudiant se trouve) et RIEN d'autre : ni nom, ni pays, ni
+          // contact. Le jeu « neutre » (compte dont le pays est suspendu) ne
+          // dit jamais « dossier », « démarrer », ni ne nomme un pays.
+          'eef_help_bubble_tooltip': 'Écrire à l\'équipe KPB sur WhatsApp',
+          'eef_help_bubble_hint': 'Ouvre une liste de messages prêts à envoyer',
+          'eef_help_bubble_title': 'Écrire à l\'équipe KPB',
+          'eef_help_bubble_subtitle':
+              'Choisis ton sujet. WhatsApp s\'ouvre avec un message déjà '
+                  'écrit : tu peux le modifier, et rien n\'est envoyé sans toi.',
+          'eef_help_bubble_place_hub': 'l\'espace Études en France de l\'app',
+          'eef_help_bubble_place_catalog':
+              'le catalogue de l\'espace Études en France de l\'app',
+          'eef_help_bubble_assistance_label':
+              'Contacter l\'équipe KPB pour une assistance',
+          'eef_help_bubble_assistance_label_neutral': 'Parler à un conseiller',
+          'eef_help_bubble_assistance_message':
+              'Bonjour KPB Education, je suis dans @place et j\'aimerais de '
+                  'l\'aide de l\'équipe KPB.',
+          'eef_help_bubble_assistance_message_neutral':
+              'Bonjour KPB Education, je suis dans @place. La procédure est '
+                  'suspendue dans mon pays : j\'aimerais savoir quelles options '
+                  'existent.',
+          'eef_help_bubble_dossier_label':
+              'Je veux de l\'aide pour mon dossier',
+          'eef_help_bubble_dossier_message':
+              'Bonjour KPB Education, je suis dans @place et j\'aimerais de '
+                  'l\'aide pour préparer mon dossier de candidature.',
+          'eef_help_bubble_choose_label':
+              'Je ne sais pas quelle formation choisir',
+          'eef_help_bubble_choose_message':
+              'Bonjour KPB Education, je suis dans @place. J\'hésite sur le '
+                  'choix de ma formation et j\'aimerais en parler.',
+          'eef_help_bubble_question_label': 'J\'ai une autre question',
+          'eef_help_bubble_question_message':
+              'Bonjour KPB Education, j\'ai une question sur @place.',
+          'eef_help_bubble_question_message_neutral':
+              'Bonjour KPB Education, je suis dans @place. La procédure est '
+                  'suspendue dans mon pays et j\'ai une question.',
+          'eef_help_bubble_number':
+              'Numéro officiel de KPB Education : @number',
+          'eef_help_bubble_copy': 'Copier le numéro',
+          'eef_help_bubble_copied': 'Copié',
+          'eef_help_bubble_email':
+              'Pas de WhatsApp ? Écris-nous à contact@kpbeducation.com',
           'eef_hub_guest_body':
               'Crée ton compte pour enregistrer ton profil et demander à être '
                   'rappelé par un conseiller.',
@@ -5297,6 +5343,50 @@ class AppTranslations extends Translations {
                   'Études en France space of the app. The procedure is '
                   'suspended in my country: I would like to know which options '
                   'exist.',
+          // ── The green WhatsApp bubble (build 56) ─────────────────────────────
+          // The circle, then the topic sheet. Every message carries `@place`
+          // (where the student is) and NOTHING else: no name, country or
+          // contact. The "neutral" set (account whose country is suspended)
+          // never talks about opening a file or starting one, and never names
+          // a country.
+          'eef_help_bubble_tooltip': 'Message the KPB team on WhatsApp',
+          'eef_help_bubble_hint': 'Opens a list of ready-made messages',
+          'eef_help_bubble_title': 'Message the KPB team',
+          'eef_help_bubble_subtitle':
+              'Pick your topic. WhatsApp opens with a message already '
+                  'written: you can edit it, and nothing is sent without you.',
+          'eef_help_bubble_place_hub': 'the Études en France space of the app',
+          'eef_help_bubble_place_catalog':
+              'the catalogue of the Études en France space of the app',
+          'eef_help_bubble_assistance_label':
+              'Contact the KPB team for assistance',
+          'eef_help_bubble_assistance_label_neutral': 'Talk to an advisor',
+          'eef_help_bubble_assistance_message':
+              'Hello KPB Education, I\'m in @place and I\'d like help from the '
+                  'KPB team.',
+          'eef_help_bubble_assistance_message_neutral':
+              'Hello KPB Education, I\'m in @place. The procedure is suspended '
+                  'in my country: I\'d like to know what options exist.',
+          'eef_help_bubble_dossier_label': 'I want help with my application',
+          'eef_help_bubble_dossier_message':
+              'Hello KPB Education, I\'m in @place and I\'d like help '
+                  'preparing my application.',
+          'eef_help_bubble_choose_label':
+              'I don\'t know which programme to choose',
+          'eef_help_bubble_choose_message':
+              'Hello KPB Education, I\'m in @place. I\'m unsure which '
+                  'programme to choose and I\'d like to talk about it.',
+          'eef_help_bubble_question_label': 'I have another question',
+          'eef_help_bubble_question_message':
+              'Hello KPB Education, I have a question about @place.',
+          'eef_help_bubble_question_message_neutral':
+              'Hello KPB Education, I\'m in @place. The procedure is suspended '
+                  'in my country and I have a question.',
+          'eef_help_bubble_number': 'Official KPB Education number: @number',
+          'eef_help_bubble_copy': 'Copy number',
+          'eef_help_bubble_copied': 'Copied',
+          'eef_help_bubble_email':
+              'No WhatsApp? Write to us at contact@kpbeducation.com',
           'eef_hub_guest_body':
               'Create your account to save your profile and ask to be called '
                   'back by an advisor.',

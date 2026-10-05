@@ -94,8 +94,9 @@ steady points at the feed itself, not at the content.
 | `eef_catalog_viewed` | `source` (`hub` quand l'étudiant vient du hub, `deep_link` sinon — lien profond ou notification) | Le catalogue ouvert, et par quelle porte |
 | `eef_catalog_searched` | `has_query` (`1`/`0`), `filter_count`, `result_count`, `catalog_published` (`1`/`0`) | Une recherche aboutie. **Jamais le texte tapé** : une requête libre peut contenir un nom, une ville, un établissement |
 | `eef_catalog_failed` | `reason` (`network`/`server`) | Le catalogue n'a pas pu répondre |
-| `eef_help_card_shown` | `help_step` (`hub`/`procedure`/`documents`/`catalog_results`/`catalog_procedure`/`catalog_empty`/`catalog_unpublished`, et depuis la build 55 `catalog_filters`/`tool_cv`/`tool_letters`/`tool_interview`), `surface` (`hub`/`catalog`, et depuis la build 55 `tools`), `variant` (`card`/`compact`) | Une carte d'aide (« c'est flou ? tu veux de l'aide ? ») a été montée : la portée de CHAQUE emplacement |
-| `eef_help_cta_tapped` | mêmes trois propriétés (et, depuis la build 55, `help_step` = `catalog_program` aussi) | Le bouton ou le lien de la carte d'aide a été tapé — part AVANT l'ouverture de WhatsApp |
+| `eef_help_card_shown` | `help_step` (`hub`/`procedure`/`documents`/`catalog_results`/`catalog_procedure`/`catalog_empty`/`catalog_unpublished`, et depuis la build 55 `catalog_filters`/`tool_cv`/`tool_letters`/`tool_interview`, et depuis la build 56 `bubble`), `surface` (`hub`/`catalog`, et depuis la build 55 `tools`), `variant` (`card`/`compact`, et depuis la build 56 `bubble`) | Une carte d'aide (« c'est flou ? tu veux de l'aide ? ») a été montée : la portée de CHAQUE emplacement |
+| `eef_help_cta_tapped` | mêmes trois propriétés (et, depuis la build 55, `help_step` = `catalog_program` aussi ; depuis la build 56, `bubble_assistance`/`bubble_dossier`/`bubble_choose`/`bubble_question`) | Le bouton ou le lien de la carte d'aide a été tapé — part AVANT l'ouverture de WhatsApp |
+| `eef_bubble_opened` | `surface` (`hub`/`catalog`) | Le menu de sujets de la bulle verte WhatsApp a été ouvert (build 56). Ce n'est PAS un envoi : voir « La bulle d'aide de la build 56 » |
 
 ### Lire la carte d'aide sans se tromper (build 54)
 
@@ -160,6 +161,50 @@ tiroir « Outils KPB », dossier d'un étudiant, coach).
   procédure est invisible (donc non mesurée) pour un pays suspendu. Deux lignes ne
   sont donc jamais affichées ensemble ; mais l'étudiant qui change de filtres dans la
   même visite peut les produire l'une après l'autre.
+
+### La bulle d'aide de la build 56 (`EefHelpBubble`)
+
+Une pastille verte ronde dans le **hub** et le **catalogue** (jamais la vitrine, les
+écrans d'outils, l'écran des comptes parent/partenaire, ni la coque de l'app). Elle ouvre
+un menu de sujets ; chaque sujet ouvre WhatsApp avec un message déjà écrit. Elle
+n'existe que si le serveur a ouvert l'espace (`eefSpace`) **et** la bulle
+(`features.eefHelpBubble`, fermée par défaut).
+
+La mesure **réutilise** les deux événements de la carte d'aide, avec **exactement** leurs
+trois propriétés (`help_step`, `surface`, `variant` — le test
+`analytics_event_contract_test.dart` rougit si une quatrième apparaît), et n'ajoute
+qu'**un** événement.
+
+| Événement | `help_step` | `surface` | `variant` | Quand |
+|---|---|---|---|---|
+| `eef_help_card_shown` | `bubble` | `hub` / `catalog` | `bubble` | La bulle est montée — **une fois par visite de l'écran** (même mémoire que les autres emplacements) |
+| `eef_bubble_opened` | — (seule propriété : `surface`) | `hub` / `catalog` | — | Le menu est ouvert |
+| `eef_help_cta_tapped` | `bubble_assistance` / `bubble_dossier` / `bubble_choose` / `bubble_question` | `hub` / `catalog` | `bubble` | Un sujet est choisi — **uniquement** ce qui part vers WhatsApp ; part AVANT l'ouverture, et APRÈS la fermeture de la feuille |
+
+- **Fermer la feuille sans choisir ne mesure aucun `eef_help_cta_tapped`** : seul
+  `eef_bubble_opened` est parti. C'est pourquoi l'ouverture a son propre événement : l'y
+  mêler gonflerait `eef_help_cta_tapped`, qui dit toujours « un message part ».
+- **`whatsapp_handoff`** : `source` = `eef_help_bubble_<sujet>` (`eef_help_bubble_assistance`,
+  `eef_help_bubble_dossier`, `eef_help_bubble_choose`, `eef_help_bubble_question` — la même
+  règle que `eef_help_<help_step>`), `context_type` = `eef_help`, `success` 0/1.
+- **L'entonnoir** se lit : bulle vue (`eef_help_card_shown`, `help_step` = `bubble`) → menu
+  ouvert (`eef_bubble_opened`) → sujet choisi (`eef_help_cta_tapped`) → envoi
+  (`whatsapp_handoff`). Taux d'ouverture : `eef_bubble_opened ÷ eef_help_card_shown`.
+- **Un compte dont le pays est suspendu garde la bulle**, avec un menu à deux lignes
+  neutres (`bubble_assistance`, `bubble_question`). Les identifiants sont **les mêmes** que
+  pour le menu standard : on ne mesure ni le pays ni un identifiant qui le désignerait. Un
+  compte suspendu ne produit jamais `bubble_dossier` ni `bubble_choose`.
+- **Ce qui n'est JAMAIS mesuré** : le texte du message, l'écran en toutes lettres, le pays.
+  Le message ne porte lui non plus aucune donnée personnelle (il nomme seulement l'écran).
+- **`whatsapp_handoff` `success = 1` SURÉVALUE les conversations** : le lancement est
+  tenté sans demander à l'avance si WhatsApp est installé (cette question ment sur Android
+  11 et plus), donc sans WhatsApp le lien s'ouvre dans le navigateur. Le tri se lit aussi
+  côté équipe, par des étiquettes WhatsApp Business posées sur la première phrase de chaque
+  sujet.
+- **Cannibalisation** : la bulle ne doit pas seulement déplacer les cartes d'aide. Lire le
+  total des `whatsapp_handoff` de `source` `eef_help_*` par session de hub, avant et après
+  son ouverture : si le total n'augmente pas alors que les cartes d'aide baissent, elle
+  déplace sans créer.
 
 ### Lire le catalogue sans se tromper (build 54)
 

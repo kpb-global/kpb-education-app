@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ import '../../core/ui/kpb_components.dart';
 import 'eef_catalog_controller.dart';
 import 'eef_catalog_filters.dart';
 import 'eef_data_notice.dart';
+import 'eef_help_bubble.dart';
 import 'eef_help_card.dart';
 import 'eef_help_line.dart';
 import 'eef_official_links.dart';
@@ -139,6 +141,17 @@ class _EefCatalogViewState extends State<_EefCatalogView> {
 
   @override
   Widget build(BuildContext context) {
+    // Reconstruit à l'arrivée des drapeaux serveur. Le clavier se lit ICI,
+    // au-dessus du `Scaffold` : le corps ne le voit plus (le `Scaffold` le
+    // consomme), et la bulle masquerait le champ de recherche.
+    return ValueListenableBuilder<int>(
+      valueListenable: RemoteFeatureFlags.instance.flagsVersion,
+      builder: (context, _, __) =>
+          _scaffold(bubbleShown: EefHelpBubble.shouldShow(context)),
+    );
+  }
+
+  Widget _scaffold({required bool bubbleShown}) {
     return Scaffold(
       appBar: AppBar(title: Text('eef_catalog_title'.tr)),
       // `LayoutBuilder` : l'en-tête des filtres se borne sur la hauteur RÉELLEMENT
@@ -160,11 +173,39 @@ class _EefCatalogViewState extends State<_EefCatalogView> {
                 _controller.items.isNotEmpty)
               const LinearProgressIndicator(minHeight: 2),
             const _SuspensionBanner(),
+            // La bulle vit dans un `Stack` qui enveloppe la SEULE liste : elle est
+            // donc toujours AU-DESSUS de la rangée des sources, qui reste fixe, en
+            // bas, et n'est pas déplacée. 16 dp du bord droit et de la rangée ;
+            // la zone sûre est déjà consommée par la `SafeArea` de cette rangée.
+            //
+            // Sous [EefHelpBubble.minHostHeight] de liste (champ de recherche,
+            // filtres et mise en garde de suspension occupent déjà tout l'écran),
+            // le `Stack` rognerait la bulle et elle ne se laisserait plus toucher :
+            // elle est alors retirée, et la liste reprend sa marge ordinaire.
             Expanded(
-              child: _Results(
-                controller: _controller,
-                scroll: _scroll,
-                fieldName: _fieldName,
+              child: LayoutBuilder(
+                builder: (context, host) {
+                  final showBubble = bubbleShown &&
+                      host.maxHeight >= EefHelpBubble.minHostHeight;
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      _Results(
+                        controller: _controller,
+                        scroll: _scroll,
+                        fieldName: _fieldName,
+                        bubbleShown: showBubble,
+                      ),
+                      if (showBubble)
+                        const Positioned(
+                          right: EefHelpBubble.edgeMargin,
+                          bottom: EefHelpBubble.edgeMargin,
+                          child:
+                              EefHelpBubble(surface: EefBubbleSurface.catalog),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
             const SafeArea(top: false, child: EefSourcesRow()),
@@ -272,11 +313,17 @@ class _Results extends StatelessWidget {
     required this.controller,
     required this.scroll,
     required this.fieldName,
+    required this.bubbleShown,
   });
 
   final EefCatalogController controller;
   final ScrollController scroll;
   final EefFieldNameResolver fieldName;
+
+  /// La bulle d'aide est posée sur le coin bas droit : la marge basse des listes
+  /// passe de 32 à 104 dp (voir [EefHelpBubble.listBottomPadding]), pour que la
+  /// dernière carte défile jusqu'au-dessus d'elle.
+  final bool bubbleShown;
 
   /// Un état plein écran (vide, pas publié) reste dans une liste : la mention
   /// des données et la non-affiliation doivent rester atteignables partout.
@@ -286,11 +333,11 @@ class _Results extends StatelessWidget {
   Widget _stateWithNotice(Widget state, {EefHelpStep? help}) {
     return ListView(
       controller: scroll,
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         KpbSpacing.pagePad,
         0,
         KpbSpacing.pagePad,
-        KpbSpacing.xl,
+        EefHelpBubble.listBottomPadding(bubbleShown: bubbleShown),
       ),
       children: [
         state,
@@ -319,12 +366,29 @@ class _Results extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (controller.phase == EefCatalogPhase.failed) {
-      return KpbErrorState(
-        title: controller.failure == EefCatalogFailure.network
-            ? 'eef_catalog_error_network_title'.tr
-            : 'eef_catalog_error_server_title'.tr,
-        subtitle: 'eef_catalog_error_body'.tr,
-        onRetry: controller.refresh,
+      // Dans une liste, comme les autres états : la bulle ne recouvre ni le
+      // texte ni « Réessayer » (marge basse de 104 dp), et un petit écran peut
+      // défiler jusqu'au bouton. L'état reste centré quand il tient.
+      final bottom = EefHelpBubble.listBottomPadding(bubbleShown: bubbleShown);
+      return LayoutBuilder(
+        builder: (context, constraints) => ListView(
+          controller: scroll,
+          padding: EdgeInsets.only(bottom: bottom),
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: math.max(0, constraints.maxHeight - bottom),
+              ),
+              child: KpbErrorState(
+                title: controller.failure == EefCatalogFailure.network
+                    ? 'eef_catalog_error_network_title'.tr
+                    : 'eef_catalog_error_server_title'.tr,
+                subtitle: 'eef_catalog_error_body'.tr,
+                onRetry: controller.refresh,
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -383,11 +447,11 @@ class _Results extends StatelessWidget {
     final helpIndex = showResultsHelp ? items.length + 2 : -1;
     return ListView.separated(
       controller: scroll,
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         KpbSpacing.pagePad,
         KpbSpacing.sm,
         KpbSpacing.pagePad,
-        KpbSpacing.xl,
+        EefHelpBubble.listBottomPadding(bubbleShown: bubbleShown),
       ),
       itemCount: items.length + (showResultsHelp ? 4 : 3),
       separatorBuilder: (_, __) => const SizedBox(height: KpbSpacing.sm),
