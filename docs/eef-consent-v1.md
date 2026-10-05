@@ -46,6 +46,34 @@ bouton « Valider » :
 | **Modifier** passe par `PATCH /etudes-en-france/interest` | Le serveur n'accepte ni `consent`, ni `consentVersion`, ni `wantsPremium` sur cette route (400) : modifier ses domaines ne redonne pas un consentement et n'efface pas l'intérêt Premium. `consentedAt` et `consentVersion` restent ceux de la déclaration d'origine. |
 | La feuille est préremplie depuis le profil | Le préremplissage ne coche rien à la place de l'étudiant pour le consentement : il ne porte que sur les niveaux et les domaines. |
 
+## Ce que `eef-consent-v1` ne couvre PAS — la feuille « écoles privées » (build 56)
+
+> **Note ajoutée le 05/10/2026, hors du texte consenti, qui reste identique** (les deux clés de
+> traduction du tableau ci-dessus n'ont pas bougé d'un caractère). `eef-consent-v1` est
+> **inchangée dans la 56**.
+
+La build 56 ajoute une feuille d'information sur les écoles privées (`docs/release-56-store-pack.md`,
+éteinte par défaut derrière `features.eefPrivateSchools`). **Ce que v1 couvre** : qu'un conseiller
+KPB te contacte au sujet de cet espace, et que ta réponse serve à préparer l'accompagnement de
+KPB. **Ce qu'elle ne couvre pas** : une **prospection commerciale des écoles privées** — ni que
+des écoles te contactent, ni que tes coordonnées ou ta déclaration d'intérêt leur soient
+transmises, ni qu'on t'adresse des messages au sujet d'une école ou d'une offre privée.
+
+En conséquence, la feuille :
+
+- **n'utilise ni la liste d'intérêt (`EefInterest`, audience `eef_interest`) ni le profil Études
+  en France pour cibler** : elle s'ouvre par un geste volontaire de l'étudiant (le lien du
+  catalogue sans résultat, ou l'option de la bulle) et elle est la même pour tous ;
+- **ne transmet rien aux écoles** : pas de formulaire, pas de champ, pas de coordonnées ; son
+  seul bouton ouvre WhatsApp vers KPB avec un message statique qui ne nomme que l'écran et le sujet (les écoles privées) ;
+- **n'est suivie d'aucun push, e-mail ni message de ce sujet** vers cette audience ;
+- ne passe pas par l'écran de demande d'admission d'une école privée (dont le bouton crée un
+  dossier et envoie des coordonnées aux commerciaux).
+
+Si un jour la feuille doit cibler (liste d'intérêt, profil), transmettre à une école ou relancer,
+c'est une **nouvelle finalité** : décision juridique, texte de consentement dédié et
+`eef-consent-v2` (constante `kEefConsentVersion`), avec l'archive du texte v1 ici.
+
 ## Questions juridiques encore ouvertes
 
 > **Mise à jour du 03/10/2026 — décisions juridiques.** (1) **EEF-UX-15** ne se pose pas pour

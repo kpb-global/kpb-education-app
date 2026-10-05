@@ -87,6 +87,18 @@ rouvre tout seul à la revue suivante.
 | **MISS-04** | **Classification d'âge** | L'App Store affiche **4+** alors que les CGU fixent **16 ans** et que l'app a **6 surfaces d'IA générative à texte libre**. Remplir le questionnaire App Store Connect **et** IARC avec les réponses du §3, **garder la preuve des réponses** (exigée par le §5 du contrat de soumission), consigner la décision D2 (`store-listing-copy.md` §9). | Ops + propriétaire |
 | **XC-03** | L'espace réel pendant la revue | Décision et texte pour « Notes for Review » : `docs/release-54-store-pack.md` §3. | Propriétaire |
 
+## 0quinquies. Build 56 — rien ne change dans les formulaires, sous six conditions
+
+La 56 ajoute la bulle verte WhatsApp, la visite guidée et la feuille « écoles privées », tous
+dormants derrière `eefSpace` et, pour deux d'entre eux, un interrupteur serveur
+(`docs/release-56-store-pack.md`). **Data Safety et App Privacy restent ceux de la 55**, tant que
+les six faits suivants restent vrais sur le SHA final — l'un tombe, « inchangé » tombe :
+(1) les ajouts de la 56 (bulle, feuille) n'envoient qu'un lien `wa.me` sans donnée personnelle : l'écran et le sujet choisi, rien du profil ; (2) identifiants analytiques fermés
+(`docs/analytics-event-contract.md`) ; (3) aucun nouvel hôte ; (4) aucune transmission aux
+écoles, aucun formulaire ; (5) état de la visite local à l'appareil ; (6) aucune dépendance ni
+manifeste modifié. Preuves et commandes : pack §5 et §6. Restent à trancher **avant la
+soumission**, inchangés par la 56 : **XC-06** (finalité Marketing) et **D5** (prix FCFA affichés).
+
 ---
 
 ## 1. Google Play — Data Safety
@@ -275,7 +287,7 @@ trois se cumulent.
 | PayDunya | (région prestataire) | facture seule, **aucune donnée client** | idem | collecte |
 | **YouTube IFrame (Google)** | US/global | **IP + user-agent + id vidéo** | Lecture vidéo / vignettes | pseudonyme (IP) |
 | **Wikimedia Commons (Wikimedia Foundation)** | US | **IP + user-agent** (+ URL de l'image) | Affichage des logos d'établissement (`Image.network`, dès l'ouverture d'une fiche ou d'une liste qui en porte) | pseudonyme (IP) — **même réponse que YouTube** dans les deux consoles (LIV-09) |
-| **WhatsApp / Meta** | US/global | URL `wa.me` (contexte catalogue ou étape de l'espace Études en France ; **ni nom ni e-mail**) + ce que l'étudiant envoie | Remise externe | n/a (externe) — **pas un sous-traitant** |
+| **WhatsApp / Meta** | US/global | URL `wa.me` dont le texte est composé par l'app et **ne contient aucune donnée personnelle** : l'écran, la formation (**intitulé, université, ville**), les filtres posés ou l'outil pour les aides de la 55 (données publiques du catalogue) ; depuis la 56, aussi le **sujet choisi** dans la bulle verte et la feuille « écoles privées » (là, le message ne nomme que l'écran et le sujet) ; **jamais de nom, d'e-mail, de téléphone ni de pays** — + ce que l'étudiant écrit lui-même. **Aucun SDK Meta** : l'app n'ouvre qu'un lien | Remise externe | n/a (externe) — **pas un sous-traitant** |
 
 > **OpenRouter est un *routeur*, pas un modèle.** Il redistribue chaque invite
 > vers des clouds de modèles tiers ; en production le modèle demandé est

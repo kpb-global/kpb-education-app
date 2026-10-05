@@ -44,4 +44,41 @@ void main() {
     expect(build, currentBuild,
         reason: 'pubspec +$build mais le ledger dit courant $currentBuild.');
   });
+
+  // La 56 est PRÉPARÉE (code des PR 1 à 5), pas archivée : son numéro n'est ni
+  // consommé ni courant. Le registre le dit dans une section à part — jamais
+  // dans la liste des numéros consommés ni sous « Courant », que ce test lit :
+  // une ligne « - `56` — … » y ferait croire à un numéro pris.
+  //
+  // Le jour où pubspec.yaml passe à +56 (préparation de l'archive), la première
+  // moitié du test ci-dessus exige que 56 devienne le numéro courant du registre ;
+  // celui-ci se retire alors de lui-même.
+  test('la 56 est prévue au registre sans prendre de numéro', () {
+    final version = _versionLine.firstMatch(pubspec);
+    expect(version, isNotNull, reason: 'pubspec.yaml sans version+build.');
+    if (int.parse(version!.group(1)!) >= 56) return;
+
+    expect(ledger, contains('### 56 — préparée, non archivée'),
+        reason: 'le registre doit annoncer la 56 avant son archive');
+    final section = ledger
+        .split('### 56 — préparée, non archivée')
+        .last
+        .split(RegExp(r'^#{2,3} ', multiLine: true))
+        .first;
+    for (final needle in [
+      'jamais',
+      'docs/release-56-store-pack.md',
+      'docs/device-qa-build56.md',
+      'eefHelpBubble',
+      'eefPrivateSchools',
+    ]) {
+      expect(section, contains(needle),
+          reason: 'la section 56 ne mentionne pas « $needle »');
+    }
+
+    final takesANumber = RegExp(r'^-\s+`56`\s+—', multiLine: true);
+    expect(takesANumber.hasMatch(ledger), isFalse,
+        reason: 'une ligne « - `56` — » ferait de 56 un numéro consommé ou '
+            'courant alors qu\'aucune archive n\'existe.');
+  });
 }
