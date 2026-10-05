@@ -392,6 +392,7 @@ void main() {
     AppConfig.eefEnabledOverride = null;
     AppConfig.eefSpaceEnabledOverride = null;
     AppConfig.eefHelpBubbleEnabledOverride = null;
+    AppConfig.eefPrivateSchoolsEnabledOverride = null;
     Get.reset();
   });
 
@@ -837,8 +838,9 @@ void main() {
           findsOneWidget,
         );
 
-        // Quatre sujets — pas cinq : « écoles privées » est le travail d'une
-        // autre livraison, derrière son propre interrupteur.
+        // Quatre sujets — pas cinq : « écoles privées » (PR 3/5) a son propre
+        // interrupteur, FERMÉ ici (voir eef_private_schools_test.dart, où il est
+        // ouvert et où le menu en a cinq).
         for (final topic in _topics) {
           expect(_option(topic.option), findsOneWidget);
           expect(find.text(fr ? topic.frLabel : topic.enLabel), findsOneWidget);
@@ -1368,6 +1370,7 @@ void main() {
         EefBubbleMessages.optionsFor(suspended: true).map((o) => o.id),
         ['bubble_assistance', 'bubble_question'],
       );
+      // Interrupteur des écoles privées FERMÉ (le défaut) : quatre sujets.
       expect(
         EefBubbleMessages.optionsFor(suspended: false).map((o) => o.id),
         [
@@ -1377,6 +1380,32 @@ void main() {
           'bubble_question',
         ],
       );
+      // OUVERT : cinq, « écoles privées » en 4e position — et rien de plus pour
+      // un compte suspendu, qui garde ses deux lignes neutres.
+      expect(
+        EefBubbleMessages.optionsFor(suspended: false, privateSchools: true)
+            .map((o) => o.id),
+        [
+          'bubble_assistance',
+          'bubble_dossier',
+          'bubble_choose',
+          'bubble_private',
+          'bubble_question',
+        ],
+      );
+      expect(
+        EefBubbleMessages.optionsFor(suspended: true, privateSchools: true)
+            .map((o) => o.id),
+        ['bubble_assistance', 'bubble_question'],
+      );
+    });
+
+    test('sans paramètre, le menu lit l\'interrupteur serveur', () {
+      AppConfig.eefPrivateSchoolsEnabledOverride = null;
+      expect(EefBubbleMessages.optionsFor(suspended: false), hasLength(4));
+      AppConfig.eefPrivateSchoolsEnabledOverride = true;
+      expect(EefBubbleMessages.optionsFor(suspended: false), hasLength(5));
+      expect(EefBubbleMessages.optionsFor(suspended: true), hasLength(2));
     });
 
     test('les identifiants neutres SONT les identifiants standard', () {
@@ -1399,7 +1428,8 @@ void main() {
       for (final surface in EefBubbleSurface.values) {
         expect(surface.key, isNot(contains('suspend')));
       }
-      expect({for (final o in EefBubbleOption.values) o.id}, hasLength(4));
+      // Quatre sujets d'envoi + « écoles privées » (PR 3/5), qui ouvre une feuille.
+      expect({for (final o in EefBubbleOption.values) o.id}, hasLength(5));
     });
 
     test('rien dans le fichier ne nomme la suspension comme mesure', () {

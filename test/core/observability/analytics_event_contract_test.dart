@@ -21,6 +21,7 @@ void main() {
       AnalyticsEventName.eefHelpCardShown,
       AnalyticsEventName.eefHelpCtaTapped,
       AnalyticsEventName.eefBubbleOpened,
+      AnalyticsEventName.eefPrivateInfoOpened,
     ];
     for (final e in events) {
       expect(e.length, lessThanOrEqualTo(40), reason: e);
@@ -163,6 +164,45 @@ void main() {
         '`bubble_choose`',
         '`bubble_question`',
         'eef_help_bubble_',
+      ]) {
+        expect(doc, contains(needle), reason: '$needle absent du contrat');
+      }
+    });
+  });
+
+  // Les écoles privées (build 56, PR 3) : un événement neuf, `eef_private_info_opened`,
+  // pour ce qui n'est PAS un envoi (la feuille d'information a été ouverte). Une
+  // seule propriété fermée, `entry`. Le départ vers WhatsApp, lui, réutilise
+  // `eef_help_cta_tapped` (`help_step` = `private_sheet`).
+  group('écoles privées Études en France', () {
+    final snakeCase = RegExp(r'^[a-z][a-z0-9]*(_[a-z0-9]+)*$');
+
+    test('l\'événement neuf porte le nom du contrat publié', () {
+      expect(
+          AnalyticsEventName.eefPrivateInfoOpened, 'eef_private_info_opened');
+      expect(AnalyticsEventName.eefPrivateInfoOpened, matches(snakeCase));
+    });
+
+    test('`eef_private_info_opened` ne porte QU\'une propriété : `entry`', () {
+      for (final entry in ['bubble', 'catalog_empty']) {
+        final params =
+            AnalyticsService.eefPrivateInfoOpenedParams(entry: entry);
+        expect(params.keys.toSet(), {AnalyticsParamKey.entry});
+        expect(params[AnalyticsParamKey.entry], entry);
+      }
+      expect(AnalyticsParamKey.entry, 'entry');
+    });
+
+    test('docs/analytics-event-contract.md documente les écoles privées', () {
+      final doc = File('docs/analytics-event-contract.md').readAsStringSync();
+      for (final needle in [
+        '`eef_private_info_opened`',
+        '`entry`',
+        '`bubble`',
+        '`catalog_empty`',
+        '`private_sheet`',
+        '`private_note`',
+        'eef_help_private_sheet',
       ]) {
         expect(doc, contains(needle), reason: '$needle absent du contrat');
       }

@@ -514,6 +514,26 @@ class AnalyticsService {
     }
   }
 
+  /// Les propriétés de `eef_private_info_opened` : la seule clé `entry`.
+  /// Exposée pour qu'un test lise la liste EXACTE des clés.
+  @visibleForTesting
+  static Map<String, Object> eefPrivateInfoOpenedParams({
+    required String entry,
+  }) =>
+      <String, Object>{AnalyticsParamKey.entry: entry};
+
+  /// La feuille d'information des écoles privées a été ouverte. [entry] :
+  /// `bubble` ou `catalog_empty`.
+  Future<void> logEefPrivateInfoOpened({required String entry}) async {
+    final params = eefPrivateInfoOpenedParams(entry: entry);
+    try {
+      await _logEvent(AnalyticsEventName.eefPrivateInfoOpened, params);
+      _mirror(AnalyticsEventName.eefPrivateInfoOpened, params);
+    } catch (e, s) {
+      _logError('logEefPrivateInfoOpened', e, s);
+    }
+  }
+
   /// Le catalogue n'a pas pu répondre. [reason] : `network` ou `server`.
   Future<void> logEefCatalogFailed(String reason) async {
     final params = <String, Object>{AnalyticsParamKey.reason: reason};
