@@ -287,6 +287,17 @@ jobs:
             echo "::error::POSTHOG_API_KEY fait ${#POSTHOG_API_KEY} caractères : ressemble à un exemple recopié, pas à une clé de projet."
             exit 1
           fi
+          # Le 04/10/2026 une build iOS est partie avec une clé DOUBLÉE (deux fois
+          # la même clé collées bout à bout, 96 caractères) : préfixe phc_ et plus
+          # de 40 caractères, elle passait les trois règles ci-dessus. Même
+          # expression que scripts/preflight-ios-archive.sh : une clé de projet,
+          # une seule, ni espace ni saut de ligne.
+          # `[[ =~ ]]` et non `grep` : grep lit LIGNE par ligne, et une clé suivie
+          # d'un saut de ligne puis d'autre chose passerait sur sa première ligne.
+          if ! [[ "$POSTHOG_API_KEY" =~ ^phc_[A-Za-z0-9]{30,60}$ ]]; then
+            echo "::error::POSTHOG_API_KEY (${#POSTHOG_API_KEY} caractères) n'a pas la forme d'UNE clé de projet : phc_ puis 30 à 60 lettres ou chiffres. Une clé collée deux fois, ou suivie d'un espace ou d'un saut de ligne, est refusée."
+            exit 1
+          fi
           echo "cle PostHog presente et plausible (${#POSTHOG_API_KEY} caracteres, prefixe phc_)"
 
       - name: Build signed production AAB
