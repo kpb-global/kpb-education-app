@@ -7,11 +7,13 @@ import '../../core/controllers/app_controller.dart';
 import '../../core/data/eef_calendar.dart';
 import '../../core/navigation/app_boot_screen.dart';
 import '../../core/services/analytics_service.dart';
+import '../../core/services/remote_feature_flags.dart';
 import '../../core/ui/kpb_components.dart';
 import '../ai_advisor/ai_consent.dart';
 import '../tools/cv_generator_screen.dart';
 import '../tools/interview_simulator_screen.dart';
 import '../tools/motivation_letters_screen.dart';
+import 'eef_help_bubble.dart';
 import 'eef_help_card.dart';
 import 'eef_interest_controller.dart';
 import 'eef_interest_sheet.dart';
@@ -156,16 +158,36 @@ class _EefHomeScreenState extends State<EefHomeScreen> {
   Widget build(BuildContext context) {
     final country = _app.profile?.countryOfResidence;
 
+    // Reconstruit à l'arrivée des drapeaux serveur : la bulle (et la marge de la
+    // liste qui lui fait place) ne dépend que d'eux, du compte et du clavier.
+    return ValueListenableBuilder<int>(
+      valueListenable: RemoteFeatureFlags.instance.flagsVersion,
+      builder: (context, _, __) => _scaffold(
+        country: country,
+        bubbleShown: EefHelpBubble.shouldShow(context),
+      ),
+    );
+  }
+
+  Widget _scaffold({required String? country, required bool bubbleShown}) {
     return Scaffold(
       appBar: AppBar(title: Text('eef_title'.tr)),
+      // La bulle verte WhatsApp : l'emplacement standard d'un bouton flottant, en
+      // bas à droite. Le `Scaffold` gère la zone sûre et remonte la bulle quand un
+      // `SnackBar` (le retrait de la liste) s'affiche.
+      floatingActionButton: bubbleShown
+          ? const EefHelpBubble(surface: EefBubbleSurface.hub)
+          : null,
       body: ListenableBuilder(
         listenable: _interest,
         builder: (context, _) => ListView(
-          padding: const EdgeInsets.fromLTRB(
+          padding: EdgeInsets.fromLTRB(
             KpbSpacing.pagePad,
             KpbSpacing.md,
             KpbSpacing.pagePad,
-            KpbSpacing.xl,
+            // Plus haute quand la bulle est là : la dernière carte défile
+            // jusqu'au-dessus d'elle.
+            EefHelpBubble.listBottomPadding(bubbleShown: bubbleShown),
           ),
           children: [
             _Hero(country: country),

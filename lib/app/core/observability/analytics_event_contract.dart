@@ -116,6 +116,18 @@ abstract final class AnalyticsEventName {
   static const eefHelpCardShown = 'eef_help_card_shown';
   static const eefHelpCtaTapped = 'eef_help_cta_tapped';
 
+  /// La bulle d'aide (build 56) : le menu de sujets de la pastille verte du hub
+  /// et du catalogue a été ouvert. Une seule propriété, `surface` (`hub` ou
+  /// `catalog`).
+  ///
+  /// Elle réutilise `eef_help_card_shown` (`help_step` = `bubble`) pour sa
+  /// portée et `eef_help_cta_tapped` (`help_step` = `bubble_<sujet>`) pour le
+  /// sujet choisi, avec EXACTEMENT les mêmes trois propriétés — mais ouvrir le
+  /// menu n'est pas un envoi vers WhatsApp : mesuré à part, il ne gonfle pas
+  /// `eef_help_cta_tapped`, qui dit toujours « un message part ». L'entonnoir se
+  /// lit : bulle vue, menu ouvert, sujet choisi, envoi (`whatsapp_handoff`).
+  static const eefBubbleOpened = 'eef_bubble_opened';
+
   /// Liste d'attente Karatou Premium. `premium_waitlist_joined` est la seule
   /// mesure directe de la demande pour le Pass — celle qui dira s'il vaut la
   /// peine d'être construit, et pour combien d'étudiants.

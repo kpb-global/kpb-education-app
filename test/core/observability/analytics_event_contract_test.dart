@@ -20,6 +20,7 @@ void main() {
       AnalyticsEventName.dailyScholarshipOpened,
       AnalyticsEventName.eefHelpCardShown,
       AnalyticsEventName.eefHelpCtaTapped,
+      AnalyticsEventName.eefBubbleOpened,
     ];
     for (final e in events) {
       expect(e.length, lessThanOrEqualTo(40), reason: e);
@@ -108,6 +109,60 @@ void main() {
         '`help_step`',
         '`surface`',
         '`variant`',
+      ]) {
+        expect(doc, contains(needle), reason: '$needle absent du contrat');
+      }
+    });
+  });
+
+  // La bulle d'aide (build 56) : elle réutilise les deux événements ci-dessus,
+  // avec EXACTEMENT les mêmes trois propriétés, et n'ajoute qu'un événement —
+  // l'ouverture du menu, qui n'est pas un envoi vers WhatsApp et ne doit donc
+  // pas gonfler `eef_help_cta_tapped`.
+  group('bulle d\'aide Études en France', () {
+    final snakeCase = RegExp(r'^[a-z][a-z0-9]*(_[a-z0-9]+)*$');
+
+    test('l\'événement neuf porte le nom du contrat publié', () {
+      expect(AnalyticsEventName.eefBubbleOpened, 'eef_bubble_opened');
+      expect(AnalyticsEventName.eefBubbleOpened, matches(snakeCase));
+    });
+
+    test('`eef_bubble_opened` ne porte QU\'une propriété : `surface`', () {
+      final params = AnalyticsService.eefBubbleOpenedParams(surface: 'hub');
+      expect(params.keys.toSet(), {AnalyticsParamKey.surface});
+      for (final value in params.values) {
+        expect(value, isA<String>());
+      }
+    });
+
+    test(
+        'les deux événements de la carte gardent EXACTEMENT leurs trois '
+        'propriétés quand la bulle les utilise', () {
+      final params = AnalyticsService.eefHelpParams(
+        step: 'bubble_assistance',
+        surface: 'catalog',
+        variant: 'bubble',
+      );
+      expect(
+        params.keys.toSet(),
+        {
+          AnalyticsParamKey.helpStep,
+          AnalyticsParamKey.surface,
+          AnalyticsParamKey.variant,
+        },
+      );
+    });
+
+    test('docs/analytics-event-contract.md documente la bulle', () {
+      final doc = File('docs/analytics-event-contract.md').readAsStringSync();
+      for (final needle in [
+        '`eef_bubble_opened`',
+        '`bubble`',
+        '`bubble_assistance`',
+        '`bubble_dossier`',
+        '`bubble_choose`',
+        '`bubble_question`',
+        'eef_help_bubble_',
       ]) {
         expect(doc, contains(needle), reason: '$needle absent du contrat');
       }

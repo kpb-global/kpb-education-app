@@ -67,13 +67,16 @@ class EefEntry extends StatelessWidget {
     //
     // Le compte non résolu (`profile == null`) passe : c'est l'invité, que la
     // vitrine accueille exprès avec un bouton « créer mon compte ».
-    return !_isNonStudentAccount;
+    return !isNonStudentAccount;
   }
 
   /// Le compte courant est-il un compte RÉSOLU qui n'est pas étudiant (parent,
   /// partenaire) ? L'invité n'a pas de profil et n'en fait pas partie : la
   /// vitrine l'accueille exprès, avec un bouton « créer mon compte ».
-  static bool get _isNonStudentAccount {
+  ///
+  /// Public pour que la bulle d'aide ([EefHelpBubble]) lise la MÊME règle : la
+  /// recopier ailleurs, c'est la voir diverger.
+  static bool get isNonStudentAccount {
     final profile = Get.isRegistered<AppController>()
         ? Get.find<AppController>().profile
         : null;
@@ -96,7 +99,7 @@ class EefEntry extends StatelessWidget {
         // Un parent arrivé par un lien partagé : `isVisible` ne masque que les
         // ENTRÉES, la route, elle, répond à tout le monde. Sans ce cas, il verrait
         // le hub, taperait, et recevrait un 403 traduit en « reconnecte-toi ».
-        if (open && _isNonStudentAccount) return const EefStudentsOnlyScreen();
+        if (open && isNonStudentAccount) return const EefStudentsOnlyScreen();
 
         if (flags.eefSpaceEnabled) return EefHomeScreen(source: source);
         if (flags.eefTeaserEnabled) return EefTeaserScreen(source: source);

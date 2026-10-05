@@ -74,6 +74,9 @@ class RecordingHelpAnalytics implements EefHelpAnalytics {
   final List<RecordedHelpEvent> shownCalls = <RecordedHelpEvent>[];
   final List<RecordedHelpEvent> tappedCalls = <RecordedHelpEvent>[];
 
+  /// Les écrans porteurs des `eef_bubble_opened`, dans l'ordre.
+  final List<String> openedSurfaces = <String>[];
+
   /// Les étapes vues, dans l'ordre.
   List<String> get shownSteps => shownCalls.map((e) => e.step).toList();
 
@@ -92,6 +95,9 @@ class RecordingHelpAnalytics implements EefHelpAnalytics {
     required String variant,
   }) =>
       tappedCalls.add(RecordedHelpEvent(step, surface, variant));
+
+  @override
+  void bubbleOpened({required String surface}) => openedSurfaces.add(surface);
 }
 
 /// Le texte français que le message prérempli doit avoir pour [stepLabel] —

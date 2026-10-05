@@ -98,6 +98,27 @@ class AnalyticsService {
     }
   }
 
+  // ── Event sink (test seam) ───────────────────────────────────────────────
+
+  /// Où part un événement, REMPLAÇABLE par un test.
+  ///
+  /// Même raison que [firebaseAnalyticsConsent] : sans application Firebase par
+  /// défaut, `FirebaseAnalytics.instance` lève en test, et le `catch` de chaque
+  /// méthode avale l'erreur — un événement qui ne part pas, ou qui part sous un
+  /// autre nom, resterait invisible. Quand il est posé, il reçoit le nom ET les
+  /// paramètres EXACTS à la place de Firebase. Nul en production.
+  @visibleForTesting
+  Future<void> Function(String name, Map<String, Object> parameters)?
+      logEventSink;
+
+  /// Le seul point d'émission des événements de la bulle d'aide et du renvoi
+  /// WhatsApp : le sink s'il est posé, Firebase sinon.
+  Future<void> _logEvent(String name, Map<String, Object> parameters) {
+    final sink = logEventSink;
+    if (sink != null) return sink(name, parameters);
+    return _analytics.logEvent(name: name, parameters: parameters);
+  }
+
   // ── Consent ──────────────────────────────────────────────────────────────
 
   /// The three collectors the "Analyse d'usage" switch governs, as replaceable
@@ -447,10 +468,7 @@ class AnalyticsService {
       variant: variant,
     );
     try {
-      await _analytics.logEvent(
-        name: AnalyticsEventName.eefHelpCardShown,
-        parameters: params,
-      );
+      await _logEvent(AnalyticsEventName.eefHelpCardShown, params);
       _mirror(AnalyticsEventName.eefHelpCardShown, params);
     } catch (e, s) {
       _logError('logEefHelpCardShown', e, s);
@@ -470,13 +488,29 @@ class AnalyticsService {
       variant: variant,
     );
     try {
-      await _analytics.logEvent(
-        name: AnalyticsEventName.eefHelpCtaTapped,
-        parameters: params,
-      );
+      await _logEvent(AnalyticsEventName.eefHelpCtaTapped, params);
       _mirror(AnalyticsEventName.eefHelpCtaTapped, params);
     } catch (e, s) {
       _logError('logEefHelpCtaTapped', e, s);
+    }
+  }
+
+  /// Les propriétés de `eef_bubble_opened` : la seule clé `surface`. Exposée
+  /// pour qu'un test lise la liste EXACTE des clés, comme [eefHelpParams].
+  @visibleForTesting
+  static Map<String, Object> eefBubbleOpenedParams({
+    required String surface,
+  }) =>
+      <String, Object>{AnalyticsParamKey.surface: surface};
+
+  /// Le menu de la bulle d'aide a été ouvert. [surface] : `hub` ou `catalog`.
+  Future<void> logEefBubbleOpened({required String surface}) async {
+    final params = eefBubbleOpenedParams(surface: surface);
+    try {
+      await _logEvent(AnalyticsEventName.eefBubbleOpened, params);
+      _mirror(AnalyticsEventName.eefBubbleOpened, params);
+    } catch (e, s) {
+      _logError('logEefBubbleOpened', e, s);
     }
   }
 
@@ -931,20 +965,14 @@ class AnalyticsService {
     String contextType = 'unknown',
     bool success = true,
   }) async {
+    final params = <String, Object>{
+      AnalyticsParamKey.source: source,
+      AnalyticsParamKey.contextType: contextType,
+      AnalyticsParamKey.success: success ? 1 : 0,
+    };
     try {
-      await _analytics.logEvent(
-        name: AnalyticsEventName.whatsappHandoff,
-        parameters: {
-          AnalyticsParamKey.source: source,
-          AnalyticsParamKey.contextType: contextType,
-          AnalyticsParamKey.success: success ? 1 : 0,
-        },
-      );
-      _mirror(AnalyticsEventName.whatsappHandoff, {
-        AnalyticsParamKey.source: source,
-        AnalyticsParamKey.contextType: contextType,
-        AnalyticsParamKey.success: success ? 1 : 0,
-      });
+      await _logEvent(AnalyticsEventName.whatsappHandoff, params);
+      _mirror(AnalyticsEventName.whatsappHandoff, params);
     } catch (e, s) {
       _logError('logWhatsAppHandoff', e, s);
     }
