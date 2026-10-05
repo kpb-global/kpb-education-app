@@ -12,10 +12,17 @@
 > Les §1, §2.3, §3, §4 et §6 ci-dessous ont été remis à jour le 03/10 (état réel, décisions
 > juridiques du 03/10, séquencement). Les opérations d'envoi : `docs/mise-a-jour-55-checklist.md`.
 
-> **05/10/2026 — la build 56 est préparée** (bulle verte WhatsApp, visite guidée, feuille
-> « écoles privées », tous dormants : `docs/release-56-store-pack.md`, `docs/release-ledger.md`
-> « 56 — préparée, non archivée »). Elle ne change rien à l'état ci-dessous (espace fermé) ; elle
-> change le **choix du moment** (§ 6, point 5) et ajoute des décisions (§ 6, point 7).
+> **05/10/2026 — la 55 est REMPLACÉE par la 56** (décision du propriétaire : on n'envoie que la
+> 56). La 55, téléversée sur App Store Connect le 04/10 mais **jamais soumise**, est abandonnée ;
+> **l'espace s'ouvrira avec la 56, jamais avec la 55**. Partout où ce dossier écrit « 55 » pour une
+> version, une build ou une checklist, lire « 56 » : les opérations d'envoi sont dans
+> `docs/mise-a-jour-56-checklist.md`, et le choix « ouvrir avec la 55 ou attendre la 56 » est
+> **tranché** (la 56).
+>
+> **La build 56** porte la bulle verte WhatsApp, la visite guidée et la feuille « écoles privées »
+> (tous dormants : `docs/release-56-store-pack.md`, `docs/release-ledger.md`, ligne `56` sous
+> « Courant »), et ne montre plus l'avertissement de suspension nulle part (#324, #326). Elle ne
+> change rien à l'état ci-dessous (espace fermé) ; elle ajoute des décisions (§ 6, point 7).
 
 > Établi le 02/10/2026, corrigé le 03/10/2026 : la 2.3.0 (54) n'a jamais été soumise, la
 > 2.3.0 (55) la remplace. Complète `docs/runbook-ouverture-espace-reel.md` (le mode
@@ -26,14 +33,14 @@
 
 | | État |
 |---|---|
-| Build | **La 55 n'existe pas encore dans les boutiques.** La 54 n'a jamais été envoyée (constat du 03/10) ; la **2.3.0 (55)** la remplace et reste à archiver, soumettre et faire approuver (`docs/mise-a-jour-55-checklist.md`). Dernier envoi iOS : 2.2.0 (53) ; dernier bundle Android : 53 / 2.2.0. **Aucune build des boutiques ne contient le hub** |
+| Build | **Aucune 2.3.0 n'est en vente.** La 54 n'a jamais été envoyée (constat du 03/10) ; la 55, téléversée le 04/10, n'a **jamais été soumise** et est **remplacée par la 56** ; la **2.3.0 (56)** reste à archiver, soumettre et faire approuver (`docs/mise-a-jour-56-checklist.md`). Dernier envoi iOS mis en vente : 2.2.0 (53) ; dernier bundle Android : 53 / 2.2.0. **Aucune build des boutiques ne contient le hub** |
 | Backend | `0641601` en production depuis le 03/10 à 17 h 06 UTC : route `GET /etudes-en-france/cities`, limiteur unique à 60 req/min/IP/route (#313), correction de la shortlist (#307) — voir `docs/release-ledger.md` |
 | Catalogue | **Publié** : 10 029 formations, 84 établissements ; 473 en attente (page-source morte). Filtres Niveau, Domaine, Ville et Procédure dans l'app (#314, build 55) |
-| Espace | **Fermé** (`eefSpace=false`, `eef=false`, `eefTeaser=true`) ; la 55 part **espace fermé** (décision XC-03, état A : `docs/release-55-store-pack.md`). Une fenêtre `eef-space-on` / `-off` a eu lieu le 02/10 (10 h 23 – 10 h 35 UTC) ; **sur quelle installation la recette a été faite est à vérifier** — aucune 54 n'est dans les boutiques ni dans TestFlight : elle ne vaut pas recette de la 55, à refaire sur la build envoyée |
+| Espace | **Fermé** (`eefSpace=false`, `eef=false`, `eefTeaser=true`) ; la 56 part **espace fermé** (décision XC-03, état A : `docs/release-55-store-pack.md`, `docs/release-56-store-pack.md`). Une fenêtre `eef-space-on` / `-off` a eu lieu le 02/10 (10 h 23 – 10 h 35 UTC) ; **sur quelle installation la recette a été faite est à vérifier** — aucune 54 n'est dans les boutiques ni dans TestFlight : elle ne vaut pas recette de la 55, à refaire sur la build envoyée |
 | Actions `eef-space-on` / `-off` | Corrigées par **#304**, fusionnée le 02/10 (`bf750c2`) : le job attend que l'API recréée réponde, et « Prouver l'état de l'espace » s'exécute enfin. Aucun déploiement requis (workflow seulement) |
-| Préflight de release | Le run du 02/10 (37016398211, `ref=main` = `ebec041`, `requires-new`, dérogation 24 h) portait sur la 54 : **à refaire pour la 55**, sur son SHA de release, en `tolerates-old` (`docs/mise-a-jour-55-checklist.md`, étape 4). Un run sur `47a1295` avait échoué par construction : la production était EN AVANCE du commit de la build, cas que le préflight ne modélise pas — à éviter en ne déployant pas le backend d'un commit postérieur au SHA de release avant le préflight |
+| Préflight de release | Le run du 02/10 (37016398211, `ref=main` = `ebec041`, `requires-new`, dérogation 24 h) portait sur la 54 : **à refaire pour la 56**, sur son SHA de release, en `tolerates-old` (`docs/mise-a-jour-56-checklist.md`, étape 4). Un run sur `47a1295` avait échoué par construction : la production était EN AVANCE du commit de la build, cas que le préflight ne modélise pas — à éviter en ne déployant pas le backend d'un commit postérieur au SHA de release avant le préflight |
 | Questions de procédure | **Tranchées** le 02/10 (« tout valider ») et **appliquées en production** le 02/10 : `eef-reconcile` a réaligné 3 834 formations publiées dans 70 établissements (run 37014663792), dont 57 changements de procédure ; simulation de contrôle : 0 à réaligner |
-| Build 56 | **Préparée, non archivée** (`docs/release-ledger.md`) : porte la bulle, la visite et la feuille « écoles privées », derrière `eefSpace` et deux interrupteurs fermés (`eefHelpBubble`, `eefPrivateSchools`). Aucune n'est dans les boutiques |
+| Build 56 | **La seule build à envoyer** (elle remplace la 55) ; version posée, **non archivée** (`docs/release-ledger.md`) : porte la bulle, la visite et la feuille « écoles privées », derrière `eefSpace` et deux interrupteurs fermés (`eefHelpBubble`, `eefPrivateSchools`). Aucune n'est dans les boutiques |
 | Juridique | **Tranché le 03/10/2026** : les quatre décisions du § 6 (lien « Me retirer », phrase du héros, annonce à tous, EEF-UX-15) |
 
 ## 2. Ce qui bloque l'ouverture
@@ -102,17 +109,17 @@ limite mémoire du conteneur.
 | Précondition | État |
 |---|---|
 | Corrections de procédure appliquées en production (`eef-reconcile`) | ✅ 02/10 : 3 834 réalignées, 0 signalée ; recherche servie DAP blanche 3 076 · DAP jaune 29 · Études en France 6 804 · Parcoursup 1 · hors procédure 119 (total 10 029 inchangé, catalogue général 69 / 634 inchangé) |
-| La build qui contient le hub (**55**, ou la **56** qui la reprend) en vente sur les deux stores, puis adoptée | ⏳ à archiver puis soumettre : la 54 n'a jamais été envoyée. Ouvrir avec la 55 ou attendre la 56 : § 6, point 5 |
+| La build qui contient le hub (la **56**, qui remplace la 55 abandonnée) en vente sur les deux stores, puis adoptée | ⏳ à archiver puis soumettre : la 54 n'a jamais été envoyée et la 55 n'a jamais été soumise. L'espace s'ouvre avec la 56 : § 6, point 5 |
 | Backend porteur de la build (`eef-catalog-attribution.js`) | ✅ `0641601` (inclut `ebec041`) |
 | Catalogue publié, recherche qui répond | ✅ 10 029 |
 | Héros du hub (`eef_hub_hero_body`) validé par le juridique | ✅ 03/10 : la phrase sur Campus France est validée **telle quelle** |
-| « depuis cet écran » (retrait) | ✅ 03/10 : lien « Me retirer » ajouté dans la feuille (**build 55**), texte consenti et `eef-consent-v1` inchangés. Vaut seulement quand la 55 est installée : les 49 à 53 n'ont pas ce lien |
+| « depuis cet écran » (retrait) | ✅ 03/10 : lien « Me retirer » ajouté dans la feuille (**build 55, reprise par la 56**), texte consenti et `eef-consent-v1` inchangés. Vaut seulement quand la 56 est installée : les 49 à 53 n'ont pas ce lien |
 | #304 fusionnée — **avant `eef-space-on`** : sans elle, l'étape « Prouver l'état de l'espace » ne peut pas s'exécuter (une apostrophe coupe son programme Python), donc rien ne prouve l'ouverture | ✅ 02/10 (`bf750c2`) |
 
-**Quand ouvrir ?** Ouvrir ne touche **que** les builds qui contiennent le hub (la 55 et les
-suivantes) : les 49 à 53 gardent la vitrine. Ouvrir avant que la 55 soit en vente n'a
+**Quand ouvrir ?** Ouvrir ne touche **que** les builds qui contiennent le hub (la 56 et les
+suivantes ; la 55 n'a jamais été en vente) : les 49 à 53 gardent la vitrine. Ouvrir avant que la 56 soit en vente n'a
 aucun effet pour le public (seuls ses testeurs verraient le hub) ; l'ouvrir avant qu'elle
-soit adoptée ne profite qu'à une minorité. **L'ouverture attend donc la 55 en vente sur
+soit adoptée ne profite qu'à une minorité. **L'ouverture attend donc la 56 en vente sur
 les deux stores et adoptée** — le seuil d'adoption n'est pas fixé dans le dépôt : à
 décider (§ 6, point 4) —, comme l'écrit déjà la précondition 1 du runbook. Les corrections
 du § 2.1 sont appliquées. L'**annonce** vient après l'ouverture (§ 4).
@@ -128,7 +135,7 @@ du § 2.1 sont appliquées. L'**annonce** vient après l'ouverture (§ 4).
 3. `vps-ops` → `eef-space-on`, **`dry_run` décoché**. Le job attend que l'API ait redémarré
    puis prouve `eefSpace=true` (#304). S'il rougit malgré tout, relire la commande du point 1
    (`eefSpace` → `true`) avant toute autre action.
-4. Sur un téléphone avec la **55 du store** (pas TestFlight) : tuer et relancer l'app → le
+4. Sur un téléphone avec la **56 du store** (pas TestFlight) : tuer et relancer l'app → le
    hub s'affiche ; sur une 53 → la vitrine. Chercher « médecine » (badge « Accès santé »).
    Avec la **56**, la première ouverture du hub montre la **visite guidée** (elle n'a pas
    d'interrupteur) ; la bulle et la feuille « écoles privées » attendent leurs propres
@@ -136,14 +143,14 @@ du § 2.1 sont appliquées. L'**annonce** vient après l'ouverture (§ 4).
 5. Pendant l'heure qui suit : pas d'erreur `eef_catalog_failed` dans l'analytique (le
    connecteur PostHog doit être ré-autorisé pour que je puisse le lire).
 
-**Retour arrière** : `vps-ops` → `eef-space-off` (immédiat, sans simulation). Les 55
+**Retour arrière** : `vps-ops` → `eef-space-off` (immédiat, sans simulation). Les 56
 retombent sur la vitrine ; les déclarations et profils restent en base.
 
-## 4. L'annonce — après l'ouverture, quand la 55 est installée
+## 4. L'annonce — après l'ouverture, quand la 56 est installée
 
 **Pourquoi attendre** : une 53 qui ouvre `/etudes-en-france` voit la vitrine, et
 `recommended-version-set` n'agit pas sur elle (elle ne lit pas `recommendedVersion`). Le texte
-doit donc **demander la mise à jour**, et l'envoi gagne à attendre que la 55 soit largement
+doit donc **demander la mise à jour**, et l'envoi gagne à attendre que la 56 soit largement
 installée (publication progressive iOS : 7 jours ; Play par paliers).
 
 **Audience (décision juridique du 03/10/2026)** : **tous les étudiants, Niger compris**
@@ -206,19 +213,19 @@ déclarations d'intérêt dans l'admin ; à J+7, la part de recherches sans rés
       `eef_interest` reste **inutilisée** tant que la question de consentement
       (`docs/eef-consent-v1.md` § 4, point 4) n'est pas tranchée.
    4. **EEF-UX-15** (découpler ou assumer le couplage profil / consentement) **ne se pose pas
-      pour la 55** : aucune sélection de formations n'exige de profil déclaré.
-5. **Le moment** : ouvrir quand la **55** est en vente sur les deux stores **et adoptée**, et
-   annoncer ensuite. **Avec la 56 en vue** : ouvrir avec la 55 si elle est approuvée avant que la
-   56 soit prête (le catalogue et les aides servent tout de suite ; bulle et visite arrivent à
-   la mise à jour) ; si la 56 est proche (environ 3 semaines), attendre est défendable pour une
-   première impression complète — décision (f) du pack de la 56. **Le seuil d'adoption n'est pas défini** dans le dépôt (part des sessions
-   en 2.3.0 (55) dans PostHog, par exemple) : à fixer avant le jour J.
-6. **Archiver, soumettre et faire approuver la 55** : `docs/mise-a-jour-55-checklist.md`. Aucune
+      pour la 55 ni la 56** : aucune sélection de formations n'exige de profil déclaré.
+5. **Le moment** : ouvrir quand la **56** est en vente sur les deux stores **et adoptée**, et
+   annoncer ensuite. **Tranché le 05/10/2026** (décision (f) du pack de la 56) : on n'envoie que
+   la 56, la 55 étant abandonnée ; il n'y a donc plus à choisir entre ouvrir avec la 55 ou
+   attendre la 56, et bulle et visite sont là dès l'ouverture. **Le seuil d'adoption n'est pas
+   défini** dans le dépôt (part des sessions en 2.3.0 (56) dans PostHog, par exemple) : à fixer
+   avant le jour J.
+6. **Archiver, soumettre et faire approuver la 56** : `docs/mise-a-jour-56-checklist.md`. Aucune
    étape de distribution ne se fait sans le feu vert explicite du propriétaire.
 7. **Les décisions de la 56** (`docs/release-56-store-pack.md` §7), avant d'allumer
    `eefHelpBubble` et `eefPrivateSchools` : (a) KPB est-il rémunéré par des écoles privées ?
    (b) Niger : aucune mention d'école privée (retenu) ; (c) « frais en général plus élevés que
    dans le public » ou son repli ; (d) qui répond au +33768674292, quand, étiquettes WhatsApp
-   Business et message d'absence ; (e) XC-06 et D5 avant la soumission ; (f) ouvrir avec la 55
-   ou attendre la 56 ; (g) version marketing de la 56 selon l'état de la 55 dans App Store
-   Connect (ITMS-90062). (a) et (c) portent sur des textes **compilés** : avant l'archive.
+   Business et message d'absence ; (e) XC-06 et D5 avant la soumission ; (f) quelle build
+   envoyer : **la 56 seule, tranché** ; (g) version marketing de la 56 : **2.3.0 gardée, tranché**
+   (ITMS-90062, la 55 n'ayant jamais été soumise). (a) et (c) portent sur des textes **compilés** : avant l'archive.

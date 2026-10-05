@@ -4,6 +4,22 @@ Un numéro listé sous **Consommés** ne peut plus figurer dans `pubspec.yaml`.
 Le numéro sous **Courant** est le seul autorisé. Le test
 `test/release/build_number_test.dart` lit ce fichier.
 
+Version marketing EN VENTE : `2.2.0` (depuis le 13/09/2026). Le test lit cette ligne :
+la version de `pubspec.yaml` doit lui être strictement supérieure (ITMS-90062). La mettre
+à jour le jour où une nouvelle version passe en vente, pas avant.
+
+La ligne du numéro courant a **deux états**, et le test accepte les deux mais refuse tout
+état mixte :
+
+- **avant l'archive** : « EN COURS (archive à faire) : non téléversée, non soumise » et
+  « Commit à archiver : `<RELEASE>` », jamais un SHA ;
+- **après l'envoi** (le jour de l'archive, après la dernière étape de la checklist) :
+  « téléversée le JJ/MM/AAAA » à la place du premier, et « Commit archivé : `RELEASE` =
+  `<les 40 caractères du SHA>` » à la place du second. On ne garde alors plus aucun des
+  trois marqueurs « avant ».
+
+Un numéro ne passe sous **Consommés** que quand le numéro suivant est préparé.
+
 ## Consommés
 
 - `46` — AAB CI du 31/07/2026, jamais téléversé sur Play
@@ -65,44 +81,75 @@ Le numéro sous **Courant** est le seul autorisé. Le test
   (`### Ce que 55 embarque`). Brûlée plutôt que réutilisée, comme la 51 : « build
   54 » désigne déjà des documents et un artefact de CI précis.
 
+- `55` — **`2.3.0 (55)` : consommé le 04/10/2026 (téléversée sur App Store Connect à
+  01 h 20), jamais soumise à l'App Review, remplacée par la 56.** Décision du
+  propriétaire du 05/10/2026 (« 56 ») : on n'envoie QUE la 56, la 55 est abandonnée.
+  Son AAB signé (Flutter CI, run 37322572087), jamais importé dans Play, ne
+  doit PAS l'être : ce serait envoyer une build que la 56 remplace. Le numéro est
+  consommé parce que la build est partie chez Apple, pas parce qu'elle a servi :
+  il ne reprend jamais la place du courant. Elle avait été préparée le 03/10 comme la
+  SEULE build 2.3.0, à la place de la 54 (décision du propriétaire, « option B ») ;
+  son contenu complet est dans `### Ce que 55 embarque`, et la 56 le reprend en entier.
+  La 55 n'ayant jamais été soumise, la version marketing `2.3.0` reste libre pour la 56.
+
 ## Courant
 
-- `55` — **`2.3.0 (55)`. La build « ouverture sûre » de l'espace Études en
-  France, et la SEULE build 2.3.0 : elle remplace la 54, jamais envoyée.** Le
-  dépôt livrait `2.2.0+53` ; la 53 est en vente depuis le 13/09/2026, donc
-  App Store Connect refuse toute build dont la version marketing n'est pas
-  **strictement supérieure** à 2.2.0 (ITMS-90062). D'où `2.3.0`, et non `2.2.1` :
-  c'est une build de fonctionnalités, pas un correctif. Le nom `2.3.0` est gardé ;
-  le numéro 54, jamais envoyé, est sauté pour éviter toute ambiguïté (voir sa
-  ligne sous **Consommés**).
+- `56` — **`2.3.0 (56)`, EN COURS (archive à faire) : non téléversée, non soumise.
+  La SEULE build 2.3.0 à envoyer : elle remplace la 55 (décision du propriétaire,
+  05/10/2026).** Elle porte tout ce que portait la 55 (`### Ce que 55 embarque`) plus
+  ce que la 56 y ajoute (`### Ce que la 56 ajoute à la 55`) : la bulle verte WhatsApp, la
+  visite guidée, la feuille « écoles privées », deux interrupteurs serveur fermés, le
+  retrait de l'avertissement de suspension. Le numéro 55 est CONSOMMÉ (téléversé) ; la 56
+  en est le successeur direct.
 
-  **Pourquoi une seule build (décision du propriétaire, 03/10/2026, appelée « option B » dans
-  l'échange — sans rapport avec l'« état B » du pack de soumission, qui désigne l'espace
-  allumé).**
-  Les captures de App Store Connect et de Google Play Console montrées le
-  03/10/2026 ne contiennent pas la 54 : on ne l'envoie pas. On envoie UNE build,
-  qui porte tout ce que ce registre attribuait à la 54, plus les filtres du
-  catalogue (#314, fusionnée) et, en cours de finition sur la branche
-  `feat/eef-aide-dossier-55`, les aides à la demande de dossier.
+  **Version marketing : `2.3.0` reste valable.** App Store Connect refuse toute build
+  dont la version marketing n'est pas **strictement supérieure** à celle en vente
+  (ITMS-90062) ; la 2.2.0 est en vente depuis le 13/09/2026, et 2.3.0 > 2.2.0 tant
+  qu'aucune 2.3.0 n'a été soumise : c'est le cas, la 55 ne l'ayant jamais été. La 56
+  prend donc la fiche de version 2.3.0 d'App Store Connect **à la place de la 55**
+  (on choisit la build 56 dans la fiche de version). Le test
+  `test/release/build_number_test.dart` garde ce « strictement supérieur ».
 
-  **Elle part avec l'espace réel ÉTEINT** (décision XC-03, état A de
-  `docs/release-55-store-pack.md`). Tout ce que la 55 ajoute pour « Études en
-  France » est derrière `features.eefSpace`, une clé que seul le serveur allume :
-  à l'approbation, un utilisateur de la 55 voit la vitrine de la 53 (avec en plus
-  ses liens vers les sources officielles et un sélecteur de domaines dans la
-  déclaration). L'ouverture est une opération serveur séparée
+  **Elle part avec l'espace réel ET les deux interrupteurs FERMÉS** (décision XC-03,
+  état A de `docs/release-55-store-pack.md` ; `docs/release-56-store-pack.md`).
+  Tout ce que la 56 ajoute pour « Études en France » est derrière `features.eefSpace`,
+  que seul le serveur allume ; la bulle et la feuille « écoles privées » ont en plus
+  leur interrupteur (`features.eefHelpBubble`, `features.eefPrivateSchools`, clé absente
+  = fermé). À l'approbation, un utilisateur de la 56 voit la vitrine de la 53, comme avec
+  la 55. L'ouverture est une opération serveur séparée
   (`docs/runbook-ouverture-espace-reel.md`), sans nouvelle soumission.
 
-  **Statut au 03/10/2026** : non archivée, non soumise, absente de TestFlight et
-  de Play. Les aides au dossier (#315) sont fusionnées ; le SHA à archiver est le dernier
-  commit de `main` après les correctifs de la liste de contrôle, dont les quatre CI
-  sont vertes (`docs/mise-a-jour-55-checklist.md`, étape 0).
-  Production : backend `0641601` (en ligne depuis le 03/10 à 17 h 06 UTC),
-  `features` = `eefTeaser=true`, `eef=false`, `eefSpace=false`. Catalogue publié :
-  10 029 formations dans 84 établissements, 473 en attente (mesuré le 01/10,
-  total inchangé après `eef-reconcile` le 02/10) — mais l'espace reste fermé.
+  **Commit à archiver : `<RELEASE>` — À RENSEIGNER.** C'est le SHA complet de `main`
+  après la fusion de #326 (la vitrine sans avertissement) ET de la PR qui prépare la 56
+  (version, préflights, ce registre, la checklist) ; **rien d'autre ne fusionne
+  ensuite**. Tant que l'archive n'existe pas, ce marqueur reste tel quel : un SHA écrit
+  à l'avance serait inventé (le test refuse un SHA de 40 caractères posé comme
+  `RELEASE`). Il se relève avec `git rev-parse origin/main`
+  (`docs/mise-a-jour-56-checklist.md`, étape 0) et se reporte ici le jour de
+  l'archive.
+
+  **Statut au 05/10/2026** : non archivée, non soumise, absente de TestFlight (la 55 y
+  est, seule) et de Play. **Production : relevé du 03/10, NON remesuré le 05/10.**
+  Backend `0641601` (en ligne depuis le 03/10 à 17 h 06 UTC), sans les clés
+  `eefHelpBubble` / `eefPrivateSchools` ; `features` = `eefTeaser=true`, `eef=false`,
+  `eefSpace=false` au 03/10. **Une fenêtre de recette `eef-space-on` a pu rouvrir
+  `eefSpace` depuis** : ne pas lire « fermé » ici comme un état actuel ; l'étape 1 de la
+  checklist le mesure et dit quoi faire s'il vaut `true`. Catalogue publié : 10 029
+  formations dans 84 établissements, 473 en attente (mesuré le 01/10, total inchangé après
+  `eef-reconcile` le 02/10).
+
+  **Couplage backend** : `tolerates-old` (`### Couplage backend de la 56`). Le backend de
+  production est TOUJOURS `0641601` ; la 56 le tolère (clé absente = fermé) ; le déployer
+  au SHA de la 56 n'est nécessaire QUE pour allumer la bulle ou les écoles privées, et
+  **ne se fait pas avant le préflight de la 56**.
 
 ### Ce que 55 embarque
+
+**Depuis le 05/10/2026, c'est le contenu que la 56 reprend EN ENTIER** : la 55 est
+abandonnée (jamais soumise), la 56 est construite au-dessus. Deux retraits, décidés
+après ces lignes et décrits sous `### Ce que la 56 ajoute à la 55` : la « suspension
+qui remplace la date » du héros et la « mise en garde de suspension avec sa source »
+des mentions ci-dessous ne s'affichent plus (#324, #326).
 
 Les points 1 à 4 sont ce que ce registre attribuait à la 54 avant l'abandon de son
 numéro ; le point 5 est ce que la décision du 03/10 y ajoute.
@@ -250,6 +297,10 @@ catalogue est publié (10 029 formations, 84 établissements) mais reste derriè
 
 ### Couplage backend de la 55 : `tolerates-old`
 
+*(Historique : la 55 est abandonnée ; le couplage de la 56 est sous `### Couplage
+backend de la 56`. Le raisonnement ci-dessous vaut toujours pour elle, avec une
+exception : `backend/` a changé depuis `0641601`, une fois, par #319.)*
+
 La 55 ne **dépend** d'aucun backend récent pour fonctionner : chaque appel neuf est
 soit derrière `eefSpace` (que seul un backend récent peut allumer), soit tolérant à
 une clé ou une route absente (`recommendedVersion`, `eefCatalog`, `platformUrl`,
@@ -289,21 +340,23 @@ contient le hub.
 
 ### Ce qui reste à faire par un humain avant la soumission
 
-Voir `docs/mise-a-jour-55-checklist.md` (l'ordre exact, avec les commandes),
-`docs/release-55-store-pack.md` (notes de version, notes de revue, décision XC-03),
-`docs/device-qa-build54.md` §A et §B, dont le §B-filtres (QA appareil, toujours
-valable : lire « 55 » là où la fiche écrit « 54 ») et `docs/device-qa-build55.md`
-(aides, retrait, Niger, anglais), `docs/CONSOLE_ANSWERS.md` §0quater (déclarations de
-console ; lire « 55 » pour « 54 ») et `docs/eef-consent-v1.md` (questions juridiques).
+Voir `docs/mise-a-jour-56-checklist.md` (l'ordre exact, avec les commandes ; son étape 0
+liste les décisions à avoir prises AVANT d'archiver), `docs/release-56-store-pack.md`
+(notes de version, notes de revue recomptées, décisions), `docs/device-qa-build54.md`
+§A et §B, dont le §B-filtres, `docs/device-qa-build55.md` (aides, retrait, Niger, anglais)
+et `docs/device-qa-build56.md` (bulle, visite, écoles privées) — QA appareil, toujours
+valable : lire « 56 » là où une fiche écrit « 54 » ou « 55 » pour un numéro de version.
+`docs/CONSOLE_ANSWERS.md` §0quater (déclarations de console ; lire « 56 ») et
+`docs/eef-consent-v1.md` (questions juridiques).
 
-### 56 — préparée, non archivée
+### Ce que la 56 ajoute à la 55
 
-**Statut au 05/10/2026 : le code et les papiers de la 56 sont prêts ou en voie de l'être ; aucune
-archive n'existe, aucun envoi n'a eu lieu, et `pubspec.yaml` porte toujours `2.3.0+55`.** Le numéro
-56 n'est ni consommé ni courant : cette section est un ticket, pas une ligne du registre. Elle ne
-change ni la version courante ni les numéros pris, et le test `test/release/build_number_test.dart`
-veille à ce qu'aucune ligne « 56 » ne se glisse parmi les numéros consommés ou sous « Courant »
-avant l'archive.
+**Statut au 05/10/2026 : le code et les papiers de la 56 sont fusionnés ou en voie de
+l'être ; la version `2.3.0+56` est posée par la PR de préparation ; aucune archive
+n'existe, aucun envoi n'a eu lieu.** La 56 est le numéro courant (ligne `56` sous
+**Courant**), pas un numéro consommé : le jour où l'IPA sera téléversée, sa ligne le dira
+(« téléversée le … ») ; elle ne passera sous **Consommés** que quand le numéro suivant
+sera préparé, car le test refuse un numéro consommé dans `pubspec.yaml`.
 
 **Ce que la 56 ajoute** (tout est derrière `features.eefSpace`, éteint en production ; deux
 éléments ont en plus leur propre interrupteur serveur, **fermé par défaut** : clé absente,
@@ -322,38 +375,63 @@ ancien backend et repli compilé valent « faux ») :
   ouverture, rejouable par « ? », état local à l'appareil. Elle n'a pas d'interrupteur à elle.
 - **Outillage** : le préflight iOS refuse désormais une clé PostHog **doublée** ou mal formée
   (`scripts/preflight-ios-archive.sh`, mode `--posthog-only` juste après `flutter build ios`) ;
-  la checklist de la 55 est corrigée (porte « 24 heures » du préflight, saisie de la clé).
+  la checklist de la 56 reprend ces corrections (porte « 24 heures » du préflight, saisie de la
+  clé).
+- **Avertissement de suspension retiré** (#324 : hub et catalogue ; #326 : vitrine), à la
+  demande du propriétaire du 05/10/2026 : plus aucun compte, Niger compris, ne voit de
+  bandeau jaune ni de lien « source officielle » de suspension, nulle part. Restent : la
+  détection de la suspension (`EefCalendar`, `EefHelp.isSuspended()`), les aides et la
+  bulle en variante neutre, et l'absence de date d'ouverture pour un pays suspendu. La 55
+  montrait encore l'avertissement.
 
 **Rien de visible hors drapeau**, donc rien dans les notes de version de la boutique : le
-relecteur Apple voit la vitrine, comme avec la 55. **Aucune dépendance** : `git diff` est vide
-entre `6e0ea8d` (juste avant la 56) et la tête de la branche des papiers sur `pubspec.yaml`,
-`pubspec.lock`, `ios/` et `android/` — à re-prouver sur le SHA final
-(`docs/release-56-store-pack.md` §6).
+relecteur Apple voit la vitrine, comme avec la 55. **Aucune dépendance** : entre la
+production (`0641601`) et la tête de la branche de préparation, `pubspec.lock`, les
+manifestes iOS et Android et `android/app/build.gradle` n'ont pas bougé ; `pubspec.yaml` ne
+change que par sa ligne `version:` (`2.3.0+54` → `2.3.0+56`) ; `ios/Podfile.lock` par la seule
+somme de contrôle du `Podfile` (Xcode 27) — à re-prouver sur le SHA final
+(`docs/release-56-store-pack.md` §6, `docs/mise-a-jour-56-checklist.md` étape 0).
 
-**À la préparation de l'archive** (pas avant, et jamais sans le feu vert du propriétaire) : poser
-`version:` dans `pubspec.yaml` (build **56** ; nom marketing selon l'état de la 55 dans App Store
-Connect, règle ITMS-90062 — décision (g) du pack), remplacer ce ticket par une ligne `56` sous
-**Courant**, déplacer la 55 sous **Consommés** si elle a été téléversée, et reporter la version
-dans les deux préflights (`EXPECTED_BUILD` / `EXPECTED_VERSION` côté iOS,
-`EXPECTED_VERSION_CODE` côté Android) et dans les documents de la 55 que la 56 reprend.
+### Couplage backend de la 56 : `tolerates-old`
 
-**Couplage backend.** La 56 lit des clés que seul un backend postérieur à `0641601` sert
-(`eefHelpBubble`, `eefPrivateSchools`, #319) : elle les lit « faux » si elles manquent, donc
-`tolerates-old` reste vrai pour le **fonctionnement**. Mais `backend/` et `docker-compose.yml`
-ont changé depuis `0641601` : la condition de contrôle de `tolerates-old` (« `git diff --stat`
-ne doit rien afficher ») ne tiendra pas, et **allumer** les deux interrupteurs exige que ce
-backend soit déployé. À arbitrer à l'archive : déployer le backend au SHA de la 56 puis lancer
-le préflight en `requires-new` — **jamais un commit postérieur au SHA de release de la 55 avant
-le préflight de la 55**.
+La 56 ne **dépend** d'aucun backend récent : les deux clés neuves (`eefHelpBubble`,
+`eefPrivateSchools`, servies depuis #319) sont lues « faux » quand elles manquent — clé
+absente, ancien backend et repli compilé valent « fermé ». Le backend de production est
+**toujours `0641601`**, sans ces clés : la 56 s'y comporte comme la 55 (vitrine), ce qui
+est exactement l'état A. C'est la définition de `tolerates-old`, mode du préflight de
+release.
 
-**Décisions encore ouvertes** (`docs/release-56-store-pack.md` §7) : rémunération par des écoles
-privées (clé `eef_help_private_disclosure`), Niger, phrase sur les frais ou son repli, qui répond
-au +33768674292, XC-06 et D5, ouvrir avec la 55 ou attendre la 56, version marketing. Les deux
-premières portent sur des **textes compilés** : à trancher **avant l'archive**.
+Ce qui change par rapport à la 55 : `backend/` et `docker-compose.yml` ne sont plus
+identiques à `0641601`. #319 (`b220050`) a touché **quatre fichiers** — le contrôleur de
+configuration (`app-config.controller.ts`) et son spec, le spec des opérations
+(`eef-space.ops.spec.ts`) et `docker-compose.yml` (les variables des deux
+interrupteurs). Le contrôle « `git diff --stat 0641601 <RELEASE> -- backend admin
+docker-compose.yml` ne doit rien afficher » est donc **remplacé** : il doit lister
+exactement ces quatre fichiers, et
+`git log --oneline 0641601..<RELEASE> -- backend admin docker-compose.yml` ne doit montrer
+**que** `b220050`. Un autre commit signifie que le backend de la release est plus en
+avance que prévu : ne pas continuer sans arbitrer (`docs/mise-a-jour-56-checklist.md`,
+étape 1).
 
-**Papiers** : `docs/release-56-store-pack.md` (notes de revue recomptées, réponses de console,
+**Déployer le backend au SHA de la 56 n'est nécessaire QUE pour ALLUMER** la bulle ou les
+écoles privées (`eef-bubble-on`, `eef-private-schools-on` refusent d'écrire sur un backend
+qui ne porte pas leurs clés). **Ne pas le faire avant le préflight de la 56** : le
+préflight exige que la production soit un **ancêtre** de `<RELEASE>`, jamais en avance
+(un run du 02/10 a échoué ainsi) ; jamais un déploiement à un commit postérieur à
+`<RELEASE>`. Une fois la 56 en vente et adoptée, déployer (`deploy.yml`, `scope=full`)
+puis allumer dans l'ordre du runbook.
+
+**Décisions encore ouvertes** (`docs/release-56-store-pack.md` §7) : rémunération par des
+écoles privées (clé `eef_help_private_disclosure`), phrase sur les frais ou son repli, qui
+répond au +33768674292, XC-06 et D5. Les deux premières portent sur des **textes
+compilés** : à trancher **avant l'archive**. Niger sans mention d'école privée est
+**retenu** ; « 55 ou 56 » et la version marketing sont **tranchées** (la 56 seule, 2.3.0).
+
+**Papiers** : `docs/mise-a-jour-56-checklist.md` (l'ordre des opérations),
+`docs/release-56-store-pack.md` (notes de revue recomptées, réponses de console,
 décisions), `docs/device-qa-build56.md` (recette appareil, jamais jouée),
-`docs/CONSOLE_ANSWERS.md` (ligne WhatsApp / Meta).
+`docs/CONSOLE_ANSWERS.md` (ligne WhatsApp / Meta). Les papiers de la 55 portent un
+bandeau « REMPLACÉE par la 56 ».
 
 ### Ce que 52 embarque
 

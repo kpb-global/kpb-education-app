@@ -1,15 +1,18 @@
 # Runbook — ouvrir l'espace « Études en France » réel aux étudiants
 
+> **05/10/2026 — la 55 est REMPLACÉE par la 56** (décision du propriétaire : on n'envoie que la
+> 56 ; la 55, téléversée le 04/10, n'a jamais été soumise). **L'espace s'ouvre avec la 56, jamais
+> avec la 55** : dans ce runbook, « la 54 » et « la 55 » (écrits avant ce constat) désignent
+> **la build qui contient le hub, c'est-à-dire la 56**, qui y ajoute la bulle, la visite et les
+> écoles privées (voir « Bulle… » plus bas). Opérations d'envoi : `docs/mise-a-jour-56-checklist.md`.
+
 > **État et blocages : `docs/ouverture-espace-eef.md` (corrigé le 03/10/2026).** La 54 n'a
-> **jamais été envoyée** aux boutiques ; la **2.3.0 (55)** la remplace et porte le hub.
-> Dans ce runbook, « la 54 » (écrit avant ce constat) désigne **la build qui contient le hub,
-> c'est-à-dire la 55** — et la **56**, préparée à sa suite, qui la reprend et y ajoute la bulle,
-> la visite et les écoles privées (voir « Bulle… » plus bas). Les corrections de procédure du catalogue publié ont été appliquées
+> **jamais été envoyée** aux boutiques ; la 55 n'a jamais été soumise. Les corrections de procédure du catalogue publié ont été appliquées
 > le 02/10 (`eef-reconcile`, #305) ; le juridique est tranché depuis le 03/10.
 
 > **Ce que ce runbook couvre.** Le passage de l'état de lancement (vitrine
 > « en préparation » + notifications) à l'espace réel (hub, catalogue, profil) pour
-> la build **2.3.0 (55)** et suivantes (la 54, jamais envoyée, est abandonnée). Il complète `docs/cutover-build49.md`
+> la build **2.3.0 (56)** et suivantes (la 54, jamais envoyée, et la 55, jamais soumise, sont abandonnées). Il complète `docs/cutover-build49.md`
 > (étape 9 bis = la vitrine, titré « build 49 ») ; il ne le remplace pas.
 >
 > **Ce qu'il ne fait jamais.** Poser `KPB_EEF_ENABLED=true`. C'est l'**ancien**
@@ -34,7 +37,7 @@
 
 | # | Précondition | Comment le vérifier |
 |---|---|---|
-| 1 | **La build qui contient le hub (la 55, ou la 56 si elle la rattrape) est en vente sur les deux stores** et adoptée par la majorité | App Store Connect / Play Console ; PostHog (version de l'app). Tant qu'elle n'est pas majoritaire, ouvrir l'espace ne profite qu'à une minorité — les 49 à 53 gardent la vitrine. Le seuil d'adoption n'est pas fixé dans le dépôt (`docs/ouverture-espace-eef.md` § 6). |
+| 1 | **La build qui contient le hub (la 56 ; la 55, jamais soumise, est abandonnée) est en vente sur les deux stores** et adoptée par la majorité | App Store Connect / Play Console ; PostHog (version de l'app). Tant qu'elle n'est pas majoritaire, ouvrir l'espace ne profite qu'à une minorité — les 49 à 53 gardent la vitrine. Le seuil d'adoption n'est pas fixé dans le dépôt (`docs/ouverture-espace-eef.md` § 6). |
 | 2 | **Le backend est au commit de FUSION de la branche build 54** — celui qui contient `eef-catalog-attribution.ts`, les audiences `eef_interest` / `all_students_except_countries` et les clés `/config/app` (`eefCatalog`, `platformUrl`, `suspendedSources`, `recommendedVersion`). **Pas `95440db`** : ce SHA porte la recherche et le `PATCH` mais ni la mention de paternité du catalogue ni les audiences. | `GET /api/health/version` → `sha` ; `deploy.yml` `scope=full`. Migration additive `20260930120000_eef_search_text_and_acronym` (`Program.searchText`, `Institution.acronym`) : `prisma migrate status` ne liste rien en attente. `eef-space-on` **refuse** désormais d'écrire si le conteneur ne porte pas `eef-catalog-attribution.js`, et le workflow vérifie après coup que `/config/app` sert `eefCatalog` et `platformUrl`. |
 | 3 | **Le catalogue est importé** (lignes inactives) et ses index sont remplis | `vps-ops` → `eef-import` : d'abord `dry_run` coché (lit les 4 passes : import, cycles, admission, **recherche**), puis décoché. Un second passage ne doit plus rien créer. |
 | 4 | **Le catalogue est publié** (au minimum un établissement pilote) | Deux voies, même service, même plan. **(a)** Admin → « Publication EEF » : plan → simulation → application, un établissement à la fois, sous le nom du vérificateur connecté. **(b)** En une fois, par délégation du propriétaire : `vps-ops` → `eef-publish` (simulation, puis total saisi) — voir `docs/eef-publication-deleguee.md`. Dans les deux cas : `GET /api/etudes-en-france/search` → `total > 0`. `.github/scripts/db-info.sql` §7 et §8 (colonne `publiees`) donnent le décompte, le §11 dit si le texte cherchable est comblé, le §12 audite l'intégrité des lignes. |
@@ -109,7 +112,7 @@ arrière est indépendant : fermer la bulle ne ferme pas l'espace.
   Contrôles : la variable est relayée par `docker-compose.yml`, et **le backend déployé SERT la
   clé** (le contrôleur compilé du conteneur la contient). Un backend déployé à un commit
   antérieur à la 56 est refusé : déployer d'abord (`deploy.yml`, `scope=full`) — **jamais un
-  commit postérieur au SHA de release de la 55 avant le préflight de la 55** (voir
+  commit postérieur au SHA de release de la 56 avant le préflight de la 56** (voir
   `docs/release-ledger.md`). Si l'espace n'est pas à `true` dans le `.env`, un avertissement le
   dit (l'ordre ci-dessus), sans bloquer.
 - Les deux `-off` **n'ont pas de simulation** : ils agissent tout de suite, que `dry_run` soit
@@ -135,16 +138,16 @@ rien à voir changer.
 ## Inviter à mettre à jour — un levier pour les builds SUIVANTES, pas pour la 53
 
 **Ce levier ne touche pas les builds 49 à 53** : elles ne lisent pas
-`recommendedVersion`, et le bandeau n'existe que dans la 55 et après. Les
-utilisateurs de la 53 ne passent à la 55 que par la mise à jour automatique du
+`recommendedVersion`, et le bandeau n'existe que dans la 56 et après. Les
+utilisateurs de la 53 ne passent à la 56 que par la mise à jour automatique du
 store, une notification qui les y envoie, ou (en dernier recours, jamais avant la
-55 à ~100 %) `KPB_MIN_APP_VERSION`.
+56 à ~100 %) `KPB_MIN_APP_VERSION`.
 
-`recommended-version-set` sert aux passages **55 → build suivante → forum** : la veille d'une
+`recommended-version-set` sert aux passages **56 → build suivante → forum** : la veille d'une
 build, mettre sa version dans `RECOMMENDED_APP_VERSION`
 (`.github/scripts/vps-ops.sh`, **par PR** — l'action n'accepte aucune valeur
 libre), puis lancer l'action (simulation d'abord) quand la build est **disponible
-sur les deux stores**. Les builds plus anciennes que la valeur (la 55 et suivantes) voient alors un bandeau
+sur les deux stores**. Les builds plus anciennes que la valeur (la 56 et suivantes) voient alors un bandeau
 **qu'on ferme**, avec le lien du store. La constante est **vide** par défaut : à
 vide, l'action retire la clé. `KPB_MIN_APP_VERSION` n'est jamais touché.
 
@@ -182,7 +185,7 @@ vide, l'action retire la clé. `KPB_MIN_APP_VERSION` n'est jamais touché.
 > Bulle et écoles privées ont leurs propres retours arrière (`eef-bubble-off`, `eef-private-schools-off`) : voir la section précédente. Fermer l'espace ne les ferme pas, mais sans espace ils n'affichent rien.
 
 `vps-ops` → **`eef-space-off`** (pas de simulation, il agit tout de suite). Il
-remet `KPB_EEF_SPACE_ENABLED=false` : les builds du hub (55) retombent sur la vitrine, les
+remet `KPB_EEF_SPACE_ENABLED=false` : les builds du hub (56) retombent sur la vitrine, les
 49 à 53 n'ont jamais bougé. Les déclarations d'intérêt et les profils déjà saisis
 restent en base ; rien n'est perdu.
 
@@ -194,4 +197,4 @@ restent en base ; rien n'est perdu.
 | J+1 (56) | Bulle et visite : `eef_help_card_shown` (`help_step` = `bubble`), `eef_bubble_opened`, `eef_help_cta_tapped` (`bubble_*`), `eef_tour_shown` / `eef_tour_completed`, `eef_private_info_opened` (`docs/analytics-event-contract.md`). Lire la **cannibalisation** : total des `whatsapp_handoff` de source `eef_help_*` par session de hub avant et après la bulle ; `whatsapp_handoff` **surévalue** les conversations (étiquettes WhatsApp Business). **Revue humaine à 14 jours** après l'ouverture. |
 | J+1 | Admin → liste d'intérêt : les déclarations arrivent. `consentVersion = eef-consent-v1` se lit dans l'**export CSV** (`export.csv`), pas dans la liste. |
 | J+7 | Ratio recherches sans résultat (`result_count = 0`) : croiser avec `catalog_published`. Beaucoup de `0` avec `catalog_published = 1` ⇒ le catalogue publié est trop étroit pour la demande : publier d'autres établissements. |
-| Semaine 2 | Décider de la build suivante (fiche formation, sélection, checklist, projet d'études — numéro non décidé : la 55 est celle du hub) sur ces chiffres. |
+| Semaine 2 | Décider de la build suivante (fiche formation, sélection, checklist, projet d'études — numéro non décidé : la 56 est celle du hub) sur ces chiffres. |

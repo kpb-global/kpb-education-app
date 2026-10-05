@@ -20,9 +20,10 @@
 > `eef-space-on`, `eef-bubble-on`, `eef-private-schools-on` et leurs `-off`
 > (`docs/runbook-ouverture-espace-reel.md`). **Tuer et relancer l'app** après chaque bascule
 > (les drapeaux sont lus au démarrage), **aucune notification** pendant la fenêtre, et **tout
-> éteindre AVANT « Soumettre pour vérification »**. **⚠️ Le drapeau `eefSpace` est global** :
-> n'ouvrir la fenêtre que si la 55 n'est pas déjà en vente, sinon ses utilisateurs voient le hub
-> (`docs/release-56-store-pack.md` §1.2).
+> éteindre AVANT « Soumettre pour vérification »**. **⚠️ Le drapeau `eefSpace` est global**, mais
+> aucune build qui contient le hub n'est en vente (la 55 n'a jamais été soumise, la 56 la
+> remplace : `docs/release-56-store-pack.md` §1.2) : la fenêtre n'ouvre le hub qu'aux testeurs.
+> L'ordre des opérations d'archive et de recette : `docs/mise-a-jour-56-checklist.md`.
 >
 > **Comptes à avoir sous la main.** Un compte étudiant **hors Niger** (le Sénégal convient), un
 > compte étudiant du **Niger**, un **invité**, un compte **parent**. Pour la visite : une
@@ -126,7 +127,7 @@ encodé et **291** pour le lien complet `https://wa.me/33768674292?text=…` (ca
 | Visite-11 | **Invité** | La visite s'affiche aussi pour un invité. |
 | Visite-12 | **Jamais ailleurs** | Pas de visite sur la vitrine (état A), ni sur l'écran « Un espace pour les étudiants » (parent), ni dans le catalogue ou les outils. |
 | Visite-13 | **Pas au-dessus d'un dialogue** | Cas difficile à provoquer à la main (couvert par un test de widget) : si un dialogue, une feuille ou un écran de l'app est déjà au-dessus du hub quand la visite devrait s'ouvrir (lien profond, notification), elle **ne s'empile pas**. La visite **ne s'ouvre pas** et le drapeau « vue » n'est **PAS posé** (le code vérifie que le hub est au sommet *avant* d'écrire le drapeau) : elle s'affichera à la **prochaine ouverture du hub** sans rien dessus, et le « ? » (Visite-8) la rejoue à volonté. Seule une écriture du drapeau en panne, ou un dialogue qui arrive *pendant* l'écriture, laisse le drapeau posé sans visite affichée. Une demande de permission **du système** n'entre pas dans ce cas. |
-| Visite-14 | **Mise à jour depuis la 55** (fenêtre de recette, compte qui a déjà ouvert le hub avec la 55) | La visite s'affiche à la **première ouverture du hub après la mise à jour** (clé neuve `kpb_relaunch_v1.eef_tour_v1`). |
+| Visite-14 | **Mise à jour depuis la 55 de TestFlight** (fenêtre de recette, testeur qui a déjà ouvert le hub avec la 55, jamais soumise) | La visite s'affiche à la **première ouverture du hub après la mise à jour** (clé neuve `kpb_relaunch_v1.eef_tour_v1`). |
 | Visite-15 | **Suppression puis réinstallation** | La visite revient : le drapeau est local à l'appareil. Il survit à la suppression du **compte** (valeur non personnelle), pas à celle de l'app. |
 | Visite-16 | **Après la visite : la bulle** | À la fermeture, la bulle fait **une** entrée en échelle (0,8 à 1,0 en 250 ms) ; aucune animation si les animations sont réduites. La carte 4 dit « en bas à droite » : c'est bien là. |
 | Visite-17 | **VoiceOver / TalkBack** | La feuille est une route nommée « Visite de l'espace » ; le titre de chaque carte est un **en-tête** ; « Étape n sur N » est annoncé quand il change ; les points indicateurs ne sont **pas** lus ; le focus reste dans la feuille puis **revient au hub**. |
@@ -200,7 +201,7 @@ encodé et **291** pour le lien complet `https://wa.me/33768674292?text=…` (ca
 | Boutique-7 | **Aucune dépendance, aucun manifeste** | `git diff` vide sur `pubspec.lock`, `ios/Runner/Info.plist`, `ios/Runner/PrivacyInfo.xcprivacy`, `android/app/src/main/AndroidManifest.xml`, `android/app/build.gradle` (commandes du pack §6). |
 | Boutique-8 | **Les notes de revue disent la vérité** | Relire le texte du pack §3 point par point contre ce qu'on a vu : tout est **éteint** à la soumission (relecteur = vitrine) ; les messages ne contiennent aucune donnée personnelle (écran, sujet choisi ; formation, université, ville et filtres pour les aides de la 55) ; la visite est locale ; la mention de non-affiliation est dans l'app. |
 | Boutique-9 | **Captures et compte de démonstration** | Les captures de la soumission **ne montrent ni hub, ni bulle, ni visite, ni feuille** ; le compte de démonstration (étudiant) est **exclu des listes d'appel**. |
-| Boutique-10 | **L'installation est la build soumise** | Version lue dans TestFlight / Play Console (pas dans l'app, qui n'affiche pas sa version) ; `versionCode` côté Android. |
+| Boutique-10 | **L'installation est la build soumise** | Version lue dans TestFlight / Play Console (pas dans l'app, qui n'affiche pas sa version) : **2.3.0 (56)**, pas la 55 (toujours listée dans TestFlight, abandonnée) ; `versionCode` côté Android : 56, jamais celui de l'AAB de la 55. |
 
 ## Signature
 

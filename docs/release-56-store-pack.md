@@ -1,7 +1,7 @@
 # Build 56 — pack de soumission : ce que la 56 ajoute, notes de revue recomptées, réponses de console, décisions ouvertes
 
-> **À quoi sert ce fichier.** La 56 est la build qui porte, en plus de la 55, trois
-> éléments **dormants** de l'espace « Études en France » : la **bulle verte WhatsApp**, la
+> **À quoi sert ce fichier.** La 56 est la build qui porte, en plus de ce que portait la 55
+> (abandonnée, voir ci-dessous), trois éléments **dormants** de l'espace « Études en France » : la **bulle verte WhatsApp**, la
 > **visite guidée** du hub et la **feuille « écoles privées »**. Ce fichier rassemble ce
 > qu'il faut *coller* dans les consoles pour elle — notes de revue Apple **recomptées**,
 > « What to Test », réponses aux formulaires de confidentialité — et la liste des
@@ -11,12 +11,15 @@
 > « Notes for Review » (bloc de `store-listing-copy.md` §7.1 raccourci **et** addendum), à
 > coller seul — ne pas y ajouter l'ancien addendum.
 >
-> **État au 05/10/2026.** La 56 est **préparée, non archivée, non soumise**
-> (`docs/release-ledger.md`, « 56 — préparée, non archivée ») : `pubspec.yaml` porte encore
-> `2.3.0+55`, et la version de la 56 — numéro de build **et** nom marketing — sera posée à la
-> préparation de l'archive, pas avant. Le code des quatre premières PR : interrupteurs serveur
-> (#319), bulle (#320), feuille « écoles privées » (#321), et la visite guidée (#322, **fusionnée
-> avant la soumission**) ; cette cinquième PR est celle des papiers.
+> **État au 05/10/2026.** Décision du propriétaire (« 56 ») : la 56 est la **seule build 2.3.0
+> à envoyer** ; la 55 — téléversée sur App Store Connect le 04/10/2026, **jamais soumise**, AAB
+> jamais importé dans Play — est abandonnée (`docs/release-ledger.md`, ligne `56` sous
+> « Courant »). `pubspec.yaml` porte la version de la 56 ; elle est **non archivée, non
+> soumise**, et part avec la version marketing **2.3.0** (§1.2). Le code : interrupteurs serveur
+> (#319), bulle (#320), feuille « écoles privées » (#321), visite guidée (#322), retrait de
+> l'avertissement de suspension (#324, #326) ; les papiers (#323) et la préparation de la
+> version, des préflights, du registre et de `docs/mise-a-jour-56-checklist.md` (l'ordre exact
+> des opérations d'archive) viennent ensuite.
 >
 > **Règle qui gouverne tout le reste** (`store-listing-copy.md`, « Règle appliquée à chaque
 > phrase ») : *toute fonctionnalité vantée doit être atteignable le jour de l'approbation.* La
@@ -65,55 +68,39 @@ Les messages de la 56 sont **statiques** (aucune formation, aucun filtre cité) 
 dessous des bornes. La limite réelle de `wa.me` n'a, elle, **jamais été mesurée sur
 appareil** : c'est le cas Bulle-11 de `docs/device-qa-build56.md`.
 
-### 1.2 Les trois scénarios de la 55 (décisions f et g, §7)
+### 1.2 La 55 n'a jamais été soumise : la 56 garde 2.3.0
 
-| État de la 55 dans App Store Connect | Conséquence pour la 56 |
+État réel d'App Store Connect au 05/10/2026 : la 55 est **téléversée seulement** (TestFlight,
+04/10/2026 à 01 h 20) et **jamais soumise** à la revue. Décision du propriétaire : on n'envoie
+que la 56 (décisions f et g, §7).
+
+| Question | Réponse retenue |
 |---|---|
-| **Téléversée seulement** (TestFlight), jamais soumise à la revue | Une seule revue : la 56 peut garder **2.3.0**. Notes de version = celles de la 55 (`release-55-store-pack.md` §2.1), à l'identique |
-| **En revue** | Décision du propriétaire : laisser la 55 aboutir (puis 56 en **2.3.1** ou **2.4.0**), ou retirer la 55 de la revue et y rattacher la 56 (2.3.0). Comportement d'App Store Connect à **vérifier** avant d'agir |
-| **Approuvée ou en vente** | La 56 doit avoir une version marketing **strictement supérieure** (**ITMS-90062**) : 2.3.1 ou 2.4.0. Notes de version = §2.2 ci-dessous |
+| Version marketing | **2.3.0** reste valable : la 2.2.0 est en vente depuis le 13/09/2026 et aucune 2.3.0 n'a été soumise, donc 2.3.0 > version en vente (**ITMS-90062** ne se produit pas) |
+| Fiche de version App Store Connect | La version **2.3.0** reçoit la **build 56 à la place de la 55** (dans la fiche, choisir la 56) ; la 55 reste dans TestFlight, non rattachée |
+| Notes de version | Celles de la 55, à l'identique (`release-55-store-pack.md` §2.1) : la 56 n'ajoute rien de visible hors drapeau |
+| AAB Android | Celui du run de `RELEASE` (la 56). **Jamais** celui de la 55 (run 37322572087) ni celui de la 54 (run 36945000021) |
 
-Le registre de release du 03/10 dit la 55 « non archivée, non soumise, absente de TestFlight et
-de Play » ; une demande d'orchestration la disait téléversée. **L'état réel d'App Store
-Connect tranche** : à relire avant toute décision (§7, g).
+Les autres états possibles de la 55 (en revue, approuvée) ne se sont pas produits et ne sont
+pas traités ici : si la 55 devait un jour être soumise, la version marketing de la 56 devrait
+être strictement supérieure (ITMS-90062) et ce pack serait à rouvrir.
 
 ---
 
 ## 2. Notes de version
 
-### 2.1 La 55 n'est pas en vente (cas général)
+### 2.1 Notes de version de la 56 (la 55 n'a jamais été soumise)
 
 **Reprendre à l'identique `docs/release-55-store-pack.md` §2.1** (App Store FR/EN, Google
 Play ≤ 500 caractères) : la 56 n'ajoute rien de visible hors drapeau, donc **rien à
 ajouter** — ni la bulle, ni la visite, ni les écoles privées (guidelines 2.3.1 / 2.3.3). Les
 lignes facultatives A et B du pack de la 55 (§2.2) restent au choix du propriétaire.
 
-### 2.2 La 55 est déjà en vente
+### 2.2 Les textes « stabilité et performance » ne servent pas
 
-Rien de visible n'a changé hors de l'espace fermé. Texte, à coller tel quel :
-
-**App Store — « Nouveautés » (FR)**
-
-```
-• Améliorations de stabilité et de performance.
-```
-
-**App Store — « What's New » (EN)**
-
-```
-• Stability and performance improvements.
-```
-
-**Google Play — « Notes de version »**
-
-```
-<fr-FR>
-• Améliorations de stabilité et de performance.
-</fr-FR>
-<en-US>
-• Stability and performance improvements.
-</en-US>
-```
+Ils étaient prévus pour une 56 publiée **après** une 55 déjà en vente. La 55 n'ayant jamais été
+soumise, c'est la 56 qui est la première 2.3.0 : ses notes de version sont celles du §2.1, pas
+une simple mention de stabilité.
 
 ### 2.3 TestFlight — « What to Test » (testeurs internes)
 
@@ -239,8 +226,25 @@ toujours — `release-55-store-pack.md` §3) :
 
 ## 4. Google Play
 
-**Rien de nouveau.** Le texte de non-affiliation et la source officielle de
-`release-55-store-pack.md` §4 valent tels quels (« Government apps » : *non*). Ne pas annoncer
+**Un texte propre à la 56 (FR et EN ci-dessous), à coller à la fin des descriptions longues
+(`store-listing-copy.md` §5.1 / §6.1)** à la place de celui de `release-55-store-pack.md` §4
+(« Government apps » : *non*, inchangé). La non-affiliation et la source officielle y sont
+reprises telles quelles ; **la fin de phrase « les dates et suspensions affichées dans l'app
+renvoient à leur source officielle » est retirée** : la 56 n'affiche plus aucune suspension
+(#324, #326), et le seul lien qui reste dans l'app est « Voir la plateforme officielle ». Une
+fiche qui vante une suspension affichée décrirait une fonction absente (guideline 2.3.1).
+
+**FR**
+```
+KPB Education est un service privé d'accompagnement. Il n'est affilié ni à Campus France, ni à l'État français, ni à aucune administration, et ne représente aucune entité gouvernementale. Les candidatures se déposent auprès des services officiels, selon la procédure de chaque formation (plateforme Études en France, demande d'admission préalable) : https://www.campusfrance.org/fr — l'app renvoie vers la plateforme officielle.
+```
+
+**EN**
+```
+KPB Education is a private guidance service. It is not affiliated with Campus France, the French government or any administration, and does not represent any government entity. Applications are submitted through the official channels, depending on each programme (Études en France platform, pre-admission request): https://www.campusfrance.org/fr — the app links to the official platform.
+```
+
+Ne pas annoncer
 la bulle, la visite ni les écoles privées dans la fiche tant que l'espace est fermé (même règle
 que le §2).
 
@@ -288,12 +292,12 @@ Flutter CI, préflight de release, dSYM, questionnaires, signalements IA, instal
 soumise) :
 
 ```bash
-# La version à archiver est posée (la préparation de l'archive le fait, pas ce pack) :
+# La version à archiver est posée (la préparation de la 56 l'a faite) : version: 2.3.0+56
 git show "$RELEASE:pubspec.yaml" | grep '^version:'
 # Aucune dépendance ni manifeste n'a bougé depuis la production : ne doit RIEN afficher
 git diff --stat 0641601 "$RELEASE" -- pubspec.lock ios/Runner/Info.plist \
   ios/Runner/PrivacyInfo.xcprivacy android/app/src/main/AndroidManifest.xml android/app/build.gradle
-# pubspec.yaml : seule la ligne « version: » change
+# pubspec.yaml : seule la ligne « version: » change (-2.3.0+54, +2.3.0+56)
 git diff -U0 0641601 "$RELEASE" -- pubspec.yaml | grep '^[+-]' | grep -v '^[+-]#' | grep -v '^+++\|^---'
 # Podfile.lock : seule la somme de contrôle du Podfile (voir la checklist, étape 0)
 git diff -U0 0641601 "$RELEASE" -- ios/Podfile.lock | grep '^[+-]' | grep -v '^+++\|^---'
@@ -312,11 +316,12 @@ dépôt) :
   ios/Flutter/Generated.xcconfig --posthog-only` **juste après** (une seule clé `phc_`, 30 à 60
   lettres ou chiffres, jamais affichée), et `strings … | grep -c '^phc_'` = **1** sur
   l'archive. Le dernier ne voit **pas** une clé doublée ; c'est pourquoi les deux premiers
-  existent (`docs/mise-a-jour-55-checklist.md`, étape 3).
+  existent (`docs/mise-a-jour-56-checklist.md`, étape 3).
 - **`AD_ID` absent** du manifeste fusionné de l'AAB (`scripts/preflight-android-aab.sh`).
 - Sorties des deux préflights à la **version de la 56** : les scripts épinglent
   `EXPECTED_BUILD` / `EXPECTED_VERSION` (iOS) et `EXPECTED_VERSION_CODE` (Android) ; ils se
-  mettent à jour à la préparation de l'archive, avec `pubspec.yaml` et le registre.
+  sont **posés à 56** par la préparation de la version (`pubspec.yaml`, registre) : le test
+  `test/release/artifact_signing_contract_test.dart` les lit.
 
 ---
 
@@ -334,8 +339,8 @@ après, la seule action côté serveur est de laisser le drapeau fermé.
 | **c** | **« Les frais sont en général plus élevés que dans le public »** ou son repli « Les frais varient beaucoup d'une école à l'autre » | Garder la phrase comparative **avec relecture juridique** avant d'allumer `eefPrivateSchools` ; sinon le repli | Compilé (`_useFeesFallback`, clé `eef_help_private_point_fees_fallback`, non affichée par défaut) : à trancher **avant l'archive** |
 | **d** | **Qui répond au +33768674292, à quelles heures ?** Étiquettes WhatsApp Business par sujet, message d'absence | Oui aux étiquettes (une par sujet : *assistance, dossier, choisir, écoles privées, autre question*) et au message d'absence, **sans promesse de délai dans l'app**. **Ne pas allumer `eef-bubble-on` tant qu'une personne n'est pas nommée** | Hors app (WhatsApp Business). `whatsapp_handoff` **surévalue** les conversations (le lancement est tenté, jamais précédé de `canLaunchUrl`) : les étiquettes sont le seul moyen de qualifier. Revue humaine à 14 jours après l'ouverture |
 | **e** | **XC-06** (finalité Marketing) **et D5** (prix FCFA affichés) | À trancher **avant la soumission** (§5) | Consoles et notes de revue |
-| **f** | **Ouvrir l'espace avec la 55 dès son adoption, ou attendre la 56 ?** | Ouvrir avec la 55 si elle est approuvée avant que la 56 soit prête : le catalogue et les aides contextuelles servent tout de suite. Les utilisateurs recevront bulle et visite à la mise à jour (la visite : à leur première ouverture du hub **après** la mise à jour, clé neuve). Si la 56 est proche (environ 3 semaines), attendre est défendable pour une première impression complète | `docs/ouverture-espace-eef.md` §2.3 et §6 |
-| **g** | **Version marketing de la 56** | Vérifier l'état de la 55 dans App Store Connect (§1.2) ; si elle n'est que téléversée : 2.3.0 (une revue) ; sinon 2.3.1 ou 2.4.0 (**ITMS-90062** : la version doit être strictement supérieure à la dernière approuvée) | `pubspec.yaml`, les deux préflights, le registre, la checklist : posés à la préparation de l'archive |
+| **f** | **Quelle build envoyer, et ouvre-t-on l'espace avec la 55 ?** | **Tranchée le 05/10/2026 : la 56 seule**, puisque la 55 est abandonnée (jamais soumise) ; aucune build qui contient le hub n'est en vente, donc **l'espace s'ouvrira avec la 56** et l'utilisateur a bulle et visite dès l'ouverture | `docs/mise-a-jour-56-checklist.md` ; `docs/ouverture-espace-eef.md` §2.3 et §6 |
+| **g** | **Version marketing de la 56** | **Tranchée : 2.3.0 gardée.** Elle est strictement supérieure à la 2.2.0 en vente (**ITMS-90062**) tant qu'aucune 2.3.0 n'a été soumise : c'est le cas, la 55 ne l'ayant jamais été | `pubspec.yaml`, les deux préflights, le registre : posés par la préparation de la 56 |
 
 **Ordre d'allumage** (`docs/runbook-ouverture-espace-reel.md`) : `eef-space-on`, puis
 `eef-bubble-on` (après d), puis `eef-private-schools-on` (après a, b, c et idéalement quelques
@@ -351,6 +356,6 @@ indépendante.
 | Les décisions a à g | Propriétaire (a, d, e, f, g), juridique (a, b, c, e) | §7 |
 | Tranche d'âge (D2), compte de démonstration (D1) | Propriétaire | `store-listing-copy.md` §9 |
 | Revue accélérée Apple | Propriétaire : l'urgence est faible en état A | LIV-10 |
-| Comportement d'App Store Connect si la 55 est en revue (§1.2) | À vérifier dans la console | — |
-| Les cas de `docs/device-qa-build56.md` | **Jamais joués sur appareil** : le simulateur iOS ne compile pas avec Flutter 3.44.1 + Xcode 27 (`docs/mise-a-jour-55-checklist.md`, étape 1). Seuls les tests de widgets ont tourné | Recette sur TestFlight / Play Internal |
+| Que la build 55 reste dans TestFlight, non rattachée, n'empêche pas de choisir la build 56 dans la fiche de version 2.3.0 (§1.2) | À constater dans la console au moment de soumettre | `docs/mise-a-jour-56-checklist.md`, étape 7 |
+| Les cas de `docs/device-qa-build56.md` | **Jamais joués sur appareil** : le simulateur iOS ne compile pas avec Flutter 3.44.1 + Xcode 27 (`docs/mise-a-jour-56-checklist.md`, étape 1). Seuls les tests de widgets ont tourné | Recette sur TestFlight / Play Internal |
 | **L'anglais n'est pas atteignable sur la build soumise** | Constat : `kShippedLocale = 'fr'` (`lib/app/core/i18n/app_locale.dart`) ramène toute préférence au français et le sélecteur FR/EN est masqué. Les textes anglais de la bulle, de la visite et de la feuille sont gardés par des **tests de parité**, mais aucun appareil ne peut les afficher avec l'artefact soumis | `docs/device-qa-build56.md`, « Langue » |

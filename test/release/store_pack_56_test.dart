@@ -193,8 +193,10 @@ void main() {
         ],
         'd': ['+33768674292'], // qui répond
         'e': ['XC-06', 'D5'],
-        'f': ['attendre la 56'], // ouvrir avec la 55 ou attendre
-        'g': ['ITMS-90062'], // version marketing
+        // Décidées le 05/10/2026 : on n'envoie que la 56 (la 55, jamais soumise,
+        // est abandonnée) et elle garde la version marketing 2.3.0.
+        'f': ['la 56 seule', 'la 55 est abandonnée'],
+        'g': ['ITMS-90062', '2.3.0'],
       };
       byDecision.forEach((letter, needles) {
         for (final needle in needles) {
@@ -223,6 +225,65 @@ void main() {
     final console = _read('docs/CONSOLE_ANSWERS.md');
     final runbook = _read('docs/runbook-ouverture-espace-reel.md');
     final ledger = _read('docs/release-ledger.md');
+
+    // #324 (hub, catalogue) et #326 (vitrine) retirent toute suspension affichée
+    // et son lien ; il ne reste dans l'app que « Voir la plateforme officielle ».
+    // Le texte du pack 55 §4 finissait par « les dates et suspensions affichées
+    // dans l'app renvoient à leur source officielle » : collé dans la fiche, il
+    // vante une fonction que la 56 n'a plus (guideline 2.3.1, métadonnées).
+    test('les textes à coller de la 56 ne vantent aucune suspension affichée',
+        () {
+      final blocks = RegExp(r'```[a-z]*\n(.*?)```', dotAll: true)
+          .allMatches(pack)
+          .map((m) => m.group(1)!)
+          .toList();
+      expect(blocks, isNotEmpty);
+      final advertises = RegExp(
+        r'suspensions?\s+(affichées?|shown|displayed|visibles?)'
+        r'|(affiche|shows?|displays?)[^.\n]{0,40}suspensions?'
+        r'|suspensions?[^.\n]{0,40}(renvoient?|links?)\b',
+        caseSensitive: false,
+      );
+      for (final block in blocks) {
+        expect(advertises.hasMatch(block), isFalse,
+            reason: 'un texte à coller de la 56 vante une suspension '
+                'affichée :\n$block');
+      }
+
+      // §4 : le pack porte SON texte FR et EN, et ne renvoie plus à celui du
+      // pack 55 (qui contient « suspensions »).
+      final start = pack.indexOf('## 4. Google Play');
+      final end = pack.indexOf('\n## 5.', start);
+      expect(start, isNot(-1));
+      expect(end, greaterThan(start));
+      final section = pack.substring(start, end);
+      final section4 = RegExp(r'```\n(.*?)\n```', dotAll: true)
+          .allMatches(section)
+          .map((m) => m.group(1)!)
+          .toList();
+      expect(section4, hasLength(2),
+          reason: 'le §4 doit porter le texte FR et le texte EN à coller');
+      expect(section4[0], contains('ni à Campus France'));
+      expect(section4[1], contains('not affiliated with Campus France'));
+      for (final text in section4) {
+        expect(text, contains('https://www.campusfrance.org/fr'));
+        expect(text.toLowerCase().contains('suspension'), isFalse,
+            reason: 'le texte Play parle de suspension :\n$text');
+      }
+      expect(section.contains('valent tels quels'), isFalse,
+          reason: 'le §4 renvoie encore au texte du pack 55');
+
+      // La checklist et la réponse de console pointent vers CE texte-là.
+      final checklist = _read('docs/mise-a-jour-56-checklist.md');
+      expect(checklist, contains('**Pack 56 §4**'));
+      expect(checklist.contains('repris par le pack 56 §4'), isFalse);
+      final xc04 =
+          console.split('\n').firstWhere((l) => l.contains('**XC-04**'));
+      expect(xc04, contains('docs/release-56-store-pack.md'));
+      expect(xc04.contains('suspension d\'un pays)'), isFalse,
+          reason: 'XC-04 justifie encore « Government apps » par une '
+              'suspension affichée');
+    });
 
     test('aucun lien wa.me n\'est dit « à texte fixe » ni « rien d\'autre »',
         () {
