@@ -38,6 +38,12 @@ set_env_key() {
   if grep -qE "^${key}=" .env; then
     sed -i.bak "s|^${key}=.*|${key}=${value}|" .env
   else
+    # Un .env dont la dernière ligne n'est pas terminée : sans ce saut de ligne,
+    # la clé se collerait au bout de cette ligne (souvent un secret) et le
+    # conteneur repartirait avec une valeur altérée.
+    if [ -s .env ] && [ -n "$(tail -c1 .env)" ]; then
+      printf '\n' >> .env
+    fi
     printf '%s=%s\n' "$key" "$value" >> .env
   fi
 }
@@ -492,6 +498,61 @@ eef_visible_programs() {
     -c "SELECT count(*) FROM \"Program\" p JOIN \"Institution\" i ON i.id = p.\"institutionId\" WHERE p.\"isActive\" AND i.\"isActive\" AND (p.id LIKE 'eef-prog-%' OR i.id LIKE 'eef-univ-%');"
 }
 
+# ── Les interrupteurs de la build 56 : bulle et écoles privées ─────────────
+#
+# Deux drapeaux serveur, `features.eefHelpBubble` (KPB_EEF_HELP_BUBBLE_ENABLED) et
+# `features.eefPrivateSchools` (KPB_EEF_PRIVATE_SCHOOLS_ENABLED). Même modèle
+# qu'`eef-space-on` / `eef-space-off` : l'ouverture SIMULE par défaut, la
+# fermeture agit tout de suite, et seule LEUR clé est écrite dans le `.env` —
+# jamais l'espace, la vitrine, ni l'autre interrupteur. Ouvrir l'espace n'allume
+# aucun des deux ; chaque ouverture est une décision à part.
+#
+# Les deux fonctions prennent : la variable du `.env`, la clé servie par
+# `/config/app` (pour les messages), et le nom de l'action (idem).
+
+# Ouverture. Contrôle d'abord, écrit ensuite — et n'écrit que sur un « false »
+# EXPLICITE : tout autre valeur de DRY_RUN (vide, faute de frappe) simule, comme
+# `eef-publish` et `eef-reconcile`. Une action qui ouvre une surface aux
+# étudiants ne se déclenche pas sur une coquille.
+eef_flag_on() {
+  local env_key="$1" json_key="$2" action="$3"
+  require_relay "$env_key"
+  # Le backend déployé doit SERVIR la clé. Sans ce contrôle l'action « réussit »
+  # (le `.env` est écrit, le conteneur recréé) et `/config/app` ne dit rien :
+  # l'app lit « clé absente » et la bascule n'a aucun effet. C'est le piège de
+  # l'ordre : fusionner sur main ne déploie rien, et un déploiement d'un commit
+  # antérieur à la build 56 ne porte pas ces clés. On cherche la clé dans le
+  # contrôleur COMPILÉ du conteneur, comme `eef-space-on` cherche son fichier.
+  if ! docker compose exec -T api grep -q "$json_key" dist/modules/config/app-config.controller.js; then
+    echo "::error::Le backend déployé ne sert pas features.${json_key} (dist/modules/config/app-config.controller.js ne la contient pas) : ${action} n'aurait aucun effet visible. Déployer d'abord le backend de la build 56 (deploy.yml, scope=full)."
+    exit 1
+  fi
+  # L'app exige l'espace ouvert EN PLUS : cette clé seule n'affiche rien. On le
+  # dit, sans bloquer — la recette allume et éteint dans l'ordre qui l'arrange.
+  if ! grep -qE '^KPB_EEF_SPACE_ENABLED=true' .env; then
+    echo "::warning::KPB_EEF_SPACE_ENABLED n'est pas à true dans le .env : l'espace est fermé, et ${json_key} seul n'affichera rien. Ordre d'ouverture : eef-space-on d'abord."
+  fi
+  if [ "$DRY_RUN" != "false" ]; then
+    echo "── SIMULATION : les contrôles passent, rien n'est écrit. Décocher « dry_run » pour appliquer ${action}. ──"
+    exit 0
+  fi
+  cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+  set_env_key "$env_key" true
+  echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
+  recreate_api_same_image
+}
+
+# Fermeture : le retour arrière. Pas de simulation, il doit agir tout de suite,
+# et il ne dépend PAS du code déployé — on doit toujours pouvoir fermer.
+eef_flag_off() {
+  local env_key="$1"
+  require_relay "$env_key"
+  cp -p .env ".env.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+  set_env_key "$env_key" false
+  echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
+  recreate_api_same_image
+}
+
 show_state() {
   echo "── Drapeaux EEF dans le .env ──"
   grep -E '^KPB_EEF' .env || echo "(aucune variable KPB_EEF posée)"
@@ -584,6 +645,25 @@ case "$ACTION" in
     set_env_key KPB_EEF_SPACE_ENABLED false
     echo "── .env après écriture ──"; grep -E '^KPB_EEF' .env
     recreate_api_same_image
+    ;;
+
+  eef-bubble-on)
+    # Ouvre la bulle « Une question ? » (`features.eefHelpBubble`).
+    eef_flag_on KPB_EEF_HELP_BUBBLE_ENABLED eefHelpBubble eef-bubble-on
+    ;;
+
+  eef-bubble-off)
+    eef_flag_off KPB_EEF_HELP_BUBBLE_ENABLED
+    ;;
+
+  eef-private-schools-on)
+    # Ouvre la mention des écoles privées. À ne lancer qu'après validation
+    # juridique (docs/runbook-ouverture-espace-reel.md).
+    eef_flag_on KPB_EEF_PRIVATE_SCHOOLS_ENABLED eefPrivateSchools eef-private-schools-on
+    ;;
+
+  eef-private-schools-off)
+    eef_flag_off KPB_EEF_PRIVATE_SCHOOLS_ENABLED
     ;;
 
   eef-campaign-set)

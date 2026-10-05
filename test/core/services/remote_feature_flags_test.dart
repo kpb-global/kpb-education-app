@@ -25,6 +25,8 @@ void main() {
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
     AppConfig.eefSpaceEnabledOverride = null;
+    AppConfig.eefHelpBubbleEnabledOverride = null;
+    AppConfig.eefPrivateSchoolsEnabledOverride = null;
   });
 
   tearDown(() {
@@ -32,6 +34,8 @@ void main() {
     AppConfig.eefTeaserEnabledOverride = null;
     AppConfig.eefEnabledOverride = null;
     AppConfig.eefSpaceEnabledOverride = null;
+    AppConfig.eefHelpBubbleEnabledOverride = null;
+    AppConfig.eefPrivateSchoolsEnabledOverride = null;
   });
 
   final flags = RemoteFeatureFlags.instance;
@@ -147,6 +151,144 @@ void main() {
       await flags.refresh(api);
 
       expect(flags.eefSpaceEnabled, isTrue);
+    });
+  });
+
+  // Build 56 : `eefHelpBubble` (la bulle « Une question ? ») et
+  // `eefPrivateSchools` (la mention des écoles privées). Deux clés NOUVELLES,
+  // fermées par défaut, qui ne dérivent d'AUCUN autre drapeau : en particulier
+  // PAS de l'ancien commutateur `eef`, qui ouvre l'espace — ouvrir l'espace ne
+  // doit pas allumer, par ricochet, un canal de contact.
+  group('les interrupteurs de la 56 — bulle et écoles privées', () {
+    // Les deux getters, sous leur clé serveur : une seule table pour que chaque
+    // propriété soit éprouvée sur les DEUX, sans que l'une serve d'alibi à l'autre.
+    final switches = <String, bool Function()>{
+      'eefHelpBubble': () => flags.eefHelpBubbleEnabled,
+      'eefPrivateSchools': () => flags.eefPrivateSchoolsEnabled,
+    };
+    final overrides = <String, void Function(bool?)>{
+      'eefHelpBubble': (v) => AppConfig.eefHelpBubbleEnabledOverride = v,
+      'eefPrivateSchools': (v) =>
+          AppConfig.eefPrivateSchoolsEnabledOverride = v,
+    };
+
+    for (final key in switches.keys) {
+      final read = switches[key]!;
+
+      test('$key : fermé avant toute lecture', () {
+        expect(flags.loaded, isFalse);
+        expect(read(), isFalse);
+      });
+
+      test('$key : fermé quand le serveur est injoignable (échec fermé)',
+          () async {
+        when(api.getAppConfig).thenThrow(DioException(
+          requestOptions: RequestOptions(path: '/config/app'),
+          type: DioExceptionType.connectionError,
+        ));
+
+        await flags.refresh(api);
+
+        expect(flags.loaded, isFalse);
+        expect(read(), isFalse);
+      });
+
+      test('$key : clé absente = fermé (ancien backend)', () async {
+        // Un backend d'avant la 56 sert les drapeaux qu'il connaît, pas ceux-là.
+        when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+              'features': <String, dynamic>{
+                'eefTeaser': true,
+                'eef': false,
+                'eefSpace': true,
+              },
+            });
+
+        await flags.refresh(api);
+
+        expect(flags.loaded, isTrue);
+        expect(flags.eefSpaceEnabled, isTrue);
+        expect(read(), isFalse);
+      });
+
+      test('$key : servi à vrai = ouvert, à faux = fermé', () async {
+        when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+              'features': <String, dynamic>{key: true},
+            });
+        await flags.refresh(api);
+        expect(read(), isTrue);
+
+        when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+              'features': <String, dynamic>{key: false},
+            });
+        await flags.refresh(api);
+        expect(read(), isFalse);
+      });
+
+      test('$key : une valeur non booléenne est ignorée, pas interprétée',
+          () async {
+        for (final bad in <Object?>['true', 1, 'yes', null]) {
+          when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+                'features': <String, dynamic>{key: bad},
+              });
+
+          await flags.refresh(api);
+
+          expect(read(), isFalse, reason: '$key=$bad ne doit rien ouvrir');
+        }
+      });
+
+      test('$key : le repli de compilation à vrai ne vaut que serveur muet',
+          () async {
+        overrides[key]!(true);
+
+        // Serveur injoignable : le repli s'applique.
+        when(api.getAppConfig).thenThrow(StateError('boom'));
+        await flags.refresh(api);
+        expect(read(), isTrue);
+
+        // Serveur qui répond SANS la clé : le repli s'applique encore (même
+        // règle que les autres drapeaux).
+        when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+              'features': <String, dynamic>{},
+            });
+        await flags.refresh(api);
+        expect(read(), isTrue);
+
+        // Serveur qui dit NON : la valeur servie PRIME sur le repli.
+        when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+              'features': <String, dynamic>{key: false},
+            });
+        await flags.refresh(api);
+        expect(read(), isFalse);
+      });
+    }
+
+    test('le repli de compilation est FERMÉ sans dart-define', () {
+      expect(AppConfig.eefHelpBubbleEnabled, isFalse);
+      expect(AppConfig.eefPrivateSchoolsEnabled, isFalse);
+    });
+
+    test('ne dérivent NI de `eef` NI de `eefSpace`, ni l\'un de l\'autre',
+        () async {
+      when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+            'features': <String, dynamic>{'eef': true, 'eefSpace': true},
+          });
+
+      await flags.refresh(api);
+
+      expect(flags.eefEnabled, isTrue);
+      expect(flags.eefSpaceEnabled, isTrue);
+      expect(flags.eefHelpBubbleEnabled, isFalse);
+      expect(flags.eefPrivateSchoolsEnabled, isFalse);
+
+      when(api.getAppConfig).thenAnswer((_) async => <String, dynamic>{
+            'features': <String, dynamic>{'eefHelpBubble': true},
+          });
+      await flags.refresh(api);
+      expect(flags.eefHelpBubbleEnabled, isTrue);
+      expect(flags.eefPrivateSchoolsEnabled, isFalse);
+      // Et allumer la bulle n'ouvre PAS l'espace.
+      expect(flags.eefSpaceEnabled, isFalse);
     });
   });
 

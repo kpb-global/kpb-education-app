@@ -268,6 +268,26 @@ export class AppConfigController {
     // à la porte de ce que les autres builds montrent déjà.
     const eefSpace = eef || enabled(process.env.KPB_EEF_SPACE_ENABLED);
 
+    // ── Build 56 : deux interrupteurs de plus, FERMÉS et INDÉPENDANTS ──────
+    //
+    // `eefHelpBubble` : la bulle « Une question ? » (contact WhatsApp trié par
+    // sujet) dans le hub et le catalogue. `eefPrivateSchools` : la ligne et la
+    // feuille d'information sur les écoles privées. Chacun est lu par la seule
+    // build 56 et les suivantes ; une build plus ancienne ignore ces clés, et
+    // une 56 devant un backend plus ancien (clé absente) les lit comme fausses.
+    //
+    // Ils ne dérivent d'AUCUN autre drapeau — ni `eef` (l'ancien commutateur,
+    // qui ouvre `eefSpace` partout), ni `eefSpace`. Ouvrir l'espace ne doit
+    // jamais, par ricochet, allumer un canal de contact ou une mention
+    // d'établissements privés : chaque ouverture est une décision à part, avec
+    // sa propre action d'exploitation (`eef-bubble-on`, `eef-private-schools-on`)
+    // et son propre retour arrière. L'app, de son côté, exige `eefSpace` EN PLUS
+    // pour montrer quoi que ce soit : ces clés seules n'ouvrent rien.
+    const eefHelpBubble = enabled(process.env.KPB_EEF_HELP_BUBBLE_ENABLED);
+    const eefPrivateSchools = enabled(
+      process.env.KPB_EEF_PRIVATE_SCHOOLS_ENABLED,
+    );
+
     const suspendedCountries = nameList(
       process.env.KPB_EEF_SUSPENDED_COUNTRIES,
     );
@@ -302,6 +322,8 @@ export class AppConfigController {
         eefTeaser,
         eef,
         eefSpace,
+        eefHelpBubble,
+        eefPrivateSchools,
       },
       // La fenêtre de campagne est SERVIE, jamais compilée. Une build vit ~90
       // jours ; une date d'ouverture écrite dans le binaire devient fausse

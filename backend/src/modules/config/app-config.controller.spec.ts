@@ -21,6 +21,9 @@ describe('AppConfigController', () => {
     KPB_EEF_ENABLED: process.env.KPB_EEF_ENABLED,
     KPB_EEF_SPACE_ENABLED: process.env.KPB_EEF_SPACE_ENABLED,
     KPB_EEF_TEASER_ENABLED: process.env.KPB_EEF_TEASER_ENABLED,
+    KPB_EEF_HELP_BUBBLE_ENABLED: process.env.KPB_EEF_HELP_BUBBLE_ENABLED,
+    KPB_EEF_PRIVATE_SCHOOLS_ENABLED:
+      process.env.KPB_EEF_PRIVATE_SCHOOLS_ENABLED,
     KPB_EEF_CAMPAIGN_OPENS_AT: process.env.KPB_EEF_CAMPAIGN_OPENS_AT,
     KPB_EEF_CAMPAIGN_CLOSES_AT: process.env.KPB_EEF_CAMPAIGN_CLOSES_AT,
     KPB_EEF_SUSPENDED_COUNTRIES: process.env.KPB_EEF_SUSPENDED_COUNTRIES,
@@ -68,6 +71,8 @@ describe('AppConfigController', () => {
       eefTeaser: false,
       eef: false,
       eefSpace: false,
+      eefHelpBubble: false,
+      eefPrivateSchools: false,
     });
     expect(config.eefCampaign).toEqual({
       opensAt: null,
@@ -198,6 +203,82 @@ describe('AppConfigController', () => {
       });
     });
   });
+
+  // `eefHelpBubble` et `eefPrivateSchools` : deux interrupteurs de build 56,
+  // FERMÉS par défaut et INDÉPENDANTS de tout le reste. Ils ne suivent ni `eef`
+  // (l'ancien commutateur, qui ouvre `eefSpace` partout), ni `eefSpace` : ouvrir
+  // l'espace ne doit jamais allumer, par ricochet, une bulle de contact ou la
+  // mention des écoles privées.
+  describe.each([
+    ['eefHelpBubble', 'KPB_EEF_HELP_BUBBLE_ENABLED', 'eefPrivateSchools'],
+    ['eefPrivateSchools', 'KPB_EEF_PRIVATE_SCHOOLS_ENABLED', 'eefHelpBubble'],
+  ] as const)(
+    '%s — interrupteur serveur fermé par défaut',
+    (key, envVar, other) => {
+      it('est fermé quand la variable est absente (ancien .env, premier déploiement)', () => {
+        const { features } = new AppConfigController().getAppConfig();
+        expect(features[key]).toBe(false);
+      });
+
+      it('est SERVI comme booléen strict, jamais absent de la réponse', () => {
+        const { features } = new AppConfigController().getAppConfig();
+        expect(Object.keys(features)).toContain(key);
+        expect(typeof features[key]).toBe('boolean');
+      });
+
+      it("ne s'ouvre pas sur une autre valeur que « true »", () => {
+        for (const value of ['1', 'yes', 'on', 'false', '', 'TRUEISH']) {
+          process.env[envVar] = value;
+          expect(new AppConfigController().getAppConfig().features[key]).toBe(
+            false,
+          );
+        }
+        process.env[envVar] = ' TRUE ';
+        expect(new AppConfigController().getAppConfig().features[key]).toBe(
+          true,
+        );
+      });
+
+      it("s'ouvre SANS toucher à l'espace, à la vitrine, à `eef` ni à l'autre interrupteur", () => {
+        process.env.KPB_EEF_TEASER_ENABLED = 'true';
+        process.env[envVar] = 'true';
+
+        const { features } = new AppConfigController().getAppConfig();
+
+        expect(features[key]).toBe(true);
+        expect(features[other]).toBe(false);
+        expect(features.eefSpace).toBe(false);
+        expect(features.eef).toBe(false);
+        expect(features.eefTeaser).toBe(true);
+      });
+
+      it("ne suit NI l'ancien commutateur `eef` NI `eefSpace`", () => {
+        process.env.KPB_EEF_ENABLED = 'true';
+        process.env.KPB_EEF_SPACE_ENABLED = 'true';
+
+        const { features } = new AppConfigController().getAppConfig();
+
+        expect(features.eef).toBe(true);
+        expect(features.eefSpace).toBe(true);
+        expect(features[key]).toBe(false);
+      });
+
+      it("l'éteindre ne rallume ni ne retire rien d'autre", () => {
+        process.env.KPB_EEF_TEASER_ENABLED = 'true';
+        process.env.KPB_EEF_SPACE_ENABLED = 'true';
+        process.env[envVar] = 'false';
+
+        expect(new AppConfigController().getAppConfig().features).toMatchObject(
+          {
+            eefTeaser: true,
+            eef: false,
+            eefSpace: true,
+            [key]: false,
+          },
+        );
+      });
+    },
+  );
 
   // Une faute de frappe dans une variable de déploiement ne doit pas faire
   // annoncer « Invalid Date », ni — pire — faire retomber sur maintenant, ce

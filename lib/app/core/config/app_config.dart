@@ -293,6 +293,44 @@ class AppConfig {
   static set eefSpaceEnabledOverride(bool? value) =>
       _eefSpaceEnabledOverride = value;
 
+  /// Repli local pour la bulle « Une question ? » du hub et du catalogue
+  /// (build 56 et suivantes).
+  ///
+  /// FERMÉ par défaut, et le sens de l'échec est voulu : quand `/config/app`
+  /// est injoignable, on ne montre pas un canal de contact qu'on ne saurait
+  /// plus refermer à distance. Indépendant de [eefSpaceEnabled] : le serveur
+  /// l'ouvre par sa propre action, et l'app exige l'espace ouvert EN PLUS.
+  static bool get eefHelpBubbleEnabled =>
+      _eefHelpBubbleEnabledOverride ??
+      const bool.fromEnvironment(
+        'KPB_EEF_HELP_BUBBLE_ENABLED',
+        defaultValue: false,
+      );
+
+  static bool? _eefHelpBubbleEnabledOverride;
+
+  @visibleForTesting
+  static set eefHelpBubbleEnabledOverride(bool? value) =>
+      _eefHelpBubbleEnabledOverride = value;
+
+  /// Repli local pour la mention des écoles privées (build 56 et suivantes).
+  ///
+  /// FERMÉ par défaut, pour la même raison que la bulle, et davantage : la
+  /// mention n'est ouverte qu'après validation juridique. Un binaire livré ne
+  /// doit jamais la porter allumée de naissance.
+  static bool get eefPrivateSchoolsEnabled =>
+      _eefPrivateSchoolsEnabledOverride ??
+      const bool.fromEnvironment(
+        'KPB_EEF_PRIVATE_SCHOOLS_ENABLED',
+        defaultValue: false,
+      );
+
+  static bool? _eefPrivateSchoolsEnabledOverride;
+
+  @visibleForTesting
+  static set eefPrivateSchoolsEnabledOverride(bool? value) =>
+      _eefPrivateSchoolsEnabledOverride = value;
+
   // ── Supabase Auth ──────────────────────────────────────────────────────
   /// Supabase project URL (auth only — business data stays in Prisma/Postgres).
   static const supabaseUrl = String.fromEnvironment(
