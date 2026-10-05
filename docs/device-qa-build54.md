@@ -53,7 +53,7 @@ curl -fsS https://api.kpbeducation.cloud/api/config/app | jq '.features | {eef, 
 |---|---|---|---|---|
 | A1 | Version | `2.3.0 (54)` ; `GET /api/config/app` → `minVersion` strictement inférieure. *iPhone : seul TestFlight affiche « 2.3.0 (54) » (Réglages → Général → Stockage n'affiche que « 2.3.0 »). Android : Play Console, ou `adb shell dumpsys package com.karatou.android \| grep versionCode` → 54. L'app n'affiche pas sa version : manque connu.* | ☐ | ☐ |
 | A2 | Vitrine, pays hors Niger | Accueil → carte « Études en France » → « À partir du 1er octobre 2026 », **sans compte à rebours** le jour J et après ; lien « Voir la plateforme officielle » qui s'ouvre | ☐ | ☐ |
-| A3 | Vitrine, compte du **Niger** | La mise en garde **remplace** la date ; lien « Voir la source officielle » (page de l'ambassade) ; aucune date | ☐ | ☐ |
+| A3 | Vitrine, compte du **Niger** | Build 54/55 : la mise en garde **remplace** la date ; lien « Voir la source officielle » (page de l'ambassade) ; aucune date. **Build 56 : ni mise en garde, ni lien, ni date** (retirée le 05/10/2026) | ☐ | ☐ |
 | A4 | Déclaration d'intérêt | « Ça m'intéresse » → niveaux, **domaines** (12 puces, préremplies depuis le profil), consentement affiché avant « Valider » → « C'est noté » ; l'admin voit la ligne | ☐ | ☐ |
 | A5 | Retrait | « Me retirer de la liste » → confirmation → retiré ; la ligne disparaît de l'admin | ☐ | ☐ |
 | A6 | Compte **parent** par lien profond `kpb://etudes-en-france` | « Un espace pour les étudiants », bouton conseiller ; pas de vitrine ni de hub | ☐ | ☐ |

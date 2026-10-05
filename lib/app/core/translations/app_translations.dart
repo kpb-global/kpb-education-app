@@ -1884,6 +1884,11 @@ class AppTranslations extends Translations {
           // pas de débloquer une situation diplomatique — il dit ce qui est, et
           // propose la seule chose utile, parler à quelqu'un.
           'eef_official_platform_link': 'Voir la plateforme officielle',
+          // RETIRÉS DE L'AFFICHAGE le 05/10/2026 (décision du propriétaire : un
+          // étudiant du Niger peut mener sa procédure depuis un autre pays). Les
+          // deux clés restent ici pour que les tests d'absence cherchent le VRAI
+          // texte : sans lui, `find.text('eef_suspended_notice'.tr)` chercherait
+          // le nom de la clé et ne pourrait jamais rougir.
           'eef_official_suspension_link': 'Voir la source officielle',
           'eef_suspended_notice':
               'Dans ton pays, le traitement des dossiers Études en France est '
