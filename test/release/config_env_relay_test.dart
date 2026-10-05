@@ -94,6 +94,24 @@ void main() {
     );
   });
 
+  // Non-vacuité, nommément : le test générique ci-dessus ne rougit que si le
+  // contrôleur LIT la variable. Si quelqu'un retire la lecture, les deux
+  // interrupteurs disparaissent de /config/app sans qu'aucun test générique ne
+  // le voie — l'app lirait alors « clé absente » pour toujours.
+  test('les interrupteurs de la 56 sont lus, relayés et documentés', () {
+    for (final variable in [
+      'KPB_EEF_HELP_BUBBLE_ENABLED',
+      'KPB_EEF_PRIVATE_SCHOOLS_ENABLED',
+    ]) {
+      expect(read, contains(variable),
+          reason: '$controllerPath ne lit plus $variable.');
+      expect(relayed, contains(variable),
+          reason: '$variable n\'est pas relayée dans docker-compose.yml.');
+      expect(documented, contains(variable),
+          reason: '$variable n\'est pas documentée dans .env.example.');
+    }
+  });
+
   test('les drapeaux KPB_EEF_* sont fermés par défaut dans compose', () {
     // Le sens de l'échec, figé. Une vitrine allumée par défaut serait
     // impossible à éteindre sans redéploiement du fichier compose, alors que
@@ -103,6 +121,10 @@ void main() {
       'KPB_EEF_TEASER_ENABLED',
       'KPB_EEF_SPACE_ENABLED',
       'KPB_EEF_ENABLED',
+      // Build 56 : la bulle de contact et la mention des écoles privées. Deux
+      // interrupteurs distincts, fermés par défaut comme les autres.
+      'KPB_EEF_HELP_BUBBLE_ENABLED',
+      'KPB_EEF_PRIVATE_SCHOOLS_ENABLED',
     ]) {
       expect(
         compose,

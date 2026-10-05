@@ -23,7 +23,7 @@ name: VPS ops (feature flag / catalogue)
 # d'atteindre le serveur, puis une seconde fois par le script.
 #
 # Les seules clés que les branches `eef-*` écrivent dans le `.env` sont les
-# `KPB_EEF_*` (vitrine, espace, fenêtre de campagne) et `KPB_RECOMMENDED_APP_VERSION`
+# `KPB_EEF_*` (vitrine, espace, bulle, écoles privées, fenêtre de campagne) et `KPB_RECOMMENDED_APP_VERSION`
 # (bandeau doux de mise à jour, jamais `KPB_MIN_APP_VERSION`), aux valeurs écrites dans
 # `.github/scripts/vps-ops.sh` : en changer une passe par une PR. Le fichier est sauvegardé avant écriture, et la clé
 # est REMPLACÉE si elle existe déjà plutôt qu'ajoutée en double — un `.env` avec
@@ -67,6 +67,10 @@ on:
           - eef-teaser-off
           - eef-space-on
           - eef-space-off
+          - eef-bubble-on
+          - eef-bubble-off
+          - eef-private-schools-on
+          - eef-private-schools-off
           - eef-campaign-set
           - recommended-version-set
           - publish-catalog
@@ -83,7 +87,7 @@ on:
           - eef-reconcile
           - reviews-purge-orphans
       dry_run:
-        description: 'Simuler seulement (eef-space-on, eef-campaign-set, recommended-version-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, eef-publish, eef-reconcile, reviews-purge-orphans). Décocher pour appliquer.'
+        description: 'Simuler seulement (eef-space-on, eef-bubble-on, eef-private-schools-on, eef-campaign-set, recommended-version-set, publish-catalog, import-partners, backfill-tuition-eur, fix-mundiapolis-levels, import-universiapolis, reconcile-program-ids, backfill-seed-institutions, eef-import, eef-purge-pending, eef-publish, eef-reconcile, reviews-purge-orphans). Décocher pour appliquer.'
         type: boolean
         required: false
         default: true
@@ -212,6 +216,43 @@ jobs:
           echo "EEF_SEARCH_BEFORE=${eef}" >> "$GITHUB_ENV"
           echo "Catalogue général avant : ${inst} établissement(s), ${prog} formation(s)"
           echo "Recherche Études en France avant : total = ${eef}"
+
+      # L'état de l'ESPACE, relevé AVANT d'écrire : les interrupteurs de la 56 (bulle,
+      # écoles privées) ne doivent pas le faire bouger, et « n'a pas bougé » ne se
+      # prouve qu'avec un avant. Une simulation d'ouverture n'écrit rien : rien à
+      # relever, l'étape ne tourne pas. Un relevé raté ne bloque PAS une fermeture (un retour arrière
+      # doit toujours partir) ; il bloque une ouverture réelle, qu'on ne fait pas à
+      # l'aveugle.
+      - name: Relever l'espace avant (eefSpace ne doit pas bouger)
+        if: ${{ (inputs.action == 'eef-bubble-on' && !inputs.dry_run) || inputs.action == 'eef-bubble-off' || (inputs.action == 'eef-private-schools-on' && !inputs.dry_run) || inputs.action == 'eef-private-schools-off' }}
+        env:
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+          ACTION: ${{ inputs.action }}
+        run: |
+          set -euo pipefail
+          config="$(mktemp)"
+          before=unknown
+          if curl -fsS --retry 5 --retry-delay 3 --retry-all-errors --max-time 10 \
+            -o "$config" "${HEALTH_URL}/api/config/app"; then
+            # AUCUNE apostrophe dans le programme Python : bash le reçoit entre
+            # apostrophes, et la première qu'on y écrit le coupe.
+            before="$(python3 -c '
+          import json, sys
+          features = json.load(sys.stdin).get("features") or {}
+          value = features.get("eefSpace")
+          print("true" if value is True else "false" if value is False else "unknown")
+          ' < "$config" || echo unknown)"
+          fi
+          case "$ACTION" in
+            *-on)
+              if [ "$before" = "unknown" ]; then
+                echo "::error::eefSpace illisible AVANT l'ouverture : impossible de prouver ensuite qu'il n'a pas bougé. Ne pas ouvrir à l'aveugle."
+                exit 1
+              fi
+              ;;
+          esac
+          echo "SPACE_BEFORE=${before}" >> "$GITHUB_ENV"
+          echo "eefSpace avant : ${before}"
 
       - name: Exécuter l'opération
         env:
@@ -393,4 +434,55 @@ jobs:
               assert d.get("eefCatalog"), "eefCatalog absent : le backend ne porte pas la build 54 cote serveur"
               assert (d.get("eefCampaign") or {}).get("platformUrl"), "eefCampaign.platformUrl absent : aucun lien vers la plateforme officielle"
           print("eefSpace =", features["eefSpace"], "| eef =", features["eef"], "| eefTeaser =", features.get("eefTeaser"))
+          ' < "$config"
+
+      # Bulle et écoles privées (build 56) : la preuve vérifie SEULEMENT ce qui les
+      # concerne. La clé de l'action a la valeur voulue ; `eef` reste faux (c'est lui
+      # qui retirerait la vitrine des builds 49 à 53) ; `eefSpace` est ce qu'il était
+      # avant. Elle n'exige NI `eefCatalog` NI `eefCampaign` : ce sont les conditions
+      # d'ouverture de l'espace, et les exiger ici refuserait d'ouvrir une bulle pour
+      # une raison qui ne la regarde pas. Un `-off` se prouve toujours, dry_run ou non,
+      # puisqu'il agit toujours.
+      - name: Prouver l'état de l'interrupteur (bulle, écoles privées)
+        if: ${{ success() && ((inputs.action == 'eef-bubble-on' && !inputs.dry_run) || inputs.action == 'eef-bubble-off' || (inputs.action == 'eef-private-schools-on' && !inputs.dry_run) || inputs.action == 'eef-private-schools-off') }}
+        env:
+          HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+          ACTION: ${{ inputs.action }}
+        run: |
+          set -euo pipefail
+          # La clé et la valeur voulues sont dérivées ICI, en bash, pas dans une
+          # expression GitHub : un `case` se joue en test, une expression non. Une
+          # action inconnue est refusée, jamais devinée.
+          case "$ACTION" in
+            eef-bubble-on|eef-bubble-off) WANT_KEY=eefHelpBubble ;;
+            eef-private-schools-on|eef-private-schools-off) WANT_KEY=eefPrivateSchools ;;
+            *) echo "::error::Action inconnue pour la preuve : ${ACTION}"; exit 1 ;;
+          esac
+          case "$ACTION" in
+            *-on) WANT_OPEN=true ;;
+            *-off) WANT_OPEN=false ;;
+          esac
+          export WANT_KEY WANT_OPEN
+          # Fichier, pas tube : voir l'étape de preuve de l'espace.
+          config="$(mktemp)"
+          curl -fsS --retry 10 --retry-delay 3 --retry-all-errors --max-time 10 \
+            -o "$config" "${HEALTH_URL}/api/config/app"
+          # AUCUNE apostrophe dans le programme Python (voir l'étape de l'espace).
+          python3 -c '
+          import json, os, sys
+          d = json.load(sys.stdin)
+          features = d.get("features") or {}
+          key = os.environ["WANT_KEY"]
+          want = os.environ["WANT_OPEN"] == "true"
+          before = os.environ.get("SPACE_BEFORE", "unknown")
+          assert key in features, "features.%s absent : ancienne image en production" % key
+          got = features[key]
+          assert got is want, "features.%s=%r, attendu %r" % (key, got, want)
+          assert features.get("eef") is False, "features.eef est vrai ou absent : la vitrine des builds 49 a 53 a disparu"
+          space = features.get("eefSpace")
+          if before == "unknown":
+              print("ATTENTION : eefSpace non releve avant, son immobilite n est pas prouvee")
+          else:
+              assert str(space).lower() == before, "features.eefSpace=%r, il valait %s avant : cette operation ne devait pas le toucher" % (space, before)
+          print(key, "=", got, "| eef =", features["eef"], "| eefSpace =", space, "(avant :", before + ")")
           ' < "$config"

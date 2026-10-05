@@ -69,6 +69,56 @@
 5. **Un compte du Niger** (ou un profil dont le pays est dans la liste) : le hub
    montre la mise en garde et le lien de la source, **pas** la date.
 
+## Bulle « Une question ? » et écoles privées (build 56 et suivantes)
+
+Deux interrupteurs serveur **de plus**, lus par la seule build 56 et les suivantes. Ils sont
+**fermés par défaut**, **indépendants** de l'espace et **l'un de l'autre** : ouvrir l'espace
+n'allume ni l'un ni l'autre, et aucun des deux n'affiche quoi que ce soit si `eefSpace` est
+faux (l'app exige l'espace ouvert EN PLUS). Une clé absente est lue « faux » — anciennes builds
+et ancien backend ne voient rien.
+
+| Clé `/config/app` | Variable `.env` | Ouvrir | Fermer |
+|---|---|---|---|
+| `features.eefHelpBubble` | `KPB_EEF_HELP_BUBBLE_ENABLED` | `eef-bubble-on` | `eef-bubble-off` |
+| `features.eefPrivateSchools` | `KPB_EEF_PRIVATE_SCHOOLS_ENABLED` | `eef-private-schools-on` | `eef-private-schools-off` |
+
+**Ordre d'ouverture.** 1. `eef-space-on` (section « Ouvrir » ci-dessus). 2. `eef-bubble-on`.
+3. `eef-private-schools-on` — **seulement après la validation juridique** (phrase sur la
+rémunération, phrase sur les frais, Niger) et, de préférence, quelques jours après le hub pour
+ne pas mêler les signaux. **Fermeture dans l'ordre inverse** : `eef-private-schools-off`, puis
+`eef-bubble-off`, puis `eef-space-off` si l'espace lui-même doit se refermer. Chaque retour
+arrière est indépendant : fermer la bulle ne ferme pas l'espace.
+
+**Comment les lancer** (GitHub → Actions → « VPS ops ») :
+
+- Les deux `-on` **simulent par défaut** : `dry_run` coché, les contrôles passent ou échouent,
+  rien n'est écrit. On n'écrit que sur un `dry_run` **décoché** (toute autre valeur simule).
+  Contrôles : la variable est relayée par `docker-compose.yml`, et **le backend déployé SERT la
+  clé** (le contrôleur compilé du conteneur la contient). Un backend déployé à un commit
+  antérieur à la 56 est refusé : déployer d'abord (`deploy.yml`, `scope=full`) — **jamais un
+  commit postérieur au SHA de release de la 55 avant le préflight de la 55** (voir
+  `docs/release-ledger.md`). Si l'espace n'est pas à `true` dans le `.env`, un avertissement le
+  dit (l'ordre ci-dessus), sans bloquer.
+- Les deux `-off` **n'ont pas de simulation** : ils agissent tout de suite, que `dry_run` soit
+  coché ou non, et ne dépendent pas du code déployé (on doit toujours pouvoir fermer).
+- Chaque action n'écrit que **sa** clé dans le `.env` (sauvegardé avant), puis recrée le seul
+  conteneur `api` à la même image et attend qu'il réponde.
+
+**La preuve vient de l'extérieur, pas du code de sortie.** Après chaque action réelle, le
+workflow relit `/config/app` et vérifie : la clé de l'action vaut la valeur voulue ;
+`features.eef` reste `false` ; `features.eefSpace` vaut ce qu'il valait **avant** l'opération
+(relevé au début du job — une ouverture réelle dont ce relevé est illisible est refusée, une
+fermeture part quand même). Elle n'exige ni `eefCatalog` ni `eefCampaign` : ce sont les
+conditions d'ouverture de l'espace. À vérifier à la main en plus :
+
+```bash
+curl -fsS https://api.kpbeducation.cloud/api/config/app | jq '.features | {eef, eefTeaser, eefSpace, eefHelpBubble, eefPrivateSchools}'
+```
+
+Si `eefHelpBubble` / `eefPrivateSchools` sont **absents** de la réponse, l'image en production
+est antérieure à la 56 : la bascule n'a aucun effet. Les builds antérieures à la 56 n'ont, elles,
+rien à voir changer.
+
 ## Inviter à mettre à jour — un levier pour les builds SUIVANTES, pas pour la 53
 
 **Ce levier ne touche pas les builds 49 à 53** : elles ne lisent pas
@@ -115,6 +165,8 @@ vide, l'action retire la clé. `KPB_MIN_APP_VERSION` n'est jamais touché.
 - Ne pas promettre de catalogue plus fourni que ce qui est publié.
 
 ## Retour arrière
+
+> Bulle et écoles privées ont leurs propres retours arrière (`eef-bubble-off`, `eef-private-schools-off`) : voir la section précédente. Fermer l'espace ne les ferme pas, mais sans espace ils n'affichent rien.
 
 `vps-ops` → **`eef-space-off`** (pas de simulation, il agit tout de suite). Il
 remet `KPB_EEF_SPACE_ENABLED=false` : les builds du hub (55) retombent sur la vitrine, les

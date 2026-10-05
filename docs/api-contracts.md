@@ -904,6 +904,26 @@ vivait dans la couture : les tests mobiles décodaient la valeur d'exploitation
 directement, contournant la normalisation serveur, et un test backend figeait
 cette normalisation comme contrat.
 
+### Interrupteurs de la build 56 dans `features` : `eefHelpBubble`, `eefPrivateSchools`
+
+Deux booléens **stricts** ajoutés à `features`, toujours présents dans la réponse du backend
+de la 56, **`false` par défaut**. Un backend plus ancien ne les sert pas : le client lit une
+clé absente comme `false` (comme une valeur non booléenne, ou un serveur injoignable).
+
+| Clé | Variable d'environnement | Sens |
+|---|---|---|
+| `features.eefHelpBubble` | `KPB_EEF_HELP_BUBBLE_ENABLED` | La bulle « Une question ? » du hub et du catalogue. |
+| `features.eefPrivateSchools` | `KPB_EEF_PRIVATE_SCHOOLS_ENABLED` | La ligne et la feuille d'information sur les écoles privées. |
+
+Ils sont **indépendants** : ils ne dérivent ni de `eef` (l'ancien commutateur, qui ouvre
+`eefSpace`), ni de `eefSpace`, ni l'un de l'autre, et ouvrir l'un ne modifie aucune autre
+clé. Le client exige `eefSpace` vrai EN PLUS pour montrer quoi que ce soit. Seule la valeur
+`true` (casse et espaces tolérés) les ouvre. Ouverture et fermeture : actions `vps-ops`
+`eef-bubble-on|off` et `eef-private-schools-on|off` (`docs/runbook-ouverture-espace-reel.md`).
+Gardé par `backend/src/modules/config/app-config.controller.spec.ts`,
+`test/core/services/remote_feature_flags_test.dart`, `test/release/config_env_relay_test.dart`
+(relais compose) et `test/release/vps_ops_eef_switches_test.dart`.
+
 ### Ce que `GET /config/app` sert d'autre que des drapeaux (build 54)
 
 Route publique, sans authentification. Quatre ajouts, tous **absents sur un

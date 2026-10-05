@@ -24,7 +24,7 @@
 // programme, lire `/config/app` sans attendre, ou desserrer une assertion.
 
 import { execFile } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -38,6 +38,9 @@ const lines = workflow.split('\n');
 
 const VERIFY = "Vérifier depuis l'extérieur ce que le serveur annonce vraiment";
 const PROVE = "Prouver l'état de l'espace (eefSpace)";
+// Les deux interrupteurs de la 56 (bulle, écoles privées) : relevé avant, preuve après.
+const SPACE_BEFORE = "Relever l'espace avant (eefSpace ne doit pas bouger)";
+const PROVE_SWITCH = "Prouver l'état de l'interrupteur (bulle, écoles privées)";
 
 const stepIndex = (name: string) => lines.findIndex((l) => l.trim() === `- name: ${name}`);
 
@@ -70,6 +73,8 @@ const isConfigFetch = (command: string) =>
 
 const verify = step(VERIFY);
 const prove = step(PROVE);
+const spaceBefore = step(SPACE_BEFORE);
+const proveSwitch = step(PROVE_SWITCH);
 
 describe('vps-ops — lire l’API quand elle répond, pas pendant sa recréation', () => {
   it('lit bien les deux étapes — sinon ce garde ne prouve rien', () => {
@@ -156,9 +161,11 @@ const PRODUCTION = {
 };
 
 /** Ce que le VRAI contrôleur sert sous ces variables — pas une maquette du format. */
-function served(overrides: Partial<typeof PRODUCTION> = {}): unknown {
+function served(overrides: Record<string, string> = {}): unknown {
   const env = { ...PRODUCTION, ...overrides };
-  const saved = Object.fromEntries(Object.keys(env).map((k) => [k, process.env[k]]));
+  const saved: Record<string, string | undefined> = Object.fromEntries(
+    Object.keys(env).map((k) => [k, process.env[k]]),
+  );
   Object.assign(process.env, env);
   try {
     return new AppConfigController().getAppConfig();
@@ -279,4 +286,113 @@ describe('vps-ops — les deux étapes JOUÉES par bash, contre une API locale',
       expect(r.stderr).toContain(`AssertionError: ${message}`);
     });
   }, 30_000);
+  // ── Les interrupteurs de la 56, contre la sortie du VRAI contrôleur ────────────
+  //
+  // `eefHelpBubble` / `eefPrivateSchools` sont écrites dans le contrôleur, dans le
+  // client Flutter, dans l'argument du script et dans le workflow. Les tests Dart
+  // jouent ces deux étapes sur des réponses fabriquées ; ici, c'est la réponse de
+  // `AppConfigController` qui est servie. Renommer la clé d'un seul côté fait rougir
+  // CE test, au lieu de rougir en production après l'écriture du `.env`.
+  const SWITCHES = [
+    { action: 'eef-bubble-on', env: 'KPB_EEF_HELP_BUBBLE_ENABLED', key: 'eefHelpBubble', open: true },
+    { action: 'eef-bubble-off', env: 'KPB_EEF_HELP_BUBBLE_ENABLED', key: 'eefHelpBubble', open: false },
+    { action: 'eef-private-schools-on', env: 'KPB_EEF_PRIVATE_SCHOOLS_ENABLED', key: 'eefPrivateSchools', open: true },
+    { action: 'eef-private-schools-off', env: 'KPB_EEF_PRIVATE_SCHOOLS_ENABLED', key: 'eefPrivateSchools', open: false },
+  ] as const;
+
+  /** Le relevé « avant », puis la preuve, enchaînés par un vrai fichier $GITHUB_ENV. */
+  async function beforeThenProve(
+    s: (typeof SWITCHES)[number],
+    afterPayload: unknown,
+    beforePayload: unknown = served({ KPB_EEF_SPACE_ENABLED: 'true' }),
+  ): Promise<{ before: Outcome; proof: Outcome; githubEnv: string }> {
+    const githubEnv = join(tmp, `github_env_${s.action}_${Math.random().toString(36).slice(2)}`);
+    writeFileSync(githubEnv, '');
+    let before!: Outcome;
+    await withApi({ '/api/config/app': json(beforePayload) }, 0, async (url) => {
+      before = await play(spaceBefore.script, { HEALTH_URL: url, ACTION: s.action, GITHUB_ENV: githubEnv });
+    });
+    const written = readFileSync(githubEnv, 'utf8');
+    const spaceBeforeValue = /^SPACE_BEFORE=(.*)$/m.exec(written)?.[1];
+    let proof!: Outcome;
+    await withApi({ '/api/config/app': json(afterPayload) }, 0, async (url) => {
+      proof = await play(proveSwitch.script, {
+        HEALTH_URL: url,
+        ACTION: s.action,
+        GITHUB_ENV: githubEnv,
+        ...(spaceBeforeValue === undefined ? {} : { SPACE_BEFORE: spaceBeforeValue }),
+      });
+    });
+    return { before, proof, githubEnv: written };
+  }
+
+  it.each(SWITCHES)(
+    '$action : relevé puis preuve passent sur ce que sert le vrai contrôleur',
+    async (s) => {
+      const after = served({ KPB_EEF_SPACE_ENABLED: 'true', [s.env]: String(s.open) });
+      const r = await beforeThenProve(s, after);
+
+      expect(r.before.stderr).not.toMatch(/Error|Traceback/);
+      expect(r.before.code).toBe(0);
+      expect(r.githubEnv).toContain('SPACE_BEFORE=true');
+      expect(r.proof.stderr).not.toMatch(/Error|Traceback/);
+      expect(r.proof.code).toBe(0);
+      expect(r.proof.stdout).toContain(`${s.key} = ${s.open ? 'True' : 'False'}`);
+      expect(r.proof.stdout).toContain('(avant : true)');
+    },
+    30_000,
+  );
+
+  it.each(SWITCHES)(
+    '$action : la preuve rougit si le contrôleur sert l’inverse de la valeur voulue',
+    async (s) => {
+      const after = served({ KPB_EEF_SPACE_ENABLED: 'true', [s.env]: String(!s.open) });
+      const r = await beforeThenProve(s, after);
+
+      expect(r.proof.code).not.toBe(0);
+      expect(r.proof.stderr).toContain(`AssertionError: features.${s.key}=`);
+    },
+    30_000,
+  );
+
+  it.each(SWITCHES)(
+    '$action : la preuve rougit sur l’image d’AVANT la 56 (clé absente)',
+    async (s) => {
+      const payload = served({ KPB_EEF_SPACE_ENABLED: 'true', [s.env]: String(s.open) }) as {
+        features: Record<string, unknown>;
+      };
+      delete payload.features[s.key];
+      const r = await beforeThenProve(s, payload);
+
+      expect(r.proof.code).not.toBe(0);
+      expect(r.proof.stderr).toContain(`AssertionError: features.${s.key} absent`);
+    },
+    30_000,
+  );
+
+  it.each(SWITCHES)(
+    '$action : la preuve rougit si eefSpace a bougé entre le relevé et la preuve',
+    async (s) => {
+      const after = served({ KPB_EEF_SPACE_ENABLED: 'false', [s.env]: String(s.open) });
+      const r = await beforeThenProve(s, after);
+
+      expect(r.proof.code).not.toBe(0);
+      expect(r.proof.stderr).toContain('features.eefSpace=');
+    },
+    30_000,
+  );
+
+  it('les clés des interrupteurs sont les mêmes dans le contrôleur, le client Flutter, le script et le workflow', () => {
+    const controller = readFileSync(join(REPO, 'backend/src/modules/config/app-config.controller.ts'), 'utf8');
+    const featuresBlock = /features:\s*\{([\s\S]*?)\}/.exec(controller)![1];
+    const client = readFileSync(join(REPO, 'lib/app/core/services/remote_feature_flags.dart'), 'utf8');
+    const ops = readFileSync(join(REPO, '.github/scripts/vps-ops.sh'), 'utf8');
+
+    for (const s of SWITCHES.filter((x) => x.open)) {
+      expect(featuresBlock).toMatch(new RegExp(`^\\s*${s.key},\\s*$`, 'm'));
+      expect(client).toContain(`_flag('${s.key}'`);
+      expect(ops).toContain(`eef_flag_on ${s.env} ${s.key} ${s.action}`);
+      expect(proveSwitch.script).toContain(`=${s.key}`);
+    }
+  });
 });

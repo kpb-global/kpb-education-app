@@ -330,6 +330,25 @@ class RemoteFeatureFlags {
   bool get eefSpaceEnabled =>
       _flag('eefSpace', AppConfig.eefSpaceEnabled) || eefEnabled;
 
+  /// La bulle « Une question ? » (contact WhatsApp trié par sujet) est-elle
+  /// autorisée par le serveur ?
+  ///
+  /// Clé NOUVELLE (build 56) : absente d'un backend plus ancien, donc FAUSSE
+  /// dans ce cas, comme quand le serveur est injoignable. Elle ne dérive
+  /// d'aucun autre drapeau, pas même de l'ancien commutateur `eef` — et à
+  /// l'inverse elle n'ouvre rien seule : les écrans exigent aussi
+  /// [eefSpaceEnabled].
+  bool get eefHelpBubbleEnabled =>
+      _flag('eefHelpBubble', AppConfig.eefHelpBubbleEnabled);
+
+  /// La mention des écoles privées est-elle autorisée par le serveur ?
+  ///
+  /// Mêmes règles que [eefHelpBubbleEnabled] : clé nouvelle, absente = fausse,
+  /// indépendante de tout autre drapeau. Ouverte seulement après validation
+  /// juridique, par une action d'exploitation dédiée.
+  bool get eefPrivateSchoolsEnabled =>
+      _flag('eefPrivateSchools', AppConfig.eefPrivateSchoolsEnabled);
+
   /// La valeur servie, ou le repli de compilation quand elle est absente.
   bool _flag(String key, bool fallback) => _features[key] ?? fallback;
 

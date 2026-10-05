@@ -123,6 +123,13 @@ services:
       # KPB_EEF_ENABLED, que lisent aussi les builds 49 à 53 : le poser n'ôte
       # pas leur vitrine. Fermé par défaut, comme les deux autres.
       - KPB_EEF_SPACE_ENABLED=${KPB_EEF_SPACE_ENABLED:-false}
+      # Build 56 : la bulle « Une question ? » (`features.eefHelpBubble`) et la
+      # mention des écoles privées (`features.eefPrivateSchools`). Deux
+      # interrupteurs INDÉPENDANTS, de `KPB_EEF_SPACE_ENABLED` comme entre eux :
+      # ouvrir l'espace n'allume ni l'un ni l'autre. Fermés par défaut, comme
+      # tout le reste ; une clé absente est lue « faux » par l'app.
+      - KPB_EEF_HELP_BUBBLE_ENABLED=${KPB_EEF_HELP_BUBBLE_ENABLED:-false}
+      - KPB_EEF_PRIVATE_SCHOOLS_ENABLED=${KPB_EEF_PRIVATE_SCHOOLS_ENABLED:-false}
       # Dates VIDES par défaut, jamais une date de repli : le client n'annonce
       # alors aucune date, plutôt qu'une date inventée qu'un étudiant
       # utiliserait pour organiser son dossier.
