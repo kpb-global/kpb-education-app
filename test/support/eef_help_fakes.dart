@@ -77,6 +77,9 @@ class RecordingHelpAnalytics implements EefHelpAnalytics {
   /// Les écrans porteurs des `eef_bubble_opened`, dans l'ordre.
   final List<String> openedSurfaces = <String>[];
 
+  /// Les points d'entrée des `eef_private_info_opened`, dans l'ordre.
+  final List<String> privateInfoEntries = <String>[];
+
   /// Les étapes vues, dans l'ordre.
   List<String> get shownSteps => shownCalls.map((e) => e.step).toList();
 
@@ -98,6 +101,10 @@ class RecordingHelpAnalytics implements EefHelpAnalytics {
 
   @override
   void bubbleOpened({required String surface}) => openedSurfaces.add(surface);
+
+  @override
+  void privateInfoOpened({required String entry}) =>
+      privateInfoEntries.add(entry);
 }
 
 /// Le texte français que le message prérempli doit avoir pour [stepLabel] —

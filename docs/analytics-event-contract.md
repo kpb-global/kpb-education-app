@@ -94,9 +94,10 @@ steady points at the feed itself, not at the content.
 | `eef_catalog_viewed` | `source` (`hub` quand l'étudiant vient du hub, `deep_link` sinon — lien profond ou notification) | Le catalogue ouvert, et par quelle porte |
 | `eef_catalog_searched` | `has_query` (`1`/`0`), `filter_count`, `result_count`, `catalog_published` (`1`/`0`) | Une recherche aboutie. **Jamais le texte tapé** : une requête libre peut contenir un nom, une ville, un établissement |
 | `eef_catalog_failed` | `reason` (`network`/`server`) | Le catalogue n'a pas pu répondre |
-| `eef_help_card_shown` | `help_step` (`hub`/`procedure`/`documents`/`catalog_results`/`catalog_procedure`/`catalog_empty`/`catalog_unpublished`, et depuis la build 55 `catalog_filters`/`tool_cv`/`tool_letters`/`tool_interview`, et depuis la build 56 `bubble`), `surface` (`hub`/`catalog`, et depuis la build 55 `tools`), `variant` (`card`/`compact`, et depuis la build 56 `bubble`) | Une carte d'aide (« c'est flou ? tu veux de l'aide ? ») a été montée : la portée de CHAQUE emplacement |
-| `eef_help_cta_tapped` | mêmes trois propriétés (et, depuis la build 55, `help_step` = `catalog_program` aussi ; depuis la build 56, `bubble_assistance`/`bubble_dossier`/`bubble_choose`/`bubble_question`) | Le bouton ou le lien de la carte d'aide a été tapé — part AVANT l'ouverture de WhatsApp |
+| `eef_help_card_shown` | `help_step` (`hub`/`procedure`/`documents`/`catalog_results`/`catalog_procedure`/`catalog_empty`/`catalog_unpublished`, et depuis la build 55 `catalog_filters`/`tool_cv`/`tool_letters`/`tool_interview`, et depuis la build 56 `bubble` et `private_note`), `surface` (`hub`/`catalog`, et depuis la build 55 `tools`), `variant` (`card`/`compact`, et depuis la build 56 `bubble` et `note`) | Une carte d'aide (« c'est flou ? tu veux de l'aide ? ») a été montée : la portée de CHAQUE emplacement |
+| `eef_help_cta_tapped` | mêmes trois propriétés (et, depuis la build 55, `help_step` = `catalog_program` aussi ; depuis la build 56, `bubble_assistance`/`bubble_dossier`/`bubble_choose`/`bubble_question` et `private_sheet`, avec `variant` = `bubble` ou `sheet`) | Le bouton ou le lien de la carte d'aide a été tapé — part AVANT l'ouverture de WhatsApp |
 | `eef_bubble_opened` | `surface` (`hub`/`catalog`) | Le menu de sujets de la bulle verte WhatsApp a été ouvert (build 56). Ce n'est PAS un envoi : voir « La bulle d'aide de la build 56 » |
+| `eef_private_info_opened` | `entry` (`bubble`/`catalog_empty`) | La feuille d'information « Service KPB » des écoles privées a été ouverte (build 56). Ce n'est PAS un envoi : voir « Les écoles privées de la build 56 » |
 
 ### Lire la carte d'aide sans se tromper (build 54)
 
@@ -205,6 +206,41 @@ qu'**un** événement.
   total des `whatsapp_handoff` de `source` `eef_help_*` par session de hub, avant et après
   son ouverture : si le total n'augmente pas alors que les cartes d'aide baissent, elle
   déplace sans créer.
+
+### Les écoles privées de la build 56 (`EefPrivateSchoolsNote`, `showEefPrivateSchoolsSheet`)
+
+Trois endroits, un seul texte à faire relire : une **feuille d'information** « Les écoles
+privées : ce qu'il faut savoir » (pastille « Service KPB »), une **ligne secondaire** dans
+l'état « aucun résultat » du catalogue (jamais « rien n'est publié », jamais le hub), et une
+**option** dans le menu de la bulle (4e sujet). Rien n'existe tant que le serveur n'a pas
+ouvert `features.eefPrivateSchools` (fermé par défaut), et rien n'existe pour un compte dont
+le pays est suspendu (ni ligne, ni option, ni feuille). La feuille ne s'ouvre jamais seule.
+
+La mesure **réutilise** les deux événements de la carte d'aide, avec **exactement** leurs
+trois propriétés, et n'ajoute qu'**un** événement — l'ouverture de la feuille, qui n'est pas
+un envoi vers WhatsApp.
+
+| Événement | `help_step` / propriété | `surface` | `variant` | Quand |
+|---|---|---|---|---|
+| `eef_help_card_shown` | `private_note` | `catalog` | `note` | La ligne du catalogue vide est montée — **une fois par visite de l'écran** (même mémoire que les autres emplacements ; une borne haute de la portée, la liste étant paresseuse) |
+| `eef_private_info_opened` | — (seule propriété : `entry` = `bubble` / `catalog_empty`) | — | — | La feuille est ouverte : par l'option de la bulle (`bubble`) ou par le lien de la ligne (`catalog_empty`) |
+| `eef_help_cta_tapped` | `private_sheet` | `hub` / `catalog` (l'écran qui porte la bulle ou le catalogue) | `sheet` | « En parler à un conseiller » — **uniquement** ce qui part vers WhatsApp ; part APRÈS la fermeture de la feuille et AVANT l'ouverture de WhatsApp |
+
+- **Choisir l'option « écoles privées » dans le menu de la bulle ne mesure aucun
+  `eef_help_cta_tapped`** : `bubble_private` n'est jamais un `help_step`. Lire n'est pas
+  écrire ; seul `eef_private_info_opened` (`entry` = `bubble`) part, après `eef_bubble_opened`.
+- **« Pas maintenant »** et la fermeture par le voile ne mesurent rien d'autre que
+  l'ouverture déjà comptée, et n'ouvrent pas WhatsApp.
+- **`whatsapp_handoff`** : `source` = `eef_help_private_sheet`, `context_type` = `eef_help`,
+  `success` 0/1. WhatsApp **seul** : aucun lien vers l'écran de dossier d'admission privé.
+- **Lecture** : l'option des écoles privées se juge sur `private_sheet` ÷
+  `eef_private_info_opened`, et la ligne du catalogue sur `eef_private_info_opened`
+  (`entry` = `catalog_empty`) ÷ `eef_help_card_shown` (`help_step` = `private_note`) — pas
+  contre la carte d'aide du catalogue vide, dont le bouton plein n'est pas comparable à un
+  lien.
+- **Ce qui n'est JAMAIS mesuré** : le texte du message, le pays, la raison pour laquelle un
+  compte n'a pas la ligne (un compte suspendu ne produit ni `private_note` ni
+  `eef_private_info_opened`).
 
 ### Lire le catalogue sans se tromper (build 54)
 

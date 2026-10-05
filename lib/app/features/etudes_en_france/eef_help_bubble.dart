@@ -11,6 +11,7 @@ import '../../core/utils/whatsapp_utils.dart';
 import 'eef_entry.dart';
 import 'eef_help_card.dart';
 import 'eef_help_line.dart';
+import 'eef_private_schools_sheet.dart';
 
 /// L'écran porteur de la bulle. La valeur de [key] est la propriété `surface` de
 /// l'analytique (`hub` ou `catalog`) ; [placeKey] est le texte qui dit, DANS le
@@ -64,6 +65,20 @@ enum EefBubbleOption {
     neutralLabel: false,
     hasNeutral: false,
   ),
+
+  /// « Je veux en savoir plus sur les écoles privées » : n'ENVOIE rien, ouvre la
+  /// feuille d'information (`eef_private_schools_sheet.dart`), qui porte, elle,
+  /// le bouton vers WhatsApp. Proposée seulement si l'interrupteur serveur
+  /// `eefPrivateSchools` est ouvert ET que le compte n'est pas suspendu ; elle
+  /// n'a pas de variante neutre, donc le menu à deux lignes d'un compte suspendu
+  /// ne la montre jamais.
+  private(
+    id: 'bubble_private',
+    stem: 'private',
+    neutralLabel: false,
+    hasNeutral: false,
+    opensInfoSheet: true,
+  ),
   question(
     id: 'bubble_question',
     stem: 'question',
@@ -76,6 +91,7 @@ enum EefBubbleOption {
     required this.stem,
     required this.neutralLabel,
     required this.hasNeutral,
+    this.opensInfoSheet = false,
   });
 
   /// Identifiant stable : `help_step` de l'analytique, source du suivi WhatsApp.
@@ -90,6 +106,11 @@ enum EefBubbleOption {
   /// Une variante NEUTRE du message existe. Sans elle, le sujet n'est pas
   /// proposé à un compte suspendu (il parlerait d'un dossier à ouvrir).
   final bool hasNeutral;
+
+  /// Le sujet OUVRE une feuille d'information au lieu d'envoyer un message : la
+  /// tuile montre une pastille « Service KPB » à la place du message, et le tap
+  /// ne mesure aucun `eef_help_cta_tapped` (lire n'est pas écrire).
+  final bool opensInfoSheet;
 }
 
 /// Les libellés et les messages du menu : une seule porte vers les textes, pour
@@ -111,13 +132,30 @@ abstract final class EefBubbleMessages {
 
   /// Les sujets proposés. Un compte suspendu garde les seuls sujets qui ont une
   /// variante neutre.
-  static List<EefBubbleOption> optionsFor({required bool suspended}) =>
-      EefBubbleOption.values
-          .where((option) => !suspended || option.hasNeutral)
-          .toList(growable: false);
+  ///
+  /// [privateSchools] : l'interrupteur serveur des écoles privées (fermé par
+  /// défaut). Sans valeur, il est lu sur [RemoteFeatureFlags] ; le sujet est
+  /// alors le 4e du menu, entre « quelle formation choisir » et « une autre
+  /// question ».
+  static List<EefBubbleOption> optionsFor({
+    required bool suspended,
+    bool? privateSchools,
+  }) {
+    final withPrivate =
+        privateSchools ?? RemoteFeatureFlags.instance.eefPrivateSchoolsEnabled;
+    return EefBubbleOption.values
+        .where((option) => withPrivate || option != EefBubbleOption.private)
+        .where((option) => !suspended || option.hasNeutral)
+        .toList(growable: false);
+  }
 
   /// Le libellé d'un sujet.
   static String labelFor(EefBubbleOption option, {required bool suspended}) {
+    // Les textes des écoles privées vivent sous leur propre préfixe
+    // (`eef_help_private_*`), avec la feuille qu'ils ouvrent.
+    if (option == EefBubbleOption.private) {
+      return 'eef_help_private_option_label'.tr;
+    }
     final neutral = suspended && option.neutralLabel;
     return 'eef_help_bubble_${option.stem}_label${neutral ? '_neutral' : ''}'
         .tr;
@@ -147,8 +185,12 @@ abstract final class EefBubbleMessages {
     required bool suspended,
   }) {
     final effective = effectiveOption(option, suspended: suspended);
-    final key = 'eef_help_bubble_${effective.stem}_message'
-        '${suspended ? '_neutral' : ''}';
+    // Le message de la feuille des écoles privées (jamais celui d'un envoi direct
+    // depuis le menu : le sujet ouvre la feuille, qui le montre sous son bouton).
+    final key = effective == EefBubbleOption.private
+        ? 'eef_help_private_message'
+        : 'eef_help_bubble_${effective.stem}_message'
+            '${suspended ? '_neutral' : ''}';
     return key.trParams({'place': surface.placeKey.tr}).trim();
   }
 }
@@ -158,8 +200,16 @@ abstract final class EefBubbleMessages {
 class _BubblePick {
   const _BubblePick(this.option, this.message);
 
+  /// Le sujet des écoles privées : rien à envoyer, la feuille d'information
+  /// s'ouvre à la place du menu.
+  const _BubblePick.infoSheet()
+      : option = EefBubbleOption.private,
+        message = '';
+
   final EefBubbleOption option;
   final String message;
+
+  bool get opensInfoSheet => option.opensInfoSheet;
 }
 
 /// La bulle verte WhatsApp : un cercle de 56 dp dans le hub et le catalogue de
@@ -300,6 +350,21 @@ class _EefHelpBubbleState extends State<EefHelpBubble> {
       // elle.
       await route?.completed;
 
+      // Les écoles privées : le menu est fermé, la feuille d'information
+      // s'ouvre à sa place. Rien n'est mesuré comme un envoi (lire n'est pas
+      // écrire) : `eef_private_info_opened` part à l'ouverture, et c'est la
+      // feuille qui porte, elle, le bouton vers WhatsApp. Le garde `_sheetOpen`
+      // reste posé pendant toute la lecture.
+      if (pick.opensInfoSheet) {
+        if (!mounted) return;
+        await showEefPrivateSchoolsSheet(
+          context,
+          surface: surface,
+          entry: EefPrivateInfoEntry.bubble,
+        );
+        return;
+      }
+
       // Part AVANT l'ouverture de WhatsApp : `whatsapp_handoff` dit ensuite si
       // elle a réussi.
       EefHelp.analytics.tapped(
@@ -382,6 +447,14 @@ class _BubbleSheetState extends State<_BubbleSheet> {
   void _choose(EefBubbleOption option) {
     if (_picked) return;
     _picked = true;
+    // Les écoles privées ouvrent une feuille d'information et n'envoient rien :
+    // pas d'option « effective » (qui, pour un compte devenu suspendu entre-temps,
+    // enverrait le message de l'assistance sans que l'étudiant l'ait demandé).
+    // La feuille, elle, ne s'ouvre pas si la suspension est arrivée.
+    if (option.opensInfoSheet) {
+      Navigator.of(context).pop(const _BubblePick.infoSheet());
+      return;
+    }
     final suspended = EefHelp.isSuspended();
     // L'option EFFECTIVE, pas la tuile tapée : si la suspension est arrivée
     // entre l'ouverture de la feuille et ce tap, un sujet sans variante neutre
@@ -445,11 +518,15 @@ class _BubbleSheetState extends State<_BubbleSheet> {
                       option,
                       suspended: suspended,
                     ),
-                    message: EefBubbleMessages.messageFor(
-                      option,
-                      widget.surface,
-                      suspended: suspended,
-                    ),
+                    // Un sujet qui ouvre une feuille n'annonce pas de message :
+                    // il montre la pastille « Service KPB ».
+                    message: option.opensInfoSheet
+                        ? null
+                        : EefBubbleMessages.messageFor(
+                            option,
+                            widget.surface,
+                            suspended: suspended,
+                          ),
                     onTap: () => _choose(option),
                   ),
                   const SizedBox(height: KpbSpacing.sm),
@@ -521,20 +598,24 @@ class _TopicTile extends StatelessWidget {
 
   final EefBubbleOption option;
   final String label;
-  final String message;
+
+  /// Le message exact qui partira ; `null` pour un sujet qui ouvre une feuille.
+  final String? message;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.kpb;
+    final message = this.message;
     return Semantics(
       key: ValueKey('eef-help-bubble-option-${option.id}'),
       // Le libellé et le message sont lus ENSEMBLE : le message est ce qui
-      // partira, un lecteur d'écran doit le dire avant le tap.
+      // partira, un lecteur d'écran doit le dire avant le tap. Un sujet qui
+      // ouvre une feuille dit sa pastille (« Service KPB ») à la place.
       container: true,
       button: true,
       enabled: true,
-      label: '$label. $message',
+      label: '$label. ${message ?? 'eef_help_private_chip'.tr}',
       onTap: onTap,
       excludeSemantics: true,
       child: Material(
@@ -556,10 +637,14 @@ class _TopicTile extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 2),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
                     child: Icon(
-                      Icons.chat_rounded,
+                      // Un sujet qui n'envoie rien ne porte pas la bulle de
+                      // discussion des sujets qui ouvrent WhatsApp.
+                      message == null
+                          ? Icons.info_outline_rounded
+                          : Icons.chat_rounded,
                       size: 18,
                       color: KpbColors.actionPrimary,
                     ),
@@ -575,11 +660,17 @@ class _TopicTile extends StatelessWidget {
                               .copyWith(color: c.textPrimary),
                         ),
                         const SizedBox(height: KpbSpacing.xs),
-                        Text(
-                          message,
-                          style: KpbTextStyles.bodySm
-                              .copyWith(color: c.textSecondary),
-                        ),
+                        if (message == null)
+                          const Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: EefKpbServiceChip(),
+                          )
+                        else
+                          Text(
+                            message,
+                            style: KpbTextStyles.bodySm
+                                .copyWith(color: c.textSecondary),
+                          ),
                       ],
                     ),
                   ),

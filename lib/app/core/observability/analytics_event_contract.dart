@@ -128,6 +128,16 @@ abstract final class AnalyticsEventName {
   /// lit : bulle vue, menu ouvert, sujet choisi, envoi (`whatsapp_handoff`).
   static const eefBubbleOpened = 'eef_bubble_opened';
 
+  /// Les écoles privées (build 56) : la feuille d'information « Service KPB » a
+  /// été ouverte, depuis l'option de la bulle (`entry` = `bubble`) ou depuis la
+  /// ligne de l'état « aucun résultat » du catalogue (`entry` = `catalog_empty`).
+  /// Une seule propriété fermée, `entry`.
+  ///
+  /// Ouvrir une feuille n'est pas un envoi vers WhatsApp : il a donc son propre
+  /// événement et ne gonfle pas `eef_help_cta_tapped`, qui dit toujours « un
+  /// message part » (ici `help_step` = `private_sheet`, `variant` = `sheet`).
+  static const eefPrivateInfoOpened = 'eef_private_info_opened';
+
   /// Liste d'attente Karatou Premium. `premium_waitlist_joined` est la seule
   /// mesure directe de la demande pour le Pass — celle qui dira s'il vaut la
   /// peine d'être construit, et pour combien d'étudiants.
@@ -214,6 +224,10 @@ abstract final class AnalyticsParamKey {
   /// l'onboarding, et on ne mélange pas deux types sous une même clé de
   /// tableau de bord.
   static const helpStep = 'help_step';
+
+  /// Par quelle porte la feuille des écoles privées a été ouverte : `bubble` ou
+  /// `catalog_empty`. Un identifiant fermé, jamais un texte saisi.
+  static const entry = 'entry';
   static const surface = 'surface';
   static const variant = 'variant';
 

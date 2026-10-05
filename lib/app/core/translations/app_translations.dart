@@ -2086,6 +2086,47 @@ class AppTranslations extends Translations {
           'eef_help_bubble_copied': 'Copié',
           'eef_help_bubble_email':
               'Pas de WhatsApp ? Écris-nous à contact@kpbeducation.com',
+          // ── Les écoles privées (build 56, PR 3) ──────────────────────────────
+          // La feuille d'information « Service KPB », la ligne de l'état « aucun
+          // résultat » du catalogue et l'option du menu de la bulle. AUCUN
+          // montant, AUCUNE devise, AUCUN nom d'école ni de pays. La phrase de
+          // rémunération a SA clé (`eef_help_private_disclosure`) pour pouvoir
+          // être retirée sans toucher aux autres points ; le repli sur la phrase
+          // des frais (`..._fees_fallback`) n'est PAS affiché par défaut.
+          'eef_help_private_chip': 'Service KPB',
+          'eef_help_private_title':
+              'Les écoles privées : ce qu\'il faut savoir',
+          'eef_help_private_point_terms':
+              'Chaque école privée fixe ses propres conditions d\'admission, '
+                  'ses frais et son calendrier.',
+          'eef_help_private_point_fees':
+              'Les frais sont en général plus élevés que dans le public. '
+                  'Demande-les par écrit avant de t\'engager.',
+          'eef_help_private_point_fees_fallback':
+              'Les frais varient beaucoup d\'une école à l\'autre. '
+                  'Demande-les par écrit avant de t\'engager.',
+          'eef_help_private_point_steps':
+              'Les démarches officielles (admission, visa) dépendent de ton '
+                  'pays et de l\'école. Vérifie-les sur les sites officiels.',
+          'eef_help_private_point_status':
+              'KPB Education est un service privé d\'accompagnement, pas un '
+                  'service de l\'État.',
+          'eef_help_private_disclosure':
+              'KPB peut être rémunéré par certaines écoles.',
+          'eef_help_private_cta': 'En parler à un conseiller',
+          'eef_help_private_dismiss': 'Pas maintenant',
+          'eef_help_private_message_label': 'Message qui sera écrit :',
+          'eef_help_private_message':
+              'Bonjour KPB Education, je suis dans @place. J\'aimerais en savoir '
+                  'plus sur les écoles privées : conditions d\'admission, frais '
+                  'et calendrier.',
+          'eef_help_private_option_label':
+              'Je veux en savoir plus sur les écoles privées',
+          'eef_help_private_note_text':
+              'Les écoles privées ont d\'autres conditions et un autre '
+                  'calendrier.',
+          'eef_help_private_note_link':
+              'Les écoles privées : ce qu\'il faut savoir',
           'eef_hub_guest_body':
               'Crée ton compte pour enregistrer ton profil et demander à être '
                   'rappelé par un conseiller.',
@@ -5387,6 +5428,42 @@ class AppTranslations extends Translations {
           'eef_help_bubble_copied': 'Copied',
           'eef_help_bubble_email':
               'No WhatsApp? Write to us at contact@kpbeducation.com',
+          // ── Private schools (build 56, PR 3) ─────────────────────────────────
+          // The "KPB service" info sheet, the line in the catalogue's "no
+          // results" state and the option of the bubble menu. NO amount, NO
+          // currency, NO school or country name. The remuneration sentence has
+          // ITS OWN key (`eef_help_private_disclosure`) so it can be removed
+          // without touching the other points; the fees fallback
+          // (`..._fees_fallback`) is NOT displayed by default.
+          'eef_help_private_chip': 'KPB service',
+          'eef_help_private_title': 'Private schools: what to know',
+          'eef_help_private_point_terms':
+              'Each private school sets its own admission requirements, fees '
+                  'and calendar.',
+          'eef_help_private_point_fees':
+              'Fees are generally higher than at public universities. Ask for '
+                  'them in writing before you commit.',
+          'eef_help_private_point_fees_fallback':
+              'Fees vary a lot from one school to another. Ask for them in '
+                  'writing before you commit.',
+          'eef_help_private_point_steps':
+              'Official steps (admission, visa) depend on your country and the '
+                  'school. Check them on the official websites.',
+          'eef_help_private_point_status':
+              'KPB Education is a private support service, not a government '
+                  'service.',
+          'eef_help_private_disclosure': 'KPB may be paid by some schools.',
+          'eef_help_private_cta': 'Talk to an advisor',
+          'eef_help_private_dismiss': 'Not now',
+          'eef_help_private_message_label': 'Message that will be written:',
+          'eef_help_private_message':
+              'Hello KPB Education, I\'m in @place. I\'d like to know more about '
+                  'private schools: admission requirements, fees and calendar.',
+          'eef_help_private_option_label':
+              'I want to know more about private schools',
+          'eef_help_private_note_text':
+              'Private schools have different requirements and calendars.',
+          'eef_help_private_note_link': 'Private schools: what to know',
           'eef_hub_guest_body':
               'Create your account to save your profile and ask to be called '
                   'back by an advisor.',

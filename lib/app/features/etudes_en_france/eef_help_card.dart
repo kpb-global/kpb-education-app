@@ -123,6 +123,11 @@ abstract interface class EefHelpAnalytics {
   /// Le menu de la bulle d'aide a été ouvert (`eef_bubble_opened`). Une seule
   /// propriété : l'écran porteur (`hub` ou `catalog`).
   void bubbleOpened({required String surface});
+
+  /// La feuille d'information des écoles privées a été ouverte
+  /// (`eef_private_info_opened`). Une seule propriété : la porte (`bubble` ou
+  /// `catalog_empty`).
+  void privateInfoOpened({required String entry});
 }
 
 class _ServiceEefHelpAnalytics implements EefHelpAnalytics {
@@ -155,6 +160,10 @@ class _ServiceEefHelpAnalytics implements EefHelpAnalytics {
   @override
   void bubbleOpened({required String surface}) =>
       unawaited(AnalyticsService.instance.logEefBubbleOpened(surface: surface));
+
+  @override
+  void privateInfoOpened({required String entry}) => unawaited(
+      AnalyticsService.instance.logEefPrivateInfoOpened(entry: entry));
 }
 
 /// Cette étape a-t-elle déjà été comptée pendant la visite de l'écran ? La

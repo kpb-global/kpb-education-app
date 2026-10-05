@@ -701,9 +701,15 @@ void main() {
         // Tous les textes de la bulle de la build 56 (préfixe `eef_help_bubble_`) :
         // un texte de plus y est balayé sans qu'on ait à y penser.
         ...keys['fr']!.keys.where((k) => k.startsWith('eef_help_bubble_')),
+        // Les écoles privées (build 56, PR 3) : la feuille « Service KPB », la
+        // ligne du catalogue vide et l'option de la bulle (préfixe
+        // `eef_help_private_`). Le détail est dans eef_private_schools_test.dart.
+        ...keys['fr']!.keys.where((k) => k.startsWith('eef_help_private_')),
       };
       expect(ours.where((k) => k.startsWith('eef_help_bubble_')), isNotEmpty,
           reason: 'le balayage de la bulle ne doit pas être vide');
+      expect(ours.where((k) => k.startsWith('eef_help_private_')), isNotEmpty,
+          reason: 'le balayage des écoles privées ne doit pas être vide');
       for (final locale in ['fr', 'en']) {
         for (final key in ours) {
           final value = keys[locale]![key]!;
@@ -790,6 +796,11 @@ void main() {
         '`bubble_choose`',
         '`bubble_question`',
         '`eef_bubble_opened`',
+        // Les écoles privées (PR 3) : l'option de la bulle n'est PAS un envoi
+        // (`bubble_private` n'est jamais un `help_step`), la feuille l'est.
+        '`eef_private_info_opened`',
+        '`private_sheet`',
+        '`private_note`',
       ]) {
         expect(doc, contains(needle), reason: '$needle absent du contrat');
       }

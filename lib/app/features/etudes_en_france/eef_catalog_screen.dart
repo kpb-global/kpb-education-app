@@ -17,6 +17,7 @@ import 'eef_help_bubble.dart';
 import 'eef_help_card.dart';
 import 'eef_help_line.dart';
 import 'eef_official_links.dart';
+import 'eef_private_schools_sheet.dart';
 
 /// Le catalogue « Études en France », cherché SUR LE SERVEUR.
 ///
@@ -330,7 +331,11 @@ class _Results extends StatelessWidget {
   ///
   /// [help] est la carte d'aide de l'état, posée entre l'état et les mentions :
   /// c'est le moment où l'étudiant n'a plus rien à faire seul.
-  Widget _stateWithNotice(Widget state, {EefHelpStep? help}) {
+  ///
+  /// [extra] est une ligne secondaire posée SOUS la carte d'aide et AVANT la
+  /// mention des données (jamais dans la zone d'attribution) : elle se cache
+  /// d'elle-même, sans laisser de marge, quand elle n'a pas lieu d'être.
+  Widget _stateWithNotice(Widget state, {EefHelpStep? help, Widget? extra}) {
     return ListView(
       controller: scroll,
       padding: EdgeInsets.fromLTRB(
@@ -345,6 +350,7 @@ class _Results extends StatelessWidget {
           EefHelpCard(step: help),
           const SizedBox(height: KpbSpacing.md),
         ],
+        if (extra != null) extra,
         const EefDataNotice(),
       ],
     );
@@ -425,6 +431,11 @@ class _Results extends StatelessWidget {
           onAction: controller.clearFilters,
         ),
         help: EefHelpStep.catalogEmpty,
+        // Le moment où l'étudiant se croit écarté (« rien ne correspond ») : une
+        // ligne lui dit qu'il existe un autre type d'établissement, avec ses
+        // limites. Ici seulement — pas dans « rien n'est publié ». Elle n'existe
+        // que si le serveur l'a ouverte et pour un compte non suspendu.
+        extra: const EefPrivateSchoolsNote(),
       );
     }
 
