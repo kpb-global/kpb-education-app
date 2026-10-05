@@ -113,6 +113,68 @@ void main() {
         expect(step, contains(r'if [ "${#POSTHOG_API_KEY}" -lt 40 ]'));
       });
 
+      // Le 04/10/2026, une build iOS est partie avec une clé PostHog DOUBLÉE
+      // (deux fois la même clé, 96 caractères) : préfixe `phc_` et plus de 40
+      // caractères, donc acceptée par l'ancien contrôle. Le préflight iOS refuse
+      // maintenant tout ce qui n'est pas `^phc_[A-Za-z0-9]{30,60}$` ; le job
+      // Android doit refuser exactement la même chose. On JOUE donc l'étape.
+      test('iOS et Android partagent la même expression de clé', () {
+        const rule = r'^phc_[A-Za-z0-9]{30,60}$';
+        expect(iosPreflight, contains(rule));
+        expect(_stepBlock(ci, 'Verify PostHog project key'), contains(rule));
+      });
+
+      group('le job AAB joué sur des clés fabriquées', () {
+        // Extrait le script `run: |` de l'étape et le déduit de son indentation.
+        String script() {
+          final step = _stepBlock(ci, 'Verify PostHog project key');
+          final lines = step.split('\n');
+          final at = lines.indexWhere((l) => l.trim() == 'run: |');
+          expect(at, isNot(-1));
+          final body = lines.sublist(at + 1);
+          final indent = body.firstWhere((l) => l.trim().isNotEmpty).length -
+              body.firstWhere((l) => l.trim().isNotEmpty).trimLeft().length;
+          return body
+              .map((l) =>
+                  l.length >= indent ? l.substring(indent) : l.trimLeft())
+              .join('\n');
+        }
+
+        ProcessResult run(String key) => Process.runSync(
+              'bash',
+              ['-c', script()],
+              environment: {'POSTHOG_API_KEY': key},
+            );
+
+        const single = 'phc_rk9a5wRGbWJeoHxiuB2ppA7ZHzqSyk7uvMkSkkzP4Ckz';
+
+        test('une clé plausible passe', () {
+          expect(run(single).exitCode, 0, reason: '${run(single).stderr}');
+        });
+
+        test('une clé DOUBLÉE est refusée', () {
+          final doubled = '$single$single';
+          expect(doubled.length, 96);
+          final result = run(doubled);
+          expect(result.exitCode, isNot(0),
+              reason: 'la clé doublée de la build iOS du 04/10 doit rougir');
+          expect('${result.stdout}${result.stderr}', isNot(contains(single)),
+              reason: 'la clé ne doit jamais être imprimée');
+        });
+
+        test('vide, sans préfixe, trop courte et caractères interdits', () {
+          for (final key in [
+            '',
+            'pk_$single',
+            'phc_court',
+            '${single}_x y',
+            '$single\n$single',
+          ]) {
+            expect(run(key).exitCode, isNot(0), reason: 'clé refusée : "$key"');
+          }
+        });
+      });
+
       test('le contrôle passe AVANT la construction de l\'AAB', () {
         final check = ci.indexOf('- name: Verify PostHog project key');
         final build = ci.indexOf('- name: Build signed production AAB');
