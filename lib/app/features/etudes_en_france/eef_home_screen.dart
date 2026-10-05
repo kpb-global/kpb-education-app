@@ -420,37 +420,14 @@ class _Hero extends StatelessWidget {
             style:
                 KpbTextStyles.body.copyWith(color: KpbColors.textOnDarkMuted),
           ),
-          if (suspended) ...[
-            const SizedBox(height: KpbSpacing.md),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.report_problem_outlined,
-                  size: 18,
-                  color: KpbColors.errorOnDark,
-                ),
-                const SizedBox(width: KpbSpacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'eef_suspended_notice'.tr,
-                        style: KpbTextStyles.bodySm
-                            .copyWith(color: KpbColors.errorOnDark),
-                      ),
-                      EefOfficialLink(
-                        url: EefCalendar.suspensionSourceFor(country),
-                        labelKey: 'eef_official_suspension_link',
-                        color: KpbColors.errorOnDark,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ] else if (timing != null) ...[
+          // 05/10/2026 — plus d'avertissement de suspension dans le héros
+          // (décision du propriétaire : un étudiant du Niger peut mener sa
+          // procédure depuis un autre pays). La suspension REMPLAÇAIT la date ;
+          // elle continue de la remplacer par RIEN, jamais par « ouverture le
+          // 1er octobre ». L'aide, elle, reste en variante neutre.
+          if (suspended)
+            ...[]
+          else if (timing != null) ...[
             const SizedBox(height: KpbSpacing.md),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

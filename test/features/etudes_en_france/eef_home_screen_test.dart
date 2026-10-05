@@ -215,15 +215,21 @@ void main() {
       expect(find.text('eef_suspended_notice'.tr), findsNothing);
     });
 
-    testWidgets('un étudiant nigérien lit la mise en garde, PAS la date',
+    // 05/10/2026 — décision du propriétaire : plus d'avertissement jaune dans le
+    // hub. La suspension REMPLAÇAIT la date ; sans l'avertissement, le héros ne
+    // montre ni l'un ni l'autre (jamais « ouverture le 1er octobre » à un compte
+    // dont le pays est suspendu).
+    testWidgets('un étudiant nigérien ne lit NI l\'avertissement NI la date',
         (tester) async {
       stubInterest(null);
       await pump(tester, country: 'Niger');
 
-      expect(find.text('eef_suspended_notice'.tr), findsOneWidget);
-      expect(find.text('Voir la source officielle'), findsOneWidget);
+      expect(find.text('eef_suspended_notice'.tr), findsNothing);
+      expect(find.text('Voir la source officielle'), findsNothing);
+      expect(find.byIcon(Icons.report_problem_outlined), findsNothing);
       expect(find.textContaining('1er octobre 2026'), findsNothing);
       expect(find.text('eef_deadline_varies_notice'.tr), findsNothing);
+      expect(find.text('Voir la plateforme officielle'), findsNothing);
     });
   });
 
