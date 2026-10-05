@@ -12,6 +12,11 @@
 > Les §1, §2.3, §3, §4 et §6 ci-dessous ont été remis à jour le 03/10 (état réel, décisions
 > juridiques du 03/10, séquencement). Les opérations d'envoi : `docs/mise-a-jour-55-checklist.md`.
 
+> **05/10/2026 — la build 56 est préparée** (bulle verte WhatsApp, visite guidée, feuille
+> « écoles privées », tous dormants : `docs/release-56-store-pack.md`, `docs/release-ledger.md`
+> « 56 — préparée, non archivée »). Elle ne change rien à l'état ci-dessous (espace fermé) ; elle
+> change le **choix du moment** (§ 6, point 5) et ajoute des décisions (§ 6, point 7).
+
 > Établi le 02/10/2026, corrigé le 03/10/2026 : la 2.3.0 (54) n'a jamais été soumise, la
 > 2.3.0 (55) la remplace. Complète `docs/runbook-ouverture-espace-reel.md` (le mode
 > opératoire) : ce fichier dit **où on en est, ce qui manque, dans quel ordre**. Rien
@@ -28,6 +33,7 @@
 | Actions `eef-space-on` / `-off` | Corrigées par **#304**, fusionnée le 02/10 (`bf750c2`) : le job attend que l'API recréée réponde, et « Prouver l'état de l'espace » s'exécute enfin. Aucun déploiement requis (workflow seulement) |
 | Préflight de release | Le run du 02/10 (37016398211, `ref=main` = `ebec041`, `requires-new`, dérogation 24 h) portait sur la 54 : **à refaire pour la 55**, sur son SHA de release, en `tolerates-old` (`docs/mise-a-jour-55-checklist.md`, étape 4). Un run sur `47a1295` avait échoué par construction : la production était EN AVANCE du commit de la build, cas que le préflight ne modélise pas — à éviter en ne déployant pas le backend d'un commit postérieur au SHA de release avant le préflight |
 | Questions de procédure | **Tranchées** le 02/10 (« tout valider ») et **appliquées en production** le 02/10 : `eef-reconcile` a réaligné 3 834 formations publiées dans 70 établissements (run 37014663792), dont 57 changements de procédure ; simulation de contrôle : 0 à réaligner |
+| Build 56 | **Préparée, non archivée** (`docs/release-ledger.md`) : porte la bulle, la visite et la feuille « écoles privées », derrière `eefSpace` et deux interrupteurs fermés (`eefHelpBubble`, `eefPrivateSchools`). Aucune n'est dans les boutiques |
 | Juridique | **Tranché le 03/10/2026** : les quatre décisions du § 6 (lien « Me retirer », phrase du héros, annonce à tous, EEF-UX-15) |
 
 ## 2. Ce qui bloque l'ouverture
@@ -96,7 +102,7 @@ limite mémoire du conteneur.
 | Précondition | État |
 |---|---|
 | Corrections de procédure appliquées en production (`eef-reconcile`) | ✅ 02/10 : 3 834 réalignées, 0 signalée ; recherche servie DAP blanche 3 076 · DAP jaune 29 · Études en France 6 804 · Parcoursup 1 · hors procédure 119 (total 10 029 inchangé, catalogue général 69 / 634 inchangé) |
-| La build qui contient le hub (**55**) en vente sur les deux stores, puis adoptée | ⏳ à archiver puis soumettre : la 54 n'a jamais été envoyée |
+| La build qui contient le hub (**55**, ou la **56** qui la reprend) en vente sur les deux stores, puis adoptée | ⏳ à archiver puis soumettre : la 54 n'a jamais été envoyée. Ouvrir avec la 55 ou attendre la 56 : § 6, point 5 |
 | Backend porteur de la build (`eef-catalog-attribution.js`) | ✅ `0641601` (inclut `ebec041`) |
 | Catalogue publié, recherche qui répond | ✅ 10 029 |
 | Héros du hub (`eef_hub_hero_body`) validé par le juridique | ✅ 03/10 : la phrase sur Campus France est validée **telle quelle** |
@@ -124,6 +130,9 @@ du § 2.1 sont appliquées. L'**annonce** vient après l'ouverture (§ 4).
    (`eefSpace` → `true`) avant toute autre action.
 4. Sur un téléphone avec la **55 du store** (pas TestFlight) : tuer et relancer l'app → le
    hub s'affiche ; sur une 53 → la vitrine. Chercher « médecine » (badge « Accès santé »).
+   Avec la **56**, la première ouverture du hub montre la **visite guidée** (elle n'a pas
+   d'interrupteur) ; la bulle et la feuille « écoles privées » attendent leurs propres
+   actions (`docs/runbook-ouverture-espace-reel.md`).
 5. Pendant l'heure qui suit : pas d'erreur `eef_catalog_failed` dans l'analytique (le
    connecteur PostHog doit être ré-autorisé pour que je puisse le lire).
 
@@ -177,7 +186,8 @@ elle, n'en dit rien.
 ## 5. Après l'ouverture
 
 Les indicateurs du runbook (§ « Après l'ouverture ») : `eef_space_viewed`,
-`eef_catalog_searched`, `eef_help_cta_tapped` par `help_step`, `eef_catalog_failed` ≈ 0 ;
+`eef_catalog_searched`, `eef_help_cta_tapped` par `help_step`, `eef_catalog_failed` ≈ 0 ; avec
+la 56, `eef_bubble_opened`, `eef_tour_shown` / `eef_tour_completed`, `eef_private_info_opened` ;
 déclarations d'intérêt dans l'admin ; à J+7, la part de recherches sans résultat.
 `eef:check-sources` à refaire toutes les deux semaines (rapport valable 14 jours).
 
@@ -198,7 +208,17 @@ déclarations d'intérêt dans l'admin ; à J+7, la part de recherches sans rés
    4. **EEF-UX-15** (découpler ou assumer le couplage profil / consentement) **ne se pose pas
       pour la 55** : aucune sélection de formations n'exige de profil déclaré.
 5. **Le moment** : ouvrir quand la **55** est en vente sur les deux stores **et adoptée**, et
-   annoncer ensuite. **Le seuil d'adoption n'est pas défini** dans le dépôt (part des sessions
+   annoncer ensuite. **Avec la 56 en vue** : ouvrir avec la 55 si elle est approuvée avant que la
+   56 soit prête (le catalogue et les aides servent tout de suite ; bulle et visite arrivent à
+   la mise à jour) ; si la 56 est proche (environ 3 semaines), attendre est défendable pour une
+   première impression complète — décision (f) du pack de la 56. **Le seuil d'adoption n'est pas défini** dans le dépôt (part des sessions
    en 2.3.0 (55) dans PostHog, par exemple) : à fixer avant le jour J.
 6. **Archiver, soumettre et faire approuver la 55** : `docs/mise-a-jour-55-checklist.md`. Aucune
    étape de distribution ne se fait sans le feu vert explicite du propriétaire.
+7. **Les décisions de la 56** (`docs/release-56-store-pack.md` §7), avant d'allumer
+   `eefHelpBubble` et `eefPrivateSchools` : (a) KPB est-il rémunéré par des écoles privées ?
+   (b) Niger : aucune mention d'école privée (retenu) ; (c) « frais en général plus élevés que
+   dans le public » ou son repli ; (d) qui répond au +33768674292, quand, étiquettes WhatsApp
+   Business et message d'absence ; (e) XC-06 et D5 avant la soumission ; (f) ouvrir avec la 55
+   ou attendre la 56 ; (g) version marketing de la 56 selon l'état de la 55 dans App Store
+   Connect (ITMS-90062). (a) et (c) portent sur des textes **compilés** : avant l'archive.

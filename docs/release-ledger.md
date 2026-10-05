@@ -296,6 +296,65 @@ valable : lire « 55 » là où la fiche écrit « 54 ») et `docs/device-qa-bui
 (aides, retrait, Niger, anglais), `docs/CONSOLE_ANSWERS.md` §0quater (déclarations de
 console ; lire « 55 » pour « 54 ») et `docs/eef-consent-v1.md` (questions juridiques).
 
+### 56 — préparée, non archivée
+
+**Statut au 05/10/2026 : le code et les papiers de la 56 sont prêts ou en voie de l'être ; aucune
+archive n'existe, aucun envoi n'a eu lieu, et `pubspec.yaml` porte toujours `2.3.0+55`.** Le numéro
+56 n'est ni consommé ni courant : cette section est un ticket, pas une ligne du registre. Elle ne
+change ni la version courante ni les numéros pris, et le test `test/release/build_number_test.dart`
+veille à ce qu'aucune ligne « 56 » ne se glisse parmi les numéros consommés ou sous « Courant »
+avant l'archive.
+
+**Ce que la 56 ajoute** (tout est derrière `features.eefSpace`, éteint en production ; deux
+éléments ont en plus leur propre interrupteur serveur, **fermé par défaut** : clé absente,
+ancien backend et repli compilé valent « faux ») :
+- **Interrupteurs** `features.eefHelpBubble` et `features.eefPrivateSchools` (#319), actions
+  `vps-ops` `eef-bubble-on` / `-off` et `eef-private-schools-on` / `-off`, simulation par défaut
+  pour les `-on` (`docs/runbook-ouverture-espace-reel.md`).
+- **Bulle verte WhatsApp** (#320) : hub et catalogue seulement, 4 sujets (5 avec les écoles privées ; 2, neutres, pour un
+  compte au pays suspendu), messages statiques sans donnée personnelle, par le chemin commun
+  `openWhatsAppOrToast`.
+- **Feuille « écoles privées »** (#321), livrée éteinte : ligne de l'état « aucun résultat » du
+  catalogue et option de la bulle ; **rien pour un compte au pays suspendu** (Niger). Elle ne
+  transmet rien aux écoles ; elle n'utilise ni la liste d'intérêt ni le profil EEF
+  (`docs/eef-consent-v1.md`, note de la 56).
+- **Visite guidée** du hub (#322, **fusionnée avant la soumission**) : 3 ou 4 cartes à la première
+  ouverture, rejouable par « ? », état local à l'appareil. Elle n'a pas d'interrupteur à elle.
+- **Outillage** : le préflight iOS refuse désormais une clé PostHog **doublée** ou mal formée
+  (`scripts/preflight-ios-archive.sh`, mode `--posthog-only` juste après `flutter build ios`) ;
+  la checklist de la 55 est corrigée (porte « 24 heures » du préflight, saisie de la clé).
+
+**Rien de visible hors drapeau**, donc rien dans les notes de version de la boutique : le
+relecteur Apple voit la vitrine, comme avec la 55. **Aucune dépendance** : `git diff` est vide
+entre `6e0ea8d` (juste avant la 56) et la tête de la branche des papiers sur `pubspec.yaml`,
+`pubspec.lock`, `ios/` et `android/` — à re-prouver sur le SHA final
+(`docs/release-56-store-pack.md` §6).
+
+**À la préparation de l'archive** (pas avant, et jamais sans le feu vert du propriétaire) : poser
+`version:` dans `pubspec.yaml` (build **56** ; nom marketing selon l'état de la 55 dans App Store
+Connect, règle ITMS-90062 — décision (g) du pack), remplacer ce ticket par une ligne `56` sous
+**Courant**, déplacer la 55 sous **Consommés** si elle a été téléversée, et reporter la version
+dans les deux préflights (`EXPECTED_BUILD` / `EXPECTED_VERSION` côté iOS,
+`EXPECTED_VERSION_CODE` côté Android) et dans les documents de la 55 que la 56 reprend.
+
+**Couplage backend.** La 56 lit des clés que seul un backend postérieur à `0641601` sert
+(`eefHelpBubble`, `eefPrivateSchools`, #319) : elle les lit « faux » si elles manquent, donc
+`tolerates-old` reste vrai pour le **fonctionnement**. Mais `backend/` et `docker-compose.yml`
+ont changé depuis `0641601` : la condition de contrôle de `tolerates-old` (« `git diff --stat`
+ne doit rien afficher ») ne tiendra pas, et **allumer** les deux interrupteurs exige que ce
+backend soit déployé. À arbitrer à l'archive : déployer le backend au SHA de la 56 puis lancer
+le préflight en `requires-new` — **jamais un commit postérieur au SHA de release de la 55 avant
+le préflight de la 55**.
+
+**Décisions encore ouvertes** (`docs/release-56-store-pack.md` §7) : rémunération par des écoles
+privées (clé `eef_help_private_disclosure`), Niger, phrase sur les frais ou son repli, qui répond
+au +33768674292, XC-06 et D5, ouvrir avec la 55 ou attendre la 56, version marketing. Les deux
+premières portent sur des **textes compilés** : à trancher **avant l'archive**.
+
+**Papiers** : `docs/release-56-store-pack.md` (notes de revue recomptées, réponses de console,
+décisions), `docs/device-qa-build56.md` (recette appareil, jamais jouée),
+`docs/CONSOLE_ANSWERS.md` (ligne WhatsApp / Meta).
+
 ### Ce que 52 embarque
 
 - **Liste d'attente Karatou Premium (PR #258).** Point 8 de la revue du build

@@ -3,7 +3,8 @@
 > **État et blocages : `docs/ouverture-espace-eef.md` (corrigé le 03/10/2026).** La 54 n'a
 > **jamais été envoyée** aux boutiques ; la **2.3.0 (55)** la remplace et porte le hub.
 > Dans ce runbook, « la 54 » (écrit avant ce constat) désigne **la build qui contient le hub,
-> c'est-à-dire la 55**. Les corrections de procédure du catalogue publié ont été appliquées
+> c'est-à-dire la 55** — et la **56**, préparée à sa suite, qui la reprend et y ajoute la bulle,
+> la visite et les écoles privées (voir « Bulle… » plus bas). Les corrections de procédure du catalogue publié ont été appliquées
 > le 02/10 (`eef-reconcile`, #305) ; le juridique est tranché depuis le 03/10.
 
 > **Ce que ce runbook couvre.** Le passage de l'état de lancement (vitrine
@@ -33,7 +34,7 @@
 
 | # | Précondition | Comment le vérifier |
 |---|---|---|
-| 1 | **La build qui contient le hub (la 55) est en vente sur les deux stores** et adoptée par la majorité | App Store Connect / Play Console ; PostHog (version de l'app). Tant qu'elle n'est pas majoritaire, ouvrir l'espace ne profite qu'à une minorité — les 49 à 53 gardent la vitrine. Le seuil d'adoption n'est pas fixé dans le dépôt (`docs/ouverture-espace-eef.md` § 6). |
+| 1 | **La build qui contient le hub (la 55, ou la 56 si elle la rattrape) est en vente sur les deux stores** et adoptée par la majorité | App Store Connect / Play Console ; PostHog (version de l'app). Tant qu'elle n'est pas majoritaire, ouvrir l'espace ne profite qu'à une minorité — les 49 à 53 gardent la vitrine. Le seuil d'adoption n'est pas fixé dans le dépôt (`docs/ouverture-espace-eef.md` § 6). |
 | 2 | **Le backend est au commit de FUSION de la branche build 54** — celui qui contient `eef-catalog-attribution.ts`, les audiences `eef_interest` / `all_students_except_countries` et les clés `/config/app` (`eefCatalog`, `platformUrl`, `suspendedSources`, `recommendedVersion`). **Pas `95440db`** : ce SHA porte la recherche et le `PATCH` mais ni la mention de paternité du catalogue ni les audiences. | `GET /api/health/version` → `sha` ; `deploy.yml` `scope=full`. Migration additive `20260930120000_eef_search_text_and_acronym` (`Program.searchText`, `Institution.acronym`) : `prisma migrate status` ne liste rien en attente. `eef-space-on` **refuse** désormais d'écrire si le conteneur ne porte pas `eef-catalog-attribution.js`, et le workflow vérifie après coup que `/config/app` sert `eefCatalog` et `platformUrl`. |
 | 3 | **Le catalogue est importé** (lignes inactives) et ses index sont remplis | `vps-ops` → `eef-import` : d'abord `dry_run` coché (lit les 4 passes : import, cycles, admission, **recherche**), puis décoché. Un second passage ne doit plus rien créer. |
 | 4 | **Le catalogue est publié** (au minimum un établissement pilote) | Deux voies, même service, même plan. **(a)** Admin → « Publication EEF » : plan → simulation → application, un établissement à la fois, sous le nom du vérificateur connecté. **(b)** En une fois, par délégation du propriétaire : `vps-ops` → `eef-publish` (simulation, puis total saisi) — voir `docs/eef-publication-deleguee.md`. Dans les deux cas : `GET /api/etudes-en-france/search` → `total > 0`. `.github/scripts/db-info.sql` §7 et §8 (colonne `publiees`) donnent le décompte, le §11 dit si le texte cherchable est comblé, le §12 audite l'intégrité des lignes. |
@@ -63,7 +64,9 @@
      entrée par pays suspendu ;
    - `eefCatalog.updatedAt` → le jour du dernier import.
 4. **Contrôler sur appareil** (une 53 et une 54) : la 53 montre la vitrine ; la 54
-   montre le hub. Sur la 54 : ouvrir le catalogue, chercher le nom du pilote,
+   montre le hub. **Avec la 56**, une installation neuve montre en plus la **visite guidée** à la
+   première ouverture du hub (3 cartes : la carte « bulle » n'existe qu'une fois
+   `eefHelpBubble` allumé) ; la visite **n'a pas d'interrupteur** : elle suit `eefSpace`. Sur la 54 : ouvrir le catalogue, chercher le nom du pilote,
    vérifier la carte (université, ville, procédure), le pied de page (licence,
    non-affiliation), puis « Mon profil Études en France » → Modifier / Me retirer.
 5. **Un compte du Niger** (ou un profil dont le pays est dans la liste) : le hub
@@ -82,9 +85,19 @@ et ancien backend ne voient rien.
 | `features.eefHelpBubble` | `KPB_EEF_HELP_BUBBLE_ENABLED` | `eef-bubble-on` | `eef-bubble-off` |
 | `features.eefPrivateSchools` | `KPB_EEF_PRIVATE_SCHOOLS_ENABLED` | `eef-private-schools-on` | `eef-private-schools-off` |
 
+**Ce que l'étudiant de la 56 voit, selon les interrupteurs.** `eefSpace` seul : le hub, la
+visite (première ouverture) et rien d'autre de nouveau. + `eefHelpBubble` : la bulle verte dans
+le hub et le catalogue (4 sujets, ou 2 neutres pour un compte au pays suspendu, **bulle toujours
+présente pour lui**). + `eefPrivateSchools` : la ligne du catalogue vide et l'option de la bulle
+(qui devient le 5e sujet), **jamais** pour un compte au pays suspendu. Deux textes de la feuille sont **compilés** (phrase
+de rémunération, phrase sur les frais) : les retirer ou les changer demande une build, pas une
+action serveur — `eef-private-schools-off` ne fait que tout fermer.
+
 **Ordre d'ouverture.** 1. `eef-space-on` (section « Ouvrir » ci-dessus). 2. `eef-bubble-on`.
 3. `eef-private-schools-on` — **seulement après la validation juridique** (phrase sur la
-rémunération, phrase sur les frais, Niger) et, de préférence, quelques jours après le hub pour
+rémunération, phrase sur les frais, Niger : décisions a, b, c de `docs/release-56-store-pack.md`
+§7), et **`eef-bubble-on` seulement quand une personne est nommée pour répondre au
++33768674292** (décision d) et, de préférence, quelques jours après le hub pour
 ne pas mêler les signaux. **Fermeture dans l'ordre inverse** : `eef-private-schools-off`, puis
 `eef-bubble-off`, puis `eef-space-off` si l'espace lui-même doit se refermer. Chaque retour
 arrière est indépendant : fermer la bulle ne ferme pas l'espace.
@@ -178,6 +191,7 @@ restent en base ; rien n'est perdu.
 | Quand | Quoi |
 |---|---|
 | J+1 | `eef_space_viewed`, `eef_hub_tile_opened`, `eef_catalog_searched`, `eef_help_card_shown` / `eef_help_cta_tapped` (taux de clic par `help_step`) (PostHog / Firebase) ; **`eef_catalog_failed` doit rester ≈ 0** (sinon une panne se lit « personne ne cherche »). Voir `docs/analytics-event-contract.md`. |
+| J+1 (56) | Bulle et visite : `eef_help_card_shown` (`help_step` = `bubble`), `eef_bubble_opened`, `eef_help_cta_tapped` (`bubble_*`), `eef_tour_shown` / `eef_tour_completed`, `eef_private_info_opened` (`docs/analytics-event-contract.md`). Lire la **cannibalisation** : total des `whatsapp_handoff` de source `eef_help_*` par session de hub avant et après la bulle ; `whatsapp_handoff` **surévalue** les conversations (étiquettes WhatsApp Business). **Revue humaine à 14 jours** après l'ouverture. |
 | J+1 | Admin → liste d'intérêt : les déclarations arrivent. `consentVersion = eef-consent-v1` se lit dans l'**export CSV** (`export.csv`), pas dans la liste. |
 | J+7 | Ratio recherches sans résultat (`result_count = 0`) : croiser avec `catalog_published`. Beaucoup de `0` avec `catalog_published = 1` ⇒ le catalogue publié est trop étroit pour la demande : publier d'autres établissements. |
 | Semaine 2 | Décider de la build suivante (fiche formation, sélection, checklist, projet d'études — numéro non décidé : la 55 est celle du hub) sur ces chiffres. |

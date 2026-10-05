@@ -19,6 +19,10 @@
 > fusionner : le SHA à archiver est le dernier commit de `main` après elles, dont les quatre CI
 > sont vertes (étape 0).
 >
+> **Pour la 56** : le flux est le même ; ce qu'elle ajoute (notes de revue, décisions, recette) est
+> dans `docs/release-56-store-pack.md` et `docs/device-qa-build56.md`. Les versions attendues
+> (`2.3.0 (55)` ci-dessous) sont à remplacer à la préparation de son archive.
+>
 > **🔒 = étape de distribution.** Archive, AAB importé, IPA envoyée, soumission : **aucune
 > ne se fait sans le feu vert explicite du propriétaire, donné pour cette étape.** Le reste
 > (lire, comparer, lancer un préflight en lecture seule) se fait librement.
@@ -197,13 +201,62 @@ contient du travail en cours (`git status`), et le contrôle ci-dessous exige un
 cd ../kpb-release-55
 test "$(git rev-parse HEAD)" = "$RELEASE" && git status --porcelain     # rien à afficher
 flutter pub get && (cd ios && pod install)
+```
+
+**La clé PostHog : trois gestes, UN BLOC À LA FOIS.** Le 04/10/2026, deux constructions de la 55 ont
+été faites avec une clé fausse : la première avec une clé **vide**, la seconde avec une clé
+**doublée** (`phc_…phc_…`). Cause : des lignes collées d'un coup au moment de la saisie
+(`read -rs` ne lit qu'une ligne). **Ne jamais coller deux lignes d'un coup ici.** Chaque bloc
+ci-dessous se lance seul, et on attend son résultat avant de passer au suivant.
+
+*1. La saisie — seule dans sa commande.* Le terminal n'affiche rien pendant la frappe :
+coller **la clé et rien d'autre**, puis Entrée **une seule fois**.
+
+```bash
 read -rs POSTHOG_API_KEY && export POSTHOG_API_KEY      # la vraie clé phc_ du projet (jamais dans le dépôt, jamais collée dans un chat)
+```
+
+*2. Le contrôle AVANT la construction — la longueur, jamais la clé.* Comparer la longueur
+affichée à celle de la clé dans PostHog (*Project settings*, la clé du projet commence par
+`phc_`) : **elles doivent être égales**. Repère : la clé de la 55 faisait 48 caractères, mais la
+longueur n'est pas figée par ce dépôt — la forme `phc_` + 30 à 60 lettres ou chiffres est ce que
+le contrôle exige. **0** = vide ; **le double de la longueur attendue** = collée deux fois. Le
+verdict « forme OK » fait foi ; s'il n'est pas « forme OK » ou si la longueur n'est pas celle de
+PostHog, refaire la saisie (bloc 1) — ne pas construire.
+
+```bash
+printf '%s' "$POSTHOG_API_KEY" | grep -Eq '^phc_[A-Za-z0-9]{30,60}$' \
+  && echo "forme OK (${#POSTHOG_API_KEY} caractères)" \
+  || echo "FORME INVALIDE (${#POSTHOG_API_KEY} caractères) : refaire la saisie, ne pas construire"
+```
+
+*3. La construction — sans la saisie, sans autre ligne.*
+
+```bash
 flutter build ios --release \
   --dart-define=KPB_APP_ENV=prod \
   --dart-define=KPB_WHATSAPP_NUMBER=+33768674292 \
   --dart-define=POSTHOG_API_KEY="$POSTHOG_API_KEY"
 grep -E '^FLUTTER_BUILD_(NAME|NUMBER)=' ios/Flutter/Generated.xcconfig   # FLUTTER_BUILD_NAME=2.3.0 / FLUTTER_BUILD_NUMBER=55
 ```
+
+*4. Le contrôle APRÈS la construction — ce que la build a vraiment compilé.*
+`ios/Flutter/Generated.xcconfig` est **régénéré** par `flutter build` : c'est lui, et non la
+variable du terminal, qui dit quelle clé est partie dans le binaire. Le préflight décode
+`DART_DEFINES` en mémoire et ne montre que la longueur et le verdict :
+
+```bash
+scripts/preflight-ios-archive.sh --xcconfig ios/Flutter/Generated.xcconfig --posthog-only
+# → « POSTHOG_API_KEY : N caractères, une seule clé phc_ au format attendu — OK »
+#   (N = la longueur lue dans PostHog ; le verdict OK fait foi)
+```
+
+Il exige **une seule** définition `POSTHOG_API_KEY`, `phc_` suivi de 30 à 60 lettres ou chiffres
+(donc ni vide, ni doublée, ni avec une espace, un tiret ou un guillemet), et n'affiche jamais la
+clé. **Il refuse** une clé vide, absente, doublée (« la clé a été collée deux fois »), trop
+courte ou mal formée : dans ce cas, recommencer au bloc 1. Le contrôle `grep -c '^phc_'` plus bas
+**ne voit pas** une clé doublée (un seul `phc_` en début de ligne dans le binaire) : il ne
+remplace pas celui-ci.
 
 - **Aucun autre `flutter build` ni `flutter run` ensuite** (ils réécrivent
   `Generated.xcconfig`). Ne pas ajouter `KPB_API_BASE_URL` ni `KPB_EEF_SPACE_ENABLED`.
@@ -235,10 +288,41 @@ grep -E '^FLUTTER_BUILD_(NAME|NUMBER)=' ios/Flutter/Generated.xcconfig   # FLUTT
 
 Actions → **Release preflight (backend before mobile)** — ou, en ligne de commande :
 
+**Avant de lancer — la porte « 24 heures de stabilité » ne peut PAS passer.** Elle échoue
+**quelle que soit la date** (constaté le 03/10/2026, run 37163074707, `RELEASE` = `6e0ea8d` : « only
+5 successful scheduled probes in 24h; require at least 80 »), et ce n'est pas le redéploiement du
+backend qui en est la cause. `scripts/verify-uptime-window.sh` exige **au moins 80 sondes
+réussies** sur 24 h et un **trou maximal de 30 minutes** ; or la tâche planifiée
+`.github/workflows/uptime.yml` déclare `*/15 * * * *` mais GitHub ne l'exécute, sur ce dépôt,
+qu'environ **5 fois par jour** (d'après `gh run list --event schedule`, avec des trous de plus de 5 h).
+Aucune attente ne la rend vraie. La bonne marche est **`require_24h_stability=false`**, une
+dérogation **journalisée** par le workflow (« 24-hour uptime evidence was explicitly waived »),
+**après avoir vérifié que les sondes des 24 dernières heures sont toutes en succès** :
+
+```bash
+gh run list --workflow uptime.yml --event schedule --limit 30 --json createdAt,conclusion,status \
+  --jq '[.[] | select(.status == "completed" and .createdAt > (now - 86400 | todate))]
+        | {sondes: length, hors_succes: ([.[] | select(.conclusion != "success")] | length)}
+        | if .sondes < 3 or .hors_succes > 0
+          then error("preuve insuffisante : sondes=\(.sondes), hors_succes=\(.hors_succes)")
+          else . end'
+# attendu : un objet {sondes: ≈ 5, hors_succes: 0} ET aucune erreur. La commande ÉCHOUE si elle
+# voit moins de 3 sondes ou un seul échec. « sondes = 0 » n'est PAS une preuve : `gh` a déjà
+# rendu une liste vide alors que 4 à 5 sondes réussies existaient dans les 24 h (cause non
+# isolée) — relancer jusqu'à voir des sondes. Un échec réel dans les 24 h reste un échec : le
+# regarder (gh run view) avant de déroger.
+```
+
+Puis lancer le préflight **avec la dérogation** :
+
 ```bash
 gh workflow run release-preflight.yml --ref main \
-  -f ref="$RELEASE" -f backend_coupling=tolerates-old -f require_24h_stability=true
+  -f ref="$RELEASE" -f backend_coupling=tolerates-old -f require_24h_stability=false
 ```
+
+*Correctif de fond, à proposer en PR APRÈS l'archive (jamais sur `main` pendant une release en
+cours)* : des seuils réalistes (environ 4 sondes, trou maximal d'environ 8 h) ou une sonde
+externe fiable (`docs/DEPLOYMENT.md`). Tant qu'il n'est pas fait, `true` échoue toujours.
 
 Les trois champs du workflow :
 
@@ -248,16 +332,15 @@ Les trois champs du workflow :
   production soit un ancêtre de `RELEASE` (vérifié à l'étape 1) et laisse un avertissement
   « le déploiement couplé est dû » : il ne l'est pas ici, `backend/` n'ayant pas changé depuis
   `0641601` ;
-- `require_24h_stability` = `true`. Le backend a été redéployé le 03/10 à 17 h 06 UTC : une
-  sonde ratée pendant ce redéploiement peut faire échouer l'étape 24 h jusqu'au 04/10 vers
-  17 h 06 UTC. Si **seule** cette étape échoue, relancer avec `false` : la dérogation est
-  journalisée.
+- `require_24h_stability` = **`false`**, pour la raison ci-dessus. La dérogation est journalisée
+  dans le résumé du run ; la conserver avec la preuve du §5 du pack.
 
 Ce que le workflow vérifie (il échoue, il ne devine pas) : le SHA est atteignable depuis
 `main` ; les quatre CI sont vertes sur ce SHA ; `VPS_HEALTH_URL` répond ; la page `/app` sert la
 redirection vers la fiche de l'App Store (`id1128659292`) ; la porte de livraison publique
 passe ; un **heartbeat de sauvegarde** de moins de 8 h ; un **exercice de restauration isolé**
-de moins de 90 jours ; 24 h de sondes de disponibilité.
+de moins de 90 jours ; et, quand `require_24h_stability` est vrai, 24 h de sondes de
+disponibilité (inatteignable, voir plus haut : on déroge).
 
 Deux pièges : le heartbeat de sauvegarde ne se rafraîchit pas à la main — il tourne toutes les
 6 h à h+23 UTC, attendre le prochain si besoin ; l'exercice de restauration doit dater de moins
