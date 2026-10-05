@@ -88,12 +88,15 @@ void main() {
       );
 
   group('la vitrine', () {
-    testWidgets('un étudiant nigérien voit la source de la suspension',
+    // 05/10/2026 — décision du propriétaire : plus d'avertissement de suspension
+    // nulle part dans l'espace (vitrine, hub, catalogue). Un étudiant du Niger
+    // peut mener sa procédure depuis un autre pays.
+    testWidgets('un étudiant nigérien ne voit NI l\'avertissement NI la source',
         (tester) async {
       await pumpTeaser(tester, country: 'Niger', window: window());
 
-      expect(find.text('eef_suspended_notice'.tr), findsOneWidget);
-      expect(sourceLink, findsOneWidget);
+      expect(find.text('eef_suspended_notice'.tr), findsNothing);
+      expect(sourceLink, findsNothing);
     });
 
     testWidgets('un étudiant sénégalais ne voit PAS la source du Niger',
@@ -141,7 +144,7 @@ void main() {
       expect(platformLink, findsNothing);
     });
 
-    testWidgets('une suspension sans source servie n\'affiche aucun lien',
+    testWidgets('une suspension, avec ou sans source servie, n\'affiche rien',
         (tester) async {
       await pumpTeaser(
         tester,
@@ -149,13 +152,14 @@ void main() {
         window: window(sources: const {}),
       );
 
-      expect(find.text('eef_suspended_notice'.tr), findsOneWidget);
+      expect(find.text('eef_suspended_notice'.tr), findsNothing);
       expect(sourceLink, findsNothing);
     });
 
     for (final viewport in kpbPhoneViewports) {
       for (final scale in kpbTextScales) {
-        testWidgets('géométrie ${viewport.id} ×$scale — suspension + liens',
+        testWidgets(
+            'géométrie ${viewport.id} ×$scale — pays suspendu, sans avertissement',
             (tester) async {
           await pumpTeaser(
             tester,
@@ -164,7 +168,8 @@ void main() {
             viewport: viewport,
             textScale: scale,
           );
-          expect(sourceLink, findsOneWidget);
+          expect(find.text('eef_suspended_notice'.tr), findsNothing);
+          expect(sourceLink, findsNothing);
         });
       }
     }

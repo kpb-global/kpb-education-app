@@ -53,12 +53,6 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
   late final EefInterestController _controller;
   late final bool _isGuest;
 
-  /// La procédure est suspendue dans le pays de résidence de l'étudiant.
-  ///
-  /// Lu une fois au montage plutôt qu'à chaque `build` : la valeur dépend du
-  /// profil et de la fenêtre servie, dont aucun ne change pendant que l'écran
-  /// est à l'affiche.
-  late final bool _suspended;
   String? _country;
 
   @override
@@ -67,7 +61,6 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
     final app = Get.find<AppController>();
     _isGuest = app.isGuestMode;
     _country = app.profile?.countryOfResidence;
-    _suspended = EefCalendar.isSuspendedFor(_country);
     // `AppApiClient` n'est PAS enregistré dans GetX : il vit sur AppController,
     // qui l'a construit. Un `Get.find<AppApiClient>()` aurait levé au premier
     // montage réel — et jamais dans un test qui l'aurait injecté à la main.
@@ -166,7 +159,7 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
             KpbSpacing.xl,
           ),
           children: [
-            _EefHero(suspended: _suspended, country: _country),
+            _EefHero(country: _country),
             const SizedBox(height: KpbSpacing.lg),
             const _EefWhatItWillDo(),
             const SizedBox(height: KpbSpacing.lg),
@@ -203,10 +196,7 @@ class _EefTeaserScreenState extends State<EefTeaserScreen> {
 /// liste défilante, ne peut pas déborder : il n'y a plus de nombre à faire
 /// coïncider avec le rendu.
 class _EefHero extends StatelessWidget {
-  const _EefHero({required this.suspended, required this.country});
-
-  /// La procédure est suspendue dans le pays de l'étudiant.
-  final bool suspended;
+  const _EefHero({required this.country});
 
   /// Le pays de résidence tel qu'il est saisi, passé à [EefCalendar.timingLabel]
   /// pour que la décision « dire une date ou se taire » soit prise au même
@@ -219,9 +209,6 @@ class _EefHero extends StatelessWidget {
     // « la suspension remplace les dates » dans son propre corps ; la carte ne
     // l'avait pas. Elle vit maintenant dans `EefCalendar.timingLabel`, donc une
     // troisième surface ne peut plus l'oublier.
-    //
-    // `suspended` reste passé séparément parce que cet écran, lui, a quelque
-    // chose à afficher À LA PLACE : la mise en garde. La carte, elle, se tait.
     final timing = EefCalendar.timingLabel(country: country);
 
     return Container(
@@ -264,52 +251,19 @@ class _EefHero extends StatelessWidget {
             style:
                 KpbTextStyles.body.copyWith(color: KpbColors.textOnDarkMuted),
           ),
-          // ── Suspension : elle REMPLACE les dates, elle ne s'y ajoute pas ──
+          // ── Suspension : plus d'avertissement (05/10/2026) ──
           //
-          // Une date d'ouverture affichée à côté d'un « le service ne traite
-          // pas les dossiers » laisse l'étudiant choisir laquelle croire, et il
-          // choisira la date. Au Niger, la source officielle de l'ambassade dit
-          // que la dénonciation de la convention du centre qui hébergeait
-          // Campus France rend le traitement des dossiers impossible :
-          // l'ouverture nationale de la plateforme est exacte et sans effet
-          // pour lui. On dit donc l'un OU l'autre.
-          if (suspended) ...[
-            const SizedBox(height: KpbSpacing.md),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.report_problem_outlined,
-                  size: 18,
-                  color: KpbColors.errorOnDark,
-                ),
-                const SizedBox(width: KpbSpacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'eef_suspended_notice'.tr,
-                        style: KpbTextStyles.bodySm
-                            .copyWith(color: KpbColors.errorOnDark),
-                      ),
-                      // La source de ce que l'app affirme : une suspension
-                      // annoncée sans sa source est invérifiable.
-                      EefOfficialLink(
-                        url: EefCalendar.suspensionSourceFor(country),
-                        labelKey: 'eef_official_suspension_link',
-                        color: KpbColors.errorOnDark,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ]
+          // Décision du propriétaire : l'avertissement « le traitement des
+          // dossiers est suspendu » n'est plus affiché nulle part dans l'espace
+          // (vitrine, hub, catalogue) : un étudiant du Niger peut mener sa
+          // procédure depuis un autre pays, et le texte lui disait le contraire.
+          // La suspension REMPLAÇAIT les dates ; `EefCalendar.timingLabel` se
+          // tait toujours pour un pays suspendu, donc la vitrine ne dit alors ni
+          // l'un ni l'autre — jamais « ouverture le 1er octobre ».
           // Les dates n'apparaissent QUE si le serveur en a servi. Aucun repli,
           // aucune date calculée par une règle maison : une échéance inventée
           // est indistinguable d'une information pour qui la lit.
-          else if (timing != null) ...[
+          if (timing != null) ...[
             const SizedBox(height: KpbSpacing.md),
             Row(
               children: [

@@ -195,13 +195,15 @@ void main() {
     }
 
     // LE test de ce fichier : la suspension REMPLACE la date, elle ne s'y
-    // ajoute pas. Les deux côte à côte laisseraient l'étudiant choisir laquelle
-    // croire, et il choisirait la date.
-    testWidgets('un étudiant nigérien voit la mise en garde, PAS la date',
+    // ajoute pas. Depuis le 05/10/2026 (décision du propriétaire) l'avertissement
+    // n'est plus affiché nulle part : la vitrine ne dit alors NI la date NI la
+    // suspension — jamais « ouverture le 1er octobre » pour un pays suspendu.
+    testWidgets('un étudiant nigérien ne voit NI la mise en garde NI la date',
         (tester) async {
       await pumpFor(tester, 'Niger', suspended: ['Niger']);
 
-      expect(find.text('eef_suspended_notice'.tr), findsOneWidget);
+      expect(find.text('eef_suspended_notice'.tr), findsNothing);
+      expect(find.text('Voir la source officielle'), findsNothing);
       expect(find.textContaining('1er octobre 2026'), findsNothing);
       expect(find.textContaining('À partir du'), findsNothing);
     });

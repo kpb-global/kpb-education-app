@@ -70,7 +70,7 @@
    vérifier la carte (université, ville, procédure), le pied de page (licence,
    non-affiliation), puis « Mon profil Études en France » → Modifier / Me retirer.
 5. **Un compte du Niger** (ou un profil dont le pays est dans la liste) : le hub
-   ne montre **ni** la date **ni** l'avertissement de suspension (retiré dans la build 56 ; la 55 le montrait encore, avec le lien de la source).
+   ne montre **ni** la date **ni** l'avertissement de suspension (retiré partout dans la build 56 — vitrine, hub, catalogue ; la 55 le montrait encore, avec le lien de la source).
 
 ## Bulle « Une question ? » et écoles privées (build 56 et suivantes)
 
