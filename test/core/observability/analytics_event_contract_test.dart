@@ -22,6 +22,8 @@ void main() {
       AnalyticsEventName.eefHelpCtaTapped,
       AnalyticsEventName.eefBubbleOpened,
       AnalyticsEventName.eefPrivateInfoOpened,
+      AnalyticsEventName.eefTourShown,
+      AnalyticsEventName.eefTourCompleted,
     ];
     for (final e in events) {
       expect(e.length, lessThanOrEqualTo(40), reason: e);
@@ -203,6 +205,97 @@ void main() {
         '`private_sheet`',
         '`private_note`',
         'eef_help_private_sheet',
+      ]) {
+        expect(doc, contains(needle), reason: '$needle absent du contrat');
+      }
+    });
+  });
+  // La visite guidée de l'espace (build 56, PR 4) : deux événements neufs, des
+  // propriétés fermées, aucune donnée personnelle, aucun identifiant qui trahisse
+  // la suspension d'un pays.
+  group('visite guidée Études en France', () {
+    final snakeCase = RegExp(r'^[a-z][a-z0-9]*(_[a-z0-9]+)*$');
+
+    test('les événements neufs portent le nom du contrat publié', () {
+      expect(AnalyticsEventName.eefTourShown, 'eef_tour_shown');
+      expect(AnalyticsEventName.eefTourCompleted, 'eef_tour_completed');
+      for (final name in [
+        AnalyticsEventName.eefTourShown,
+        AnalyticsEventName.eefTourCompleted,
+      ]) {
+        expect(name, matches(snakeCase));
+      }
+    });
+
+    test('les clés de propriété sont en snake_case', () {
+      expect(AnalyticsParamKey.tourTrigger, 'tour_trigger');
+      expect(AnalyticsParamKey.tourExit, 'tour_exit');
+      expect(AnalyticsParamKey.tourCardsSeen, 'tour_cards_seen');
+      for (final key in [
+        AnalyticsParamKey.tourTrigger,
+        AnalyticsParamKey.tourExit,
+        AnalyticsParamKey.tourCardsSeen,
+      ]) {
+        expect(key, matches(snakeCase));
+      }
+    });
+
+    test('`eef_tour_shown` ne porte QU\'une propriété : `tour_trigger`', () {
+      for (final trigger in ['first_open', 'replay']) {
+        final params = AnalyticsService.eefTourShownParams(trigger: trigger);
+        expect(params.keys.toSet(), {AnalyticsParamKey.tourTrigger});
+        expect(params[AnalyticsParamKey.tourTrigger], trigger);
+      }
+    });
+
+    test(
+        '`eef_tour_completed` ne porte QUE `tour_exit` et `tour_cards_seen` '
+        '(un entier)', () {
+      for (final exit in ['finished', 'skipped']) {
+        final params = AnalyticsService.eefTourCompletedParams(
+          exit: exit,
+          cardsSeen: 3,
+        );
+        expect(
+          params.keys.toSet(),
+          {AnalyticsParamKey.tourExit, AnalyticsParamKey.tourCardsSeen},
+        );
+        expect(params[AnalyticsParamKey.tourExit], exit);
+        expect(params[AnalyticsParamKey.tourCardsSeen], isA<int>());
+        expect(params[AnalyticsParamKey.tourCardsSeen], 3);
+      }
+    });
+
+    test('aucune clé de propriété ne désigne une donnée personnelle', () {
+      final personal = RegExp(
+        r'name|nom|mail|phone|tel|whatsapp|passport|passeport|country|pays|'
+        r'user|uid|profile|age|birth|address|suspend',
+        caseSensitive: false,
+      );
+      final keys = <String>{
+        ...AnalyticsService.eefTourShownParams(trigger: 'replay').keys,
+        ...AnalyticsService.eefTourCompletedParams(
+          exit: 'finished',
+          cardsSeen: 1,
+        ).keys,
+      };
+      for (final key in keys) {
+        expect(personal.hasMatch(key), isFalse, reason: key);
+      }
+    });
+
+    test('docs/analytics-event-contract.md documente la visite', () {
+      final doc = File('docs/analytics-event-contract.md').readAsStringSync();
+      for (final needle in [
+        '`eef_tour_shown`',
+        '`eef_tour_completed`',
+        '`tour_trigger`',
+        '`first_open`',
+        '`replay`',
+        '`tour_exit`',
+        '`finished`',
+        '`skipped`',
+        '`tour_cards_seen`',
       ]) {
         expect(doc, contains(needle), reason: '$needle absent du contrat');
       }

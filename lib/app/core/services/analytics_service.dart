@@ -534,6 +534,52 @@ class AnalyticsService {
     }
   }
 
+  /// Les propriétés de `eef_tour_shown` : la seule clé `tour_trigger`. Exposée
+  /// pour qu'un test lise la liste EXACTE des clés.
+  @visibleForTesting
+  static Map<String, Object> eefTourShownParams({required String trigger}) =>
+      <String, Object>{AnalyticsParamKey.tourTrigger: trigger};
+
+  /// La visite guidée du hub s'est affichée. [trigger] : `first_open` ou
+  /// `replay`.
+  Future<void> logEefTourShown({required String trigger}) async {
+    final params = eefTourShownParams(trigger: trigger);
+    try {
+      await _logEvent(AnalyticsEventName.eefTourShown, params);
+      _mirror(AnalyticsEventName.eefTourShown, params);
+    } catch (e, s) {
+      _logError('logEefTourShown', e, s);
+    }
+  }
+
+  /// Les propriétés de `eef_tour_completed` : `tour_exit` (texte fermé) et
+  /// `tour_cards_seen` (un ENTIER). Exposée pour qu'un test lise la liste
+  /// EXACTE des clés.
+  @visibleForTesting
+  static Map<String, Object> eefTourCompletedParams({
+    required String exit,
+    required int cardsSeen,
+  }) =>
+      <String, Object>{
+        AnalyticsParamKey.tourExit: exit,
+        AnalyticsParamKey.tourCardsSeen: cardsSeen,
+      };
+
+  /// La visite guidée du hub s'est fermée. [exit] : `finished` ou `skipped` ;
+  /// [cardsSeen] : le nombre de cartes atteintes.
+  Future<void> logEefTourCompleted({
+    required String exit,
+    required int cardsSeen,
+  }) async {
+    final params = eefTourCompletedParams(exit: exit, cardsSeen: cardsSeen);
+    try {
+      await _logEvent(AnalyticsEventName.eefTourCompleted, params);
+      _mirror(AnalyticsEventName.eefTourCompleted, params);
+    } catch (e, s) {
+      _logError('logEefTourCompleted', e, s);
+    }
+  }
+
   /// Le catalogue n'a pas pu répondre. [reason] : `network` ou `server`.
   Future<void> logEefCatalogFailed(String reason) async {
     final params = <String, Object>{AnalyticsParamKey.reason: reason};

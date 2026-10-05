@@ -57,6 +57,7 @@ import '../../support/pixel_contrast.dart';
 import '../../support/raw_key_guard.dart';
 import '../../support/screen_harness.dart';
 import '../../widget_test_helpers.dart';
+import '../../support/eef_tour_fakes.dart';
 
 // ── Les textes attendus, ÉCRITS EN DUR ────────────────────────────────────────
 //
@@ -355,6 +356,7 @@ void main() {
   }
 
   setUp(() {
+    useSeenTour();
     api = MockApiClient();
     previousLauncher = UrlLauncherPlatform.instance;
     launcher = RecordingUrlLauncher();

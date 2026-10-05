@@ -98,6 +98,8 @@ steady points at the feed itself, not at the content.
 | `eef_help_cta_tapped` | mêmes trois propriétés (et, depuis la build 55, `help_step` = `catalog_program` aussi ; depuis la build 56, `bubble_assistance`/`bubble_dossier`/`bubble_choose`/`bubble_question` et `private_sheet`, avec `variant` = `bubble` ou `sheet`) | Le bouton ou le lien de la carte d'aide a été tapé — part AVANT l'ouverture de WhatsApp |
 | `eef_bubble_opened` | `surface` (`hub`/`catalog`) | Le menu de sujets de la bulle verte WhatsApp a été ouvert (build 56). Ce n'est PAS un envoi : voir « La bulle d'aide de la build 56 » |
 | `eef_private_info_opened` | `entry` (`bubble`/`catalog_empty`) | La feuille d'information « Service KPB » des écoles privées a été ouverte (build 56). Ce n'est PAS un envoi : voir « Les écoles privées de la build 56 » |
+| `eef_tour_shown` | `tour_trigger` (`first_open`/`replay`) | La visite guidée du hub s'est affichée (build 56) : voir « La visite guidée de la build 56 » |
+| `eef_tour_completed` | `tour_exit` (`finished`/`skipped`), `tour_cards_seen` (entier) | La visite guidée s'est fermée (build 56) : voir « La visite guidée de la build 56 » |
 
 ### Lire la carte d'aide sans se tromper (build 54)
 
@@ -241,6 +243,39 @@ un envoi vers WhatsApp.
 - **Ce qui n'est JAMAIS mesuré** : le texte du message, le pays, la raison pour laquelle un
   compte n'a pas la ligne (un compte suspendu ne produit ni `private_note` ni
   `eef_private_info_opened`).
+
+### La visite guidée de la build 56 (`EefTour`)
+
+Trois ou quatre cartes dans une feuille, montrées **une fois** à la première ouverture du
+**hub réel** (jamais la vitrine, jamais l'écran des comptes parent/partenaire, jamais
+au-dessus d'un dialogue ou d'une autre feuille), invités compris, et **rejouables** par le
+bouton « ? » de la barre du hub. Le drapeau « vue » (`kpb_relaunch_v1.eef_tour_v1`, local à
+l'appareil) est posé à l'**affichage** ; une panne de lecture ou d'écriture du stockage vaut
+« déjà vue » (pas de visite, aucun événement). La visite ne dépend d'aucun interrupteur
+serveur : elle s'allume avec le hub.
+
+Deux événements neufs, **propriétés fermées**, aucune donnée personnelle :
+
+| Événement | Propriété | Valeurs | Quand |
+|---|---|---|---|
+| `eef_tour_shown` | `tour_trigger` | `first_open` / `replay` | La feuille s'affiche — à la première ouverture du hub, ou par le « ? » |
+| `eef_tour_completed` | `tour_exit` | `finished` / `skipped` | « Compris » à la dernière carte (`finished`) ; « Passer », le retour Android, le voile ou un glissement vers le bas (`skipped`) |
+| `eef_tour_completed` | `tour_cards_seen` | entier (1 à 4) | Le nombre de cartes **atteintes** (la plus haute carte vue, pas le nombre de pages tournées) |
+
+- **Lire la portée** : `eef_tour_shown` (`first_open`). **Lire l'adhésion** :
+  `eef_tour_completed` (`finished`) ÷ `eef_tour_shown`. **Lire l'usage du « ? »** :
+  `eef_tour_shown` (`replay`) — un rejeu ne touche pas au drapeau.
+- **`tour_cards_seen` est relatif au nombre de cartes de CE téléphone** : 3 cartes quand les
+  outils IA sont masqués ou que la bulle est éteinte, 4 sinon, 2 si les deux. Une visite
+  `finished` a donc `tour_cards_seen` = 2, 3 ou 4. Le nombre total n'est pas une propriété.
+- **Ce qui n'est JAMAIS mesuré** : le pays, la variante de la première carte (neutre pour
+  un pays suspendu : le texte seul change, jamais un identifiant), la langue, l'appareil. Un
+  compte suspendu produit **exactement** les mêmes événements et les mêmes valeurs.
+- **Pas de mesure sans affichage** : une visite qui ne s'ouvre pas (déjà vue, stockage en
+  panne, dialogue ouvert) n'émet rien, pas même `eef_tour_completed`.
+- **Pas de consentement dédié** : la visite ne lit ni n'écrit rien d'autre qu'un drapeau
+  local non personnel ; ses deux événements suivent le régime de la mesure d'usage (coupée
+  par l'opt-out analytique, comme tous les autres).
 
 ### Lire le catalogue sans se tromper (build 54)
 
