@@ -223,9 +223,10 @@ déclarations d'intérêt dans l'admin ; à J+7, la part de recherches sans rés
 6. **Archiver, soumettre et faire approuver la 56** : `docs/mise-a-jour-56-checklist.md`. Aucune
    étape de distribution ne se fait sans le feu vert explicite du propriétaire.
 7. **Les décisions de la 56** (`docs/release-56-store-pack.md` §7), avant d'allumer
-   `eefHelpBubble` et `eefPrivateSchools` : (a) KPB est-il rémunéré par des écoles privées ?
+   `eefHelpBubble` et `eefPrivateSchools` : (a) rémunération par des écoles privées : **tranchée le 06/10/2026, la phrase est
+   retirée** ;
    (b) Niger : aucune mention d'école privée (retenu) ; (c) « frais en général plus élevés que
    dans le public » ou son repli ; (d) qui répond au +33768674292, quand, étiquettes WhatsApp
    Business et message d'absence ; (e) XC-06 et D5 avant la soumission ; (f) quelle build
    envoyer : **la 56 seule, tranché** ; (g) version marketing de la 56 : **2.3.0 gardée, tranché**
-   (ITMS-90062, la 55 n'ayant jamais été soumise). (a) et (c) portent sur des textes **compilés** : avant l'archive.
+   (ITMS-90062, la 55 n'ayant jamais été soumise). (c) porte sur un texte **compilé** : avant l'archive.

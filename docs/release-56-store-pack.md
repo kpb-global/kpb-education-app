@@ -53,8 +53,10 @@ aucun formulaire ; aucune transmission aux écoles.
 
 ### 1.1 Longueur réelle des liens WhatsApp de la 56
 
-Mesurée le 05/10/2026 par script sur `lib/app/core/translations/app_translations.dart` (les 72
-clés `eef_help_bubble_*` et `eef_help_private_*`, les messages des deux langues, des deux
+Mesurée le 05/10/2026 par script sur `lib/app/core/translations/app_translations.dart`, puis
+recomptée le 06/10/2026 après le retrait de la phrase de rémunération (les 70
+clés `eef_help_bubble_*` et `eef_help_private_*` — 72 avant le retrait, en FR et en EN, de
+la clé de la phrase de rémunération —, les messages des deux langues, des deux
 écrans — hub et catalogue — et des deux jeux, standard et neutre) :
 
 | | Valeur |
@@ -213,10 +215,10 @@ toujours — `release-55-store-pack.md` §3) :
 3. « a short tour shown once on first opening » : le drapeau de la visite est **local à
    l'appareil** (`kpb_relaunch_v1.eef_tour_v1`) et n'est jamais transmis.
 4. Le texte dit « features.eefPrivateSchools, an information sheet on private schools » : il
-   ne dit **ni** que KPB est rémunéré par des écoles, **ni** « partenaire ». La phrase de
-   rémunération est dans l'**app** et dépend de la décision (a), §7. Si la décision (a) est
-   « oui », rien à changer ici (la note décrit la feuille, pas sa mention) ; si elle est
-   « non », la phrase est retirée **avant l'archive** du texte compilé.
+   ne dit **ni** que KPB est rémunéré par des écoles, **ni** « partenaire ». La décision (a),
+   §7, est **tranchée le 06/10/2026** : la phrase de rémunération est retirée de l'**app** ; la
+   feuille et le texte à coller disent la même chose (KPB ne se présente pas comme rémunéré
+   par des écoles). Rien à changer ici.
 5. **Compte de démonstration** : un compte **étudiant** (le hub n'est pas montré à un parent),
    **exclu des listes d'appel** (admin → liste d'intérêt) — la dernière phrase du texte le
    promet. **Décision D1** de `store-listing-copy.md` §9 (comment lire le code à usage unique)
@@ -276,8 +278,8 @@ aussi le **sujet choisi** dans la bulle (toujours sans donnée personnelle) ; la
   que l'équipe commerciale lit les déclarations d'intérêt. Les consoles déclarent « Fonctionnalité
   / Compte » seulement. Recommandation inchangée : ajouter la finalité *Marketing* (Play :
   « Advertising or marketing » ; Apple : « Developer's Advertising or Marketing »). La 56 ne
-  change pas la question, mais la feuille « écoles privées » (et une éventuelle rémunération
-  par les écoles, décision a) la rend plus visible à un lecteur attentif.
+  change pas la question, mais la feuille « écoles privées » (un service privé, sans mention de
+  rémunération par les écoles : décision a, tranchée) la rend plus visible à un lecteur attentif.
 - **D5 — prix FCFA affichés** (`store-listing-copy.md` §9). Les notes de revue disent que le prix
   des paquets est affiché à titre d'information et que le bouton ouvre WhatsApp ; c'est le
   point que la revue regardera. La bulle et la feuille n'affichent **aucun prix** (garde de
@@ -327,14 +329,15 @@ dépôt) :
 
 ## 7. Décisions du propriétaire — encore ouvertes avant d'allumer les interrupteurs
 
-Rien ci-dessous n'est tranché dans le dépôt. Pour chacune : la recommandation retenue dans le
-plan, ce qui la rend urgente, et **où** elle s'applique. **Attention au calendrier** : une
-décision qui change un texte **compilé** (a, c) doit être prise **avant l'archive** de la 56 ;
-après, la seule action côté serveur est de laisser le drapeau fermé.
+Les décisions **a**, **f** et **g** sont tranchées (a le 06/10/2026, f et g le 05/10/2026) ; les
+autres restent ouvertes. Pour chacune : la recommandation retenue dans le plan, ce qui la rend
+urgente, et **où** elle s'applique. **Attention au calendrier** : une décision qui change un
+texte **compilé** (c) doit être prise **avant l'archive** de la 56 ; après, la seule action
+côté serveur est de laisser le drapeau fermé.
 
 | | Décision | Recommandation | Ce qu'elle déclenche |
 |---|---|---|---|
-| **a** | **KPB est-il rémunéré par des écoles privées ?** | Si oui : garder « KPB peut être rémunéré par certaines écoles ». **Si non : retirer la clé `eef_help_private_disclosure`** (FR + EN) et son emploi dans `eef_private_schools_sheet.dart`. Aucun nom d'école en 56, jamais « partenaire » ni « sponsorisé » non prouvé | La phrase est **compilée** : la retirer demande un changement de code **avant l'archive**. `isPartner` est saisi à la main sans contrat relié : une phrase fausse, ou une omission, est un risque de loyauté. `eefPrivateSchools` reste fermé tant que non tranché |
+| **a** | **KPB est-il rémunéré par des écoles privées ?** | Décision **tranchée le 06/10/2026 : la phrase est retirée** (« Pourquoi la question de la rémunération se pose même pour les écoles privées ? » — propriétaire). KPB ne se présente pas comme rémunéré par des écoles ; aucun nom d'école en 56, jamais « partenaire » ni « sponsorisé » non prouvé. Si cela change un jour, une mention de transparence devra être réintroduite AVANT d'allumer l'interrupteur | Rien à faire : la feuille « écoles privées » ne contient plus aucune phrase de rémunération (le point 4 dit seulement que KPB est un service privé, pas un service de l'État). Retirée du code, des tests et des papiers de la 56 ; `eefPrivateSchools` reste fermé jusqu'à la validation juridique des autres textes (b, c) |
 | **b** | **Comptes du Niger (pays suspendu) : aucune mention d'école privée** | **Oui, retenu.** Ni ligne, ni option, ni feuille ; bulle présente avec un menu neutre à 2 lignes ; visite : seule l'étape 1 a sa variante neutre | Déjà codé (`EefHelp.isSuspended()`). Reste à demander au juridique si le privé échappe à la suspension : tant que ce n'est pas établi, en parler suggérerait une voie de remplacement non validée |
 | **c** | **« Les frais sont en général plus élevés que dans le public »** ou son repli « Les frais varient beaucoup d'une école à l'autre » | Garder la phrase comparative **avec relecture juridique** avant d'allumer `eefPrivateSchools` ; sinon le repli | Compilé (`_useFeesFallback`, clé `eef_help_private_point_fees_fallback`, non affichée par défaut) : à trancher **avant l'archive** |
 | **d** | **Qui répond au +33768674292, à quelles heures ?** Étiquettes WhatsApp Business par sujet, message d'absence | Oui aux étiquettes (une par sujet : *assistance, dossier, choisir, écoles privées, autre question*) et au message d'absence, **sans promesse de délai dans l'app**. **Ne pas allumer `eef-bubble-on` tant qu'une personne n'est pas nommée** | Hors app (WhatsApp Business). `whatsapp_handoff` **surévalue** les conversations (le lancement est tenté, jamais précédé de `canLaunchUrl`) : les étiquettes sont le seul moyen de qualifier. Revue humaine à 14 jours après l'ouverture |
