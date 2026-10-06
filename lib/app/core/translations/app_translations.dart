@@ -2130,10 +2130,8 @@ class AppTranslations extends Translations {
           // ── Les écoles privées (build 56, PR 3) ──────────────────────────────
           // La feuille d'information « Service KPB », la ligne de l'état « aucun
           // résultat » du catalogue et l'option du menu de la bulle. AUCUN
-          // montant, AUCUNE devise, AUCUN nom d'école ni de pays. La phrase de
-          // rémunération a SA clé (`eef_help_private_disclosure`) pour pouvoir
-          // être retirée sans toucher aux autres points ; le repli sur la phrase
-          // des frais (`..._fees_fallback`) n'est PAS affiché par défaut.
+          // montant, AUCUNE devise, AUCUN nom d'école ni de pays. Le repli sur la
+          // phrase des frais (`..._fees_fallback`) n'est PAS affiché par défaut.
           'eef_help_private_chip': 'Service KPB',
           'eef_help_private_title':
               'Les écoles privées : ce qu\'il faut savoir',
@@ -2152,8 +2150,6 @@ class AppTranslations extends Translations {
           'eef_help_private_point_status':
               'KPB Education est un service privé d\'accompagnement, pas un '
                   'service de l\'État.',
-          'eef_help_private_disclosure':
-              'KPB peut être rémunéré par certaines écoles.',
           'eef_help_private_cta': 'En parler à un conseiller',
           'eef_help_private_dismiss': 'Pas maintenant',
           'eef_help_private_message_label': 'Message qui sera écrit :',
@@ -5506,9 +5502,7 @@ class AppTranslations extends Translations {
           // ── Private schools (build 56, PR 3) ─────────────────────────────────
           // The "KPB service" info sheet, the line in the catalogue's "no
           // results" state and the option of the bubble menu. NO amount, NO
-          // currency, NO school or country name. The remuneration sentence has
-          // ITS OWN key (`eef_help_private_disclosure`) so it can be removed
-          // without touching the other points; the fees fallback
+          // currency, NO school or country name. The fees fallback
           // (`..._fees_fallback`) is NOT displayed by default.
           'eef_help_private_chip': 'KPB service',
           'eef_help_private_title': 'Private schools: what to know',
@@ -5527,7 +5521,6 @@ class AppTranslations extends Translations {
           'eef_help_private_point_status':
               'KPB Education is a private support service, not a government '
                   'service.',
-          'eef_help_private_disclosure': 'KPB may be paid by some schools.',
           'eef_help_private_cta': 'Talk to an advisor',
           'eef_help_private_dismiss': 'Not now',
           'eef_help_private_message_label': 'Message that will be written:',

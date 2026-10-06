@@ -31,6 +31,10 @@ const _minMargin = 50;
 
 String _read(String path) => File(path).readAsStringSync();
 
+/// Le texte sur une seule ligne : un retour à la ligne de Markdown ne change pas
+/// ce que dit la phrase.
+String _flat(String text) => text.replaceAll(RegExp(r'\s+'), ' ');
+
 /// Le bloc à coller : la première clôture dont le contenu commence par `SIGN-IN`.
 String _notesBlock(String pack) {
   final match =
@@ -185,7 +189,8 @@ void main() {
           reason: 'le tableau du §7 doit lister les décisions a à g, dans '
               'l\'ordre ; trouvé : ${rows.keys.toList()}');
       const byDecision = <String, List<String>>{
-        'a': ['eef_help_private_disclosure'], // rémunération
+        // Tranchée le 06/10/2026 : la phrase de rémunération est retirée de l'app.
+        'a': ['tranchée le 06/10/2026', 'la phrase est retirée'],
         'b': ['Niger'],
         'c': [
           'plus élevés que dans le public',
@@ -204,6 +209,27 @@ void main() {
               reason: 'la décision ($letter) ne porte plus « $needle »');
         }
       });
+    });
+
+    test(
+        'la décision (a) est TRANCHÉE : plus de clé ni de phrase de rémunération',
+        () {
+      final section = pack.substring(pack.indexOf('## 7. Décisions'));
+      final row = RegExp(r'^\| \*\*a\*\* \|(.*)$', multiLine: true)
+          .firstMatch(section)!
+          .group(1)!;
+      // La ligne dit qu'il n'y a plus rien à retirer, ni à décider.
+      expect(row,
+          contains('KPB ne se présente pas comme rémunéré par des écoles'));
+      expect(row, contains('AVANT d\'allumer'));
+      for (final stale in ['Si oui', 'Si non', 'retirer la clé']) {
+        expect(row.contains(stale), isFalse,
+            reason: 'la décision (a) est tranchée, mais la ligne dit encore '
+                '« $stale »');
+      }
+      // Ni la clé retirée, ni la phrase, ne survivent dans le pack.
+      expect(pack.contains('eef_help_private_disclosure'), isFalse);
+      expect(pack.contains('KPB peut être rémunéré'), isFalse);
     });
 
     test('les liens relatifs du pack mènent à un fichier qui existe', () {
@@ -225,6 +251,91 @@ void main() {
     final console = _read('docs/CONSOLE_ANSWERS.md');
     final runbook = _read('docs/runbook-ouverture-espace-reel.md');
     final ledger = _read('docs/release-ledger.md');
+
+    // Décision du propriétaire, 06/10/2026 : la phrase « KPB peut être rémunéré
+    // par certaines écoles » n'existe plus dans l'app. Les papiers de la 56 ne la
+    // décrivent donc plus comme affichée, et ne demandent plus à la retirer.
+    test('les papiers de la 56 ne décrivent plus la phrase de rémunération',
+        () {
+      for (final entry in {
+        'le pack': pack,
+        'la recette appareil': qa,
+        'le runbook': runbook,
+        'le registre': ledger,
+      }.entries) {
+        for (final stale in [
+          'eef_help_private_disclosure',
+          'KPB peut être rémunéré',
+          'KPB may be paid',
+        ]) {
+          expect(entry.value.contains(stale), isFalse,
+              reason: '${entry.key} cite encore « $stale »');
+        }
+      }
+      // La recette dit ce que l'étudiant lit : le point 4 sans phrase de plus.
+      expect(qa, contains('Privé-4'));
+      expect(qa, contains('aucune phrase de rémunération'));
+    });
+
+    // « Mesurée par script » : un chiffre écrit à la main vieillit à la première
+    // clé retirée (72 avant le retrait de `eef_help_private_disclosure`, 70 après).
+    // Le test refait la mesure du §1.1 : il compte les clés FR et EN, une par
+    // langue, et compare au chiffre que le pack affiche.
+    test(
+        'le pack annonce le vrai nombre de clés `eef_help_bubble_*` et '
+        '`eef_help_private_*`', () {
+      final source = _read('lib/app/core/translations/app_translations.dart');
+      final counted = RegExp(
+        r"^\s*'eef_help_(?:bubble|private)_[a-z0-9_]+':",
+        multiLine: true,
+      ).allMatches(source).length;
+      expect(counted, greaterThan(0), reason: 'la mesure ne compte rien');
+      final claimed =
+          RegExp(r'les (\d+)\s+clés `eef_help_bubble_\*`').firstMatch(pack);
+      expect(claimed, isNotNull,
+          reason: 'le §1.1 ne dit plus « les N clés `eef_help_bubble_*` »');
+      expect(int.parse(claimed!.group(1)!), counted,
+          reason: 'le pack annonce ${claimed.group(1)} clés, il y en a '
+              '$counted (FR + EN)');
+    });
+
+    // Le runbook et `ouverture-espace-eef.md` : avant, aucun test ne les lisait
+    // vraiment (la liste de mots interdits ne contenait rien qu'ils aient jamais
+    // dit). On exige ici ce qu'ils disent APRÈS la décision, et on refuse les
+    // phrases d'avant.
+    test(
+        'le runbook dit la décision (a) tranchée, plus « deux textes compilés »',
+        () {
+      final flat = _flat(runbook);
+      expect(flat, contains('la décision a, la rémunération, est tranchée'));
+      expect(flat, contains('décision du 06/10/2026'));
+      for (final stale in [
+        'Deux textes de la feuille sont **compilés**',
+        '(phrase sur la rémunération',
+        'décisions a, b, c de',
+        'phrase de rémunération, phrase sur les frais',
+      ]) {
+        expect(flat.contains(stale), isFalse,
+            reason: 'le runbook dit encore « $stale »');
+      }
+    });
+
+    test(
+        'ouverture-espace-eef.md : le point 7 dit (a) tranchée, (c) seule '
+        'compilée', () {
+      final doc = _flat(_read('docs/ouverture-espace-eef.md'));
+      final item7 = doc.substring(doc.indexOf('7. **Les décisions de la 56**'));
+      expect(item7, contains('tranchée le 06/10/2026'));
+      expect(item7, contains('la phrase est retirée'));
+      expect(item7, contains('(c) porte sur un texte **compilé**'));
+      for (final stale in [
+        'KPB est-il rémunéré par des écoles privées ?',
+        '(a) et (c) portent sur des textes **compilés**',
+      ]) {
+        expect(item7.contains(stale), isFalse,
+            reason: 'le point 7 dit encore « $stale »');
+      }
+    });
 
     // #324 (hub, catalogue) et #326 (vitrine) retirent toute suspension affichée
     // et son lien ; il ne reste dans l'app que « Voir la plateforme officielle ».

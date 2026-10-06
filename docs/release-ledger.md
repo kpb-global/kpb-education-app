@@ -421,11 +421,12 @@ préflight exige que la production soit un **ancêtre** de `<RELEASE>`, jamais e
 `<RELEASE>`. Une fois la 56 en vente et adoptée, déployer (`deploy.yml`, `scope=full`)
 puis allumer dans l'ordre du runbook.
 
-**Décisions encore ouvertes** (`docs/release-56-store-pack.md` §7) : rémunération par des
-écoles privées (clé `eef_help_private_disclosure`), phrase sur les frais ou son repli, qui
-répond au +33768674292, XC-06 et D5. Les deux premières portent sur des **textes
-compilés** : à trancher **avant l'archive**. Niger sans mention d'école privée est
-**retenu** ; « 55 ou 56 » et la version marketing sont **tranchées** (la 56 seule, 2.3.0).
+**Décisions encore ouvertes** (`docs/release-56-store-pack.md` §7) : phrase sur les frais ou
+son repli, qui répond au +33768674292, XC-06 et D5. La première porte sur un **texte
+compilé** : à trancher **avant l'archive**. Niger sans mention d'école privée est
+**retenu** ; « 55 ou 56 » et la version marketing sont **tranchées** (la 56 seule, 2.3.0) ;
+la rémunération par des écoles privées est **tranchée le 06/10/2026** : la phrase est retirée
+de l'app.
 
 **Papiers** : `docs/mise-a-jour-56-checklist.md` (l'ordre des opérations),
 `docs/release-56-store-pack.md` (notes de revue recomptées, réponses de console,

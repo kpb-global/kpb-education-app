@@ -92,14 +92,15 @@ et ancien backend ne voient rien.
 visite (première ouverture) et rien d'autre de nouveau. + `eefHelpBubble` : la bulle verte dans
 le hub et le catalogue (4 sujets, ou 2 neutres pour un compte au pays suspendu, **bulle toujours
 présente pour lui**). + `eefPrivateSchools` : la ligne du catalogue vide et l'option de la bulle
-(qui devient le 5e sujet), **jamais** pour un compte au pays suspendu. Deux textes de la feuille sont **compilés** (phrase
-de rémunération, phrase sur les frais) : les retirer ou les changer demande une build, pas une
-action serveur — `eef-private-schools-off` ne fait que tout fermer.
+(qui devient le 5e sujet), **jamais** pour un compte au pays suspendu. Le texte de la feuille est **compilé**
+(dont la phrase sur les frais) : le changer demande une build, pas une action serveur —
+`eef-private-schools-off` ne fait que tout fermer. La feuille ne contient aucune phrase de
+rémunération (décision du 06/10/2026).
 
 **Ordre d'ouverture.** 1. `eef-space-on` (section « Ouvrir » ci-dessus). 2. `eef-bubble-on`.
-3. `eef-private-schools-on` — **seulement après la validation juridique** (phrase sur la
-rémunération, phrase sur les frais, Niger : décisions a, b, c de `docs/release-56-store-pack.md`
-§7), et **`eef-bubble-on` seulement quand une personne est nommée pour répondre au
+3. `eef-private-schools-on` — **seulement après la validation juridique** (phrase sur les
+frais, Niger : décisions b, c de `docs/release-56-store-pack.md` §7 ; la décision a, la
+rémunération, est tranchée : la phrase est retirée), et **`eef-bubble-on` seulement quand une personne est nommée pour répondre au
 +33768674292** (décision d) et, de préférence, quelques jours après le hub pour
 ne pas mêler les signaux. **Fermeture dans l'ordre inverse** : `eef-private-schools-off`, puis
 `eef-bubble-off`, puis `eef-space-off` si l'espace lui-même doit se refermer. Chaque retour

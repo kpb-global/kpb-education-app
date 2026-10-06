@@ -251,8 +251,14 @@ void main() {
 
     test('étape 0 : les décisions à avoir prises AVANT d\'archiver', () {
       final step0 = _section(doc, '## 0.');
+      // (a) est TRANCHÉE le 06/10/2026 : la phrase est retirée, rien à décider ni
+      // à retirer avant l'archive. Ni la clé ni la phrase ne survivent.
+      expect(step0, contains('tranchée le 06/10/2026'));
+      expect(step0, contains('la phrase est retirée'));
       expect(step0, contains('rémunéré par des écoles privées'));
-      expect(step0, contains('eef_help_private_disclosure'));
+      expect(step0.contains('eef_help_private_disclosure'), isFalse);
+      expect(step0.contains('KPB peut être rémunéré'), isFalse);
+      expect(step0.contains('« oui » → garder la phrase'), isFalse);
       expect(step0, contains('_useFeesFallback'));
       expect(step0, contains('eef_help_private_point_fees_fallback'));
       expect(step0, contains('Niger'));
@@ -334,6 +340,32 @@ void main() {
       expect(ledger.contains('mais l\'espace reste fermé'), isFalse,
           reason: 'le registre affirme l\'espace fermé sans mesure du jour');
       expect(ledger, contains('a pu rouvrir'));
+    });
+
+    // Le retrait de la phrase de rémunération est un texte COMPILÉ : s'il n'est pas
+    // fusionné dans `main` AVANT de relever `RELEASE`, l'AAB et l'archive portent
+    // encore la phrase, et elle ne pourra plus changer sans nouvelle build.
+    test('la PR du retrait est fusionnée AVANT RELEASE, et prouvée sur RELEASE',
+        () {
+      final step0 = _section(doc, '## 0.');
+      final merged = RegExp(
+        r'PR[^\n]{0,80}retrait de la phrase de rémunération[^\n]{0,160}'
+        r'fusionnée',
+        dotAll: true,
+      );
+      expect(merged.hasMatch(step0.replaceAll(RegExp(r'\s+'), ' ')), isTrue,
+          reason: 'l\'étape 0 ne demande pas la fusion de la PR du retrait');
+      final step1 = _section(doc, '## 1.');
+      expect(
+        step1,
+        contains(
+          'git show "\$RELEASE:lib/app/core/translations/app_translations.dart" '
+          '| grep -c eef_help_private_disclosure',
+        ),
+        reason: 'l\'étape 1 ne prouve pas l\'absence de la clé sur RELEASE',
+      );
+      expect(step1, contains('0 : la clé de la phrase de rémunération'),
+          reason: 'le résultat attendu (0) n\'est pas dit');
     });
 
     test('les chemins cités existent', () {

@@ -164,12 +164,8 @@ class _PrivateSchoolsSheetState extends State<_PrivateSchoolsSheet> {
     final fees = _useFeesFallback
         ? 'eef_help_private_point_fees_fallback'.tr
         : 'eef_help_private_point_fees'.tr;
-    // Point 4 : ce que KPB est, puis — dans SA clé, retirable en une ligne — la
-    // mention de rémunération.
-    final status = [
-      'eef_help_private_point_status'.tr,
-      'eef_help_private_disclosure'.tr,
-    ].join(' ');
+    // Point 4 : ce que KPB est — une seule phrase, aucune autre mention.
+    final status = 'eef_help_private_point_status'.tr;
     final points = <String>[
       'eef_help_private_point_terms'.tr,
       fees,

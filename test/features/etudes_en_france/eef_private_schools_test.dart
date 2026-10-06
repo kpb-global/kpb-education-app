@@ -10,12 +10,14 @@
 //   · la ligne n'est que dans l'état « aucun résultat » du catalogue — ni dans
 //     « rien n'est publié », ni dans une liste non vide, ni dans le hub ;
 //   · la feuille ne s'ouvre JAMAIS seule ; elle dit les limites (frais, démarches)
-//     et la provenance (service privé, rémunération) AVANT qu'on écrive ;
+//     et la provenance (service privé, pas un service de l'État) AVANT qu'on écrive ;
 //   · « En parler à un conseiller » ferme la feuille PUIS ouvre WhatsApp avec le
 //     message exact montré sous le bouton ; « Pas maintenant » ne mesure rien et
 //     n'ouvre rien ;
 //   · aucun texte ne chiffre, ne nomme une école, un pays ou l'opérateur de l'État ;
-//   · la phrase de rémunération vit dans SA clé, retirable sans toucher aux autres.
+//   · aucune mention de rémunération : la phrase « KPB peut être rémunéré par
+//     certaines écoles » est retirée de l'app (décision du propriétaire, 06/10/2026) ;
+//     le point 4 n'a plus qu'une phrase.
 //
 // Le lanceur d'URL est intercepté à `UrlLauncherPlatform`, comme partout dans ce
 // dossier ; la mesure passe par la couture `EefHelpCard.analytics` et, pour le
@@ -62,7 +64,6 @@ class _Copy {
     required this.fees,
     required this.steps,
     required this.status,
-    required this.disclosure,
     required this.cta,
     required this.dismiss,
     required this.messageLabel,
@@ -80,7 +81,6 @@ class _Copy {
   final String fees;
   final String steps;
   final String status;
-  final String disclosure;
   final String cta;
   final String dismiss;
   final String messageLabel;
@@ -90,8 +90,6 @@ class _Copy {
   final String noteText;
   final String noteLink;
   final String feesFallback;
-
-  String get fourth => '$status $disclosure';
 
   String message({required bool catalog}) =>
       catalog ? messageCatalog : messageHub;
@@ -108,7 +106,6 @@ const _fr = _Copy(
       "Les démarches officielles (admission, visa) dépendent de ton pays et de l'école. Vérifie-les sur les sites officiels.",
   status:
       "KPB Education est un service privé d'accompagnement, pas un service de l'État.",
-  disclosure: 'KPB peut être rémunéré par certaines écoles.',
   cta: 'En parler à un conseiller',
   dismiss: 'Pas maintenant',
   messageLabel: 'Message qui sera écrit :',
@@ -135,7 +132,6 @@ const _en = _Copy(
       'Official steps (admission, visa) depend on your country and the school. Check them on the official websites.',
   status:
       'KPB Education is a private support service, not a government service.',
-  disclosure: 'KPB may be paid by some schools.',
   cta: 'Talk to an advisor',
   dismiss: 'Not now',
   messageLabel: 'Message that will be written:',
@@ -154,8 +150,6 @@ _Copy _copyFor(Locale locale) => locale.languageCode == 'fr' ? _fr : _en;
 
 /// Toutes les clés NOUVELLES de cette livraison : le préfixe `eef_help_private_`
 /// les fait hériter des balayages de `eef_help_line_test.dart`.
-const _disclosureKey = 'eef_help_private_disclosure';
-
 const _privateKeys = <String>[
   'eef_help_private_chip',
   'eef_help_private_title',
@@ -164,7 +158,6 @@ const _privateKeys = <String>[
   'eef_help_private_point_fees_fallback',
   'eef_help_private_point_steps',
   'eef_help_private_point_status',
-  _disclosureKey,
   'eef_help_private_cta',
   'eef_help_private_dismiss',
   'eef_help_private_message_label',
@@ -245,6 +238,30 @@ const _menuKey = ValueKey('eef-help-bubble-sheet');
 
 Finder _option(EefBubbleOption option) =>
     find.byKey(ValueKey('eef-help-bubble-option-${option.id}'));
+
+/// Ce que l'étudiant ne lit jamais dans la feuille : une rémunération de KPB par
+/// une école, sous quelque forme que ce soit (décision du propriétaire,
+/// 06/10/2026), FR et EN. Un FILET en complément de la liste blanche
+/// ([_renderedSheetTexts]), pas la garde principale : une reformulation que cette
+/// expression ne connaît pas passe ici et rougit là. « fees »/« frais » n'y
+/// figurent pas (la feuille parle des frais de scolarité) ; « pays » non plus.
+final _remunerationWording = RegExp(
+  r'r[ée]mun[ée]r|r[ée]tribu|per[çc]oi|re[çc]oi|recevoir|receive|contrepartie'
+  r'|contribution|compensat|\bpaid\b|\bpay(?!s\b)|pa[yi][ée]|paiement'
+  r'|commission|sponsor|parrain',
+  caseSensitive: false,
+);
+
+/// Chaque texte rendu dans la feuille ouverte, dans l'ordre de l'arbre, UN par
+/// `Text` (jamais joints bout à bout : un point en trop doit se voir).
+List<String> _renderedSheetTexts(WidgetTester tester) {
+  final texts = tester.widgetList<Text>(
+    find.descendant(of: find.byKey(_sheetKey), matching: find.byType(Text)),
+  );
+  return [
+    for (final t in texts) t.data ?? t.textSpan?.toPlainText() ?? '',
+  ];
+}
 
 Finder _inSheet(Finder inner) =>
     find.descendant(of: find.byKey(_sheetKey), matching: inner);
@@ -914,9 +931,8 @@ void main() {
           expect(_inSheet(find.text(copy.terms)), findsOneWidget);
           expect(_inSheet(find.text(copy.fees)), findsOneWidget);
           expect(_inSheet(find.text(copy.steps)), findsOneWidget);
-          // Le point 4 se cherche par son début : la phrase de rémunération a son
-          // propre test, plus bas, pour pouvoir être retirée en une ligne.
-          expect(_inSheet(find.textContaining(copy.status)), findsOneWidget);
+          // Le point 4 n'a qu'une phrase : ce que KPB est (pas de rémunération).
+          expect(_inSheet(find.text(copy.status)), findsOneWidget);
           // La mention qui existe déjà dans l'app, mot pour mot.
           expect(_inSheet(find.text('eef_help_fineprint'.tr)), findsOneWidget);
           expect(_inSheet(find.text(copy.cta)), findsOneWidget);
@@ -931,17 +947,67 @@ void main() {
       }
     }
 
-    // La phrase de rémunération : SA clé, SON test. Pour la retirer, supprimer la
-    // clé (FR et EN), l'élément du `join` dans la feuille, et ce test.
+    // Décision du propriétaire (06/10/2026) : la phrase de rémunération n'existe
+    // plus. Le test positif (service privé, pas un service de l'État) prouve que
+    // l'absence n'est pas due à une feuille vide.
     for (final locale in [const Locale('fr'), const Locale('en')]) {
       final copy = _copyFor(locale);
       testWidgets(
-          '(${locale.languageCode}) le point 4 dit ce qu\'est KPB, puis la '
-          'rémunération, dans UN seul paragraphe', (tester) async {
+          '(${locale.languageCode}) le point 4 n\'a qu\'une phrase : ce que KPB '
+          'est, sans mention de rémunération', (tester) async {
         await pumpCatalog(tester, locale: locale);
         await openSheetFromNote(tester);
-        expect(_inSheet(find.text(copy.fourth)), findsOneWidget);
-        expect(_inSheet(find.textContaining(copy.disclosure)), findsOneWidget);
+        // Le point 4 est exactement la phrase du statut, seule dans son texte.
+        expect(_inSheet(find.text(copy.status)), findsOneWidget);
+        final fourth = tester.widget<Text>(_inSheet(find.text(copy.status)));
+        expect(fourth.data, copy.status);
+        expect(RegExp(r'[.!?]').allMatches(fourth.data!).length, 1,
+            reason: 'une seule phrase : ${fourth.data}');
+      });
+
+      // LISTE BLANCHE : la feuille rend EXACTEMENT ces onze textes, dans cet
+      // ordre, et quatre puces. Une mention de plus (une phrase de rémunération
+      // reformulée, un cinquième point sous une autre clé) fait rougir ce test,
+      // quel que soit son vocabulaire.
+      testWidgets(
+          '(${locale.languageCode}) la feuille rend exactement ses onze textes '
+          'et quatre puces, sans mention de rémunération', (tester) async {
+        await pumpCatalog(tester, locale: locale);
+        await openSheetFromNote(tester);
+        final rendered = _renderedSheetTexts(tester);
+        expect(
+          rendered,
+          [
+            copy.chip,
+            copy.title,
+            copy.terms,
+            copy.fees,
+            copy.steps,
+            copy.status,
+            'eef_help_fineprint'.tr,
+            copy.cta,
+            copy.messageLabel,
+            copy.messageCatalog,
+            copy.dismiss,
+          ],
+          reason: 'la feuille rend un texte de plus (ou de moins) que ses onze '
+              'textes connus',
+        );
+        // Une puce par point : quatre, pas cinq.
+        expect(_inSheet(find.byIcon(Icons.circle)), findsNWidgets(4));
+        // Garde positive : la feuille dit ce que KPB est.
+        expect(
+          rendered,
+          contains(locale.languageCode == 'fr'
+              ? "KPB Education est un service privé d'accompagnement, pas un "
+                  "service de l'État."
+              : 'KPB Education is a private support service, not a government '
+                  'service.'),
+        );
+        // Le filet : aucun mot de rémunération, ni de contrepartie.
+        for (final text in rendered) {
+          expect(_remunerationWording.hasMatch(text), isFalse, reason: text);
+        }
       });
     }
 
@@ -1497,8 +1563,7 @@ void main() {
 
     // Les clés balayées par les gardes de contenu : toutes celles qui existent.
     // La liste du contrat (`_privateKeys`) est vérifiée à part, par « chaque clé
-    // existe » et « parité » : retirer la phrase de rémunération (sa clé et le
-    // test qui la nomme) ne fait donc rougir QUE les tests qui la nomment.
+    // existe » et « parité ».
     Iterable<String> sweep() => _privateKeys.where(keys['fr']!.containsKey);
 
     test('chaque clé existe en français ET en anglais, non vide', () {
@@ -1543,43 +1608,47 @@ void main() {
       }
     });
 
-    test('la phrase de rémunération : le texte du plan, accentué', () {
-      expect(keys['fr']![_disclosureKey], _fr.disclosure);
-      expect(keys['en']![_disclosureKey], _en.disclosure);
-      expect(keys['fr']![_disclosureKey], contains('rémunéré'));
-    });
-
-    // La phrase de rémunération a SA clé : retirable en une ligne sans toucher
-    // aux autres points.
-    test('la phrase de rémunération est dans SA clé, nulle part ailleurs', () {
+    // Décision du propriétaire (06/10/2026) : la phrase de rémunération est
+    // retirée de l'app. Ces gardes ne peuvent pas être vides : le jeu de clés
+    // `eef_help_private_*` est non vide et la clé de statut, elle, existe.
+    test('la clé de la phrase de rémunération n\'existe plus (FR et EN)', () {
       for (final locale in ['fr', 'en']) {
-        final remuneration = RegExp(
-          locale == 'fr' ? r'r[ée]mun[ée]r' : r'\bpaid\b',
-          caseSensitive: false,
-        );
-        for (final key in _privateKeys) {
-          final has = remuneration.hasMatch(keys[locale]![key]!);
-          expect(has, key == 'eef_help_private_disclosure',
-              reason: '$key ($locale) : ${keys[locale]![key]}');
-        }
-        // Les autres points, retranchés de la phrase, se lisent seuls.
-        expect(keys[locale]!['eef_help_private_point_status'],
-            isNot(contains(keys[locale]!['eef_help_private_disclosure']!)));
+        expect(
+            keys[locale]!.containsKey('eef_help_private_disclosure'), isFalse,
+            reason: locale);
       }
+      final source = File(
+              'lib/app/features/etudes_en_france/eef_private_schools_sheet.dart')
+          .readAsStringSync();
+      expect(source, isNot(contains('eef_help_private_disclosure')));
     });
 
     test(
-        'le widget compose le point 4 de DEUX clés, la rémunération en '
-        'dernier', () {
+        'aucune clé `eef_help_private_*` ne parle de rémunération, de '
+        'commission ni de parrainage (FR et EN)', () {
+      for (final locale in ['fr', 'en']) {
+        final all = privateKeys(locale).toList();
+        expect(all.length, greaterThanOrEqualTo(14),
+            reason: 'un jeu vide ne prouverait rien ($locale)');
+        for (final key in all) {
+          expect(_remunerationWording.hasMatch(keys[locale]![key]!), isFalse,
+              reason: '$key ($locale) : ${keys[locale]![key]}');
+        }
+        // Le point 4 se lit seul : ce que KPB est, pas un service de l'État.
+        expect(
+          keys[locale]!['eef_help_private_point_status'],
+          locale == 'fr' ? _fr.status : _en.status,
+        );
+      }
+    });
+
+    test('le widget compose le point 4 d\'UNE seule clé : le statut', () {
       final source = File(
               'lib/app/features/etudes_en_france/eef_private_schools_sheet.dart')
           .readAsStringSync();
       expect(source, contains("'eef_help_private_point_status'.tr"));
-      expect(source, contains("'eef_help_private_disclosure'.tr"));
-      expect(
-        source.indexOf("'eef_help_private_point_status'.tr"),
-        lessThan(source.indexOf("'eef_help_private_disclosure'.tr")),
-      );
+      expect(source, isNot(contains('.join(')));
+      expect(_remunerationWording.hasMatch(source), isFalse);
     });
 
     test(
@@ -1836,9 +1905,7 @@ void main() {
               _inSheet(find.text(copy.terms)),
               _inSheet(find.text(copy.fees)),
               _inSheet(find.text(copy.steps)),
-              // Le point 4 se cherche par son début : la phrase de rémunération
-              // (sa propre clé) peut être retirée sans toucher cette matrice.
-              _inSheet(find.textContaining(copy.status)),
+              _inSheet(find.text(copy.status)),
               _inSheet(find.text(copy.messageCatalog)),
             ]) {
               await tester.ensureVisible(point);

@@ -59,11 +59,12 @@
 Ces décisions changent des **textes compilés** : une fois l'archive faite, la seule action
 possible est de laisser le drapeau fermé. Elles sont détaillées dans
 `docs/release-56-store-pack.md` §7 ; ce tableau dit seulement **ce qu'il faut avoir tranché
-pour archiver**.
+pour archiver**. La décision **a** est **tranchée le 06/10/2026** : il n'y a plus rien à
+faire.
 
 | | Décision | Si la réponse est… | Conséquence sur l'archive |
 |---|---|---|---|
-| **a** | **KPB est-il rémunéré par des écoles privées ?** | « oui » → garder la phrase ; « **non** » → **retirer la clé `eef_help_private_disclosure`** (FR + EN) et son emploi dans `eef_private_schools_sheet.dart` | Texte **compilé** : le retrait est un changement de code, à faire **avant l'archive** (donc avant `RELEASE`). Une phrase fausse est un risque de loyauté |
+| **a** | **KPB est-il rémunéré par des écoles privées ?** | Décision **tranchée le 06/10/2026 : la phrase est retirée** de l'app (le point 4 de la feuille ne dit plus que « service privé, pas un service de l'État ») | Rien à faire avant l'archive : le retrait est déjà dans le code de la 56. Si cela change un jour, une mention de transparence devra être réintroduite AVANT d'allumer `eefPrivateSchools` |
 | **b** | **La phrase sur les frais** : « en général plus élevés que dans le public », ou son repli | Phrase gardée avec relecture juridique, sinon basculer `_useFeesFallback` (clé `eef_help_private_point_fees_fallback`, non affichée par défaut) | Texte **compilé** : à trancher **avant l'archive** |
 | **c** | **Niger : aucune mention d'école privée** | **Retenu** (ni ligne, ni option, ni feuille ; bulle neutre à 2 lignes ; visite : seule la carte 1 est neutre) | Déjà codé (`EefHelp.isSuspended()`) ; rien à faire. Reste une question au juridique, hors archive |
 | **d** | **Qui répond au +33 7 68 67 42 92, à quelles heures ?** | Sans personne nommée, **la bulle ne s'allume pas** (`eef-bubble-on`) | Hors archive : ne bloque pas l'archive, bloque l'allumage |
@@ -74,7 +75,7 @@ pour archiver**.
 comme avec la 55. Ils ne s'allument qu'après l'adoption de la 56, par `vps-ops`
 (`eef-bubble-on`, `eef-private-schools-on`), jamais pendant la revue.
 
-Si **a** ou **b** change le code, c'est une PR de plus **avant** de relever `RELEASE` : le
+Si **b** change le code, c'est une PR de plus **avant** de relever `RELEASE` : le
 préflight, l'AAB et l'archive portent tous sur le même commit.
 
 ### 0.2 L'état à constater
@@ -82,7 +83,12 @@ préflight, l'AAB et l'archive portent tous sur le même commit.
 Dans la suite, **`RELEASE`** = le SHA complet (40 caractères) de `main` au moment d'archiver.
 
 1. **#326 (la vitrine sans avertissement) et la PR de préparation de la 56 sont fusionnées
-   dans `main`** (`version: 2.3.0+56`, registre, préflights, ces documents).
+   dans `main`** (`version: 2.3.0+56`, registre, préflights, ces documents), **ainsi que la PR
+   du retrait de la phrase de rémunération** (feuille écoles privées, décision a). Cette
+   phrase est un texte **compilé** : tant que la PR n'est pas fusionnée, `main` la contient
+   encore, et un AAB, un préflight ou une archive lancés sur ce commit l'embarquent pour
+   toujours. **Ordre imposé : commit, PR, CI verte, fusion, puis relever `RELEASE`** ; ne rien
+   lancer sur un commit antérieur à cette fusion.
 2. **`docs/device-qa-build55.md`, `docs/device-qa-build56.md` et
    `docs/analytics-event-contract.md` sont sur `main`** : les renvois de cette checklist, du
    pack et du registre pointent vers eux.
@@ -136,6 +142,11 @@ git show "$RELEASE:pubspec.lock" | grep -A7 -E '^  (connectivity_plus|device_inf
 ## 1. Vérifications de départ (5 min)
 
 ```bash
+# La phrase de rémunération est-elle bien absente du commit à archiver ? (texte compilé : après
+# l'archive, plus de retour possible)
+git show "$RELEASE:lib/app/core/translations/app_translations.dart" | grep -c eef_help_private_disclosure
+#   0 : la clé de la phrase de rémunération n'existe plus (FR comme EN). Autre chose : ne PAS
+#   signer l'AAB ni archiver, la PR du retrait n'est pas dans RELEASE.
 # Le backend de production est-il bien celui que la 56 suppose ?
 curl -fsS https://api.kpbeducation.cloud/api/health/version      # sha : commence par 0641601
 git merge-base --is-ancestor 0641601 "$RELEASE" && echo "production = ancêtre de RELEASE : OK"
