@@ -103,21 +103,23 @@ describe('séparation de l’horloge et de la structure', () => {
 });
 
 describe('l’alerte avant clôture', () => {
-  it('annonce Chevening dans sa quinzaine, et pas avant', () => {
-    // Chevening clôt le 06/10/2026 à 11:00 UTC (relu le 29/09/2026). Il a pris
-    // la place de Schwarzman, l'exemple d'origine, passé `closed` depuis sa
-    // clôture du 09/09 : l'alerte ne concerne que des campagnes `open`.
+  it('annonce Open Doors dans sa quinzaine, et pas avant', () => {
+    // Open Doors clôt le 01/11/2026 (relu le 29/09/2026). Troisième exemple de
+    // ce test : Schwarzman puis Chevening sont passés `closed` après leur
+    // clôture (09/09, 06/10) — l'alerte ne concerne que des campagnes `open`.
     const ids = (iso: string) => at(iso).closingSoon.map((c) => c.scholarshipId);
 
     // Vingt jours avant : hors horizon, on ne crie pas pour rien.
-    expect(ids('2026-09-16T12:00:00.000Z')).not.toContain('chevening_2027');
+    expect(ids('2026-10-12T12:00:00.000Z')).not.toContain('open_doors_russia_2027');
     // Dix jours avant : dans l'horizon.
-    expect(ids('2026-09-26T12:00:00.000Z')).toContain('chevening_2027');
+    expect(ids('2026-10-22T12:00:00.000Z')).toContain('open_doors_russia_2027');
   });
 
   it('rend les jours restants et trie par urgence', () => {
-    const soon = at('2026-09-26T00:00:00.000Z').closingSoon;
-    expect(soon.length).toBeGreaterThan(0);
+    // Le 25/10 : Open Doors (01/11) et UofT Pearson (06/11) sont tous deux
+    // dans l'horizon — deux entrées, donc un tri qui prouve quelque chose.
+    const soon = at('2026-10-25T00:00:00.000Z').closingSoon;
+    expect(soon.length).toBeGreaterThan(1);
     for (const entry of soon) {
       expect(entry.daysLeft).toBeGreaterThan(0);
       expect(entry.daysLeft).toBeLessThanOrEqual(14);
@@ -140,10 +142,10 @@ describe('l’alerte avant clôture', () => {
   it('l’horizon est réglable, et le défaut vaut bien quatorze jours', () => {
     const wide = validateScholarshipCatalog(SCHOLARSHIP_CATALOG_V1, {
       includeVolumeTargets: false,
-      now: new Date('2026-08-20T12:00:00.000Z'),
+      now: new Date('2026-10-12T12:00:00.000Z'),
       closingSoonHorizonDays: 60,
     });
-    const byDefault = at('2026-08-20T12:00:00.000Z');
+    const byDefault = at('2026-10-12T12:00:00.000Z');
     expect(wide.closingSoon.length).toBeGreaterThan(byDefault.closingSoon.length);
     expect(byDefault.closingSoon.every((c) => c.daysLeft <= 14)).toBe(true);
   });

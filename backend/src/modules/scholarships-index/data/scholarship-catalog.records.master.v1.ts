@@ -11,7 +11,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     levelLabel: ['Master d’un an', 'One-year Master'],
     fundingLabel: ['Financement complet', 'Fully funded'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Ouvert — clôture le 6 octobre 2026 à 11 h UTC', 'Open — closes 6 October 2026 at 11:00 UTC'],
+    deadlineLabel: ['Clôturé — la campagne 2027–2028 a fermé le 6 octobre 2026 à 11 h UTC ; prochain cycle non annoncé', 'Closed — the 2027–2028 window closed on 6 October 2026 at 11:00 UTC; next cycle not yet announced'],
     description: [
       'Bourse internationale du gouvernement britannique pour futurs leaders admis à un Master éligible d’un an au Royaume-Uni. La campagne 2027-2028 est ouverte depuis le 4 août 2026 et la source officielle publie la clôture au 6 octobre 2026 à 11 h UTC.',
       'UK government international scholarship for future leaders admitted to an eligible one-year Master programme in the United Kingdom. The 2027-2028 campaign opened on 4 August 2026 and the official source publishes the 6 October 2026, 11:00 UTC closing time.',
@@ -48,7 +48,9 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'open',
+      // Passé `closed` le 06/10/2026 après la clôture de 11:00 UTC ; aucune
+      // relecture de source pour ce geste, `checkedAt` ne bouge pas.
+      status: 'closed',
       dateConfidence: 'confirmed',
       opensAt: '2026-08-04T11:00:00.000Z',
       closesAt: '2026-10-06T11:00:00.000Z',
@@ -61,7 +63,7 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
       application: 'https://www.chevening.org/apply/',
       cycle: 'https://www.chevening.org/scholarships/application-timeline/',
     },
-    tags: ['master', 'uk', 'government', 'open', 'fully-funded'],
+    tags: ['master', 'uk', 'government', 'closed', 'fully-funded'],
     checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({
