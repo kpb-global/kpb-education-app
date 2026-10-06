@@ -90,7 +90,13 @@ void main() {
 
   /// Fabrique un `Generated.xcconfig` dont `DART_DEFINES` porte la clé donnée
   /// (`null` = aucune définition POSTHOG_API_KEY du tout).
-  File xcconfig(String name, {String? posthog, List<String> extra = const []}) {
+  File xcconfig(
+    String name, {
+    String? posthog,
+    List<String> extra = const [],
+    String? build,
+    String? version,
+  }) {
     final defines = <String>[
       'KPB_APP_ENV=prod',
       'KPB_WHATSAPP_NUMBER=+33768674292',
@@ -100,8 +106,8 @@ void main() {
     final encoded = defines.map((d) => base64Encode(utf8.encode(d))).join(',');
     return File('${sandbox.path}/$name.xcconfig')
       ..writeAsStringSync(
-        'FLUTTER_BUILD_NAME=${_expected('EXPECTED_VERSION')}\n'
-        'FLUTTER_BUILD_NUMBER=${_expected('EXPECTED_BUILD')}\n'
+        'FLUTTER_BUILD_NAME=${version ?? _expected('EXPECTED_VERSION')}\n'
+        'FLUTTER_BUILD_NUMBER=${build ?? _expected('EXPECTED_BUILD')}\n'
         'DART_DEFINES=$encoded\n',
       );
   }
@@ -354,19 +360,274 @@ void main() {
     });
   });
 
+  // « Préflights épinglés à 56 » ne se prouve pas en cherchant la chaîne
+  // `EXPECTED_BUILD="56"` dans le script : il faut JOUER le refus d'une build 55,
+  // le piège central de la préparation de la 56 (une IPA et un AAB de la 55
+  // existent déjà). Le xcconfig des tests ci-dessus recopie la valeur LUE dans le
+  // script des deux côtés : il ne peut jamais refuser. Ici, le numéro donné est
+  // volontairement DIFFÉRENT de celui du script.
+  group('Préflight iOS : la build attendue est jouée, pas seulement lue',
+      skip: skipTools, () {
+    int expectedBuild() => int.parse(_expected('EXPECTED_BUILD'));
+
+    /// Un Info.plist d'archive (XML) : identité et versions de la bundle.
+    File infoPlist(String name, {required String build, String? version}) {
+      final dir = Directory('${sandbox.path}/$name.app')..createSync();
+      File('${dir.path}/Info.plist').writeAsStringSync(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<plist version="1.0"><dict>\n'
+        '<key>CFBundleIdentifier</key><string>'
+        '${_expected('EXPECTED_BUNDLE_ID')}</string>\n'
+        '<key>CFBundleShortVersionString</key><string>'
+        '${version ?? _expected('EXPECTED_VERSION')}</string>\n'
+        '<key>CFBundleVersion</key><string>$build</string>\n'
+        '</dict></plist>\n',
+      );
+      return File('${dir.path}/Info.plist');
+    }
+
+    _Run runApp(File config, File plist) {
+      final result = Process.runSync(
+        'bash',
+        [
+          _script,
+          '--xcconfig',
+          config.path,
+          '--app',
+          plist.parent.path,
+        ],
+        environment: {
+          'PATH': '$fakeBin:${Platform.environment['PATH'] ?? '/usr/bin:/bin'}',
+        },
+        includeParentEnvironment: true,
+      );
+      return _Run(result.exitCode, '${result.stdout}${result.stderr}');
+    }
+
+    test('le script épingle la build de pubspec.yaml', () {
+      final pubspec = File('pubspec.yaml').readAsStringSync();
+      final shipping =
+          RegExp(r'^version:\s*(\d+\.\d+\.\d+)\+(\d+)\s*$', multiLine: true)
+              .firstMatch(pubspec)!;
+      expect(_expected('EXPECTED_VERSION'), shipping.group(1));
+      expect(_expected('EXPECTED_BUILD'), shipping.group(2));
+    });
+
+    test('un xcconfig de la build PRÉCÉDENTE (55) est refusé : attendu 56', () {
+      final key = _key(43);
+      for (final stale in [expectedBuild() - 1, expectedBuild() - 2]) {
+        final result =
+            run(xcconfig('stale$stale', posthog: key, build: '$stale'));
+        expect(result.exitCode, isNot(0), reason: 'la build $stale a passé');
+        expect(result.output, contains('FLUTTER_BUILD_NUMBER=$stale'),
+            reason: result.output);
+        expect(result.output, contains('attendu ${expectedBuild()}'),
+            reason: result.output);
+        // Il s'arrête sur le numéro : ni la clé ni le bundle ne sont lus.
+        expect(result.output, isNot(contains('CFBundleIdentifier')));
+        expect(result.output, isNot(matches(_posthogFailure)));
+      }
+    });
+
+    test('une build SUIVANTE est refusée aussi (le préflight est épinglé)', () {
+      final result = run(
+          xcconfig('next', posthog: _key(43), build: '${expectedBuild() + 1}'));
+      expect(result.exitCode, isNot(0));
+      expect(result.output, contains('attendu ${expectedBuild()}'));
+    });
+
+    test('un FLUTTER_BUILD_NAME différent est refusé (version marketing)', () {
+      final result =
+          run(xcconfig('oldname', posthog: _key(43), version: '2.2.0'));
+      expect(result.exitCode, isNot(0));
+      expect(result.output, contains('FLUTTER_BUILD_NAME=2.2.0'));
+      expect(
+          result.output, contains('attendu ${_expected('EXPECTED_VERSION')}'));
+    });
+
+    test('un bundle dont CFBundleVersion est 55 est refusé, le 56 passe', () {
+      final config = xcconfig('bundle', posthog: _key(43));
+      final stale = runApp(
+          config, infoPlist('stale-bundle', build: '${expectedBuild() - 1}'));
+      expect(stale.exitCode, isNot(0));
+      expect(
+          stale.output,
+          contains(
+              'CFBundleVersion=${expectedBuild() - 1} (attendu ${expectedBuild()})'),
+          reason: stale.output);
+
+      // Contre-épreuve : le MÊME harnais avec le bon numéro va PLUS LOIN
+      // (il échoue sur les orientations, absentes de ce plist minimal). Sans
+      // elle, un refus pour une autre raison passerait pour la preuve.
+      final good =
+          runApp(config, infoPlist('good-bundle', build: '${expectedBuild()}'));
+      expect(good.exitCode, isNot(0));
+      expect(good.output, isNot(contains('CFBundleVersion=')),
+          reason: good.output);
+      expect(good.output, contains('orientations'), reason: good.output);
+    });
+
+    test('une version marketing de bundle différente est refusée', () {
+      final result = runApp(
+        xcconfig('bundle-name', posthog: _key(43)),
+        infoPlist('old-version',
+            build: _expected('EXPECTED_BUILD'), version: '2.2.0'),
+      );
+      expect(result.exitCode, isNot(0));
+      expect(result.output, contains('CFBundleShortVersionString=2.2.0'));
+    });
+  });
+
+  // Les replis COMPILÉS de la 56 : `AppConfig.eef*Enabled` lit
+  // `bool.fromEnvironment('KPB_EEF_…')` quand `/config/app` ne sert pas la clé ou
+  // est injoignable — et le backend de production (0641601) ne sert ni
+  // `eefHelpBubble` ni `eefPrivateSchools`. Un binaire compilé avec l'un de ces
+  // defines à `true` montrerait donc au relecteur Apple la bulle, les écoles
+  // privées ou l'espace, alors que les notes de revue disent « tout est éteint » et
+  // qu'aucun `eef-*-off` serveur n'y peut rien. La checklist le dit en une phrase
+  // (« aucun define ») ; le préflight le REFUSE.
+  group('Préflight iOS : aucun repli compilé « EEF » allumé', skip: skipTools,
+      () {
+    const names = [
+      'KPB_EEF_ENABLED',
+      'KPB_EEF_SPACE_ENABLED',
+      'KPB_EEF_HELP_BUBBLE_ENABLED',
+      'KPB_EEF_PRIVATE_SCHOOLS_ENABLED',
+    ];
+
+    test(
+        'chaque define allumé est refusé, en mode complet et en --posthog-only',
+        () {
+      final key = _key(43);
+      for (final name in names) {
+        for (final onlyKey in [false, true]) {
+          final result = run(
+            xcconfig('eef-$name-$onlyKey', posthog: key, extra: ['$name=true']),
+            postHogOnly: onlyKey,
+          );
+          expect(result.exitCode, isNot(0),
+              reason: '$name=true a passé (posthogOnly=$onlyKey)');
+          expect(result.output, contains(name),
+              reason: 'le refus ne nomme pas $name :\n${result.output}');
+          expect(result.output, contains('PREFLIGHT ÉCHEC'));
+          expect(result.output, isNot(contains(key)),
+              reason: 'la clé a été affichée');
+          // Refusé AVANT la lecture du bundle.
+          expect(result.output, isNot(contains('CFBundleIdentifier')));
+        }
+      }
+    });
+
+    test('le refus survit à une définition « false » placée avant', () {
+      // `--dart-define` répété : laquelle l'emporte n'est pas garanti. Un `false`
+      // suivi d'un `true` ne doit pas masquer le second.
+      final result = run(
+        xcconfig('eef-dup', posthog: _key(43), extra: [
+          'KPB_EEF_HELP_BUBBLE_ENABLED=false',
+          'KPB_EEF_HELP_BUBBLE_ENABLED=true',
+        ]),
+        postHogOnly: true,
+      );
+      expect(result.exitCode, isNot(0), reason: result.output);
+      expect(result.output, contains('KPB_EEF_HELP_BUBBLE_ENABLED'));
+    });
+
+    test('les defines fermés (ou absents) passent', () {
+      final key = _key(43);
+      final closed = run(
+        xcconfig('eef-closed',
+            posthog: key, extra: [for (final n in names) '$n=false']),
+        postHogOnly: true,
+      );
+      expect(closed.exitCode, 0, reason: closed.output);
+      final absent =
+          run(xcconfig('eef-absent', posthog: key), postHogOnly: true);
+      expect(absent.exitCode, 0, reason: absent.output);
+      // La vitrine (KPB_EEF_TEASER_ENABLED) n'est pas l'espace : non concernée.
+      final teaser = run(
+        xcconfig('eef-teaser',
+            posthog: key, extra: ['KPB_EEF_TEASER_ENABLED=true']),
+        postHogOnly: true,
+      );
+      expect(teaser.exitCode, 0, reason: teaser.output);
+    });
+
+    test('un define voisin qui n\'est pas un drapeau ne déclenche rien', () {
+      // « true » ailleurs que dans la valeur, ou un autre nom : pas de faux refus.
+      final result = run(
+        xcconfig('eef-neighbour', posthog: _key(43), extra: [
+          'KPB_EEF_CAMPAIGN_OPENS_AT=true',
+          'OTHER_SPACE_ENABLED=true'
+        ]),
+        postHogOnly: true,
+      );
+      expect(result.exitCode, 0, reason: result.output);
+    });
+  });
+
+  group('Les defines EEF ne sont jamais passés aux commandes de build', () {
+    test('ni les workflows, ni la checklist ne compilent un repli EEF', () {
+      final eef = RegExp(r'KPB_EEF_[A-Z_]*ENABLED');
+      final offenders = <String>[];
+      for (final entity in Directory('.github/workflows').listSync()) {
+        if (entity is! File || !entity.path.endsWith('.yml')) continue;
+        // Une commande `flutter build` peut continuer sur les lignes suivantes
+        // (`\`) : on joint les continuations avant de chercher.
+        final text =
+            entity.readAsStringSync().replaceAll(RegExp(r'\\\s*\n\s*'), ' ');
+        for (final line in text.split('\n')) {
+          if (line.contains('flutter build') && eef.hasMatch(line)) {
+            offenders.add('${entity.path} : ${line.trim()}');
+          }
+        }
+      }
+      expect(offenders, isEmpty,
+          reason: 'une commande `flutter build` compile un repli EEF :\n'
+              '${offenders.join('\n')}');
+
+      final checklist =
+          File('docs/mise-a-jour-56-checklist.md').readAsStringSync();
+      final blocks = RegExp(r'```[a-z]*\n(.*?)```', dotAll: true)
+          .allMatches(checklist)
+          .map((m) => m.group(1)!.replaceAll(RegExp(r'\\\s*\n\s*'), ' '));
+      for (final block in blocks) {
+        for (final line in block.split('\n')) {
+          if (line.contains('flutter build')) {
+            expect(eef.hasMatch(line), isFalse,
+                reason: 'la checklist compile un repli EEF : $line');
+          }
+        }
+      }
+    });
+
+    test(
+        'la contre-épreuve : le détecteur voit un define EEF dans une commande',
+        () {
+      final eef = RegExp(r'KPB_EEF_[A-Z_]*ENABLED');
+      expect(
+          eef.hasMatch(
+              'flutter build appbundle --dart-define=KPB_EEF_HELP_BUBBLE_ENABLED=true'),
+          isTrue);
+      expect(
+          eef.hasMatch(
+              'flutter build appbundle --dart-define=KPB_APP_ENV=prod'),
+          isFalse);
+    });
+  });
+
   group('La checklist montre le même contrôle', () {
     test('elle ne le décrit pas à la main : elle lance le préflight', () {
       final checklist =
-          File('docs/mise-a-jour-55-checklist.md').readAsStringSync();
+          File('docs/mise-a-jour-56-checklist.md').readAsStringSync();
       expect(checklist, contains('--posthog-only'));
       expect(checklist, contains(r'${#POSTHOG_API_KEY}'));
     });
 
     test('elle ne fige pas une longueur que le dépôt ne connaît pas', () {
       // La longueur de la vraie clé n'est lue nulle part ici ; la mémoire du
-      // projet la donne à 48 pour la 55. « 47 » / « 94 » étaient supposés.
+      // projet la donne à 48 pour la 55 et la 56. « 47 » / « 94 » étaient supposés.
       final checklist =
-          File('docs/mise-a-jour-55-checklist.md').readAsStringSync();
+          File('docs/mise-a-jour-56-checklist.md').readAsStringSync();
       for (final banned in ['**47**', '**94**', '47 caractères', '= 47']) {
         expect(checklist.contains(banned), isFalse,
             reason: 'la checklist fige « $banned » comme longueur attendue');
@@ -381,7 +642,7 @@ void main() {
       // « hors_succes = 0 ». Une preuve vide n'est pas une preuve : le filtre
       // doit faire échouer la commande.
       final checklist =
-          File('docs/mise-a-jour-55-checklist.md').readAsStringSync();
+          File('docs/mise-a-jour-56-checklist.md').readAsStringSync();
       final match = RegExp(r"--jq '([^']+)'", dotAll: true)
           .firstMatch(checklist.substring(checklist.indexOf('gh run list')));
       expect(match, isNotNull, reason: 'le filtre --jq a disparu');
@@ -449,7 +710,7 @@ void main() {
       // Une commande qui lit un secret vit seule dans son bloc, jamais collée à
       // `flutter build`.
       final checklist =
-          File('docs/mise-a-jour-55-checklist.md').readAsStringSync();
+          File('docs/mise-a-jour-56-checklist.md').readAsStringSync();
       final blocks = RegExp(r'```[a-z]*\n(.*?)```', dotAll: true)
           .allMatches(checklist)
           .map((m) => m.group(1)!)

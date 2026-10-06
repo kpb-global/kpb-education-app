@@ -1,5 +1,12 @@
 # Build 55 (`2.3.0`) — pack de soumission : notes de version, notes de revue, textes de fiche
 
+> **⚠️ REMPLACÉE par la 56 le 05/10/2026 : la 55 n'a jamais été soumise ; suivre `docs/mise-a-jour-56-checklist.md`.**
+> Décision du propriétaire : on n'envoie que la 56. La 55 (`2.3.0 (55)`) a été téléversée sur App Store Connect
+> le 04/10/2026 mais jamais soumise à l'App Review ; son AAB signé (Flutter CI, run 37322572087) n'a jamais été
+> importé dans Play et **ne doit pas l'être**. Le contenu ci-dessous est conservé tel qu'écrit. Ce que la 56 en
+> reprend (notes de version, cas Aide-n, constats Xcode 27) est dit par ses propres documents ; pour tout numéro
+> de version ou de build, lire 56. Le registre : `docs/release-ledger.md`.
+
 > **À quoi sert ce fichier.** Tout ce qu'il faut *coller* dans les consoles pour la
 > 55, au même endroit : notes de version (« Nouveautés » / « What to Test »),
 > addendum aux « Notes for Review » Apple, phrases de non-affiliation pour la

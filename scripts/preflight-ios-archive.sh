@@ -14,7 +14,8 @@
 # sans bundle ni outil de signature) :
 #   scripts/preflight-ios-archive.sh --xcconfig ios/Flutter/Generated.xcconfig --posthog-only
 # Sort en 0 avec la longueur et le verdict ; en 1 si la clé est absente, vide,
-# doublée ou mal formée. La clé n'est JAMAIS affichée.
+# doublée ou mal formée, ou si un repli compilé KPB_EEF_*_ENABLED est à true.
+# La clé n'est JAMAIS affichée.
 
 set -euo pipefail
 
@@ -23,13 +24,13 @@ ARCHIVE_PLIST=""
 APP_PATH=""
 POSTHOG_ONLY=0
 
-EXPECTED_BUILD="55"
+EXPECTED_BUILD="56"
 EXPECTED_VERSION="2.3.0"
 EXPECTED_BUNDLE_ID="Karatou.karatou"
 EXPECTED_TEAM_ID="DNPB788LKX"
 
 usage() {
-  sed -n '2,17p' "$0" | sed 's/^# \?//'
+  sed -n '2,18p' "$0" | sed 's/^# \?//'
   exit 2
 }
 
@@ -129,11 +130,40 @@ check_posthog_key() {
   if ! printf '%s' "$key" | LC_ALL=C grep -Eq '^phc_[A-Za-z0-9]{30,60}$'; then
     occurrences=$(printf '%s' "$key" | grep -o 'phc_' | wc -l | tr -d '[:space:]')
     if [[ "$occurrences" -gt 1 ]]; then
-      fail "POSTHOG_API_KEY invalide : $len caractères et $occurrences occurrences de phc_ — la clé a été collée deux fois. Une clé de projet n'en porte qu'une. Refaire la saisie SEULE, puis la construction (docs/mise-a-jour-55-checklist.md, étape 3)."
+      fail "POSTHOG_API_KEY invalide : $len caractères et $occurrences occurrences de phc_ — la clé a été collée deux fois. Une clé de projet n'en porte qu'une. Refaire la saisie SEULE, puis la construction (docs/mise-a-jour-56-checklist.md, étape 3)."
     fi
     fail "POSTHOG_API_KEY invalide : $len caractères ; attendu phc_ suivi de 30 à 60 lettres ou chiffres, sans espace, tiret, guillemet ni autre caractère."
   fi
   echo "POSTHOG_API_KEY : $len caractères, une seule clé phc_ au format attendu — OK"
+}
+
+# Aucun repli COMPILÉ « Études en France » allumé.
+#
+# `AppConfig.eefSpaceEnabled`, `eefHelpBubbleEnabled`, `eefPrivateSchoolsEnabled`
+# lisent `bool.fromEnvironment('KPB_EEF_…')` quand `/config/app` ne sert pas la clé
+# ou est injoignable ; or le backend de production (couplage `tolerates-old`) ne
+# sert ni `eefHelpBubble` ni `eefPrivateSchools`. Un binaire compilé avec l'un de
+# ces defines à `true` montrerait donc l'espace, la bulle ou la feuille « écoles
+# privées » au relecteur Apple, quoi qu'on écrive côté serveur (`eef-bubble-off`
+# n'écrit que dans le .env d'un backend qui ne sert pas la clé). La checklist dit
+# « aucun define » ; ce contrôle le REFUSE, et il tourne aussi en `--posthog-only`
+# pour que la vérification juste après `flutter build ios` l'attrape.
+#
+# Seul `=true` compte : `bool.fromEnvironment` ne lit que la chaîne exacte « true ».
+# Une définition répétée n'a pas de gagnante garantie : un seul `true` suffit à
+# refuser, même précédé d'un `false`. Les valeurs ne sont jamais affichées : seul
+# le NOM du define l'est.
+check_no_open_eef_defines() {
+  local name offenders=""
+  for name in KPB_EEF_ENABLED KPB_EEF_SPACE_ENABLED \
+              KPB_EEF_HELP_BUBBLE_ENABLED KPB_EEF_PRIVATE_SCHOOLS_ENABLED; do
+    if printf '%s\n' "$DECODED" | grep -Fxq "$name=true"; then
+      offenders="$offenders $name"
+    fi
+  done
+  [[ -z "$offenders" ]] || \
+    fail "repli compilé EEF allumé :$offenders=true. Ces interrupteurs sont SERVEUR : la 56 part avec l'espace, la bulle et les écoles privées FERMÉS (aucun --dart-define KPB_EEF_*). Reconstruire sans eux (docs/mise-a-jour-56-checklist.md, étape 3)."
+  echo "Replis compilés EEF : aucun define KPB_EEF_*_ENABLED à true — OK"
 }
 
 if [[ "$POSTHOG_ONLY" == "1" ]]; then
@@ -143,6 +173,7 @@ if [[ "$POSTHOG_ONLY" == "1" ]]; then
   }
   decode_dart_defines
   check_posthog_key
+  check_no_open_eef_defines
   exit 0
 fi
 
@@ -212,6 +243,7 @@ WHATSAPP=$(printf '%s\n' "$DECODED" | sed -n 's/^KPB_WHATSAPP_NUMBER=//p' | tail
   fail "KPB_WHATSAPP_NUMBER absent ou placeholder"
 
 check_posthog_key
+check_no_open_eef_defines
 
 API_OVERRIDE=$(printf '%s\n' "$DECODED" | sed -n 's/^KPB_API_BASE_URL=//p' | tail -1)
 if [[ -n "$API_OVERRIDE" && "$API_OVERRIDE" != https://* ]]; then

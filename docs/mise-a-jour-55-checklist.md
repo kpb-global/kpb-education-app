@@ -1,5 +1,12 @@
 # Mise à jour 2.3.0 (55) — la checklist du 03/10/2026
 
+> **⚠️ REMPLACÉE par la 56 le 05/10/2026 : la 55 n'a jamais été soumise ; suivre `docs/mise-a-jour-56-checklist.md`.**
+> Décision du propriétaire : on n'envoie que la 56. La 55 (`2.3.0 (55)`) a été téléversée sur App Store Connect
+> le 04/10/2026 mais jamais soumise à l'App Review ; son AAB signé (Flutter CI, run 37322572087) n'a jamais été
+> importé dans Play et **ne doit pas l'être**. Le contenu ci-dessous est conservé tel qu'écrit. Ce que la 56 en
+> reprend (notes de version, cas Aide-n, constats Xcode 27) est dit par ses propres documents ; pour tout numéro
+> de version ou de build, lire 56. Le registre : `docs/release-ledger.md`.
+
 > **Ce que ce fichier est.** L'ordre exact des opérations pour archiver, vérifier et
 > soumettre la 55, avec les commandes. Il **remplace** `docs/mise-a-jour-54-checklist.md` :
 > la 54 n'a jamais été envoyée aux boutiques (constat du 03/10/2026, `docs/release-ledger.md`),

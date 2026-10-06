@@ -1,5 +1,12 @@
 # Fiche de QA appareil — build 55 : aide au dossier et retrait
 
+> **⚠️ REMPLACÉE par la 56 le 05/10/2026 : la 55 n'a jamais été soumise ; suivre `docs/mise-a-jour-56-checklist.md`.**
+> Décision du propriétaire : on n'envoie que la 56. La 55 (`2.3.0 (55)`) a été téléversée sur App Store Connect
+> le 04/10/2026 mais jamais soumise à l'App Review ; son AAB signé (Flutter CI, run 37322572087) n'a jamais été
+> importé dans Play et **ne doit pas l'être**. Le contenu ci-dessous est conservé tel qu'écrit. Ce que la 56 en
+> reprend (notes de version, cas Aide-n, constats Xcode 27) est dit par ses propres documents ; pour tout numéro
+> de version ou de build, lire 56. Le registre : `docs/release-ledger.md`.
+
 > **Pour qui.** Le propriétaire, sur **un iPhone et un Android physiques**, avec la
 > **build soumise** (TestFlight / Play Internal) — pas un build de debug : le
 > contrat de soumission exige que la preuve vienne de l'artefact. Cette fiche est la
