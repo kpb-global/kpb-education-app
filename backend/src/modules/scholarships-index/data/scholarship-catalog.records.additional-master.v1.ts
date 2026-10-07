@@ -11,7 +11,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     levelLabel: ['Master ou autre diplôme supérieur Stanford admissible', 'Eligible Stanford Master or other graduate degree'],
     fundingLabel: ['Financement complet jusqu’à trois ans', 'Comprehensive funding for up to three years'],
     fundingType: 'fully_funded',
-    deadlineLabel: ['Ouvert — deux dates limites : KHS le 6 octobre 2026 à 13 h heure du Pacifique, et le programme Stanford à la plus proche de sa propre date ou du 1er décembre 2026', 'Open — two deadlines: KHS on 6 October 2026 at 1:00 PM Pacific Time, and the Stanford degree programme by the earlier of its own deadline or 1 December 2026'],
+    deadlineLabel: ['Clôturé — la candidature KHS 2027 a fermé le 6 octobre 2026 à 13 h heure du Pacifique ; les candidats déjà inscrits doivent encore déposer le programme Stanford à la plus proche de sa propre date ou du 1er décembre 2026 ; prochain cycle non annoncé', 'Closed — the 2027 KHS application closed on 6 October 2026 at 1:00 PM Pacific Time; applicants who submitted must still file the Stanford degree programme by the earlier of its own deadline or 1 December 2026; next cycle not yet announced'],
     description: [
       'Programme multidisciplinaire de financement et de leadership pour nouveaux étudiants à temps plein dans un diplôme supérieur admissible de Stanford.',
       'Multidisciplinary funding and leadership programme for newly enrolling full-time students in an eligible Stanford graduate degree.',
@@ -48,7 +48,10 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
     ],
     cycle: {
       academicYear: '2027-2028',
-      status: 'open',
+      // Passé `closed` le 06/10/2026 après la clôture KHS de 13:00 PT
+      // (20:00 UTC) ; aucune relecture de source pour ce geste, `checkedAt`
+      // ne bouge pas.
+      status: 'closed',
       dateConfidence: 'confirmed',
       opensAt: '2026-06-01T00:00:00.000Z',
       closesAt: '2026-10-06T20:00:00.000Z',
@@ -61,7 +64,7 @@ export const VERIFIED_ADDITIONAL_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRe
       application: 'https://apply.knight-hennessy.stanford.edu/apply/',
       cycle: 'https://knight-hennessy.stanford.edu/admission/preparing-your-applications/your-applications',
     },
-    tags: ['master', 'usa', 'stanford', 'open', 'leadership', 'fully-funded'],
+    tags: ['master', 'usa', 'stanford', 'closed', 'leadership', 'fully-funded'],
     checkedAt: '2026-09-29T12:00:00.000Z',
   }),
   record({

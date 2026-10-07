@@ -29,12 +29,11 @@ import * as path from 'node:path';
 // __dirname = src/modules/scholarships-index/data → 4 crans = racine backend.
 const BACKEND_ROOT = path.join(__dirname, '..', '..', '..', '..');
 
-// Horloge ré-ancrée à la re-vérification du 29/09/2026 : Schwarzman, qui
-// servait d'exemple, est désormais `closed` (fenêtre 2027-2028 fermée le
-// 09/09). Le principe ne change pas — jouer le CLI un jour où une clôture
-// entre dans l'horizon. Le 26/09/2026 à 06:00 UTC, l'heure du cron, Chevening
-// (clôture le 06/10 à 11:00 UTC) est à dix jours.
-const ACCIDENT_CLOCK = '2026-09-26T06:00:00.000Z';
+// Horloge ré-ancrée à chaque clôture de l'exemple : Schwarzman (09/09) puis
+// Chevening (06/10) sont désormais `closed`. Le principe ne change pas —
+// jouer le CLI un jour où une clôture entre dans l'horizon. Le 22/10/2026 à
+// 06:00 UTC, l'heure du cron, Open Doors (clôture le 01/11) est à dix jours.
+const ACCIDENT_CLOCK = '2026-10-22T06:00:00.000Z';
 
 describe('validate-scholarship-catalog CLI — discipline de sortie', () => {
   let tmpDir: string;
@@ -72,14 +71,14 @@ describe('validate-scholarship-catalog CLI — discipline de sortie', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it("le 26/09 a bien quelque chose à annoncer — sinon ce test ne prouve rien", () => {
+  it("le 22/10 a bien quelque chose à annoncer — sinon ce test ne prouve rien", () => {
     const report = JSON.parse(reportRaw) as {
       closingSoon: Array<{ scholarshipId: string }>;
     };
     expect(report.closingSoon.length).toBeGreaterThanOrEqual(1);
     expect(
       report.closingSoon.map((entry) => entry.scholarshipId),
-    ).toContain('chevening_2027');
+    ).toContain('open_doors_russia_2027');
   });
 
   it('le fichier --report est du JSON pur, annotations comprises dans la journée', () => {
@@ -98,6 +97,6 @@ describe('validate-scholarship-catalog CLI — discipline de sortie', () => {
     // Pas seulement « stdout est propre » : l'annotation doit continuer
     // d'EXISTER — la déplacer était le correctif, la perdre serait une
     // régression pire (plus d'alarme du tout).
-    expect(stderr).toContain('::warning::chevening_2027');
+    expect(stderr).toContain('::warning::open_doors_russia_2027');
   });
 });
