@@ -91,6 +91,11 @@ const _nonProcessorSuffixes = <String>[
   'alueducation.com',
   'blogspot.com',
   'mastercardfdn.org',
+  // Gates Cambridge et Carnegie Mellon University Africa : fiches du
+  // catalogue ajoutées le 07/10/2026. Leurs pages officielles sont des
+  // SOURCES que l'étudiant ouvre, jamais des destinataires de ses données.
+  'gatescambridge.org',
+  'cmu.edu',
   'yok.gov.tr',
   'dfat.gov.au',
   // Le site officiel du programme Australia Awards Africa : la fiche du
