@@ -5,9 +5,10 @@ import { buildVerifiedScholarshipRecord as record } from './scholarship-catalog.
  * European Master-only opportunities, verified against official sources on
  * 10 August 2026.
  *
- * All three records use `dateConfidence: 'estimated'`. This is not caution for
- * its own sake — none of the three authorities publishes a single dated
- * calendar for the 2027-2028 intake:
+ * The three records started with `dateConfidence: 'estimated'`. This is not
+ * caution for its own sake — none of the three authorities published a single
+ * dated calendar for the 2027-2028 intake when they were written (Eiffel has
+ * since published one, see below):
  *
  *  - Eiffel: the Campus France pages still carry the 2026 session calendar
  *    (call opened 1 October 2025, institution deadline 8 January 2026, results
@@ -21,9 +22,10 @@ import { buildVerifiedScholarshipRecord as record } from './scholarship-catalog.
  *    states that "in most cases, you should submit your application between
  *    October and January for courses starting the following academic year".
  *
- * `status` is therefore `'forecast'` throughout: the validator forbids
- * `'open'` without confirmed dates, and claiming confirmation here would be a
- * fabrication.
+ * `status` is therefore `'forecast'` until an official date is published:
+ * the validator forbids `'open'` without confirmed dates, and claiming
+ * confirmation here would be a fabrication. Eiffel became `'open'` on
+ * 07/10/2026, once Campus France published the 2027 closing date.
  */
 export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] =
   [
@@ -45,8 +47,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
       ],
       fundingType: 'partially_funded',
       deadlineLabel: [
-        'Ouverture estimée — appel attendu fin septembre 2026, dépôt par l’établissement français début janvier 2027',
-        'Estimated opening — call expected end of September 2026, French institution submission early January 2027',
+        'Ouvert — appel 2027 en cours ; dépôt par l’établissement français au plus tard le 6 janvier 2027 (la page officielle cite aussi le 8 janvier : retenir le 6)',
+        'Open — 2027 call under way; submission by the French institution by 6 January 2027 at the latest (the official page also mentions 8 January: rely on 6 January)',
       ],
       description: [
         'Bourse du ministère de l’Europe et des Affaires étrangères, gérée par Campus France, destinée à attirer les meilleurs étudiants étrangers dans les masters et diplômes d’ingénieur français. Point décisif : la candidature est déposée uniquement par l’établissement français qui présente l’étudiant, jamais par l’étudiant lui-même — l’étudiant doit donc se faire présélectionner par un établissement, plusieurs mois avant la date limite nationale. Un volet doctorat existe mais n’est pas couvert par cette fiche.',
@@ -158,12 +160,16 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
       ],
       cycle: {
         academicYear: '2027-2028',
-        status: 'forecast',
-        dateConfidence: 'estimated',
-        estimatedOpenAt: '2026-09-30T00:00:00.000Z',
-        estimatedCloseAt: '2027-01-08T23:59:59.000Z',
+        // Ouvert : actualité Campus France mise à jour le 06/10/2026 (« open
+        // until January 6, 2027 »). La même page dit aussi « until January 8,
+        // 2027 » au paragraphe précédent : la date la plus tôt est retenue,
+        // une clôture trop tôt coûte moins qu'une clôture manquée. Aucune date
+        // d'ouverture n'est publiée — on ne l'invente pas.
+        status: 'open',
+        dateConfidence: 'confirmed',
+        closesAt: '2027-01-06T23:59:59.000Z',
         sourceUrl:
-          'https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf',
+          'https://www.campusfrance.org/en/actu/call-for-france-excellence-eiffel-applications-2027',
       },
       sources: {
         overview:
@@ -175,7 +181,7 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         application:
           'https://www.campusfrance.org/fr/faq-appel-a-candidature-a-la-bourse-eiffel',
         cycle:
-          'https://ressources.campusfrance.org/pratique/programmes/en/plaquette_eiffel_1_en.pdf',
+          'https://www.campusfrance.org/en/actu/call-for-france-excellence-eiffel-applications-2027',
       },
       tags: [
         'master',
@@ -183,8 +189,7 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
         'government',
         'campus-france',
         'nomination',
-        'forecast',
-        'estimated-open-date',
+        'open',
       ],
       relatedFieldIds: ['d01', 'd02', 'd03', 'd04', 'd07', 'd08', 'd09'],
       checkedAt: '2026-09-29T12:00:00.000Z',

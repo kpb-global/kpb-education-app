@@ -175,13 +175,14 @@ describe('scholarships-catalog CLI', () => {
     // jj_wbgsp en dates confirmées (leurs sources publient désormais le cycle
     // 2027 ferme). 11 depuis le 29/09 : Schwarzman, confirmé, est clos ; 10
     // depuis le 30/09 : UP Mastercard, confirmée, est close ; 8 depuis le
-    // 06/10 : Chevening et Knight-Hennessy, confirmés, sont clos.
-    it('publishes only the 8 confirmed-date records under --confirmed-only', () => {
+    // 06/10 : Chevening et Knight-Hennessy, confirmés, sont clos ; 10 depuis
+    // le 07/10 : Eiffel et AUC Excellence publient leurs dates 2027 (open).
+    it('publishes only the 10 confirmed-date records under --confirmed-only', () => {
       const published = SCHOLARSHIP_CATALOG_V1.records
         .map((_, index) => decidePublication(rowFromRecord(index), now, true))
         .filter((item) => item.publish);
 
-      expect(published).toHaveLength(8);
+      expect(published).toHaveLength(10);
       expect(published.every((item) => item.confidence === 'confirmed')).toBe(true);
       expect(published.map((item) => item.id)).not.toContain('mccall_macbain_2027');
     });

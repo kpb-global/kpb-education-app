@@ -351,12 +351,12 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       fundingType: 'partially_funded',
       deadlineLabel: [
-        'Échéances d’admission Fall 2027 publiées : admission anticipée le 1er février 2027, admission régulière le 1er juin 2027 — dates de bourse 2027 pas encore affichées sur la page Excellence',
-        'Fall 2027 admission deadlines published: early admission 1 February 2027, regular admission 1 June 2027 — 2027 scholarship dates not yet posted on the Excellence page',
+        'Ouvert — rentrée Fall 2027 : priorité pour les bourses les plus élevées en déposant admission, bourse et dossier de besoin financier avant le 1er février 2027 (admission anticipée) ; admission régulière jusqu’au 1er juin 2027',
+        'Open — Fall 2027 intake: priority for the highest scholarship percentages when admission, scholarship and financial need applications are submitted by 1 February 2027 (early admission); regular admission until 1 June 2027',
       ],
       description: [
-        'Programme de bourses d’excellence de l’American University in Cairo, ouvert aux candidats internationaux avec une catégorie « diversité internationale » dédiée. Les bourses reposent à la fois sur l’excellence et sur le besoin financier, et se cumulent jusqu’à 100 % des frais de scolarité. Aucune date de bourse 2027–2028 n’est publiée : la page du programme, mise à jour le 7 septembre 2026, ne liste encore que les échéances Spring 2026 et Fall 2026, tandis que la page des exigences de Licence (mise à jour le 24 septembre 2026) publie le 1er novembre pour Spring 2027, le 1er février pour l’admission anticipée Fall 2027 et le 1er juin pour l’admission régulière Fall 2027.',
-        'Excellence scholarship programme of the American University in Cairo, open to international applicants through a dedicated international diversity category. The scholarships are based on both excellence and financial need and combine up to 100% of tuition. No 2027–2028 scholarship date is published: the programme page, last updated on 7 September 2026, still lists only the Spring 2026 and Fall 2026 deadlines, while the undergraduate requirements page (updated 24 September 2026) publishes 1 November for Spring 2027, 1 February for Fall 2027 early admission and 1 June for Fall 2027 regular admission.',
+        'Programme de bourses d’excellence de l’American University in Cairo, ouvert aux candidats internationaux avec une catégorie « diversité internationale » dédiée. Les bourses reposent à la fois sur l’excellence et sur le besoin financier, et se cumulent jusqu’à 100 % des frais de scolarité. La page du programme, mise à jour le 6 octobre 2026, publie désormais les échéances de bourse Spring 2027 et Fall 2027, et la page des exigences de Licence publie le 1er novembre pour Spring 2027, le 1er février pour l’admission anticipée Fall 2027 et le 1er juin pour l’admission régulière Fall 2027.',
+        'Excellence scholarship programme of the American University in Cairo, open to international applicants through a dedicated international diversity category. The scholarships are based on both excellence and financial need and combine up to 100% of tuition. The programme page, updated on 6 October 2026, now publishes the Spring 2027 and Fall 2027 scholarship deadlines, and the undergraduate requirements page publishes 1 November for Spring 2027, 1 February for Fall 2027 early admission and 1 June for Fall 2027 regular admission.',
       ],
       advantages: [
         [
@@ -464,10 +464,12 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
       ],
       cycle: {
         academicYear: '2027-2028',
-        status: 'forecast',
-        dateConfidence: 'estimated',
-        estimatedOpenAt: '2026-11-01T00:00:00.000Z',
-        estimatedCloseAt: '2027-06-01T00:00:00.000Z',
+        // Ouvert : la page Excellence (mise à jour le 06/10/2026) publie les
+        // échéances bourse Fall 2027 et le portail de candidature est actif.
+        // Aucune date d'ouverture publiée — omise plutôt qu'inventée.
+        status: 'open',
+        dateConfidence: 'confirmed',
+        closesAt: '2027-06-01T00:00:00.000Z',
         sourceUrl: 'https://www.aucegypt.edu/admissions/undergraduate',
       },
       sources: {
@@ -486,7 +488,7 @@ export const VERIFIED_AFRICA_BACHELOR_RECORDS_V1: VerifiedScholarshipCatalogReco
         'university',
         'merit-and-need',
         'tuition',
-        'estimated-open-date',
+        'open',
       ],
       relatedFieldIds: [
         'd01',
