@@ -400,4 +400,156 @@ export const VERIFIED_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord[] = [
     tags: ['master', 'australia', 'africa', 'government', 'forecast', 'fully-funded'],
     checkedAt: '2026-09-29T12:00:00.000Z',
   }),
+  record({
+    id: 'gates_cambridge_2027',
+    levels: ['master'],
+    name: ['Bourse Gates Cambridge 2027–2028', 'Gates Cambridge Scholarship 2027–2028'],
+    country: ['gbr', 'Royaume-Uni — University of Cambridge', 'United Kingdom — University of Cambridge'],
+    levelLabel: [
+      'Master de recherche ou d’un an à temps plein (MPhil, MRes, LLM, MLitt) ou doctorat — pas de MASt, MBA ni second BA',
+      'Full-time research or one-year Master (MPhil, MRes, LLM, MLitt) or PhD — no MASt, MBA or second BA',
+    ],
+    fundingLabel: ['Financement complet', 'Fully funded'],
+    fundingType: 'fully_funded',
+    deadlineLabel: [
+      'Ouvert — tour international : 8 décembre 2026 ou 6 janvier 2027 à 23 h 59 (heure du Royaume-Uni) selon la formation, références comprises ; vérifier la date de sa formation dans le Course Directory de Cambridge',
+      'Open — international round: 8 December 2026 or 6 January 2027 at 11:59pm UK time depending on the course, references included; check your course’s date in the Cambridge Course Directory',
+    ],
+    description: [
+      'Bourse complète de la Fondation Bill & Melinda Gates pour des étudiants de tout pays hors Royaume-Uni admis en troisième cycle à l’université de Cambridge. Environ 70 bourses par an, dont deux tiers environ pour des doctorants. Il n’y a pas de formulaire séparé : on postule à la formation et à la bourse dans le même dossier du portail de candidature de Cambridge, en remplissant la partie Gates de la section financement. La date limite dépend de la formation : celle à retenir est la « Course Funding Deadline » indiquée dans le Course Directory.',
+      'Full-cost scholarship from the Bill & Melinda Gates Foundation for students from any country outside the United Kingdom admitted to a postgraduate course at the University of Cambridge. Around 70 awards a year, about two-thirds for PhD students. There is no separate form: you apply for the course and the scholarship in the same application on the Cambridge Graduate Application Portal, completing the Gates part of the funding section. The deadline depends on the course: the one that counts is the “Course Funding Deadline” shown in the Course Directory.',
+    ],
+    advantages: [
+      ['Frais universitaires de Cambridge (University Composition Fee) au tarif applicable', 'University Composition Fee at the appropriate rate'],
+      ['Allocation de vie de 23 152 £ pour 12 mois au taux 2026-2027, au prorata pour les formations plus courtes ; jusqu’à 4 ans pour un doctorat', 'Maintenance allowance of £23,152 for 12 months at the 2026-27 rate, pro rata for shorter courses; up to 4 years for a PhD'],
+      ['Un billet d’avion simple en classe économique au début et à la fin de la formation', 'One economy single airfare at both the beginning and end of the course'],
+      ['Frais de visa d’entrée et surtaxe santé (Immigration Health Surcharge)', 'Inbound visa costs and the Immigration Health Surcharge'],
+      ['Sur demande : fonds de développement académique (750 £ à 4 000 £), allocation pour enfants à charge (jusqu’à 12 793 £ par an pour un enfant), terrain, parentalité et difficultés financières — rien pour un conjoint', 'On application: academic development funding (£750 to £4,000), dependent children allowance (up to £12,793 a year for one child), fieldwork, parental leave and hardship funding — nothing for a partner'],
+      ['Réseau des boursiers Gates Cambridge ; matériel scientifique et « bench fees » non couverts', 'Gates Cambridge scholar community; scientific equipment and bench fees are not covered'],
+    ],
+    eligibility: [
+      ['Être citoyen d’un pays hors du Royaume-Uni ; les binationaux britanniques sont éligibles', 'Be a citizen of a country outside the United Kingdom; dual UK nationals are eligible'],
+      ['Postuler à un doctorat, un MLitt ou une formation d’un an à temps plein (MPhil, MRes, LLM…) ; les MASt, MBA, PGCE, PGDip, second BA et masters à temps partiel sont exclus', 'Apply for a PhD, an MLitt or a full-time one-year course (MPhil, MRes, LLM…); MASt, MBA, PGCE, PGDip, a second BA and part-time Master courses are excluded'],
+      ['Démontrer une capacité intellectuelle exceptionnelle et des raisons solides de choisir la formation', 'Show outstanding intellectual ability and strong reasons for the choice of course'],
+      ['Démontrer un engagement à améliorer la vie des autres et un potentiel de leadership', 'Show a commitment to improving the lives of others and leadership potential'],
+      ['Obtenir l’admission à la formation de Cambridge et satisfaire ses exigences d’anglais : la bourse n’exige pas de test, mais l’université oui', 'Secure admission to the Cambridge course and meet its English requirements: the scholarship sets no test, but the University does'],
+      ['Pas de moyenne minimale ; sélection sans examen des ressources (« needs-blind ») ; un second master est possible, mais on ne peut pas financer la suite d’une formation déjà commencée', 'No minimum GPA; needs-blind selection; a second Master is possible, but the remainder of a course already started cannot be funded'],
+    ],
+    requirements: [
+      ['Dossier sur le portail de candidature de Cambridge : admission à la formation, choix de college et partie Gates de la section financement', 'Application on the Cambridge Graduate Application Portal: course admission, college choice and the Gates part of the funding section'],
+      ['Quatre textes Gates : excellence académique et choix de la formation (environ 200 mots chacun), engagement envers les autres et leadership (environ 300 mots chacun)', 'Four Gates statements: academic excellence and choice of course (about 200 words each), commitment to others and leadership (about 300 words each)'],
+      ['Deux références académiques pour l’admission, plus une référence Gates sur les critères de la bourse', 'Two academic references for admission, plus a Gates reference on the scholarship criteria'],
+      ['Projet de recherche pour les candidats au doctorat uniquement', 'Research proposal for PhD applicants only'],
+      ['Test d’anglais exigé par l’université selon la formation ; les frais de dossier ne sont pas pris en charge par Gates', 'English test as required by the University for the course; the application fee is not covered by Gates'],
+      ['Dossier complet, références comprises, avant la date limite de financement de la formation', 'Complete application, references included, by the course’s funding deadline'],
+    ],
+    steps: [
+      ['Choisir la formation', 'Choose the course', 'Vérifier dans le Course Directory que la formation est éligible et relever sa « Course Funding Deadline » : 8 décembre 2026 ou 6 janvier 2027.', 'Check in the Course Directory that the course is eligible and note its Course Funding Deadline: 8 December 2026 or 6 January 2027.'],
+      ['Déposer un seul dossier', 'Submit a single application', 'Sur le portail de Cambridge, remplir l’admission, le college et la partie Gates de la section financement, avec les quatre textes et les trois référents.', 'On the Cambridge portal, complete admission, college and the Gates part of the funding section, with the four statements and three referees.'],
+      ['Nomination par le département', 'Departmental nomination', 'De décembre à février, les départements classent les candidats ; tous les candidats du tour international sont informés au plus tard le 8 mars 2027.', 'From December to February, departments rank applicants; all international-round applicants are notified by 8 March 2027.'],
+      ['Entretien et résultat', 'Interview and result', 'Entretien de 25 à 30 minutes, en personne ou à distance, devant un jury les 22 et 23 mars 2027 ; offres début avril 2027, à accepter sous 72 heures.', '25–30 minute interview, in person or online, before a panel on 22–23 March 2027; offers by early April 2027, to accept within 72 hours.'],
+    ],
+    cycle: {
+      academicYear: '2027-2028',
+      // Tour international ouvert le 11/09/2026 (page « Timeline » de Gates
+      // Cambridge ; le Course Directory indique le 9/09 pour l'ouverture des
+      // candidatures à l'université). Deux dates limites selon la formation :
+      // 08/12/2026 ou 06/01/2027, 23:59 heure du Royaume-Uni (GMT en hiver).
+      // `closesAt` retient la plus tardive ; le libellé dit de vérifier celle
+      // de sa formation. Le tour réservé aux citoyens américains résidant aux
+      // États-Unis (14/10/2026) ne concerne pas le public de l'app.
+      status: 'open',
+      dateConfidence: 'confirmed',
+      opensAt: '2026-09-10T23:00:00.000Z',
+      closesAt: '2027-01-06T23:59:00.000Z',
+      sourceUrl: 'https://www.gatescambridge.org/apply/timeline/',
+    },
+    sources: {
+      overview: 'https://www.gatescambridge.org/programme/the-scholarship/',
+      eligibility: 'https://www.gatescambridge.org/apply/eligibility/',
+      benefits: 'https://www.gatescambridge.org/programme/the-scholarship/',
+      application: 'https://www.gatescambridge.org/apply/how-to-apply/',
+      cycle: 'https://www.gatescambridge.org/apply/timeline/',
+    },
+    tags: ['master', 'uk', 'cambridge', 'university', 'open', 'fully-funded'],
+    checkedAt: '2026-10-07T11:40:00.000Z',
+  }),
+  record({
+    id: 'cmu_africa_mastercard_2027',
+    levels: ['master'],
+    name: [
+      'Carnegie Mellon University Africa — Mastercard Foundation Scholars Program, rentrée 2027',
+      'Carnegie Mellon University Africa — Mastercard Foundation Scholars Program, Fall 2027',
+    ],
+    country: ['rwa', 'Rwanda — Carnegie Mellon University Africa (Kigali)', 'Rwanda — Carnegie Mellon University Africa (Kigali)'],
+    levelLabel: [
+      'Master of Science en technologies de l’information, génie électrique et informatique, ou ingénierie de l’intelligence artificielle',
+      'Master of Science in Information Technology, Electrical and Computer Engineering, or Engineering Artificial Intelligence',
+    ],
+    fundingLabel: [
+      'Financement complet sur critères sociaux, réservé aux candidats africains admis',
+      'Full need-based funding, for admitted African applicants',
+    ],
+    fundingType: 'fully_funded',
+    deadlineLabel: [
+      'Ouvert — échéance anticipée le 15 décembre 2026 (tests de compétence pris en charge par CMU-Africa), échéance finale le 15 janvier 2027 ; aucune heure publiée. Après le 15 décembre, un score DET, IELTS ou TOEFL valide est exigé',
+      'Open — early deadline 15 December 2026 (competency test fees covered by CMU-Africa), final deadline 15 January 2027; no time published. After 15 December, a valid DET, IELTS or TOEFL score is required',
+    ],
+    description: [
+      'Carnegie Mellon University Africa, campus de Kigali de l’université américaine, est partenaire du Mastercard Foundation Scholars Program pour ses trois Masters d’ingénierie. Il n’existe ni formulaire ni date limite séparés pour la bourse : on postule d’abord à l’admission (un seul programme), puis on remplit le formulaire d’évaluation de l’aide financière qui apparaît dans le suivi du dossier. Seuls les candidats admis de nationalité africaine sont considérés. La candidature est gratuite.',
+      'Carnegie Mellon University Africa, the Kigali campus of the US university, is a Mastercard Foundation Scholars Program partner for its three engineering Master programmes. There is no separate scholarship form or deadline: you first apply for admission (one programme only), then complete the financial aid assessment form shown on your application status page. Only admitted applicants of African nationality are considered. There is no application fee.',
+    ],
+    advantages: [
+      ['Frais de scolarité entièrement couverts', 'Full tuition coverage'],
+      ['Assurance santé, voyage et frais de vie de base', 'Health insurance, travel and basic living expenses'],
+      ['Aide à la préparation de la candidature et orientation à l’arrivée', 'Application preparation support and orientation'],
+      ['Soutien aux projets et à l’entrepreneuriat', 'Project and entrepreneurship support'],
+      ['Préparation à l’emploi : salons de stages et de recrutement, coaching de carrière individuel', 'Career preparation: internship and career fairs, one-on-one career coaching'],
+      ['Formation au leadership et engagement communautaire, au sein du réseau des Mastercard Foundation Scholars', 'Leadership training and community service, within the Mastercard Foundation Scholars network'],
+    ],
+    eligibility: [
+      ['Être de nationalité africaine : seuls les admis africains sont éligibles à l’aide financière', 'Be of African nationality: only admitted African applicants are eligible for financial aid'],
+      ['Être d’abord admis à l’un des trois Masters de CMU-Africa', 'First be admitted to one of CMU-Africa’s three Master programmes'],
+      ['Démontrer un besoin financier et faire face à de fortes barrières sociales et économiques', 'Demonstrate financial need and face significant social and economic barriers'],
+      ['Montrer talent académique, engagement envers sa communauté et potentiel de leadership', 'Show academic talent, commitment to giving back to the community and leadership potential'],
+      ['Détenir une Licence, ou être en dernière année avec au moins les trois quarts du cursus validés, avec une solide base en informatique ou en ingénierie — pas de moyenne plancher, la plupart des admis ont 3,0/4 ou plus', 'Hold a Bachelor degree, or be in the final year with at least three-quarters completed, with a strong computer science or engineering background — no GPA cut-off, most admitted students have 3.0/4 or above'],
+      ['Niveau d’anglais recommandé : TOEFL 81, IELTS 6,5 ou Duolingo 120 ; GRE non exigé', 'Recommended English level: TOEFL 81, IELTS 6.5 or Duolingo 120; GRE not required'],
+    ],
+    requirements: [
+      ['Formulaire en ligne sur le portail d’admission de Carnegie Mellon, pour un seul programme', 'Online application on the Carnegie Mellon admissions portal, for one programme only'],
+      ['Essais écrits (lettre de motivation pour MS ECE ; trois essais de 300 mots au plus pour MSIT et MS EAI) et un essai vidéo', 'Written essays (statement of purpose for MS ECE; three essays of up to 300 words for MSIT and MS EAI) and a video essay'],
+      ['CV de deux pages au plus, relevés de notes non officiels avec le barème, pièce d’identité ou passeport', 'CV of up to two pages, unofficial transcripts with the grading scale, national ID or passport'],
+      ['Coordonnées de trois référents', 'Contact details of three recommenders'],
+      ['Score DET, IELTS ou TOEFL, puis test technique en ligne d’une heure envoyé sur invitation', 'DET, IELTS or TOEFL score, then a one-hour online technical test sent by invitation'],
+      ['Formulaire d’évaluation de l’aide financière, à remplir après le dépôt du dossier', 'Financial aid assessment form, to complete after submitting the application'],
+    ],
+    steps: [
+      ['Choisir un seul Master', 'Choose one Master', 'MSIT (16 à 20 mois), MS ECE (10 à 16 mois) ou MS EAI (16 à 20 mois), à temps plein à Kigali, rentrée d’automne uniquement.', 'MSIT (16–20 months), MS ECE (10–16 months) or MS EAI (16–20 months), full-time in Kigali, fall entry only.'],
+      ['Déposer avant le 15 décembre', 'Apply by 15 December', 'Soumettre le dossier complet avant l’échéance anticipée pour que CMU-Africa prenne en charge les tests ; l’échéance finale du 15 janvier 2027 exige un score d’anglais valide.', 'Submit the complete application by the early deadline so that CMU-Africa covers the test fees; the 15 January 2027 final deadline requires a valid English score.'],
+      ['Tests et aide financière', 'Tests and financial aid', 'Passer le test d’anglais et le test technique, puis remplir le formulaire d’évaluation de l’aide financière depuis la page de suivi.', 'Take the English and technical tests, then complete the financial aid assessment form from the status page.'],
+      ['Décision', 'Decision', 'Examen des dossiers de janvier à avril, décisions d’admission en avril-mai 2027, programme d’intégration de mai à août et rentrée en septembre.', 'Applications reviewed January to April, admission decisions in April–May 2027, induction programme May to August and classes from September.'],
+    ],
+    cycle: {
+      academicYear: '2027-2028',
+      // La FAQ « Updated for fall 2027 application » publie « October 1:
+      // Applications for all programs open / December 15: Early admission
+      // deadline / January 15: Final application deadline », sans année ni
+      // heure : la rentrée visée fixe 15/12/2026 et 15/01/2027. Aucune heure
+      // n'étant publiée, `closesAt` prend la fin de journée UTC ; `opensAt`
+      // est omis, l'année de l'ouverture n'étant pas écrite.
+      status: 'open',
+      dateConfidence: 'confirmed',
+      closesAt: '2027-01-15T23:59:59.000Z',
+      sourceUrl: 'https://www.africa.engineering.cmu.edu/admissions/how-to-apply/index.html',
+    },
+    sources: {
+      overview: 'https://www.africa.engineering.cmu.edu/impact/mastercard-foundation-scholars.html',
+      eligibility: 'https://www.africa.engineering.cmu.edu/admissions/faq.html',
+      benefits: 'https://www.africa.engineering.cmu.edu/impact/mastercard-foundation-scholars.html',
+      application: 'https://www.africa.engineering.cmu.edu/admissions/how-to-apply/index.html',
+      cycle: 'https://www.africa.engineering.cmu.edu/admissions/how-to-apply/index.html',
+    },
+    tags: ['master', 'africa', 'rwanda', 'mastercard-foundation', 'engineering', 'open', 'fully-funded'],
+    checkedAt: '2026-10-07T11:40:00.000Z',
+  }),
 ];

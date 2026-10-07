@@ -125,8 +125,11 @@ describe('scholarships-catalog CLI', () => {
     // Schwarzman a clos (09/09) et sa fiche est passée `closed` : elle sort des
     // publiables comme McCall avant elle — d'où 29 et 11. Puis UP Mastercard,
     // close le 30/09 à 21:59 UTC et passée `closed` : 28 et 10. Puis Chevening
-    // et Knight-Hennessy, clos le 06/10 : 26 et 8.
-    const now = new Date('2026-09-29T18:00:00.000Z');
+    // et Knight-Hennessy, clos le 06/10 : 26 et 8. Puis le 07/10 : Eiffel et
+    // AUC passent `open` (26 et 10), et Gates Cambridge et CMU-Africa entrent
+    // au catalogue, lus aux sources ce jour-là — l'horloge avance au 07/10
+    // pour que leur `verifiedAt` ne soit pas dans le futur : 28 et 12.
+    const now = new Date('2026-10-07T18:00:00.000Z');
 
     // POURQUOI CES CHIFFRES ONT CHANGÉ LE 20/08/2026 — 31 → 30 et 11 → 10.
     //
@@ -151,13 +154,13 @@ describe('scholarships-catalog CLI', () => {
     // La valeur numérique reste le critère : si quelqu'un annule la correction
     // de la porte de qualité, ce compte tombe à 25. « Les tests passent » ne
     // l'aurait pas montré.
-    it('publishes exactly the 26 eligible records of catalog 1.3.0', () => {
+    it('publishes exactly the 28 eligible records of catalog 1.3.0', () => {
       const decisions = SCHOLARSHIP_CATALOG_V1.records.map((_, index) =>
         decidePublication(rowFromRecord(index), now, false),
       );
       const published = decisions.filter((item) => item.publish).map((i) => i.id);
 
-      expect(published).toHaveLength(26);
+      expect(published).toHaveLength(28);
       expect(published).not.toContain('mccall_macbain_2027');
       expect(decisions.filter((item) => !item.publish).map((i) => i.id).sort()).toEqual([
         'chevening_2027',
@@ -176,13 +179,14 @@ describe('scholarships-catalog CLI', () => {
     // 2027 ferme). 11 depuis le 29/09 : Schwarzman, confirmé, est clos ; 10
     // depuis le 30/09 : UP Mastercard, confirmée, est close ; 8 depuis le
     // 06/10 : Chevening et Knight-Hennessy, confirmés, sont clos ; 10 depuis
-    // le 07/10 : Eiffel et AUC Excellence publient leurs dates 2027 (open).
-    it('publishes only the 10 confirmed-date records under --confirmed-only', () => {
+    // le 07/10 : Eiffel et AUC Excellence publient leurs dates 2027 (open) ;
+    // 12 le même jour : Gates Cambridge et CMU-Africa entrent, dates confirmées.
+    it('publishes only the 12 confirmed-date records under --confirmed-only', () => {
       const published = SCHOLARSHIP_CATALOG_V1.records
         .map((_, index) => decidePublication(rowFromRecord(index), now, true))
         .filter((item) => item.publish);
 
-      expect(published).toHaveLength(10);
+      expect(published).toHaveLength(12);
       expect(published.every((item) => item.confidence === 'confirmed')).toBe(true);
       expect(published.map((item) => item.id)).not.toContain('mccall_macbain_2027');
     });
