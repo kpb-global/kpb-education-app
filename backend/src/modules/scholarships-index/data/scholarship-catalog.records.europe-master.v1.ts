@@ -47,8 +47,8 @@ export const VERIFIED_EUROPE_MASTER_RECORDS_V1: VerifiedScholarshipCatalogRecord
       ],
       fundingType: 'partially_funded',
       deadlineLabel: [
-        'Ouvert — appel 2027 en cours ; dépôt par l’établissement français au plus tard le 6 janvier 2027 (la page officielle cite aussi le 8 janvier : retenir le 6)',
-        'Open — 2027 call under way; submission by the French institution by 6 January 2027 at the latest (the official page also mentions 8 January: rely on 6 January)',
+        'Ouvert — on postule auprès d’un établissement français, dont la date limite interne tombe dès fin octobre (UTBM : 28 octobre 2026) et le plus souvent en novembre ; l’établissement dépose ensuite le dossier à Campus France au plus tard le 6 janvier 2027 (la page officielle cite aussi le 8 janvier : retenir le 6)',
+        'Open — you apply through a French institution, whose internal deadline falls as early as late October (UTBM: 28 October 2026) and most often in November; the institution then submits the file to Campus France by 6 January 2027 at the latest (the official page also mentions 8 January: rely on 6 January)',
       ],
       description: [
         'Bourse du ministère de l’Europe et des Affaires étrangères, gérée par Campus France, destinée à attirer les meilleurs étudiants étrangers dans les masters et diplômes d’ingénieur français. Point décisif : la candidature est déposée uniquement par l’établissement français qui présente l’étudiant, jamais par l’étudiant lui-même — l’étudiant doit donc se faire présélectionner par un établissement, plusieurs mois avant la date limite nationale. Un volet doctorat existe mais n’est pas couvert par cette fiche.',
